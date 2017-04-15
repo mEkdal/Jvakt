@@ -26,7 +26,7 @@ public class CheckLogs {
 	static String jvport   = "1956";
 	static int port ;
     static InetAddress inet;
-	static String version = "jVakt 2.0 - CheckLogs 1.0 Date 2017-04-15_01";
+	static String version = "jVakt 2.0 - CheckLogs 1.0 Date 2017-04-15_02";
 	static String agent = null;
 	static boolean swSlut = false;
 
