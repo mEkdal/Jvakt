@@ -6,24 +6,49 @@ import javax.swing.event.*;
 import javax.swing.*;
 import javax.swing.table.*;
 import java.io.*;
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Statement;
 import java.util.*;
 
 class consoleDM extends AbstractTableModel {
 
     String afn;
-    private BufferedReader userDB;
-    private File userDBFile;
-    private String row;
-    private String[] fields;
-    String columnNames[] = {"Användarnamn", "Förnamn", "Efternamn", "hej", "hå", "till", "gruvan"};
+//    private BufferedReader userDB;
+//    private File userDBFile;
+//    private String row;
+//    private String[] fields;
+    String columnNames[] = {"Count", "Id", "Prio", "Type", "ConDate", "Status", "Body"};
     static Vector map = new Vector(100,10);
+    
+    consoleROW rad;
+    
     int i = 0;
-    private PrintStream ut ;
-    private File wrk ;
+//    private PrintStream ut ;
+//    private File wrk ;
 
+    static String DBUrl = "jdbc:postgresql://localhost:5433/Jvakt";
+	static Connection conn = null;
+
+	String version = "jVakt 2.0 - consoleDM 1.0 Date 2017-05-05_01";
+	String database = "Jvakt";
+	String dbuser   = "Jvakt";
+	String dbpassword = "xz";
+	String dbhost   = "localhost";
+	String dbport   = "5433";
+
+	String jvhost   = "localhost";
+	String jvport   = "1956";
+	
+    Boolean swDBopen = false; 
+
+
+	
     public consoleDM() throws IOException {
 
-    	openDB();
+    	if (openDB()) refreshData();
     	
     }
 
@@ -40,7 +65,7 @@ class consoleDM extends AbstractTableModel {
     }
 
     public Object getValueAt(int row, int col) {
-        // se till att objektet User hämtar vädet med rätt get metod ( if (col == 2) .........
+        // se till att objektet User hämtar värdet med rätt get metod ( if (col == 2) .........
 
     	if ( row >= map.size()) return null;
 
@@ -48,19 +73,19 @@ class consoleDM extends AbstractTableModel {
     	rad = (consoleROW) map.get(row);
     	
         if (col == 0) {
-        	return rad.getuserName();
+        	return rad.getCount();
         } else if (col == 1) {
-        	return rad.getforName();
+        	return rad.getId();
         } else if (col == 2) {
-        	return rad.getlastName();
+        	return rad.getPrio();
         } else if (col == 3) {
-        	return rad.getheight();
+        	return rad.getType();
         } else if (col == 4) {
-        	return rad.getweight();
+        	return rad.getCondat();
         } else if (col == 5) {
-        	return rad.getDOB();
+        	return rad.getStatus();
         } else if (col == 6) {
-        	return rad.getkommentar();
+        	return rad.getBody();
         } else {
             return null;
         }
@@ -84,7 +109,7 @@ class consoleDM extends AbstractTableModel {
 //            } else {
 //                return true;
 //            }
-        return true;
+        return false;
     }
 
     /*
@@ -104,77 +129,140 @@ class consoleDM extends AbstractTableModel {
     	else rad = (consoleROW) map.get(row);
 
         if (col == 0) {
-        	rad.setuserName((String)value);
+        	rad.setCount((int)value);
         } else if (col == 1) {
-        	rad.setforName((String)value);
+        	rad.setId((String)value);
         } else if (col == 2) {
-        	rad.setlastName((String)value);
+        	rad.setPrio((int)value);
         } else if (col == 3) {
-        	rad.setheight((String)value);            
+        	rad.setType((String)value);            
         } else if (col == 4) {
-        	rad.setweight((String)value);
+        	rad.setCondat((String)value);
         } else if (col == 5) {
-        	rad.setDOB((String)value);
+        	rad.setStatus((String)value);
         } else if (col == 6) {
-        	rad.setkommentar((String)value);
+        	rad.setBody((String)value);
         }
         fireTableCellUpdated(row, col);
     }
     
-    private boolean openDB() throws IOException {
-        userDBFile = new File("c:\\temp\\userDB.txt");
-        userDB = new BufferedReader(new FileReader(userDBFile));
-        i = 0;
+    public boolean openDB() {
+    	
+		try {
 
-
-        while ((row = userDB.readLine()) != null) {
-            // använd alla fäten från fields för att fylla i alla fält i User objektet
-            fields = row.split(";", 8);
-
-            consoleROW rad = new consoleROW();
-            rad.setuserName(fields[0]);
-            rad.setforName(fields[1]);
-            rad.setlastName(fields[2]);
-            rad.setheight(fields[3]);
-            rad.setweight(fields[4]);
-            rad.setDOB(fields[5]);
-            rad.setkommentar(fields[6]);
-            
-            map.add(rad);
-            
-        }
-        userDB.close();
-
-    	return true;
+			Class.forName("org.postgresql.Driver").newInstance();
+			DBUrl = "jdbc:postgresql://"+dbhost+":"+dbport+"/"+database;
+			System.out.println(DBUrl);
+			System.out.println("dbuser= " + dbuser +"  dbpassword "+ dbpassword);
+			conn = DriverManager.getConnection(DBUrl,dbuser,dbpassword);
+			conn.setAutoCommit(false);
+			swDBopen = true;
+		}
+		catch (SQLException e) {
+			System.err.println(e);
+			System.err.println(e.getMessage());
+			swDBopen = false;
+			map.clear();
+			createEmptyRow();
+		}
+		catch (Exception e) {
+			System.err.println(e);
+			System.err.println(e.getMessage());
+			swDBopen = false;
+			map.clear();
+			createEmptyRow();
+		}
+		return swDBopen;
     }
     
-    public boolean closeDB() {
-    	//skriv userDB
-        int y=0;
-        int x=0; 
-        int z=getRowCount();;
-        String s = null; 
-        try {
-        ut  = new PrintStream(new BufferedOutputStream(new FileOutputStream("c:\\temp\\userDB.txt.wrk", false))); 
-    	} catch (IOException f) { }
-        
-        for (y=0;y<z;y++) {
-    	 s = (String)getValueAt(y, 0) + ";";
-    	 if (!s.startsWith("null")) {
-         for (x=1; x<7  ;x++) {
-         	s = s + (String)getValueAt(y, x) + ";";
-         }
-         ut.println(s);
-    	 }
-        }
-        ut.close();
-        // gör delete och rename på filerna när utdata lyckosamt skrivits
-        wrk = new File("c:\\temp\\userDB.txt");
-        wrk.delete();
-        wrk = new File("c:\\temp\\userDB.txt.wrk");
-        wrk.renameTo( new File("c:\\temp\\userDB.txt"));
-         
+    public boolean getDBopen() {
+    	return swDBopen;
+    }
+    
+    public boolean refreshData() {
+    	
+    	if (!swDBopen) {
+    		if (!openDB()) return false;
+    	}
+    	
+    	try {
+		String s = new String("select * from console;"); 
+		
+		map.clear();
+		
+		System.out.println(s);
+		Statement stmt = conn.createStatement(ResultSet.CONCUR_READ_ONLY,ResultSet.TYPE_SCROLL_INSENSITIVE); 
+		stmt.setFetchSize(1000);
+		ResultSet rs = stmt.executeQuery(s);
+		
+		if (!rs.first()) {
+			createEmptyRow();
+		}
 
+		while (rs.next()) {
+//--
+			rad = new consoleROW();
+        
+		for (int i = 1; i <= 7; i++) {
+			
+            rad.setCount(rs.getInt("count"));
+            rad.setId(rs.getString("id"));
+            rad.setPrio(rs.getInt("prio"));
+            rad.setType(rs.getString("type"));
+            rad.setCondat(rs.getString("condat"));
+            rad.setStatus(rs.getString("status"));
+            rad.setBody(rs.getString("body"));
+
+		}
+        map.add(rad);
+		}
+		
+		
+		rs.close(); 
+		stmt.close();
+//		fireTableDataChanged();
+    	}
+	catch (SQLException e) {
+		System.err.println(e);
+		System.err.println(e.getMessage());
+		swDBopen = false;
+		createEmptyRow();
+	}
+	catch (Exception e) {
+		System.err.println(e);
+		System.err.println(e.getMessage());
+		swDBopen = false;
+		createEmptyRow();
+	}
+    	return true;
+    }
+   
+    private boolean createEmptyRow() {
+    	
+    		rad = new consoleROW();
+		
+            rad.setCount(0);
+            rad.setId("**<>**");
+            rad.setPrio(0);
+            rad.setType(" ");
+            rad.setCondat(" ");
+            rad.setStatus(" ");
+            rad.setBody(" ");
+            map.add(rad);
+			
+            return true;	
+    }
+
+    public boolean closeDB() {
+    
+    	try {
+    		if (swDBopen) 	conn.close();
+    	}
+    	catch (SQLException e) {
+    		System.err.println(e);
+    		System.err.println(e.getMessage());
+    		return true;
+    	}
     	return true;
     }
 }

@@ -19,6 +19,9 @@ package Jvakt;
 	import javax.swing.ListSelectionModel;
 	import javax.swing.event.ListSelectionEvent;
 	import javax.swing.event.ListSelectionListener;
+	import javax.swing.Timer;
+	import javax.swing.border.*;
+	
 
 	
 	// Extend av jframe för att få tillgång till swing metoderna i Jframe. 
@@ -33,9 +36,13 @@ package Jvakt;
 	    private JPanel logPanel;
 	    private JTable table;
 	    private JScrollPane scrollPane;
-	    private JScrollPane scrollPane2;
+	    private JButton bu1;
+//	    private JScrollPane scrollPane2;
 	    private consoleDM wD;
-
+	    private Boolean swAuto = true;
+	    private Boolean swRed = true; 
+	    private Boolean swDBopen = true; 
+	    
 	     /**
 	     * @param args the command line arguments
 	     */
@@ -43,6 +50,7 @@ package Jvakt;
 	        console mainFrame = new console();  // gör objekt av innevarande class 
 	        mainFrame.pack();                   // kallar på innevarande class metod pack som ärvts via Jframe 
 	        mainFrame.setVisible(true);  	    // kallar på innevarande class metod setVisible och nu visas fönster för användaren
+
 	    }   // main står nu och "väntar" vid slutet tills de andra objekten avslutas.
 	    
 
@@ -52,10 +60,23 @@ package Jvakt;
 	    public console() throws IOException {
 	    	
 	    	// funktion från Jframe att sätta rubrik
-	        setTitle("Jvakt consolev 2.0 alpha");
-	        //setSize(600, 200);
+	        setTitle("Jvakt console 2.0 alpha");
+//	        setSize(5000, 5000);
+	        
+	     // get the screen size as a java dimension
+	        Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
+
+	        // get 2/5 of the height, and 2/3 of the width
+	        int height = screenSize.height * 2 / 5;
+	        int width = screenSize.width * 2 / 3;
+
+	        // set the jframe height and width
+	        setPreferredSize(new Dimension(width, height));
+	        
+	        
 	    	// funktion från Jframe att sätta färg
 	        setBackground(Color.gray);
+	        setUndecorated(false);
 	    	// skapar ny Jpanel och sparar referensen i topPanel
 	        topPanel = new JPanel();
 	        // berättar för topPanel vilken layout den ska använda genom att skapa ett BorderLayout object utan namn.
@@ -70,6 +91,21 @@ package Jvakt;
 	        // skapar en Jtable och lägger till referensen till wD via Jtables contructor
 	        // table kommer att visa userDB
 	        table = new JTable(wD);
+	        
+	        JTableHeader header = table.getTableHeader();
+	        header.setBackground(Color.LIGHT_GRAY);
+	        
+	        bu1 = new JButton();
+        	swDBopen = wD.refreshData();
+       		setBu1Color();
+	        
+	        bu1.addActionListener(new ActionListener() {
+	            public void actionPerformed(ActionEvent e) {
+	            	swAuto = !swAuto;
+	            	swDBopen = wD.refreshData();
+	            	setBu1Color();
+	            }
+	          });
 
 	        // talar om för table att man bara får välja en rad i taget
 	        table.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
@@ -82,7 +118,7 @@ package Jvakt;
 	        // Använder rowSM metod för att skapa lyssnare till table för att veta vilken rad som väljs.
 	            rowSM.addListSelectionListener(new ListSelectionListener()  {
 	             // interna classens metod som tar fram vilken rad som valts
-	            	public void valueChanged(ListSelectionEvent e)  {
+	            	public void valueChanged(ListSelectionEvent e)   {
 	                // Ignore extra messages.
 	                if (e.getValueIsAdjusting())
 	                  return;
@@ -102,26 +138,87 @@ package Jvakt;
 	            
 	            
 	        // sätter automatsortering i tabellerna    
-	        table.setAutoCreateRowSorter(true);
+//	        table.setAutoCreateRowSorter(true);
 	        // talar om för tabellernas datamodellobjekt (wD o wD2) att detta objekt lyssnar; metoden tableChanged
 	        table.getModel().addTableModelListener(this);
+	        
+	        // sätter färg på raderna
+	        consoleCR cr=new consoleCR();
+	        
+	        for (int i=0; i <= 6 ; i++ ) {      
+	            table.getColumn(table.getColumnName(i)).setCellRenderer(cr);
+	            }
+	        
 	        // skapar nya JScrollPane och lägger till tabellerna via construktorn. För att kunna scrolla tabellerna.
+	                
 	        scrollPane = new JScrollPane(table);
+	        table.setAutoResizeMode(JTable.AUTO_RESIZE_ALL_COLUMNS);
+//	        table.setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
+	        
+	        TableColumn column = null;
+	        column = table.getColumnModel().getColumn(0);
+	        column.setPreferredWidth(30);
+	        column = table.getColumnModel().getColumn(1);
+	        column.setPreferredWidth(500);
+	        column = table.getColumnModel().getColumn(2);
+	        column.setPreferredWidth(30);
+	        column = table.getColumnModel().getColumn(3);
+	        column.setPreferredWidth(30);
+	        column = table.getColumnModel().getColumn(4);
+	        column.setPreferredWidth(200);
+	        column = table.getColumnModel().getColumn(5);
+	        column.setPreferredWidth(100);
+	        column = table.getColumnModel().getColumn(6);
+	        column.setPreferredWidth(900);
+	        
+	        scrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
+//	        scrollPane.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_ALWAYS);
 
 	        // skapar två nya JPanel att användas inuti topPanel, som också är en JPanel
-	        usrPanel = new JPanel();
-	        usrPanel.setLayout(new BorderLayout());
-	        logPanel = new JPanel();
-	        logPanel.setLayout(new BorderLayout());
+//	        usrPanel = new JPanel();
+//	        usrPanel.setLayout(new BorderLayout());
+//	        logPanel = new JPanel();
+//	        logPanel.setLayout(new BorderLayout());
 	        // talar om för de nya JPanels vilka scrollPanes dom ska innehålla (scrollPanes innehåller tabellerna).
-	        usrPanel.add(scrollPane, BorderLayout.CENTER);
-	        logPanel.add(scrollPane2, BorderLayout.CENTER);
-	        // talar om för topPanel att den ska innehålla tcå JPanelobjekt NORTH och CENTER       
-	        topPanel.add(usrPanel, BorderLayout.NORTH);
-	        topPanel.add(logPanel, BorderLayout.CENTER);
+//	        usrPanel.add(scrollPane, BorderLayout.CENTER);
+	        topPanel.add(scrollPane, BorderLayout.CENTER);
+	        // talar om för topPanel att den ska innehålla två JPanelobjekt NORTH och CENTER       
+//	        usrPanel.add(bu1, BorderLayout.NORTH);
+	        topPanel.add(bu1, BorderLayout.NORTH);
+//	        topPanel.add(usrPanel, BorderLayout.NORTH);
+//	        topPanel.add(logPanel, BorderLayout.CENTER);
 	        // talar om för innevarande object att den lyssnar på sig själv. (metoderna för WindowListener)
 	        addWindowListener(this);
 
+	        Timer timer = new Timer(2500, new ActionListener() {
+	            public void actionPerformed(ActionEvent e) {
+//	              button.setBackground(flag ? Color.green : Color.yellow);
+//	              flag = !flag;
+	            	if (swAuto) {
+	            	swDBopen = wD.refreshData();
+//	            	if (!swDBopen) {
+	            		setBu1Color();
+//	            	}
+//	            	table.repaint();
+//	            	
+	            	if (swRed) scrollPane.setBorder(new LineBorder(Color.RED));
+	            	else scrollPane.setBorder(new LineBorder(Color.CYAN));
+	            	swRed = !swRed;
+	            	scrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_NEVER);
+	            	scrollPane.validate();
+	            	scrollPane.repaint();
+//	            	scrollPane.setAutoscrolls(true);
+	            	scrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
+	            	
+	            	//	            	topPanel.repaint();
+//	            	pack();
+	            	  revalidate();
+	            	  repaint();	            
+	            	  }
+	            }
+	          });
+	          timer.start();
+	          
 	    } // slut construktor
 	    
 	     
@@ -138,6 +235,22 @@ package Jvakt;
 	        System.out.println(ls);
 	    }
 	 
+	     public void setBu1Color()  {
+     	if (!swDBopen) {
+    		bu1.setBackground(Color.RED);
+    		if (swAuto) bu1.setText("No connection with DB. Autoupdate ON");
+    		else 		bu1.setText("No connection with DB. Autoupdate OFF");
+//    		swAuto = false;
+    	}
+    	else if (swAuto) {
+            bu1.setBackground(Color.GRAY);
+            bu1.setText("Auto Update ON");
+    	}
+    	else {
+	              bu1.setBackground(Color.yellow);
+	              bu1.setText("Auto Update OFF");
+    	}
+	     }
 	    
 	   // windows listeners
 	   // vi implementerade WindowListener och addade "this" för att denna metod skulle anropas vid normalt avslut av Jframe 
@@ -145,6 +258,7 @@ package Jvakt;
 	     public void windowClosing(WindowEvent e) {
 	    	//skriv userDB
 	    	wD.closeDB();
+	    	System.exit(0);
 	    // ...och här är det slut i rutan..!!!... 
 	    }
 	     

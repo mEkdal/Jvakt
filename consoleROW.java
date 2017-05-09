@@ -11,79 +11,80 @@ package Jvakt;
  */
 public class consoleROW {
 
-    public String userName;
-    private String forName;
-    private String lastName;
-    private String height;
-    private String weight;
-    private String DOB;
+    public int count;
+    public String id;
+    private int prio;
+    private String type;
+    private String condat;
+    private String status;
+    private String body;
+
     public int row;
     public int col = 0;
-    private String kommentar;
 
     public consoleROW() {
-        this.userName = " ";
-        this.forName = " ";
-        this.lastName = " ";
-        this.height = " ";
-        this.weight = " ";
-        this.DOB = " ";
-        this.kommentar = " ";
+        this.count = 0;
+        this.id = " ";
+        this.prio = 3;
+        this.type = " ";
+        this.condat = " ";
+        this.status = " ";
+        this.body = " ";
     }
 
-    public String getuserName() {
-        return userName;
+    public int getCount() {
+        return count;
     }
 
-    public String getforName() {
-        return forName;
+    public String getId() {
+        return id;
     }
 
-    public String getlastName() {
-        return lastName;
+    public int getPrio() {
+        return prio;
     }
 
-    public String getheight() {
-        return height;
+    public String getType() {
+        return type;
     }
 
-    public String getweight() {
-        return weight;
+    public String getCondat() {
+        return condat;
     }
 
-    public String getDOB() {
-        return DOB;
+    public String getStatus() {
+        return status;
     }
 
-    public String getkommentar() {
-        return kommentar;
+    public String getBody() {
+        return body;
     }
 
-    public void setuserName(String userName) {
-        this.userName = userName;
+    public void setCount(int count) {
+        this.count = count;
     }
 
-    public void setforName(String forName) {
-        this.forName = forName;
+    public void setId(String id) {
+        this.id = id;
     }
 
-    public void setlastName(String lastName) {
-        this.lastName = lastName;
+    public void setPrio(int prio) {
+        this.prio = prio;
     }
 
-    public void setheight(String height) {
-        this.height = height;
+    public void setType(String type) {
+        this.type = type;
     }
 
-    public void setweight(String weight) {
-        this.weight = weight;
+    public void setCondat(String condat) {
+        this.condat = condat;
     }
 
-    public void setDOB(String DOB) {
-        this.DOB = DOB;
+    public void setStatus(String status) {
+        this.status = status;
     }
 
-    public void setkommentar(String kommentar) {
-        this.kommentar = kommentar;
+    public void setBody(String body) {
+        this.body = body;
     }
 }
