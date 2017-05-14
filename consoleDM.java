@@ -34,8 +34,8 @@ class consoleDM extends AbstractTableModel {
 
 	String version = "jVakt 2.0 - consoleDM 1.0 Date 2017-05-05_01";
 	String database = "Jvakt";
-	String dbuser   = "Jvakt";
-	String dbpassword = "xz";
+	String dbuser   = "console";
+	String dbpassword = "Jvakt";
 	String dbhost   = "localhost";
 	String dbport   = "5433";
 

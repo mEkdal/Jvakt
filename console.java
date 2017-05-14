@@ -15,7 +15,8 @@ package Jvakt;
 	import javax.swing.*;
 	import javax.swing.table.*;
 	import java.io.*;
-	import java.util.*;
+import java.sql.SQLException;
+import java.util.*;
 	import javax.swing.ListSelectionModel;
 	import javax.swing.event.ListSelectionEvent;
 	import javax.swing.event.ListSelectionListener;
@@ -42,6 +43,9 @@ package Jvakt;
 	    private Boolean swAuto = true;
 	    private Boolean swRed = true; 
 	    private Boolean swDBopen = true; 
+	    
+	    private  String host = "127.0.0.1";
+	    private  int port = 1956; 
 	    
 	     /**
 	     * @param args the command line arguments
@@ -109,6 +113,7 @@ package Jvakt;
 
 	        // talar om för table att man bara får välja en rad i taget
 	        table.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+//	        table.setSelectionMode(ListSelectionModel.MULTIPLE_INTERVAL_SELECTION);
 	        
 	        // ber table om referensen till LIstSecectionModel objektet, sparar i rowSM
 	        ListSelectionModel rowSM = table.getSelectionModel();
@@ -170,6 +175,8 @@ package Jvakt;
 	        column.setPreferredWidth(100);
 	        column = table.getColumnModel().getColumn(6);
 	        column.setPreferredWidth(900);
+	        
+	        addKeyBindings();
 	        
 	        scrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
 //	        scrollPane.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_ALWAYS);
@@ -252,6 +259,55 @@ package Jvakt;
     	}
 	     }
 	    
+	     private void addKeyBindings() {
+	         KeyStroke keyStroke = KeyStroke.getKeyStroke(KeyEvent.VK_DELETE, 0);
+	         table.getActionMap().put("delRow", delRow());
+	         table.getInputMap(JComponent.WHEN_FOCUSED).put(keyStroke, "delRow");
+	     }  
+
+	     private AbstractAction delRow()  {
+	         AbstractAction save = new AbstractAction() {
+
+	             @Override
+	             public void actionPerformed(ActionEvent e)  {
+//	                 JOptionPane.showMessageDialog(TestTableKeyBinding.this.table, "Action Triggered.");
+	                 table.editingCanceled(null);
+	                 table.editingStopped(null);
+	                 int selectedRow = table.getSelectedRow();
+	                 System.out.println("*** selectedRow do delete :" + selectedRow);
+//	                 if (selectedRow != -1) {
+//	                     ((DefaultTableModel) table.getModel()).removeRow(selectedRow);
+//	                 }
+	                 
+	                 try {
+	                 Message jmsg = new Message();
+	                 SendMsg jm = new SendMsg(host, port);
+	                 System.out.println(jm.open());
+	                 Object ValueId   = table.getValueAt(selectedRow,table.getColumnModel().getColumnIndex("Id"));
+	                 System.out.println(ValueId);
+	                 jmsg.setId(ValueId.toString());
+	                 jmsg.setRptsts("OK");
+	                 jmsg.setBody("Delete of row from GUI");
+	                 jmsg.setType("D");
+	                 jmsg.setAgent("GUI");
+	                 jm.sendMsg(jmsg);
+	                 if (jm.close()) System.out.println("-- Rpt Delivered --");
+	                 else            System.out.println("-- Rpt Failed --");
+	                 } 
+	                 catch (IOException e1) {
+	         			System.err.println(e1);
+	         			System.err.println(e1.getMessage());
+	         		}
+	         		catch (Exception e2) {
+	         			System.err.println(e2);
+	         			System.err.println(e2.getMessage());
+	         		}
+	                 
+	             }
+	         };
+	         return save;
+	     }
+	     
 	   // windows listeners
 	   // vi implementerade WindowListener och addade "this" för att denna metod skulle anropas vid normalt avslut av Jframe 
 	   // värdena i tabellerna skrivt till var sin fil
