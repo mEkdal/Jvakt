@@ -19,7 +19,8 @@ class ServerThread extends Thread {
           BufferedReader in = new BufferedReader(new InputStreamReader(client.getInputStream()));
           PrintWriter    ut = new PrintWriter(new OutputStreamWriter(client.getOutputStream()));
 //          System.out.println(version + " - " + sessnum);
-          ut.println(version + " Session: " + sessnum); 
+          dt.getStatus();
+          ut.println(dt.getStatus() + " " +version + " Session: " + sessnum); 
           ut.flush();
           String line;
           Message jm = new Message();

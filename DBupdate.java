@@ -24,7 +24,8 @@ class DBupdate {
 	int count;
 	boolean swDB = false;
 	boolean swPlugin = false;
-	boolean swDormant = false;
+	boolean swDormant = true;
+	boolean swPerm = false;
 	boolean swLoop = true;
 	
 	String database = "jVakt";
@@ -53,7 +54,10 @@ class DBupdate {
 		dbhost   = prop.getProperty("dbhost");
 		dbport   = prop.getProperty("dbport");
 		String	mode 	 =  prop.getProperty("mode");
-		if (!mode.equalsIgnoreCase("active"))  swDormant = true;
+		if (!mode.equalsIgnoreCase("active")) {  
+			swDormant = true;
+			swPerm    = true;
+		}
 		} catch (IOException ex) {
 			// ex.printStackTrace();
 		}
@@ -65,6 +69,12 @@ class DBupdate {
 
 	}
 
+	String getStatus() {
+		if (swDormant) return "DORMANT";
+		else 		   return "ACTIVE";
+		
+	}
+	
 	// public synchronized void dbWrite(Message m) throws SQLException {
 	public synchronized void dbWrite(Message m)  {
 
