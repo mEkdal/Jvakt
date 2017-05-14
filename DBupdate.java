@@ -90,9 +90,17 @@ class DBupdate {
 				swDB = true;
 			}
 
-			if ( m.getType().equalsIgnoreCase("Dormant")) { swDormant = true; System.out.println("Dormant"); }
+			if ( m.getType().equalsIgnoreCase("Dormant")) {
+				if (!swPerm) {
+				swDormant = true; System.out.println("Dormant");
+				}
+				}
 			else 
-			if ( m.getType().equalsIgnoreCase("Active")) { swDormant = false; System.out.println("Active");}
+			if ( m.getType().equalsIgnoreCase("Active")) { 
+				if (!swPerm) {
+				swDormant = false; System.out.println("Active");
+				}
+				}
 			else {
 			
 			s = new String("select * from status " + 
