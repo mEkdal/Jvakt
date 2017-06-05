@@ -36,13 +36,14 @@ int sessnum = 0;
   ServerSocket ss = new ServerSocket(port);
   DBupdate dt = new DBupdate( sessnum );
   while( true ) {
- 	  System.out.println("Server sessnum: " + sessnum);
+// 	  System.out.println("Server sessnum: " + sessnum);
   try {
                 Socket client = ss.accept();
                 sessnum++;
 //                System.out.println("Server sessnum: " + sessnum);
 //                ServerThread t = new ServerThread(client, sessnum);
-                ServerThread t = new ServerThread(client, sessnum, dt);
+//                ServerThread t = new ServerThread(client, sessnum, dt);
+                ServerThread t = new ServerThread(client, dt);
                 t.start(); 
 //                System.out.println("t started " + sessnum);
         }

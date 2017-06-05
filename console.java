@@ -43,6 +43,8 @@ import java.util.*;
 	    private Boolean swAuto = true;
 	    private Boolean swRed = true; 
 	    private Boolean swDBopen = true; 
+	    private Boolean swServer = true; 
+	    private Boolean swDormant = true; 
 	    
 	    private  String host = "127.0.0.1";
 	    private  int port = 1956; 
@@ -64,7 +66,7 @@ import java.util.*;
 	    public console() throws IOException {
 	    	
 	    	// funktion från Jframe att sätta rubrik
-	        setTitle("Jvakt console 2.0 alpha");
+	        setTitle("Jvakt console 2.0 beta");
 //	        setSize(5000, 5000);
 	        
 	     // get the screen size as a java dimension
@@ -100,7 +102,22 @@ import java.util.*;
 	        header.setBackground(Color.LIGHT_GRAY);
 	        
 	        bu1 = new JButton();
-        	swDBopen = wD.refreshData();
+	        
+	        swServer = true;
+	        try {
+	        SendMsg jm = new SendMsg(host, port);  // kollar om JvaktServer är tillgänglig.
+            System.out.println(jm.open());
+            if (jm.open().startsWith("DORMANT")) 	swDormant = true;
+            else 									swDormant = false;
+    		} 
+            catch (IOException e1) {
+           	 swServer = false;
+    			System.err.println(e1);
+    			System.err.println(e1.getMessage());
+    		}
+            System.out.println("swServer :" + swServer);
+	        
+        	swDBopen = wD.refreshData(); // kollar om DB är tillgänglig
        		setBu1Color();
 	        
 	        bu1.addActionListener(new ActionListener() {
@@ -202,6 +219,20 @@ import java.util.*;
 //	              button.setBackground(flag ? Color.green : Color.yellow);
 //	              flag = !flag;
 	            	if (swAuto) {
+	            		try {
+	            		swServer = true;
+	            		SendMsg jm = new SendMsg(host, port);  // kollar om JvaktServer är tillgänglig.
+	                    System.out.println(jm.open());	                    
+	                    if (jm.open().startsWith("DORMANT")) 	swDormant = true;
+	                    else 									swDormant = false;
+	            		} 
+		                 catch (IOException e1) {
+		                	 swServer = false;
+		         			System.err.println(e1);
+		         			System.err.println(e1.getMessage());
+		         		}
+	            		System.out.println("swServer 2 : " + swServer);
+
 	            	swDBopen = wD.refreshData();
 //	            	if (!swDBopen) {
 	            		setBu1Color();
@@ -243,20 +274,33 @@ import java.util.*;
 	    }
 	 
 	     public void setBu1Color()  {
+	    	 String txt = "";
+	     	if (swAuto) {
+	            bu1.setBackground(Color.GRAY);
+	            txt = "Auto Update ON.";
+//	            bu1.setText("Auto Update ON");
+	    	}
+	    	else {
+		              bu1.setBackground(Color.yellow);
+		              txt = "Auto Update OFF.";
+//		              bu1.setText("Auto Update OFF");
+	    	}
      	if (!swDBopen) {
     		bu1.setBackground(Color.RED);
-    		if (swAuto) bu1.setText("No connection with DB. Autoupdate ON");
-    		else 		bu1.setText("No connection with DB. Autoupdate OFF");
-//    		swAuto = false;
+//    		if (swAuto) bu1.setText("No connection with DB. Autoupdate ON");
+//    		else 		bu1.setText("No connection with DB. Autoupdate OFF");
+    		txt = txt + "  No connection with DB. ";
+
+    		//    		swAuto = false;
     	}
-    	else if (swAuto) {
-            bu1.setBackground(Color.GRAY);
-            bu1.setText("Auto Update ON");
+     	if (!swServer) {
+    		bu1.setBackground(Color.RED);
+    		txt = txt + "  No connection with JvaktServer. ";
     	}
-    	else {
-	              bu1.setBackground(Color.yellow);
-	              bu1.setText("Auto Update OFF");
-    	}
+     	else if (swDormant) txt = txt + "  System DORMANT.";
+   	          else txt = txt +  "  System ACTIVE.";
+
+    	bu1.setText(txt);
 	     }
 	    
 	     private void addKeyBindings() {
