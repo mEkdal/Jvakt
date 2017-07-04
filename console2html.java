@@ -2,6 +2,7 @@ package Jvakt;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.sql.*;
 import java.util.*;
@@ -25,9 +26,9 @@ public class console2html {
 	static int warnings = 0;
 	static int infos = 0;
 	static String version = "CheckStatus 1.0 Date 2017-02-05_01";
-	static String database = "jVakt";
-	static String dbuser   = "jVakt";
-	static String dbpassword = "xz";
+	static String database = "Jvakt";
+	static String dbuser   = "console";
+	static String dbpassword = "Jvakt";
 	static String dbhost   = "localhost";
 	static String dbport   = "5433";
 	static String jvhost   = "localhost";
@@ -39,25 +40,9 @@ public class console2html {
     {
 
     now = new Date();
+    getProps();
+    DBUrl = "jdbc:postgresql://"+dbhost+":"+dbport+"/"+database;
     
-	Properties prop = new Properties();
-	InputStream input = null;
-	try {
-	input = new FileInputStream("jVakt.properties");
-	prop.load(input);
-	// get the property value and print it out
-	database = prop.getProperty("database");
-	dbuser   = prop.getProperty("dbuser");
-	dbpassword = prop.getProperty("dbpassword");
-	dbhost   = prop.getProperty("dbhost");
-	dbport   = prop.getProperty("dbport");
-	jvport   = prop.getProperty("jvport");
-	jvhost   = prop.getProperty("jvhost");
-	input.close();
-	} catch (IOException ex) {
-		// ex.printStackTrace();
-	}
-
 	String head   = "<html><head>  <TITLE>jVakt - CONSOLE - System Status</TITLE> <meta http-equiv=\"refresh\" content=\"60\">  </head> <body>";
 	String foot   = "</body></html>";
 	String tblStr = "<TABLE COLS=7 BORDER=8 cellpadding=\"5\" width=\"100%\"  >"; 
@@ -166,5 +151,26 @@ public class console2html {
 
 	System.exit (0);
     }
-    
+	
+    static void getProps() {
+
+    	Properties prop = new Properties();
+    	InputStream input = null;
+    	try {
+    	input = new FileInputStream("console.properties");
+    	prop.load(input);
+    	// get the property value and print it out
+    	database = prop.getProperty("database");
+    	dbuser   = prop.getProperty("dbuser");
+    	dbpassword = prop.getProperty("dbpassword");
+    	dbhost   = prop.getProperty("dbhost");
+    	dbport   = prop.getProperty("dbport");
+    	jvport   = prop.getProperty("jvport");
+    	jvhost   = prop.getProperty("jvhost");
+    	input.close();
+    	} catch (IOException ex) {
+    		// ex.printStackTrace();
+    	}
+    	
+	}
 }
