@@ -108,24 +108,28 @@ class DBupdate {
 						swPlugin = false;
 						sType = rs.getString("type");
 						System.out.println("sType 1 " + sType );
-						if ( m.getType().equalsIgnoreCase("P")) {
-							if (rs.getString("msg").equals("T")) status = "time-out";
-							else 								 status = rs.getString("status");
-							swPlugin = true;
-						}
+//						if ( m.getType().equalsIgnoreCase("P")) {
+//							if (rs.getString("msg").equals("T")) status = "time-out";
+//							else 								 status = rs.getString("status");
+//							swPlugin = true;
+//						}
 						rs.updateTimestamp("rptdat", new java.sql.Timestamp(new java.util.Date().getTime())); 
 						rs.updateString("status", m.getRptsts().toUpperCase());
 						rs.updateString("body", m.getBody());
 						errors = rs.getInt(10);
 						errors++;
 						accerr = rs.getInt("accerr");
+						
+						// update the errors column
 						if (m.getRptsts().toUpperCase().equals("OK") || m.getRptsts().toUpperCase().equals("INFO")) rs.updateInt("errors", 0); 
 						else                                          rs.updateInt("errors", errors);
+						
 						if ( m.getType().equalsIgnoreCase("D")) {
 							rs.updateString("console", " ");
 							rs.updateString("msg", " ");
 							rs.updateString("condat", null);					
 						}
+						
 						if ( rs.getString("type").equalsIgnoreCase("I") && m.getRptsts().toUpperCase().equals("ERR") && errors > accerr) {
 							rs.updateString("console", "C");
 							rs.updateTimestamp("condat", new java.sql.Timestamp((new Date(System.currentTimeMillis())).getTime()));
@@ -136,6 +140,8 @@ class DBupdate {
 								status = rs.getString("status");
 							}
 						}
+						
+						// trigger the background process used for the plugin.
 						if (swPlugin && !swDormant) {
 							if (!rs.getString("plugin").startsWith(" ")) {
 								System.out.println("plugin " + rs.getString("plugin") + " " + rs.getString("id")+ " " + rs.getString("prio")+ " " + status + " \"" + rs.getString("body")+"\"");
@@ -143,12 +149,13 @@ class DBupdate {
 								pList.add(p);
 							}
 						}
+						
 						try { rs.updateRow(); } catch(NullPointerException npe2) {} 
 					}
 					rs.close(); 
 					stmt.close();
 
-					//€newrecord. Not found before thus create a new record in the status table
+					//€newrecord. Not found before, thus create a new record in the status table
 					if ( !swHits ) {   
 
 						PreparedStatement st = conn.prepareStatement("INSERT INTO status (state,id,prio,type,status,body,rptdat,chkday,chktim,errors,accerr,msg,msgdat,console,condat,info,plugin,agent) "
@@ -184,6 +191,8 @@ class DBupdate {
 						st.close();
 					} // €newrecord      
 
+					
+					// remove process used for plugin from list
 					Iterator<Process> pIte = pList.iterator();
 					while (pIte.hasNext()) {
 						try { 
@@ -198,7 +207,6 @@ class DBupdate {
 
 
 					// €console ** Immediate or delete type cause an update to the console table at once.
-
 					if ( sType.equalsIgnoreCase("I") || m.getType().equalsIgnoreCase("D") ) {   
 						System.out.println(">>> Type  >>>>: " + m.getType().toUpperCase());
 						System.out.println(">>> sType >>>>: " + sType);

@@ -63,7 +63,7 @@ public class RptToJv {
 			System.out.println("-info \t -> sts=INFO");
 			System.out.println("-sts  \t - default is OK");
 			System.out.println("-body \t - Any descriptive text");
-			System.out.println("-type \t - R=repetetive I=immediate S=scheduled D=delete P=plugin A=active");
+			System.out.println("-type \t - R=repetetive I=immediate S=scheduled D=delete A=active");
 			System.exit(4);
 		}
 

@@ -25,7 +25,7 @@ public class console2html {
 	static int errors = 0;
 	static int warnings = 0;
 	static int infos = 0;
-	static String version = "CheckStatus 1.0 Date 2017-02-05_01";
+	static String version = "CheckStatus 2.0 Date 2017-02-05_01";
 	static String database = "Jvakt";
 	static String dbuser   = "console";
 	static String dbpassword = "Jvakt";
@@ -47,7 +47,7 @@ public class console2html {
 	String foot   = "</body></html>";
 	String tblStr = "<TABLE COLS=7 BORDER=8 cellpadding=\"5\" width=\"100%\"  >"; 
 	String tblEnd = "</TABLE>";
-	String tblHdr = "<TH>Count</TH> <TH>Id</TH> <TH>Prio</TH> <TH>Type</TH> <TH>Condat</TH>  <TH>Status</TH>  <TH>Body "+ now +" (v2.0)" + "</TH>"; 
+	String tblHdr = "<TH>Count</TH> <TH>Id</TH> <TH>Prio</TH> <TH>Type</TH> <TH>Condat</TH>  <TH>Status</TH>  <TH>Body - "+ now +" </TH>"; 
 	String hdrStrG = "<TH BGCOLOR=\"#00FF00\"><FONT SIZE=5>"; // Green
 	String hdrStrY = "<TH BGCOLOR=\"#FFFF00\"><FONT SIZE=5>"; // Yellow
 	String hdrStrR = "<TH BGCOLOR=\"#FF6600\"><FONT SIZE=5>"; // Red
