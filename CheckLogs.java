@@ -66,7 +66,7 @@ public class CheckLogs {
 		}
 
 		if (args.length < 1) {
-			System.out.println("\nCeckLogs 2.0 Date 2017-04-15_01");
+			System.out.println("\nCheckLogs 2.0 Date 2017-04-15_01");
 			System.out.println("by Michael Ekdal Sweden.\n");
 
 			System.out.println("\nThe parameters and their meaning are:\n"+

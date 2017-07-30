@@ -76,8 +76,9 @@ public class console2html {
 		DBUrl = "jdbc:postgresql://"+dbhost+":"+dbport+"/"+database;
 		conn = DriverManager.getConnection(DBUrl,dbuser,dbpassword);
 		conn.setAutoCommit(true);
-	    query = new String("select * from console;"); 
-		stmt = conn.createStatement(ResultSet.CONCUR_UPDATABLE,ResultSet.TYPE_SCROLL_INSENSITIVE); 
+	    query = new String("select * from console order by credat desc;"); 
+//		stmt = conn.createStatement(ResultSet.CONCUR_UPDATABLE,ResultSet.TYPE_SCROLL_INSENSITIVE);
+		stmt = conn.createStatement(ResultSet.CONCUR_UPDATABLE,ResultSet.TYPE_FORWARD_ONLY,ResultSet.CLOSE_CURSORS_AT_COMMIT );
 		stmt.setFetchSize(1000);
 		ResultSet rs = stmt.executeQuery(query);
 
@@ -86,11 +87,12 @@ public class console2html {
 		    swFound = true;
 	    	System.out.println (rowStr);
 
-		for (int i = 1; i <= 7; i++) {
+		for (int i = 1; i <= 8; i++) {
+			if (i==6) continue;  // not interested in showing credat
 		    value = rs.getString (i);
   		       
-		    if (rs.getInt("prio") < 3 && rs.getString("status").contentEquals("ERR")) System.out.println (boxStrM);
-		    else if (rs.getInt("prio") >= 3 && rs.getString("status").contentEquals("ERR")) System.out.println (boxStrR);
+		    if (rs.getInt("prio") < 30 && rs.getString("status").contentEquals("ERR")) System.out.println (boxStrM);
+		    else if (rs.getInt("prio") >= 30 && rs.getString("status").contentEquals("ERR")) System.out.println (boxStrR);
 		    else if (rs.getString("status").contentEquals("INFO")) System.out.println (boxStrB);
 		    else if (rs.getString("status").startsWith("Tim")) System.out.println (boxStrY);
 		    else if (rs.getString("status").contentEquals("OK"))		System.out.println (boxStrG); 

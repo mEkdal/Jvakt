@@ -39,13 +39,18 @@ public class console extends JFrame implements TableModelListener, WindowListene
 	//	    private JScrollPane scrollPane2;
 	private consoleDM wD;
 	private Boolean swAuto = true;
+	//	private Boolean swAuto = false;
 	private Boolean swRed = true; 
 	private Boolean swDBopen = true; 
 	private Boolean swServer = true; 
 	private Boolean swDormant = true; 
 
-	private  String host = "127.0.0.1";
+	//	private  String host = "193.234.149.176";
+	private  String jvhost = "127.0.0.1";
+	private  String jvport = "1956";
 	private  int port = 1956; 
+
+	private  int deselectCount = 0; 
 
 	/**
 	 * @param args the command line arguments
@@ -63,8 +68,12 @@ public class console extends JFrame implements TableModelListener, WindowListene
 	// kallar också på metoder ärvda från Jframe att sätta vissa värden.
 	public console() throws IOException {
 
+		// get the parameters from the console.properties file
+		getProps();
+		port = Integer.parseInt(jvport);
+
 		// funktion från Jframe att sätta rubrik
-		setTitle("Jvakt console 2.0 beta");
+		setTitle("Jvakt console 2.6 beta");
 		//	        setSize(5000, 5000);
 
 		// get the screen size as a java dimension
@@ -98,12 +107,13 @@ public class console extends JFrame implements TableModelListener, WindowListene
 
 		JTableHeader header = table.getTableHeader();
 		header.setBackground(Color.LIGHT_GRAY);
+//		header.setBackground(Color.white);
 
 		bu1 = new JButton();
 
 		swServer = true;
 		try {
-			SendMsg jm = new SendMsg(host, port);  // kollar om JvaktServer är tillgänglig.
+			SendMsg jm = new SendMsg(jvhost, port);  // kollar om JvaktServer är tillgänglig.
 			System.out.println(jm.open());
 			if (jm.open().startsWith("DORMANT")) 	swDormant = true;
 			else 									swDormant = false;
@@ -113,7 +123,7 @@ public class console extends JFrame implements TableModelListener, WindowListene
 			System.err.println(e1);
 			System.err.println(e1.getMessage());
 		}
-		System.out.println("swServer :" + swServer);
+//		System.out.println("swServer :" + swServer);
 
 		swDBopen = wD.refreshData(); // kollar om DB är tillgänglig
 		setBu1Color();
@@ -127,8 +137,8 @@ public class console extends JFrame implements TableModelListener, WindowListene
 		});
 
 		// talar om för table att man bara får välja en rad i taget
-		table.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
-		//	        table.setSelectionMode(ListSelectionModel.MULTIPLE_INTERVAL_SELECTION);
+		//		table.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+		table.setSelectionMode(ListSelectionModel.MULTIPLE_INTERVAL_SELECTION);
 
 		// ber table om referensen till LIstSecectionModel objektet, sparar i rowSM
 		ListSelectionModel rowSM = table.getSelectionModel();
@@ -149,6 +159,7 @@ public class console extends JFrame implements TableModelListener, WindowListene
 				} else {
 					int selectedRow = lsm.getMinSelectionIndex();
 					System.out.println("Row " + selectedRow + " is now selected.");
+					deselectCount = 0;
 				}
 			}
 
@@ -216,11 +227,16 @@ public class console extends JFrame implements TableModelListener, WindowListene
 			public void actionPerformed(ActionEvent e) {
 				//	              button.setBackground(flag ? Color.green : Color.yellow);
 				//	              flag = !flag;
+				if (deselectCount > 10 ) {
+					table.getSelectionModel().clearSelection();  // clear selected rows.
+					deselectCount = 0;
+				}
+				deselectCount++;
 				if (swAuto) {
 					try {
 						swServer = true;
-						SendMsg jm = new SendMsg(host, port);  // kollar om JvaktServer är tillgänglig.
-						System.out.println(jm.open());	                    
+						SendMsg jm = new SendMsg(jvhost, port);  // kollar om JvaktServer är tillgänglig.
+//						System.out.println(jm.open());	                    
 						if (jm.open().startsWith("DORMANT")) 	swDormant = true;
 						else 									swDormant = false;
 					} 
@@ -229,7 +245,7 @@ public class console extends JFrame implements TableModelListener, WindowListene
 						System.err.println(e1);
 						System.err.println(e1.getMessage());
 					}
-					System.out.println("swServer 2 : " + swServer);
+//					System.out.println("swServer 2 : " + swServer);
 
 					swDBopen = wD.refreshData();
 					//	            	if (!swDBopen) {
@@ -275,6 +291,7 @@ public class console extends JFrame implements TableModelListener, WindowListene
 		String txt = "";
 		if (swAuto) {
 			bu1.setBackground(Color.GRAY);
+//			bu1.setBackground(Color.LIGHT_GRAY);
 			txt = "Auto Update ON.";
 			//	            bu1.setText("Auto Update ON");
 		}
@@ -302,9 +319,12 @@ public class console extends JFrame implements TableModelListener, WindowListene
 	}
 
 	private void addKeyBindings() {
-		KeyStroke keyStroke = KeyStroke.getKeyStroke(KeyEvent.VK_DELETE, 0);
 		table.getActionMap().put("delRow", delRow());
+		KeyStroke keyStroke = KeyStroke.getKeyStroke(KeyEvent.VK_BACK_SPACE, 0);  // delete key in mac
 		table.getInputMap(JComponent.WHEN_FOCUSED).put(keyStroke, "delRow");
+		keyStroke = KeyStroke.getKeyStroke(KeyEvent.VK_DELETE, 0);  // delete key in win linux
+		table.getInputMap(JComponent.WHEN_FOCUSED).put(keyStroke, "delRow");
+		
 	}  
 
 	private AbstractAction delRow()  {
@@ -315,26 +335,41 @@ public class console extends JFrame implements TableModelListener, WindowListene
 				//	                 JOptionPane.showMessageDialog(TestTableKeyBinding.this.table, "Action Triggered.");
 				table.editingCanceled(null);
 				table.editingStopped(null);
-				int selectedRow = table.getSelectedRow();
-				System.out.println("*** selectedRow do delete :" + selectedRow);
+				//				int selectedRow = table.getSelectedRow();
+				int[] selectedRow = table.getSelectedRows();
+
+//				for (int i = 0; i <  selectedRow.length; i++) {
+//					System.out.println("*** Row do delete :" + selectedRow[i]);
+//				}
+
 				//	                 if (selectedRow != -1) {
 				//	                     ((DefaultTableModel) table.getModel()).removeRow(selectedRow);
 				//	                 }
 
 				try {
-					Message jmsg = new Message();
-					SendMsg jm = new SendMsg(host, port);
-					System.out.println(jm.open());
-					Object ValueId   = table.getValueAt(selectedRow,table.getColumnModel().getColumnIndex("Id"));
-					System.out.println(ValueId);
-					jmsg.setId(ValueId.toString());
-					jmsg.setRptsts("OK");
-					jmsg.setBody("Delete of row from GUI");
-					jmsg.setType("D");
-					jmsg.setAgent("GUI");
-					jm.sendMsg(jmsg);
-					if (jm.close()) System.out.println("-- Rpt Delivered --");
-					else            System.out.println("-- Rpt Failed --");
+					for (int i = 0; i <  selectedRow.length; i++) {
+						System.out.println("*** Row do delete :" + selectedRow[i]);
+						Message jmsg = new Message();
+						SendMsg jm = new SendMsg(jvhost, port);
+						System.out.println(jm.open());
+						Object ValueId   = table.getValueAt(selectedRow[i],table.getColumnModel().getColumnIndex("Id"));
+						System.out.println(ValueId);
+						jmsg.setId(ValueId.toString());
+						jmsg.setRptsts("OK");
+//						jmsg.setBody("Delete of row from GUI");
+						ValueId   = table.getValueAt(selectedRow[i],table.getColumnModel().getColumnIndex("Body"));
+						System.out.println(ValueId);
+						jmsg.setBody(ValueId.toString());
+//						jmsg.setBody("Delete of row from GUI");
+						ValueId   = table.getValueAt(selectedRow[i],table.getColumnModel().getColumnIndex("Prio"));
+						System.out.println(ValueId);
+						jmsg.setPrio(Integer.parseInt(ValueId.toString()));
+						jmsg.setType("D");
+						jmsg.setAgent("GUI");
+						jm.sendMsg(jmsg);
+						if (jm.close()) System.out.println("-- Rpt Delivered --");
+						else            System.out.println("-- Rpt Failed --");
+					}
 				} 
 				catch (IOException e1) {
 					System.err.println(e1);
@@ -344,7 +379,7 @@ public class console extends JFrame implements TableModelListener, WindowListene
 					System.err.println(e2);
 					System.err.println(e2.getMessage());
 				}
-
+				table.getSelectionModel().clearSelection();  // clear selected rows.
 			}
 		};
 		return save;
@@ -359,6 +394,23 @@ public class console extends JFrame implements TableModelListener, WindowListene
 		System.exit(0);
 		// ...och här är det slut i rutan..!!!... 
 	}
+
+	void getProps() {
+
+		Properties prop = new Properties();
+		InputStream input = null;
+		try {
+			input = new FileInputStream("console.properties");
+			prop.load(input);
+			// get the property value and print it out
+			jvport   = prop.getProperty("jvport");
+			jvhost   = prop.getProperty("jvhost");
+			input.close();
+		} catch (IOException ex) {
+			// ex.printStackTrace();
+		}    	
+	}
+
 
 	// vi implementerade WindowListener men följande metoder avänds inte 
 	public void windowClosed(WindowEvent e) {    }

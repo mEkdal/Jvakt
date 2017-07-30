@@ -2,9 +2,9 @@ package Jvakt;
 import java.io.*;
 import java.util.*;
 
-import org.icmp4j.IcmpPingRequest;
-import org.icmp4j.IcmpPingResponse;
-import org.icmp4j.IcmpPingUtil;
+//import org.icmp4j.IcmpPingRequest;
+//import org.icmp4j.IcmpPingResponse;
+//import org.icmp4j.IcmpPingUtil;
 
 import java.net.*;
 

@@ -6,7 +6,7 @@ import java.util.Properties;
 public class RptToJv {
 	public static void main(String[] args ) throws IOException, UnknownHostException {
 
-		String version = "RptToDW 1.0 Date 2017-02-01_01";
+		String version = "RptToDW 1.1 Date 2017-07-20";
 		String host = "127.0.0.1";
 		int port = 1956; 
 		String id = null;
@@ -14,8 +14,9 @@ public class RptToJv {
 		String body = null;
 		String agent = null;
 		String type = "R";  // repeating
+		String prio = "30";  
 		InetAddress inet;
-
+ 
 		String jvport   = "1956";
 		String jvhost   = "127.0.0.1";
 
@@ -50,6 +51,7 @@ public class RptToJv {
 			else if (args[i].equalsIgnoreCase("-ok")) status = "OK";
 			else if (args[i].equalsIgnoreCase("-err")) status = "ERR";
 			else if (args[i].equalsIgnoreCase("-info")) status = "INFO";
+			else if (args[i].equalsIgnoreCase("-prio")) prio = args[++i];
 		}
 
 		if (args.length < 1 || id == null) {
@@ -63,7 +65,7 @@ public class RptToJv {
 			System.out.println("-info \t -> sts=INFO");
 			System.out.println("-sts  \t - default is OK");
 			System.out.println("-body \t - Any descriptive text");
-			System.out.println("-type \t - R=repetetive I=immediate S=scheduled D=delete A=active");
+			System.out.println("-type \t - R=repetetive I=immediate S=scheduled D=delete");
 			System.exit(4);
 		}
 
@@ -71,7 +73,7 @@ public class RptToJv {
 			System.out.println(">>> Failure! The -id switch must contain a value! <<<");
 			System.exit(8);
 		}
-		if (!type.toUpperCase().equals("R") && !type.toUpperCase().equals("I") && !type.toUpperCase().equals("S") && !type.toUpperCase().equals("D") && !type.toUpperCase().equals("P") && !type.equalsIgnoreCase("Active") && !type.equalsIgnoreCase("Dormant")  ) {
+		if (!type.toUpperCase().equals("R") && !type.toUpperCase().equals("I") && !type.toUpperCase().equals("S") && !type.toUpperCase().equals("D") && !type.equalsIgnoreCase("Active") && !type.equalsIgnoreCase("Dormant")  ) {
 			System.out.println(">>> Failure! The type must be R, I, S or D <<<");
 			System.exit(8);
 		}
@@ -90,6 +92,7 @@ public class RptToJv {
 		jmsg.setBody(body);
 		jmsg.setType(type);
 		jmsg.setAgent(agent);
+		jmsg.setPrio( Integer.parseInt(prio) );
 		jm.sendMsg(jmsg);
 		if (jm.close()) System.out.println("-- Rpt Delivered --");
 		else            System.out.println("-- Rpt Failed --");

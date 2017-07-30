@@ -5,6 +5,8 @@ import java.util.*;
 import java.util.Date;
 import java.sql.*;
 import java.text.SimpleDateFormat;
+import java.time.LocalDateTime;
+
 import org.postgresql.util.PSQLException;
 
 class DBupdate {
@@ -72,6 +74,7 @@ class DBupdate {
 	public synchronized void dbWrite(Message m)  {
 
 		String sType = "";
+		int sPrio = 99;
 
 		try {
 
@@ -99,37 +102,49 @@ class DBupdate {
 							"WHERE id ilike '" + m.getId().toUpperCase() + 
 							"';");
 
-					stmt = conn.createStatement(ResultSet.CONCUR_UPDATABLE,ResultSet.TYPE_SCROLL_INSENSITIVE); 
-					stmt.setFetchSize(50);
+//					stmt = conn.createStatement(ResultSet.CONCUR_UPDATABLE,ResultSet.TYPE_SCROLL_INSENSITIVE);
+					stmt = conn.createStatement(ResultSet.CONCUR_UPDATABLE,ResultSet.TYPE_FORWARD_ONLY,ResultSet.CLOSE_CURSORS_AT_COMMIT ); 
+					stmt.setFetchSize(500);
 					ResultSet rs = stmt.executeQuery(s);
 					swHits = false;  // is there already a record?
 					while (rs.next() && swLoop) {
 						swHits = true;  // A record is already in place
 						swPlugin = false;
 						sType = rs.getString("type");
-						System.out.println("sType 1 " + sType );
-//						if ( m.getType().equalsIgnoreCase("P")) {
-//							if (rs.getString("msg").equals("T")) status = "time-out";
-//							else 								 status = rs.getString("status");
-//							swPlugin = true;
-//						}
+						sPrio = rs.getInt("prio");
+						System.out.println(LocalDateTime.now()+" #1 " + rs.getString("id") + "  "  + sType + " " + rs.getString("status")+"->"+ m.getRptsts().toUpperCase() );
+						//						if ( m.getType().equalsIgnoreCase("P")) {
+						//							if (rs.getString("msg").equals("T")) status = "time-out";
+						//							else 								 status = rs.getString("status");
+						//							swPlugin = true;
+						//						}
 						rs.updateTimestamp("rptdat", new java.sql.Timestamp(new java.util.Date().getTime())); 
 						rs.updateString("status", m.getRptsts().toUpperCase());
 						rs.updateString("body", m.getBody());
+						if (rs.getString("type").startsWith("D")) {
+							rs.updateString("type", m.getType().toUpperCase());
+							sType = m.getType().toUpperCase();
+							//							System.out.println("sType 2 " + sType );
+						}
+						if (rs.getString("type").startsWith("I")) rs.updateInt("prio", m.getPrio());
+
 						errors = rs.getInt(10);
 						errors++;
 						accerr = rs.getInt("accerr");
-						
+
 						// update the errors column
 						if (m.getRptsts().toUpperCase().equals("OK") || m.getRptsts().toUpperCase().equals("INFO")) rs.updateInt("errors", 0); 
 						else                                          rs.updateInt("errors", errors);
-						
+
 						if ( m.getType().equalsIgnoreCase("D")) {
 							rs.updateString("console", " ");
-							rs.updateString("msg", " ");
+							if (rs.getString("msg").startsWith("M")) rs.updateString("msg", " ");
+							else if (rs.getString("msg").startsWith("T")) rs.updateString("msg", " ");
+							else if (rs.getString("msg").startsWith("S")) rs.updateString("msg", "R");
+							if (rs.getString("type").startsWith("I")) rs.updateString("type", "D");
 							rs.updateString("condat", null);					
 						}
-						
+
 						if ( rs.getString("type").equalsIgnoreCase("I") && m.getRptsts().toUpperCase().equals("ERR") && errors > accerr) {
 							rs.updateString("console", "C");
 							rs.updateTimestamp("condat", new java.sql.Timestamp((new Date(System.currentTimeMillis())).getTime()));
@@ -140,20 +155,20 @@ class DBupdate {
 								status = rs.getString("status");
 							}
 						}
-						
-						// trigger the background process used for the plugin.
-						if (swPlugin && !swDormant) {
+
+						// trigger the background process for the plugin.
+						if (swPlugin && !swDormant && !rs.getString("type").startsWith("D")) {
 							if (!rs.getString("plugin").startsWith(" ")) {
 								System.out.println("plugin " + rs.getString("plugin") + " " + rs.getString("id")+ " " + rs.getString("prio")+ " " + status + " \"" + rs.getString("body")+"\"");
 								p =  Runtime.getRuntime().exec(rs.getString("plugin") + " " + rs.getString("id")+ " " + rs.getString("prio")+ " " + status + " \"" + rs.getString("body")+"\"");
 								pList.add(p);
 							}
 						}
-						
+
 						try { rs.updateRow(); } catch(NullPointerException npe2) {} 
 					}
 					rs.close(); 
-					stmt.close();
+					stmt.close(); 
 
 					//€newrecord. Not found before, thus create a new record in the status table
 					if ( !swHits ) {   
@@ -162,7 +177,7 @@ class DBupdate {
 								+ "values (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)");
 						st.setString(1,"A"); // sts
 						st.setString(2,m.getId() ); 
-						st.setInt(3,3); // prio
+						st.setInt(3,m.getPrio()); // prio
 						st.setString(4,m.getType().toUpperCase() ); // type
 						sType = m.getType().toUpperCase();
 						st.setString(5,m.getRptsts().toUpperCase() ); 
@@ -170,7 +185,9 @@ class DBupdate {
 
 						st.setTimestamp(7, new java.sql.Timestamp((new Date(System.currentTimeMillis())).getTime())); // rptdat
 						st.setString(8,"*ALL" ); // chkday
-						st.setTime(9, new java.sql.Time((new Date(System.currentTimeMillis())).getTime())); // chktim
+						//						st.setTime(9, new java.sql.Time((new Date(System.currentTimeMillis())).getTime())); // chktim
+						if (m.getPrio() < 10 )	st.setTime(9, new java.sql.Time(00 ,00,00)); // chktim
+						else 					st.setTime(9, new java.sql.Time(06 ,00,00)); // chktim
 						if (m.getRptsts().toUpperCase().equals("OK") || m.getRptsts().toUpperCase().equals("INFO")) st.setInt(10,0); // errors 
 						else                                          st.setInt(10,1); 
 						st.setInt(11,0); // acceptable errors 
@@ -191,7 +208,7 @@ class DBupdate {
 						st.close();
 					} // €newrecord      
 
-					
+
 					// remove process used for plugin from list
 					Iterator<Process> pIte = pList.iterator();
 					while (pIte.hasNext()) {
@@ -208,45 +225,69 @@ class DBupdate {
 
 					// €console ** Immediate or delete type cause an update to the console table at once.
 					if ( sType.equalsIgnoreCase("I") || m.getType().equalsIgnoreCase("D") ) {   
-						System.out.println(">>> Type  >>>>: " + m.getType().toUpperCase());
-						System.out.println(">>> sType >>>>: " + sType);
+						System.out.println(">>> Con  m.Type  >>>>: " + m.getType().toUpperCase());
+						System.out.println(">>> Con rs.sType >>>>: " + sType);
 
 						// read and remove previous line from the console table and save the count field
-						if ( sType.equalsIgnoreCase("I") && !m.getType().equalsIgnoreCase("D") && !m.getId().equalsIgnoreCase("SYSSTS") ) {
+						//						if ( sType.equalsIgnoreCase("I") && !m.getType().equalsIgnoreCase("D") && !m.getId().equalsIgnoreCase("SYSSTS") ) {
+						if ( sType.equalsIgnoreCase("I") && !m.getType().equalsIgnoreCase("D") ) {
 							s = new String("select * from console " + 
 									"WHERE id ilike '" + m.getId() + 
 									"' and type='" + sType.toUpperCase() +
 									"' and body ilike '" + m.getBody() +
 									"';");
-						} else {
+							System.out.println(s);
+						} else {  // delete
 							s = new String("select * from console " + 
 									"WHERE id ilike '" + m.getId() + 
-									"';");					
+									"' AND body ilike '" + m.getBody() +
+									"' and prio='" + Integer.toString(m.getPrio()) +
+									"';");
+							System.out.println(s);
 						}
 
-						stmt = conn.createStatement(ResultSet.CONCUR_UPDATABLE,ResultSet.TYPE_SCROLL_INSENSITIVE); 
-						stmt.setFetchSize(50);
+//						stmt = conn.createStatement(ResultSet.CONCUR_UPDATABLE,ResultSet.TYPE_SCROLL_INSENSITIVE);
+						stmt = conn.createStatement(ResultSet.CONCUR_UPDATABLE,ResultSet.TYPE_FORWARD_ONLY,ResultSet.CLOSE_CURSORS_AT_COMMIT ); 
+						stmt.setFetchSize(500);
 						ResultSet rs2 = stmt.executeQuery(s);
 						count = 1;
+						//						System.out.println(">>> innan rs2.update");
 						while (rs2.next()) {
 							count = count + rs2.getInt(1);
-							try { rs2.deleteRow(); } catch(NullPointerException npe2) {} 
-						}
-						rs2.close(); 
-						stmt.close();
+							//							System.out.println(">>> inuti rs2.update  " + count);
+							rs2.updateTimestamp("condat", new java.sql.Timestamp((new Date(System.currentTimeMillis())).getTime()));
+							rs2.updateInt("count", count);
+							rs2.updateString("status", m.getRptsts());
 
-						if ( sType.equalsIgnoreCase("I") && !m.getType().equalsIgnoreCase("D")) {
+							if (m.getType().equalsIgnoreCase("D")) {
+								System.out.println(">>> deleterow");
+								try { rs2.deleteRow(); } catch(NullPointerException npe2) {} 
+							}
+							else { 
+								try { rs2.updateRow(); } catch(NullPointerException npe2) {}
+							}
+						}
+						//						System.out.println(">>> innan rs2.close");
+						rs2.close(); 
+						//						System.out.println(">>> innan stmt.close");
+						stmt.close();
+						//						System.out.println(">>> efter stmt.close");
+
+						if ( count == 1 && sType.equalsIgnoreCase("I") && !m.getType().equalsIgnoreCase("D")) {
 							// insert new line with new timestamp and counter
-							PreparedStatement st = conn.prepareStatement("INSERT INTO Console (count,id,prio,type,condat,status,body) "
-									+ "values (?,?,?,?,?,?,?)");
+							System.out.println(">>> Insert new line in console");
+							PreparedStatement st = conn.prepareStatement("INSERT INTO Console (count,id,prio,type,condat,credat,status,body) "
+									+ "values (?,?,?,?,?,?,?,?)");
 							//        System.out.println("Prepared insert:");
 							st.setInt(1,count); // count
 							st.setString(2,m.getId() ); 
-							st.setInt(3,3); // prio
+							st.setInt(3,m.getPrio()); // prio
+
 							st.setString(4,sType.toUpperCase() ); // type
-							st.setTimestamp(5, new java.sql.Timestamp((new Date(System.currentTimeMillis())).getTime()));
-							st.setString(6,m.getRptsts().toUpperCase() ); // 
-							st.setString(7,m.getBody() ); // 
+							st.setTimestamp(5, new java.sql.Timestamp((new Date(System.currentTimeMillis())).getTime())); // condat
+							st.setTimestamp(6, new java.sql.Timestamp((new Date(System.currentTimeMillis())).getTime())); // credat
+							st.setString(7,m.getRptsts().toUpperCase() ); // 
+							st.setString(8,m.getBody() ); // 
 							int rowsInserted = st.executeUpdate();
 							//        System.out.println("Executed insert " +rowsInserted);
 							st.close();
@@ -265,11 +306,13 @@ class DBupdate {
 			swDB = false;
 		}
 		catch (Exception e) {
-			System.out.println("DT exeptionerror session " );
-			System.err.println(e);
-			System.err.println(e.getMessage());
+			//			System.out.println("DT exeptionerror session " );
+			//			System.err.println(e);
+			//			System.err.println(e.getMessage());
 		}
-		finally { System.out.println("DT finally  " ); }
+		finally {
+			//			System.out.println("DT finally  " ); 
+		}
 
 	}
 

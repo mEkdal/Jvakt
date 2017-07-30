@@ -55,18 +55,30 @@ public class SendMailSTS {
 	static String boxStr  = "<TD>"; 
 	static String boxEnd  = "</TD>";
 
+	static String database = "jVakt";
+	static String dbuser   = "jVakt";
+	static String dbpassword = "xz";
+	static String dbhost   = "localhost";
+	static String dbport   = "5433";
+	static String jvhost   = "localhost";
+	static String jvport   = "1956";
 
+	//Declare recipient's & sender's e-mail id.
+	static String PtoEmail;
+	static String PfromEmail = "";	
+	static String Puname = "";
+	static String Ppwd = "";
+	static String Psmtphost = "";
+	static String Psmtpport = "";
+	static int smtpporti;
 
 	public static void main(String[] args ) throws IOException, UnknownHostException {
 
-		String version = "jVakt 2.0 - SendMail 1.0 Date 2017-02-21_01";
-		String database = "jVakt";
-		String dbuser   = "jVakt";
-		String dbpassword = "xz";
-		String dbhost   = "localhost";
-		String dbport   = "5433";
-		String jvhost   = "localhost";
-		String jvport   = "1956";
+		String version = "jVakt 2.0 - SendMail 1.1 Date 2017-07-18_01";
+
+		String subject = "";
+		String body = "";
+		String value = "";
 
 		//Declare recipient's & sender's e-mail id.
 		final String toEmail;
@@ -76,35 +88,16 @@ public class SendMailSTS {
 		final String smtphost;
 		final String smtpport;
 
-		String subject = "";
-		String body = "";
-		String value = "";
-
 		boolean swMail = false;
-
-		Properties prop = new Properties();
-		InputStream input = null;
-		input = new FileInputStream("jVakt.properties");
-		prop.load(input);
-		// get the property value and print it out
-		database = prop.getProperty("database");
-		dbuser   = prop.getProperty("dbuser");
-		dbpassword = prop.getProperty("dbpassword");
-		dbhost   = prop.getProperty("dbhost");
-		dbport   = prop.getProperty("dbport");
-		jvport   = prop.getProperty("jvport");
-		jvhost   = prop.getProperty("jvhost");
-		toEmail  = prop.getProperty("toSts");
-		fromEmail= prop.getProperty("fromEmail");
-		uname    = prop.getProperty("smtpuser");
-		pwd      = prop.getProperty("smtppwd");
-		smtphost = prop.getProperty("smtphost");
-		smtpport = prop.getProperty("smtpport");
-		int smtpporti = Integer.parseInt(smtpport);
-		String	mode 	 =  prop.getProperty("mode");
-		if (!mode.equalsIgnoreCase("active"))  swDormant = true;
-		input.close();
-
+		getProps();
+		toEmail = PtoEmail;
+		fromEmail = PfromEmail;	
+		uname = Puname;
+		pwd = Ppwd;
+		smtphost = Psmtphost;
+		smtpport = Psmtpport;
+//		System.out.println(s);
+		
 		//create Authenticator object to pass in Session.getInstance argument
 		Authenticator auth = new Authenticator() {
 			//override the getPasswordAuthentication method
@@ -134,11 +127,13 @@ public class SendMailSTS {
 			conn = DriverManager.getConnection(DBUrl,dbuser,dbpassword);
 			conn.setAutoCommit(true);
 
-			s = new String("select * from console;"); 
+			s = new String("select * from console order by credat desc;"); 
 
 
 			System.out.println(s);
-			stmt = conn.createStatement(ResultSet.CONCUR_UPDATABLE,ResultSet.TYPE_SCROLL_INSENSITIVE); 
+//			stmt = conn.createStatement(ResultSet.CONCUR_UPDATABLE,ResultSet.TYPE_SCROLL_INSENSITIVE);
+//			stmt = conn.createStatement(ResultSet.CONCUR_UPDATABLE,ResultSet.TYPE_FORWARD_ONLY,ResultSet.CLOSE_CURSORS_AT_COMMIT ); 
+			stmt = conn.createStatement(ResultSet.CONCUR_READ_ONLY,ResultSet.TYPE_FORWARD_ONLY,ResultSet.CLOSE_CURSORS_AT_COMMIT ); 
 			stmt.setFetchSize(1000);
 			ResultSet rs = stmt.executeQuery(s);
 			swHits = false;  // is there already a record?
@@ -151,14 +146,15 @@ public class SendMailSTS {
 				swFound = true;
 				body = body +rowStr;
 				//--
-				for (int i = 1; i <= 7; i++) {
+				for (int i = 1; i <= 8; i++) {
+					if (i==6) continue;  // not interested in showing credat
 					value = rs.getString (i);
 
-					if (rs.getInt("prio") < 3 && rs.getString("status").contentEquals("ERR")) {
+					if (rs.getInt("prio") < 30 && rs.getString("status").contentEquals("ERR")) {
 						body = body + boxStrM + value + boxEnd;
 						errors++;
 					}
-					else if (rs.getInt("prio") >= 3 && rs.getString("status").contentEquals("ERR")) {
+					else if (rs.getInt("prio") >= 30 && rs.getString("status").contentEquals("ERR")) {
 						body = body + boxStrR + value + boxEnd;
 						warnings++;
 					}
@@ -171,9 +167,11 @@ public class SendMailSTS {
 					}
 					else if (rs.getString("status").contentEquals("OK"))	{
 						body = body + boxStrG + value + boxEnd;
+						infos++;
 					}
 					else {
 						body = body + boxStrB + value + boxEnd;
+						infos++;
 					}
 
 				}
@@ -195,9 +193,9 @@ public class SendMailSTS {
 			System.err.println(e.getMessage());
 		}
 		finally { 
-			subject = "SYSSTS: ";
+//			subject = "Status: ";
+			subject = "";
 
-			System.out.println("\n\nSubject: " + subject );
 			if (errors > 0) {
 				errors = errors / 7;
 				subject = subject + "Errors: " + errors + "  ";
@@ -206,7 +204,16 @@ public class SendMailSTS {
 				warnings = warnings / 7;
 				subject = subject + "Warnings: " + warnings + "  ";
 			}
+			if (errors == 0 && warnings == 0) {
+				subject = subject + "Jvakt OKAY   ";
+			}
+			if (infos > 0) {
+				infos = infos / 7;
+				subject = subject + "Infos: " + infos + "  ";
+			}
+			
 			body = body + tblEnd;
+			System.out.println("\n\n" + subject );
 			System.out.println( body );
 
 			if (swMail && !swDormant) {
@@ -216,5 +223,35 @@ public class SendMailSTS {
 
 		}
 	}        
+
+	static void getProps() {
+
+		Properties prop = new Properties();
+		InputStream input = null;
+		try {
+		input = new FileInputStream("jVakt.properties");
+		prop.load(input);
+		// get the property value and print it out
+		database = prop.getProperty("database");
+		dbuser   = prop.getProperty("dbuser");
+		dbpassword = prop.getProperty("dbpassword");
+		dbhost   = prop.getProperty("dbhost");
+		dbport   = prop.getProperty("dbport");
+		jvport   = prop.getProperty("jvport");
+		jvhost   = prop.getProperty("jvhost");
+		PtoEmail  = prop.getProperty("toSts");
+		PfromEmail= prop.getProperty("fromEmail");
+		Puname    = prop.getProperty("smtpuser");
+		Ppwd      = prop.getProperty("smtppwd");
+		Psmtphost = prop.getProperty("smtphost");
+		Psmtpport = prop.getProperty("smtpport");
+		smtpporti = Integer.parseInt(Psmtpport);
+		String	mode 	 =  prop.getProperty("mode");
+		if (!mode.equalsIgnoreCase("active"))  swDormant = true;
+		input.close();
+		} catch (IOException ex) {
+    		// ex.printStackTrace();
+    	}  
+	}
 
 }

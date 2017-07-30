@@ -18,7 +18,7 @@ public class SendMail {
 
 	static String DBUrl = "jdbc:postgresql://localhost:5433/Jvakt";
 	static Connection conn = null;
-	static boolean swDelete;
+	//	static boolean swDelete;
 	static boolean swTiming;
 	static boolean swShDay; // set when the scheduled day is active
 	static boolean swDormant = false;
@@ -91,6 +91,7 @@ public class SendMail {
 		dbhost   = prop.getProperty("dbhost");
 		dbport   = prop.getProperty("dbport");
 		jvport   = prop.getProperty("jvport");
+		int jvporti = Integer.parseInt(jvport);
 		jvhost   = prop.getProperty("jvhost");
 		toEmail  = prop.getProperty("toEmail");
 		fromEmail= prop.getProperty("fromEmail");
@@ -102,6 +103,24 @@ public class SendMail {
 		String	mode 	 =  prop.getProperty("mode");
 		if (!mode.equalsIgnoreCase("active"))  swDormant = true;
 		input.close();
+
+		try {
+			SendMsg jm = new SendMsg(jvhost, jvporti);  // kollar om JvaktServer är tillgänglig.
+//			System.out.println(jm.open());
+			if (jm.open().startsWith("DORMANT")) {
+				swDormant = true;
+			}
+		} 
+		catch (IOException e1) {
+			System.err.println(e1);
+			System.err.println(e1.getMessage());
+		}
+
+		if (swDormant) {
+			System.out.println("*** Jvakt in DORMANT mode, SendMail exiting *** ");
+			System.exit(4);			
+		}
+
 
 		//create Authenticator object to pass in Session.getInstance argument
 		Authenticator auth = new Authenticator() {
@@ -128,35 +147,42 @@ public class SendMail {
 		String cause = "";
 		zDate = new java.sql.Date((new Date(System.currentTimeMillis())).getTime());
 		zTs = new java.sql.Timestamp((new Date(System.currentTimeMillis())).getTime()); 
-
+		
+		System.out.println("**********SendMail ********   " + LocalDateTime.now());
 		try {
 
 			Class.forName("org.postgresql.Driver").newInstance();
 			DBUrl = "jdbc:postgresql://"+dbhost+":"+dbport+"/"+database;
-			System.out.println(DBUrl);
-			System.out.println("dbuser= " + dbuser +"  dbpassword "+ dbpassword);
+//			System.out.println(DBUrl);
+//			System.out.println("dbuser= " + dbuser +"  dbpassword "+ dbpassword);
 			conn = DriverManager.getConnection(DBUrl,dbuser,dbpassword);
 			conn.setAutoCommit(true);
 
+			//			s = new String("select * from status " + 
+			//					"WHERE (state='A' or  state='D') " +
+			//					" and (msg='M' or msg='T' or msg='R')" +
+			//					" and prio < 3" +
+			//					";"); 
 			s = new String("select * from status " + 
-					"WHERE (state='A' or  state='D') " +
+					"WHERE state='A' " +
 					" and (msg='M' or msg='T' or msg='R')" +
-					" and prio < 3" +
+					" and prio < 30" +
 					";"); 
 
-			System.out.println(s);
-			stmt = conn.createStatement(ResultSet.CONCUR_UPDATABLE,ResultSet.TYPE_SCROLL_INSENSITIVE); 
+//			System.out.println(s);
+//			stmt = conn.createStatement(ResultSet.CONCUR_UPDATABLE,ResultSet.TYPE_SCROLL_INSENSITIVE); 
+			stmt = conn.createStatement(ResultSet.CONCUR_UPDATABLE,ResultSet.TYPE_FORWARD_ONLY,ResultSet.CLOSE_CURSORS_AT_COMMIT ); 
 			stmt.setFetchSize(1000);
 			ResultSet rs = stmt.executeQuery(s);
 			swHits = false;  // is there already a record?
 			while (rs.next()) {
-				System.out.println("\n\n---- main RS: "+rs.getString("state")+" " + rs.getString("id")+" "+rs.getString("type")+" "+rs.getString("prio")+" "+rs.getString("console")+" "+rs.getString("status")+" "+zD);
+				System.out.println("---- main RS: "+rs.getString("state")+" " + rs.getString("id")+" "+rs.getString("type")+" "+rs.getString("prio")+" "+rs.getString("console")+" "+rs.getString("status")+ " "+rs.getString("msg"));
 				swHits = true;  
 				swTiming = false;  
 
-				if (rs.getString("id").equalsIgnoreCase("syssts")) {
-					continue;
-				}
+//				if (rs.getString("id").equalsIgnoreCase("syssts")) {
+//					continue;
+//				}
 
 				if (!rs.getString("type").equalsIgnoreCase("R") && !rs.getString("type").equalsIgnoreCase("S") && !rs.getString("type").equalsIgnoreCase("I")) continue;
 
@@ -165,66 +191,81 @@ public class SendMail {
 				Lchktim = rs.getTime("chktim").getTime();
 				Lrptdat = rs.getTime("rptdat").getTime();
 
-				if (rs.getString("chkday").startsWith("*ALL") || rs.getString("chkday").startsWith(DOW.name())) {
-					swShDay = true;
-				} else swShDay = false;
+				//				if (rs.getString("chkday").startsWith("*ALL") || rs.getString("chkday").startsWith(DOW.name())) {
+				//					swShDay = true;
+				//				} else swShDay = false;
 
-				swDelete = false;
+				swShDay = false;
+				if (rs.getString("chkday").startsWith("*ALL") || rs.getString("chkday").startsWith(DOW.name().substring(0, 2) )) {
+					if (nu.getHour() > rs.getTime("chktim").getHours() ) {
+						swShDay = true; System.out.println("Timmen swShDay: "+swShDay);
+					}
+					else if (nu.getHour() == rs.getTime("chktim").getHours() && nu.getMinute() > rs.getTime("chktim").getMinutes() ) {
+						swShDay = true;	System.out.println("Minuten swShDay: "+swShDay);
+					}
+					else if (nu.getHour() == rs.getTime("chktim").getHours() && nu.getMinute() == rs.getTime("chktim").getMinutes() && nu.getSecond() > rs.getTime("chktim").getSeconds() ) {
+						swShDay = true;	System.out.println("Sekunden swShDay: "+swShDay);
+					}
+				} 
+				if (rs.getInt("prio") <= 10) swShDay = true; // always handle prio 10 and below.
+				System.out.println("swShDay: "+swShDay);
 
-				// Om fel inträffat för S och R varnas till console
-				if (rs.getString("msg").equalsIgnoreCase("M") && rs.getInt("prio") < 3 ) { 
-					cause = "Problem :\t";
-					serrors++;
-					sbody = sbody +rowStr+boxStrM+ rs.getString("id")+boxEnd +boxStrM+ rs.getString("body")+boxEnd+rowEnd;
+				//				swDelete = false;
+
+				if (swShDay) {
+					if (rs.getString("msg").equalsIgnoreCase("M") && rs.getInt("prio") < 30 ) { 
+						cause = "Problem :\t";
+						serrors++;
+						sbody = sbody +rowStr+boxStrM+ rs.getString("id")+boxEnd +boxStrM+ rs.getString("body")+boxEnd+rowEnd;
+					}
+					else if (rs.getString("msg").equalsIgnoreCase("M") && rs.getInt("prio") >= 30 ) { 
+						cause = "Problem :\t";
+						errors++;
+						ebody = ebody +rowStr+boxStrR+ rs.getString("id")+boxEnd +boxStrR+ rs.getString("body")+boxEnd+rowEnd;
+					}
+					else if (rs.getString("msg").equalsIgnoreCase("R")) {
+						cause = "Resolved:\t";
+						resolved++;
+						rbody = rbody +rowStr+boxStrG+ rs.getString("id")+boxEnd +boxStrG+ rs.getString("body")+boxEnd+rowEnd;
+					}
+					else {
+						cause = "Time out:\t";
+						warnings++;
+						wbody = wbody +rowStr+boxStrY+ rs.getString("id")+boxEnd +boxStrY+ rs.getString("body")+boxEnd+rowEnd;
+					}
+					swMail = true;
+					if (rs.getString("msg").equalsIgnoreCase("R")) rs.updateString("msg", " ");
+					else rs.updateString("msg", "S");
+					rs.updateTimestamp("msgdat", new java.sql.Timestamp((new Date(System.currentTimeMillis())).getTime()));
+					try { rs.updateRow(); } catch(NullPointerException npe2) {}
 				}
-				if (rs.getString("msg").equalsIgnoreCase("M") && rs.getInt("prio") >= 3 ) { 
-					cause = "Problem :\t";
-					errors++;
-					ebody = ebody +rowStr+boxStrR+ rs.getString("id")+boxEnd +boxStrR+ rs.getString("body")+boxEnd+rowEnd;
-				}
-				else if (rs.getString("msg").equalsIgnoreCase("R")) {
-					cause = "Resolved:\t";
-					resolved++;
-					rbody = rbody +rowStr+boxStrG+ rs.getString("id")+boxEnd +boxStrG+ rs.getString("body")+boxEnd+rowEnd;
-				}
-				else {
-					cause = "Time out:\t";
-					warnings++;
-					wbody = wbody +rowStr+boxStrY+ rs.getString("id")+boxEnd +boxStrY+ rs.getString("body")+boxEnd+rowEnd;
-				}
-				swMail = true;
-				if (rs.getString("msg").equalsIgnoreCase("R")) rs.updateString("msg", " ");
-				else rs.updateString("msg", "S");
-				rs.updateTimestamp("msgdat", new java.sql.Timestamp((new Date(System.currentTimeMillis())).getTime()));
-				try { rs.updateRow(); } catch(NullPointerException npe2) {}
 			}
 			rs.close(); 
 			stmt.close();
 
 		}
 		catch (SQLException e) {
-			System.err.println(e);
-			System.err.println(e.getMessage());
+			System.err.println("SQLExeption " + e);
+//			System.err.println(e.getMessage());
 		}
 		catch (Exception e) {
-			System.err.println(e);
-			System.err.println(e.getMessage());
+			System.err.println("Exeption " + e);
+//			System.err.println(e.getMessage());
 		}
 		finally { 
-			subject = "Changed STATUS: ";
+			subject = "Altered status -->   ";
 			body = tblStr;
 
-			System.out.println("\n\nSubject: " + subject );
 			if (sbody.length() > 0) {
-				subject = subject + "Severes: " + serrors + "  ";
-				body = body + rowStr+hdrStrM+"SEVERE" +hdrEnd+hdrStrM+""+hdrEnd+rowEnd+	sbody ;
+				subject = subject + "Errors: " + serrors + "  ";
+				body = body + rowStr+hdrStrM+"ERROR" +hdrEnd+hdrStrM+""+hdrEnd+rowEnd+	sbody ;
 			}
 			if (ebody.length() > 0) {
-				subject = subject + "Errors: " + errors + "  ";
+				subject = subject + "Warnings: " + errors + "  ";
 				body = body + rowStr+hdrStrR+"WARNING" +hdrEnd+hdrStrR+""+hdrEnd+rowEnd+	ebody ;
 			}
 			if (wbody.length() > 0) {
-				subject = subject + "Warnings: " + warnings + "  ";
+				subject = subject + "Time-outs: " + warnings + "  ";
 				body = body + rowStr+hdrStrY+"TIME-OUT"+hdrEnd+hdrStrY+""+hdrEnd+rowEnd+	wbody ;
 			}
 			if (rbody.length() > 0) { 
@@ -232,9 +273,10 @@ public class SendMail {
 				body = body + rowStr+hdrStrG+"RESOLVED" +hdrEnd+hdrStrG+""+hdrEnd+rowEnd+	rbody ;
 			}
 			body = body + tblEnd;
-			System.out.println( body );
 
-			if (swMail && !swDormant) {
+			if (swMail) {
+				System.out.println("To:"+toEmail+"   Subject: " + subject );
+				System.out.println( body );
 				Session session = Session.getInstance(props, auth);
 				EmailUtil.sendEmail(session, toEmail,subject, body, fromEmail);
 			}

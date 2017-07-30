@@ -9,7 +9,7 @@ class ServerThread extends Thread {
 	List list;
 	Socket client;
 	DBupdate dt;
-	String version = "ServerThread 1.0 Date 2017-06-05_01";
+	String version = "ServerThread 1.1 Date 2017-07-20";
 
 	ServerThread(Socket client, DBupdate dt) { this.client = client; this.dt = dt; }
 
@@ -32,6 +32,7 @@ class ServerThread extends Thread {
 				jm.setRptsts(tab[2]);
 				jm.setBody(tab[3]);
 				jm.setAgent(tab[4]);
+				jm.setPrio(Integer.parseInt(tab[5]));
 
 				ut.println("okay " );
 				ut.flush();
@@ -42,8 +43,11 @@ class ServerThread extends Thread {
 			ut.close();
 			client.close();
 			dt.dbWrite(jm);  // update DB
-			System.out.println("ServerThread Session:  DBupdate klar");
+//			System.out.println("ServerThread Session:  DBupdate klar");
 		}
-		catch (IOException e1) { System.out.println("ServerThread error Session: "); System.out.println(e1); }
+		catch (IOException e1) { 
+//			System.out.println("ServerThread error Session: "); 
+//			System.out.println(e1); 
+			}
 	}        
 }

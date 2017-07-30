@@ -10,7 +10,7 @@ public class SendMsg {
 	OutputStream sut;
 	PrintWriter ut;
 	int port;
-	String version = "SendMsg 1.0 Date 2016-09-07_01";
+	String version = "SendMsg 1.2 Date 2017-07-20";
 
 	SendMsg(String host, int port ) {
 		this.port = port;
@@ -29,7 +29,7 @@ public class SendMsg {
 	boolean sendMsg(Message msg ) throws IOException, UnknownHostException  {
 		String line = null;
 		try {
-			ut.println(msg.getType()+"<;>"+msg.getId()+"<;>"+msg.getRptsts()+"<;>"+msg.getBody()+"<;>"+msg.getAgent()+"<;>");
+			ut.println(msg.getType()+"<;>"+msg.getId()+"<;>"+msg.getRptsts()+"<;>"+msg.getBody()+"<;>"+msg.getAgent()+"<;>"+ Integer.toString(msg.getPrio())+"<;>");
 			ut.flush();
 			line = in.readLine();
 			if ( line.startsWith("okay")) return true;
@@ -45,6 +45,7 @@ public class SendMsg {
 		ut.close();
 		in.close();
 		cs.close();
+		try { Thread.currentThread().sleep(100); } catch (InterruptedException e) { e.printStackTrace();}
 		return true;
 	}
 }

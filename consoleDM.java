@@ -165,24 +165,27 @@ class consoleDM extends AbstractTableModel {
 		}
 
 		try {
-			String s = new String("select * from console;"); 
+			String s = new String("select * from console order by credat desc;"); 
 
 			map.clear();
 
-			System.out.println(s);
-			Statement stmt = conn.createStatement(ResultSet.CONCUR_READ_ONLY,ResultSet.TYPE_SCROLL_INSENSITIVE); 
+//			System.out.println(s);
+//			Statement stmt = conn.createStatement(ResultSet.CONCUR_READ_ONLY,ResultSet.TYPE_SCROLL_INSENSITIVE); 
+			Statement stmt = conn.createStatement(ResultSet.CONCUR_UPDATABLE,ResultSet.TYPE_FORWARD_ONLY,ResultSet.CLOSE_CURSORS_AT_COMMIT ); 
 			stmt.setFetchSize(1000);
 			ResultSet rs = stmt.executeQuery(s);
 
-			if (!rs.first()) {
-				createEmptyRow();
-			}
+//			if (!rs.first()) {
+//				System.out.println("createemptyrow");
+//				createEmptyRow();
+//			}
 
 			while (rs.next()) {
 				//--
+//				System.out.println("rs.next");
 				rad = new consoleROW();
 
-				for (int i = 1; i <= 7; i++) {
+//				for (int i = 1; i <= 7; i++) {
 
 					rad.setCount(rs.getInt("count"));
 					rad.setId(rs.getString("id"));
@@ -192,7 +195,7 @@ class consoleDM extends AbstractTableModel {
 					rad.setStatus(rs.getString("status"));
 					rad.setBody(rs.getString("body"));
 
-				}
+//				}
 				map.add(rad);
 			}
 
@@ -227,7 +230,7 @@ class consoleDM extends AbstractTableModel {
 		rad.setCondat(" ");
 		rad.setStatus(" ");
 		rad.setBody(" ");
-		map.add(rad);
+//		map.add(rad);
 
 		return true;	
 	}

@@ -18,7 +18,7 @@ class consoleCR extends JLabel implements TableCellRenderer
 		Object ValueType   = table.getValueAt(row,table.getColumnModel().getColumnIndex("Type"));
 		Object ValueStatus = table.getValueAt(row,table.getColumnModel().getColumnIndex("Status"));
 		int vPrio;
-		if (ValuePrio == null) vPrio = 3;
+		if (ValuePrio == null) vPrio = 30;
 		else vPrio = (int)ValuePrio;
 		String vType = (String)ValueType;
 		String vStatus = (String)ValueStatus;
@@ -38,8 +38,11 @@ class consoleCR extends JLabel implements TableCellRenderer
 			setBackground(Color.lightGray);
 
 			if (vStatus.startsWith("Timed") ) setBackground(java.awt.Color.orange); 
-			if (vPrio >= 3 && !vStatus.startsWith("INFO") && !vStatus.startsWith("Timed")  && !vStatus.startsWith(" ") ) setBackground(java.awt.Color.pink); 
-			if (vPrio < 3  && !vStatus.startsWith("Timed") ) setBackground(java.awt.Color.magenta); 
+			if (vPrio >= 30 && !vStatus.startsWith("INFO") && !vStatus.startsWith("Timed")  && !vStatus.startsWith(" ") ) setBackground(java.awt.Color.pink); 
+			if (vPrio < 30  && !vStatus.startsWith("Timed") ) setBackground(java.awt.Color.magenta); 
+
+			if (vStatus.startsWith(" ") ) setBackground(java.awt.Color.lightGray); 
+			if (vStatus.startsWith("OK") ) setBackground(java.awt.Color.green); 
 
 		}
 		return this;
