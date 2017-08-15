@@ -73,7 +73,7 @@ public class console extends JFrame implements TableModelListener, WindowListene
 		port = Integer.parseInt(jvport);
 
 		// funktion från Jframe att sätta rubrik
-		setTitle("Jvakt console 2.6 beta");
+		setTitle("Jvakt console 2.8 beta");
 		//	        setSize(5000, 5000);
 
 		// get the screen size as a java dimension
@@ -176,32 +176,40 @@ public class console extends JFrame implements TableModelListener, WindowListene
 		// sätter färg på raderna
 		consoleCR cr=new consoleCR();
 
-		for (int i=0; i <= 6 ; i++ ) {      
+		for (int i=0; i <= 7 ; i++ ) {      
 			table.getColumn(table.getColumnName(i)).setCellRenderer(cr);
 		}
 
 		// skapar nya JScrollPane och lägger till tabellerna via construktorn. För att kunna scrolla tabellerna.
 
 		scrollPane = new JScrollPane(table);
-		table.setAutoResizeMode(JTable.AUTO_RESIZE_ALL_COLUMNS);
+//		table.setAutoResizeMode(JTable.AUTO_RESIZE_ALL_COLUMNS);
+		table.setAutoResizeMode(JTable. 	AUTO_RESIZE_SUBSEQUENT_COLUMNS);
 		//	        table.setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
 
 		TableColumn column = null;
 		column = table.getColumnModel().getColumn(0);
 		column.setPreferredWidth(30);
+		column.setMaxWidth(45);
 		column = table.getColumnModel().getColumn(1);
 		column.setPreferredWidth(500);
 		column = table.getColumnModel().getColumn(2);
 		column.setPreferredWidth(30);
+		column.setMaxWidth(35);
 		column = table.getColumnModel().getColumn(3);
 		column.setPreferredWidth(30);
+		column.setMaxWidth(35);
 		column = table.getColumnModel().getColumn(4);
 		column.setPreferredWidth(200);
+		column.setMaxWidth(200);
 		column = table.getColumnModel().getColumn(5);
-		column.setPreferredWidth(100);
+		column.setPreferredWidth(40);
+		column.setMaxWidth(50);
 		column = table.getColumnModel().getColumn(6);
 		column.setPreferredWidth(900);
-
+		column = table.getColumnModel().getColumn(7);
+		column.setPreferredWidth(100);
+		column.setMaxWidth(250);
 		addKeyBindings();
 
 		scrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);

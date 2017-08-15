@@ -68,6 +68,7 @@ public class SendMail {
 		String jvport   = "1956";
 
 		//Declare recipient's & sender's e-mail id.
+		String toEmailW;
 		final String toEmail;
 		final String fromEmail;	
 		final String uname;
@@ -93,7 +94,7 @@ public class SendMail {
 		jvport   = prop.getProperty("jvport");
 		int jvporti = Integer.parseInt(jvport);
 		jvhost   = prop.getProperty("jvhost");
-		toEmail  = prop.getProperty("toEmail");
+		toEmailW  = prop.getProperty("toEmail");
 		fromEmail= prop.getProperty("fromEmail");
 		uname    = prop.getProperty("smtpuser");
 		pwd      = prop.getProperty("smtppwd");
@@ -104,6 +105,21 @@ public class SendMail {
 		if (!mode.equalsIgnoreCase("active"))  swDormant = true;
 		input.close();
 
+		
+		List listTo = new ArrayList();  // Alla mailadresser.
+		
+		String[] toAddr = toEmailW.split("\\,");
+		for(int i=0 ; i<toAddr.length;i++) {
+//			System.out.println(toAddr[i]);
+			listTo.add(toAddr[i]);
+		}
+		
+//		Iterator iterator = listTo.iterator();
+//		while(iterator.hasNext()) {
+////		  String element = (String) iterator.next();
+//		  System.out.println(iterator.next());
+//		}
+		
 		try {
 			SendMsg jm = new SendMsg(jvhost, jvporti);  // kollar om JvaktServer är tillgänglig.
 //			System.out.println(jm.open());
@@ -216,22 +232,22 @@ public class SendMail {
 					if (rs.getString("msg").equalsIgnoreCase("M") && rs.getInt("prio") < 30 ) { 
 						cause = "Problem :\t";
 						serrors++;
-						sbody = sbody +rowStr+boxStrM+ rs.getString("id")+boxEnd +boxStrM+ rs.getString("body")+boxEnd+rowEnd;
+						sbody = sbody +rowStr+boxStrM+ rs.getString("id")+boxEnd +boxStrM+ rs.getString("body")+boxEnd +boxStrM+ rs.getString("agent")+boxEnd+rowEnd;
 					}
 					else if (rs.getString("msg").equalsIgnoreCase("M") && rs.getInt("prio") >= 30 ) { 
 						cause = "Problem :\t";
 						errors++;
-						ebody = ebody +rowStr+boxStrR+ rs.getString("id")+boxEnd +boxStrR+ rs.getString("body")+boxEnd+rowEnd;
+						ebody = ebody +rowStr+boxStrR+ rs.getString("id")+boxEnd +boxStrR+ rs.getString("body")+boxEnd+boxStrR+ rs.getString("agent")+boxEnd+rowEnd;
 					}
 					else if (rs.getString("msg").equalsIgnoreCase("R")) {
 						cause = "Resolved:\t";
 						resolved++;
-						rbody = rbody +rowStr+boxStrG+ rs.getString("id")+boxEnd +boxStrG+ rs.getString("body")+boxEnd+rowEnd;
+						rbody = rbody +rowStr+boxStrG+ rs.getString("id")+boxEnd +boxStrG+ rs.getString("body")+boxEnd+boxStrG+ rs.getString("agent")+boxEnd+rowEnd;
 					}
 					else {
 						cause = "Time out:\t";
 						warnings++;
-						wbody = wbody +rowStr+boxStrY+ rs.getString("id")+boxEnd +boxStrY+ rs.getString("body")+boxEnd+rowEnd;
+						wbody = wbody +rowStr+boxStrY+ rs.getString("id")+boxEnd +boxStrY+ rs.getString("body")+boxEnd+boxStrY+ rs.getString("agent")+boxEnd+rowEnd;
 					}
 					swMail = true;
 					if (rs.getString("msg").equalsIgnoreCase("R")) rs.updateString("msg", " ");
@@ -258,24 +274,38 @@ public class SendMail {
 
 			if (sbody.length() > 0) {
 				subject = subject + "Errors: " + serrors + "  ";
-				body = body + rowStr+hdrStrM+"ERROR" +hdrEnd+hdrStrM+""+hdrEnd+rowEnd+	sbody ;
+				body = body + rowStr+hdrStrM+"ERROR" +hdrEnd+hdrStrM+""+hdrEnd+hdrStrM+""+hdrEnd+rowEnd+	sbody ;
 			}
 			if (ebody.length() > 0) {
 				subject = subject + "Warnings: " + errors + "  ";
-				body = body + rowStr+hdrStrR+"WARNING" +hdrEnd+hdrStrR+""+hdrEnd+rowEnd+	ebody ;
+				body = body + rowStr+hdrStrR+"WARNING" +hdrEnd+hdrStrR+""+hdrEnd+hdrStrR+""+hdrEnd+rowEnd+	ebody ;
 			}
 			if (wbody.length() > 0) {
 				subject = subject + "Time-outs: " + warnings + "  ";
-				body = body + rowStr+hdrStrY+"TIME-OUT"+hdrEnd+hdrStrY+""+hdrEnd+rowEnd+	wbody ;
+				body = body + rowStr+hdrStrY+"TIME-OUT"+hdrEnd+hdrStrY+""+hdrEnd+hdrStrY+""+hdrEnd+rowEnd+	wbody ;
 			}
 			if (rbody.length() > 0) { 
 				subject = subject + "Resolved: " + resolved;
-				body = body + rowStr+hdrStrG+"RESOLVED" +hdrEnd+hdrStrG+""+hdrEnd+rowEnd+	rbody ;
+				body = body + rowStr+hdrStrG+"RESOLVED" +hdrEnd+hdrStrG+""+hdrEnd+hdrStrG+""+hdrEnd+rowEnd+	rbody ;
 			}
 			body = body + tblEnd;
 
 			if (swMail) {
-				System.out.println("To:"+toEmail+"   Subject: " + subject );
+
+//				Iterator iterator = listTo.iterator();
+				toEmailW = "";
+				int n = 0;
+				for(Object object : listTo) { 
+					if (n>0) toEmailW = toEmailW + ",";
+					n++;
+				  String element = (String) object;
+				  System.out.println(object);
+				  toEmailW = toEmailW + (String) object;
+				}
+				
+				toEmail = toEmailW;
+//				System.out.println("To:"+toEmailW+"   Subject: " + subject );
+				System.out.println("To:"+toEmail +"   Subject: " + subject );
 				System.out.println( body );
 				Session session = Session.getInstance(props, auth);
 				EmailUtil.sendEmail(session, toEmail,subject, body, fromEmail);

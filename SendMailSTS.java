@@ -23,6 +23,8 @@ public class SendMailSTS {
 	static boolean swFound;
 	static boolean swShDay; // set when the scheduled day is active
 	static boolean swDormant = false;
+	static boolean swDB = true;
+	static boolean swServer = true;
 	static java.sql.Date zDate;
 	static java.sql.Timestamp zD;
 	static java.sql.Timestamp zTs;
@@ -62,6 +64,7 @@ public class SendMailSTS {
 	static String dbport   = "5433";
 	static String jvhost   = "localhost";
 	static String jvport   = "1956";
+	static int    port   = 1956;
 
 	//Declare recipient's & sender's e-mail id.
 	static String PtoEmail;
@@ -118,12 +121,27 @@ public class SendMailSTS {
 		boolean swHits;
 		String cause = "";
 
+		swServer = true;
+		try {
+			port = Integer.parseInt(jvport);
+			SendMsg jm = new SendMsg(jvhost, port);  // kollar om JvaktServer är tillgänglig.
+			System.out.println(jm.open());
+			if (jm.open().startsWith("DORMANT")) 	swDormant = true;
+			else 									swDormant = false;
+		} 
+		catch (IOException e1) {
+			swServer = false;
+			System.err.println(e1);
+			System.err.println(e1.getMessage());
+		}
+//		System.out.println("swServer :" + swServer);
+		
 		try {
 
 			Class.forName("org.postgresql.Driver").newInstance();
 			DBUrl = "jdbc:postgresql://"+dbhost+":"+dbport+"/"+database;
 			System.out.println(DBUrl);
-			System.out.println("dbuser= " + dbuser +"  dbpassword "+ dbpassword);
+//			System.out.println("dbuser= " + dbuser +"  dbpassword "+ dbpassword);
 			conn = DriverManager.getConnection(DBUrl,dbuser,dbpassword);
 			conn.setAutoCommit(true);
 
@@ -146,7 +164,7 @@ public class SendMailSTS {
 				swFound = true;
 				body = body +rowStr;
 				//--
-				for (int i = 1; i <= 8; i++) {
+				for (int i = 1; i <= 9; i++) {
 					if (i==6) continue;  // not interested in showing credat
 					value = rs.getString (i);
 
@@ -185,17 +203,23 @@ public class SendMailSTS {
 
 		}
 		catch (SQLException e) {
+			System.err.println("*** SQLExeption");
+			swDB = false;
 			System.err.println(e);
 			System.err.println(e.getMessage());
 		}
 		catch (Exception e) {
+			swDB = false;
 			System.err.println(e);
 			System.err.println(e.getMessage());
 		}
-		finally { 
+//		finally { 
 //			subject = "Status: ";
-			subject = "";
-
+//			subject = "";
+//		}
+		
+		subject = "";
+		
 			if (errors > 0) {
 				errors = errors / 7;
 				subject = subject + "Errors: " + errors + "  ";
@@ -213,15 +237,30 @@ public class SendMailSTS {
 			}
 			
 			body = body + tblEnd;
+
+			if (!swDB) {
+				subject = "\n - Jvakt Database not accessible ! -\n"; 
+				body = "\n - Jvakt Database not accessible ! -\n"; 
+				swMail = true;
+			}
+			if (!swServer) {
+				if (swDB) {
+					subject = "";
+					body = "";
+				}
+				subject = subject + "\n - Jvakt Server not accessible ! - \n"; 
+				body = body + "\n - Jvakt Server not accessible ! -\n"; 
+				swMail = true;
+			}
+
 			System.out.println("\n\n" + subject );
 			System.out.println( body );
-
+			
 			if (swMail && !swDormant) {
 				Session session = Session.getInstance(props, auth);
 				EmailUtil.sendEmail(session, toEmail,subject, body, fromEmail);
 			}
 
-		}
 	}        
 
 	static void getProps() {

@@ -276,8 +276,8 @@ class DBupdate {
 						if ( count == 1 && sType.equalsIgnoreCase("I") && !m.getType().equalsIgnoreCase("D")) {
 							// insert new line with new timestamp and counter
 							System.out.println(">>> Insert new line in console");
-							PreparedStatement st = conn.prepareStatement("INSERT INTO Console (count,id,prio,type,condat,credat,status,body) "
-									+ "values (?,?,?,?,?,?,?,?)");
+							PreparedStatement st = conn.prepareStatement("INSERT INTO Console (count,id,prio,type,condat,credat,status,body,agent) "
+									+ "values (?,?,?,?,?,?,?,?,?)");
 							//        System.out.println("Prepared insert:");
 							st.setInt(1,count); // count
 							st.setString(2,m.getId() ); 
@@ -288,6 +288,7 @@ class DBupdate {
 							st.setTimestamp(6, new java.sql.Timestamp((new Date(System.currentTimeMillis())).getTime())); // credat
 							st.setString(7,m.getRptsts().toUpperCase() ); // 
 							st.setString(8,m.getBody() ); // 
+							st.setString(9,m.getAgent() ); // 
 							int rowsInserted = st.executeUpdate();
 							//        System.out.println("Executed insert " +rowsInserted);
 							st.close();

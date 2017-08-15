@@ -16,7 +16,7 @@ import java.util.*;
 class consoleDM extends AbstractTableModel {
 
 	String afn;
-	String columnNames[] = {"Count", "Id", "Prio", "Type", "ConDate", "Status", "Body"};
+	String columnNames[] = {"Count", "Id", "Prio", "Type", "ConDate", "Status", "Body", "Agent"};
 	static Vector map = new Vector(100,10);
 
 	consoleROW rad;
@@ -81,6 +81,8 @@ class consoleDM extends AbstractTableModel {
 			return rad.getStatus();
 		} else if (col == 6) {
 			return rad.getBody();
+		} else if (col == 7) {
+			return rad.getAgent();
 		} else {
 			return null;
 		}
@@ -121,6 +123,8 @@ class consoleDM extends AbstractTableModel {
 			rad.setStatus((String)value);
 		} else if (col == 6) {
 			rad.setBody((String)value);
+		} else if (col == 7) {
+			rad.setAgent((String)value);
 		}
 		fireTableCellUpdated(row, col);
 	}
@@ -194,6 +198,7 @@ class consoleDM extends AbstractTableModel {
 					rad.setCondat(rs.getString("condat"));
 					rad.setStatus(rs.getString("status"));
 					rad.setBody(rs.getString("body"));
+					rad.setAgent(rs.getString("agent"));
 
 //				}
 				map.add(rad);
@@ -230,6 +235,7 @@ class consoleDM extends AbstractTableModel {
 		rad.setCondat(" ");
 		rad.setStatus(" ");
 		rad.setBody(" ");
+		rad.setAgent(" ");
 //		map.add(rad);
 
 		return true;	

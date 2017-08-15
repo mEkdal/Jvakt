@@ -47,7 +47,7 @@ public class console2html {
 	String foot   = "</body></html>";
 	String tblStr = "<TABLE COLS=7 BORDER=8 cellpadding=\"5\" width=\"100%\"  >"; 
 	String tblEnd = "</TABLE>";
-	String tblHdr = "<TH>Count</TH> <TH>Id</TH> <TH>Prio</TH> <TH>Type</TH> <TH>Condat</TH>  <TH>Status</TH>  <TH>Body - "+ now +" </TH>"; 
+	String tblHdr = "<TH>Count</TH> <TH>Id</TH> <TH>Prio</TH> <TH>Type</TH> <TH>Condat</TH>  <TH>Status</TH>  <TH>Body - "+ now +" </TH> <TH>Agent</TH>"; 
 	String hdrStrG = "<TH BGCOLOR=\"#00FF00\"><FONT SIZE=5>"; // Green
 	String hdrStrY = "<TH BGCOLOR=\"#FFFF00\"><FONT SIZE=5>"; // Yellow
 	String hdrStrR = "<TH BGCOLOR=\"#FF6600\"><FONT SIZE=5>"; // Red
@@ -87,7 +87,7 @@ public class console2html {
 		    swFound = true;
 	    	System.out.println (rowStr);
 
-		for (int i = 1; i <= 8; i++) {
+		for (int i = 1; i <= 9; i++) {
 			if (i==6) continue;  // not interested in showing credat
 		    value = rs.getString (i);
   		       
@@ -106,6 +106,9 @@ public class console2html {
 	    }
 		if (!swFound) {
 			System.out.println (rowStr);
+			System.out.println (boxStrG);
+			System.out.println ("&nbsp;");
+			System.out.println (boxEnd);
 			System.out.println (boxStrG);
 			System.out.println ("&nbsp;");
 			System.out.println (boxEnd);

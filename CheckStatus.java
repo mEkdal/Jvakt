@@ -189,7 +189,7 @@ public class CheckStatus {
 					swTiming = true;
 					System.out.println("timing #3: " + rs.getString("id")+"  MSG:"+rs.getString("msg"));
 					if (rs.getString("msg").startsWith(" ")) {
-						System.out.println("Set msg to T in timeout" + " " + rs.getInt("id"));
+						System.out.println("Set msg to T in timeout " + rs.getInt("id"));
 						rs.updateString("msg", "T");
 						rs.updateTimestamp("msgdat", new java.sql.Timestamp((new Date(System.currentTimeMillis())).getTime()));
 						swPlugin = true;
@@ -332,8 +332,8 @@ public class CheckStatus {
 
 			if (!swDelete && count == 1 ) {
 				// insert new line with new timestamp and counter
-				PreparedStatement st = conn.prepareStatement("INSERT INTO Console (count,id,prio,type,condat,credat,status,body) "
-						+ "values (?,?,?,?,?,?,?,?)");
+				PreparedStatement st = conn.prepareStatement("INSERT INTO Console (count,id,prio,type,condat,credat,status,body,agent) "
+						+ "values (?,?,?,?,?,?,?,?,?)");
 				System.out.println("Prepared insert:" + st);
 				st.setInt(1,count); // count
 				st.setString(2,rs.getString("id") ); 
@@ -345,6 +345,7 @@ public class CheckStatus {
 				if (swTiming) st.setString(7,"Timed out");
 				else st.setString(7,rs.getString("status").toUpperCase() );// 
 				st.setString(8,rs.getString("body") ); // 
+				st.setString(9,rs.getString("agent") ); // 
 				int rowsInserted = st.executeUpdate();
 				System.out.println("Executed insert addC " +rowsInserted);
 				st.close();

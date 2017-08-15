@@ -18,6 +18,7 @@ public class consoleROW {
 	private String condat;
 	private String status;
 	private String body;
+	private String agent;
 
 	public int row;
 	public int col = 0;
@@ -30,6 +31,7 @@ public class consoleROW {
 		this.condat = " ";
 		this.status = " ";
 		this.body = " ";
+		this.agent = " ";
 	}
 
 	public int getCount() {
@@ -60,6 +62,10 @@ public class consoleROW {
 		return body;
 	}
 
+	public String getAgent() {
+		return agent;
+	}
+
 	public void setCount(int count) {
 		this.count = count;
 	}
@@ -86,5 +92,9 @@ public class consoleROW {
 
 	public void setBody(String body) {
 		this.body = body;
+	}
+
+	public void setAgent(String agent) {
+		this.agent = agent;
 	}
 }
