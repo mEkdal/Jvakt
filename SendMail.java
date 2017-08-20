@@ -41,10 +41,10 @@ public class SendMail {
 	static String tblStr = "<TABLE COLS=2 BORDER=4 cellpadding=\"3\" width=\"100%\"  >"; 
 	static String tblEnd = "</TABLE>";
 
-	static String hdrStrG = "<TH BGCOLOR=\"#00FF00\"><FONT SIZE=5>"; // Green
-	static String hdrStrY = "<TH BGCOLOR=\"#FFFF00\"><FONT SIZE=5>"; // Yellow
-	static String hdrStrR = "<TH BGCOLOR=\"#FF6600\"><FONT SIZE=5>"; // Red
-	static String hdrStrM = "<TH BGCOLOR=\"#FF00FF\"><FONT SIZE=5>"; // Magenta
+	static String hdrStrG = "<TH BGCOLOR=\"#00FF00\"><FONT SIZE=3>"; // Green
+	static String hdrStrY = "<TH BGCOLOR=\"#FFFF00\"><FONT SIZE=3>"; // Yellow
+	static String hdrStrR = "<TH BGCOLOR=\"#FF6600\"><FONT SIZE=3>"; // Red
+	static String hdrStrM = "<TH BGCOLOR=\"#FF00FF\"><FONT SIZE=3>"; // Magenta
 	static String hdrEnd = "</TH>";
 
 	static String rowStr = "<TR>"; 
@@ -53,6 +53,7 @@ public class SendMail {
 	static String boxStrY = "<TD BGCOLOR=\"#FFFF00\">"; // Yellow
 	static String boxStrR = "<TD BGCOLOR=\"#FF6600\">"; // Red
 	static String boxStrM = "<TD BGCOLOR=\"#FF00FF\">"; // Magenta
+	static String boxStrB = "<TH BGCOLOR=\"#CCEEFF\">"; // Light blue
 	static String boxStr  = "<TD>"; 
 	static String boxEnd  = "</TD>";
 
@@ -232,22 +233,26 @@ public class SendMail {
 					if (rs.getString("msg").equalsIgnoreCase("M") && rs.getInt("prio") < 30 ) { 
 						cause = "Problem :\t";
 						serrors++;
-						sbody = sbody +rowStr+boxStrM+ rs.getString("id")+boxEnd +boxStrM+ rs.getString("body")+boxEnd +boxStrM+ rs.getString("agent")+boxEnd+rowEnd;
+//						sbody = sbody +rowStr+boxStrM+ rs.getString("id")+boxEnd +boxStrM+ rs.getString("body")+boxEnd +boxStrM+ rs.getString("agent")+boxEnd+rowEnd;
+						sbody = sbody +rowStr+boxStrB+ rs.getString("id")+boxEnd +boxStrB+ rs.getString("body")+boxEnd +boxStrB+ rs.getString("agent")+boxEnd+rowEnd;
 					}
 					else if (rs.getString("msg").equalsIgnoreCase("M") && rs.getInt("prio") >= 30 ) { 
 						cause = "Problem :\t";
 						errors++;
-						ebody = ebody +rowStr+boxStrR+ rs.getString("id")+boxEnd +boxStrR+ rs.getString("body")+boxEnd+boxStrR+ rs.getString("agent")+boxEnd+rowEnd;
+//						ebody = ebody +rowStr+boxStrR+ rs.getString("id")+boxEnd +boxStrR+ rs.getString("body")+boxEnd+boxStrR+ rs.getString("agent")+boxEnd+rowEnd;
+						ebody = ebody +rowStr+boxStrB+ rs.getString("id")+boxEnd +boxStrB+ rs.getString("body")+boxEnd+boxStrB+ rs.getString("agent")+boxEnd+rowEnd;
 					}
 					else if (rs.getString("msg").equalsIgnoreCase("R")) {
 						cause = "Resolved:\t";
 						resolved++;
-						rbody = rbody +rowStr+boxStrG+ rs.getString("id")+boxEnd +boxStrG+ rs.getString("body")+boxEnd+boxStrG+ rs.getString("agent")+boxEnd+rowEnd;
+//						rbody = rbody +rowStr+boxStrG+ rs.getString("id")+boxEnd +boxStrG+ rs.getString("body")+boxEnd+boxStrG+ rs.getString("agent")+boxEnd+rowEnd;
+						rbody = rbody +rowStr+boxStrB+ rs.getString("id")+boxEnd +boxStrB+ rs.getString("body")+boxEnd+boxStrB+ rs.getString("agent")+boxEnd+rowEnd;
 					}
 					else {
 						cause = "Time out:\t";
 						warnings++;
-						wbody = wbody +rowStr+boxStrY+ rs.getString("id")+boxEnd +boxStrY+ rs.getString("body")+boxEnd+boxStrY+ rs.getString("agent")+boxEnd+rowEnd;
+//						wbody = wbody +rowStr+boxStrY+ rs.getString("id")+boxEnd +boxStrY+ rs.getString("body")+boxEnd+boxStrY+ rs.getString("agent")+boxEnd+rowEnd;
+						wbody = wbody +rowStr+boxStrB+ rs.getString("id")+boxEnd +boxStrB+ rs.getString("body")+boxEnd+boxStrB+ rs.getString("agent")+boxEnd+rowEnd;
 					}
 					swMail = true;
 					if (rs.getString("msg").equalsIgnoreCase("R")) rs.updateString("msg", " ");

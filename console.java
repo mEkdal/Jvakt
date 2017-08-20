@@ -200,8 +200,8 @@ public class console extends JFrame implements TableModelListener, WindowListene
 		column.setPreferredWidth(30);
 		column.setMaxWidth(35);
 		column = table.getColumnModel().getColumn(4);
-		column.setPreferredWidth(200);
-		column.setMaxWidth(200);
+		column.setPreferredWidth(205);
+		column.setMaxWidth(210);
 		column = table.getColumnModel().getColumn(5);
 		column.setPreferredWidth(40);
 		column.setMaxWidth(50);

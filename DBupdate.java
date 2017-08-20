@@ -190,7 +190,8 @@ class DBupdate {
 						else 					st.setTime(9, new java.sql.Time(06 ,00,00)); // chktim
 						if (m.getRptsts().toUpperCase().equals("OK") || m.getRptsts().toUpperCase().equals("INFO")) st.setInt(10,0); // errors 
 						else                                          st.setInt(10,1); 
-						st.setInt(11,0); // acceptable errors 
+						if (sType.toUpperCase().equals("R")) st.setInt(11,1); // acceptable errors 
+						else 								 st.setInt(11,0); // acceptable errors 
 						st.setString(12," "); // msg 
 						st.setTime(13,null ); // msgdat 
 						if (m.getType().equalsIgnoreCase("I"))   {
