@@ -73,7 +73,7 @@ public class console extends JFrame implements TableModelListener, WindowListene
 		port = Integer.parseInt(jvport);
 
 		// funktion från Jframe att sätta rubrik
-		setTitle("Jvakt console 2.8 beta");
+		setTitle("Jvakt console 2.9 RC 1");
 		//	        setSize(5000, 5000);
 
 		// get the screen size as a java dimension
@@ -176,7 +176,7 @@ public class console extends JFrame implements TableModelListener, WindowListene
 		// sätter färg på raderna
 		consoleCR cr=new consoleCR();
 
-		for (int i=0; i <= 7 ; i++ ) {      
+		for (int i=0; i <= 8 ; i++ ) {      
 			table.getColumn(table.getColumnName(i)).setCellRenderer(cr);
 		}
 
@@ -201,13 +201,16 @@ public class console extends JFrame implements TableModelListener, WindowListene
 		column.setMaxWidth(35);
 		column = table.getColumnModel().getColumn(4);
 		column.setPreferredWidth(205);
-		column.setMaxWidth(210);
+		column.setMaxWidth(235);
 		column = table.getColumnModel().getColumn(5);
+		column.setPreferredWidth(205);
+		column.setMaxWidth(235);
+		column = table.getColumnModel().getColumn(6);
 		column.setPreferredWidth(40);
 		column.setMaxWidth(50);
-		column = table.getColumnModel().getColumn(6);
-		column.setPreferredWidth(900);
 		column = table.getColumnModel().getColumn(7);
+		column.setPreferredWidth(900);
+		column = table.getColumnModel().getColumn(8);
 		column.setPreferredWidth(100);
 		column.setMaxWidth(250);
 		addKeyBindings();

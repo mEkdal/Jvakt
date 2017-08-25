@@ -57,6 +57,27 @@ public class SendMail {
 	static String boxStr  = "<TD>"; 
 	static String boxEnd  = "</TD>";
 
+	static String subject = "";
+	static String body = "";
+
+	static String toEmailW;
+
+	static boolean swMail = false;
+
+	static Properties props;
+	static Properties prop;
+
+	static String toEmail;
+	static String fromEmail;	
+	static String uname;
+	static String pwd;
+	static String smtphost;
+	static String smtpport;
+
+	static Authenticator auth;
+
+	static List listTo;
+	
 	public static void main(String[] args ) throws IOException, UnknownHostException {
 
 		String version = "jVakt 2.0 - SendMail 1.0 Date 2017-02-21_01";
@@ -69,19 +90,20 @@ public class SendMail {
 		String jvport   = "1956";
 
 		//Declare recipient's & sender's e-mail id.
-		String toEmailW;
-		final String toEmail;
-		final String fromEmail;	
-		final String uname;
-		final String pwd;
-		final String smtphost;
-		final String smtpport;
+//		String toEmailW;
+//		final String toEmail;
+//		final String fromEmail;	
+//		final String uname;
+//		final String pwd;
+//		final String smtphost;
+//		final String smtpport;
 
-		String subject = "";
-		String body = "";
-		boolean swMail = false;
+//		String subject = "";
+//		String body = "";
+//		boolean swMail = false;
 
-		Properties prop = new Properties();
+//		Properties prop = new Properties();
+		prop = new Properties();
 		InputStream input = null;
 		//		try {
 		input = new FileInputStream("jVakt.properties");
@@ -107,7 +129,7 @@ public class SendMail {
 		input.close();
 
 		
-		List listTo = new ArrayList();  // Alla mailadresser.
+		listTo = new ArrayList();  // Alla mailadresser.
 		
 		String[] toAddr = toEmailW.split("\\,");
 		for(int i=0 ; i<toAddr.length;i++) {
@@ -140,7 +162,7 @@ public class SendMail {
 
 
 		//create Authenticator object to pass in Session.getInstance argument
-		Authenticator auth = new Authenticator() {
+		auth = new Authenticator() {
 			//override the getPasswordAuthentication method
 			protected PasswordAuthentication getPasswordAuthentication() {
 				return new PasswordAuthentication(fromEmail, pwd);
@@ -148,7 +170,7 @@ public class SendMail {
 		};
 
 		//Set properties and their values
-		Properties props = new Properties();
+		props = new Properties();
 		props.put("mail.smtp.auth", "true");
 		props.put("mail.smtp.starttls.enable", "true");
 		props.put("mail.smtp.host", smtphost);
@@ -173,7 +195,8 @@ public class SendMail {
 //			System.out.println(DBUrl);
 //			System.out.println("dbuser= " + dbuser +"  dbpassword "+ dbpassword);
 			conn = DriverManager.getConnection(DBUrl,dbuser,dbpassword);
-			conn.setAutoCommit(true);
+//			conn.setAutoCommit(true);
+			conn.setAutoCommit(false);
 
 			//			s = new String("select * from status " + 
 			//					"WHERE (state='A' or  state='D') " +
@@ -261,6 +284,10 @@ public class SendMail {
 					try { rs.updateRow(); } catch(NullPointerException npe2) {}
 				}
 			}
+			
+			if (sendMail()) conn.commit();
+			else			conn.rollback();
+
 			rs.close(); 
 			stmt.close();
 
@@ -274,49 +301,104 @@ public class SendMail {
 //			System.err.println(e.getMessage());
 		}
 		finally { 
-			subject = "Altered status -->   ";
-			body = tblStr;
-
-			if (sbody.length() > 0) {
-				subject = subject + "Errors: " + serrors + "  ";
-				body = body + rowStr+hdrStrM+"ERROR" +hdrEnd+hdrStrM+""+hdrEnd+hdrStrM+""+hdrEnd+rowEnd+	sbody ;
-			}
-			if (ebody.length() > 0) {
-				subject = subject + "Warnings: " + errors + "  ";
-				body = body + rowStr+hdrStrR+"WARNING" +hdrEnd+hdrStrR+""+hdrEnd+hdrStrR+""+hdrEnd+rowEnd+	ebody ;
-			}
-			if (wbody.length() > 0) {
-				subject = subject + "Time-outs: " + warnings + "  ";
-				body = body + rowStr+hdrStrY+"TIME-OUT"+hdrEnd+hdrStrY+""+hdrEnd+hdrStrY+""+hdrEnd+rowEnd+	wbody ;
-			}
-			if (rbody.length() > 0) { 
-				subject = subject + "Resolved: " + resolved;
-				body = body + rowStr+hdrStrG+"RESOLVED" +hdrEnd+hdrStrG+""+hdrEnd+hdrStrG+""+hdrEnd+rowEnd+	rbody ;
-			}
-			body = body + tblEnd;
-
-			if (swMail) {
-
-//				Iterator iterator = listTo.iterator();
-				toEmailW = "";
-				int n = 0;
-				for(Object object : listTo) { 
-					if (n>0) toEmailW = toEmailW + ",";
-					n++;
-				  String element = (String) object;
-				  System.out.println(object);
-				  toEmailW = toEmailW + (String) object;
-				}
-				
-				toEmail = toEmailW;
-//				System.out.println("To:"+toEmailW+"   Subject: " + subject );
-				System.out.println("To:"+toEmail +"   Subject: " + subject );
-				System.out.println( body );
-				Session session = Session.getInstance(props, auth);
-				EmailUtil.sendEmail(session, toEmail,subject, body, fromEmail);
-			}
+//			subject = "Altered status -->   ";
+//			body = tblStr;
+//
+//			if (sbody.length() > 0) {
+//				subject = subject + "Errors: " + serrors + "  ";
+//				body = body + rowStr+hdrStrM+"ERROR" +hdrEnd+hdrStrM+""+hdrEnd+hdrStrM+""+hdrEnd+rowEnd+	sbody ;
+//			}
+//			if (ebody.length() > 0) {
+//				subject = subject + "Warnings: " + errors + "  ";
+//				body = body + rowStr+hdrStrR+"WARNING" +hdrEnd+hdrStrR+""+hdrEnd+hdrStrR+""+hdrEnd+rowEnd+	ebody ;
+//			}
+//			if (wbody.length() > 0) {
+//				subject = subject + "Time-outs: " + warnings + "  ";
+//				body = body + rowStr+hdrStrY+"TIME-OUT"+hdrEnd+hdrStrY+""+hdrEnd+hdrStrY+""+hdrEnd+rowEnd+	wbody ;
+//			}
+//			if (rbody.length() > 0) { 
+//				subject = subject + "Resolved: " + resolved;
+//				body = body + rowStr+hdrStrG+"RESOLVED" +hdrEnd+hdrStrG+""+hdrEnd+hdrStrG+""+hdrEnd+rowEnd+	rbody ;
+//			}
+//			body = body + tblEnd;
+//
+//			if (swMail) {
+//
+////				Iterator iterator = listTo.iterator();
+//				toEmailW = "";
+//				int n = 0;
+//				for(Object object : listTo) { 
+//					if (n>0) toEmailW = toEmailW + ",";
+//					n++;
+//				  String element = (String) object;
+//				  System.out.println(object);
+//				  toEmailW = toEmailW + (String) object;
+//				}
+//				
+//				toEmail = toEmailW;
+////				System.out.println("To:"+toEmailW+"   Subject: " + subject );
+//				System.out.println("To:"+toEmail +"   Subject: " + subject );
+//				System.out.println( body );
+//				Session session = Session.getInstance(props, auth);
+//				EmailUtil.sendEmail(session, toEmail,subject, body, fromEmail);
+//			}
 
 		}
 	}        
+	static boolean sendMail() {
+
+		subject = "Altered status -->   ";
+		body = tblStr;
+
+		if (sbody.length() > 0) {
+			subject = subject + "Errors: " + serrors + "  ";
+			body = body + rowStr+hdrStrM+"ERROR" +hdrEnd+hdrStrM+""+hdrEnd+hdrStrM+""+hdrEnd+rowEnd+	sbody ;
+		}
+		if (ebody.length() > 0) {
+			subject = subject + "Warnings: " + errors + "  ";
+			body = body + rowStr+hdrStrR+"WARNING" +hdrEnd+hdrStrR+""+hdrEnd+hdrStrR+""+hdrEnd+rowEnd+	ebody ;
+		}
+		if (wbody.length() > 0) {
+			subject = subject + "Time-outs: " + warnings + "  ";
+			body = body + rowStr+hdrStrY+"TIME-OUT"+hdrEnd+hdrStrY+""+hdrEnd+hdrStrY+""+hdrEnd+rowEnd+	wbody ;
+		}
+		if (rbody.length() > 0) { 
+			subject = subject + "Resolved: " + resolved;
+			body = body + rowStr+hdrStrG+"RESOLVED" +hdrEnd+hdrStrG+""+hdrEnd+hdrStrG+""+hdrEnd+rowEnd+	rbody ;
+		}
+		body = body + tblEnd;
+
+		if (swMail) {
+
+			toEmailW = "";
+			int n = 0;
+			for(Object object : listTo) { 
+				if (n>0) toEmailW = toEmailW + ",";
+				n++;
+				String element = (String) object;
+				System.out.println(object);
+				toEmailW = toEmailW + (String) object;
+			}
+
+			toEmail = toEmailW;
+//		    final String LtoEmail = toEmail;
+//		    final String LtoEmail="";
+//			final String LfromEmail = fromEmail;	
+//			final String Luname = uname;
+//			final String Lpwd = pwd;
+//			final String Lsmtphost = smtphost;
+//			final String Lsmtpport = smtpport;
+			//				System.out.println("To:"+toEmailW+"   Subject: " + subject );
+			System.out.println("To:"+toEmail +"   Subject: " + subject );
+			System.out.println( body );
+			Session session = Session.getInstance(props, auth);
+			if (EmailUtil.sendEmail(session, toEmail,subject, body, fromEmail)) {
+				System.out.println("return true"); return true; } 
+			else { System.out.println("RETURN FALSE"); return false; }
+			
+		}
+		System.out.println("RETURN true");
+		return true;
+	}
 
 }

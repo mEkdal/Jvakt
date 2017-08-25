@@ -29,7 +29,7 @@ public class CheckStatus {
 	static int errors = 0;
 	static int warnings = 0;
 	static int infos = 0;
-	static String version = "jVakt 2.0 - CheckStatus 1.1 Date 2017-07-27_01";
+	static String version = "jVakt 2.0 - CheckStatus 1.2 Date 2017-08-22_01";
 	static String database = "jVakt";
 	static String dbuser   = "jVakt";
 	static String dbpassword = "xz";
@@ -189,12 +189,13 @@ public class CheckStatus {
 					swTiming = true;
 					System.out.println("timing #3: " + rs.getString("id")+"  MSG:"+rs.getString("msg"));
 					if (rs.getString("msg").startsWith(" ")) {
-						System.out.println("Set msg to T in timeout " + rs.getInt("id"));
+						System.out.println("Set msg to T in timeout " + rs.getString("id"));
 						rs.updateString("msg", "T");
 						rs.updateTimestamp("msgdat", new java.sql.Timestamp((new Date(System.currentTimeMillis())).getTime()));
 						swPlugin = true;
 						swUpdate=true;
 					}
+					System.out.println("timing #3.a :  " + rs.getString("id")+"  MSG:"+rs.getString("msg"));
 					if (swUpdate) try { rs.updateRow(); } catch(NullPointerException npe2) {}
 					updC(rs); // add new line to the console table
 					if (swPlugin && !rs.getString("plugin").startsWith(" ")) {
@@ -314,6 +315,7 @@ public class CheckStatus {
 				count = count + rs2.getInt(1);
 				if (swDelete) {
 					System.out.println(">>> deleterow");
+					addHst(rs2);
 					try { rs2.deleteRow(); } catch(NullPointerException npe2) {} 
 				}
 				else { 
@@ -363,7 +365,6 @@ public class CheckStatus {
 		finally { System.out.println("CheckStatus addC finally routine" ); }
 	} 
 
-	//----- add new line to the console table -----
 	static protected void countErr(ResultSet rs, char c) throws SQLException {
 		if (c=='+')	{	
 			if (rs.getString("status").startsWith("INFO") ) infos++; 
@@ -378,4 +379,42 @@ public class CheckStatus {
 //		System.out.println(" Err: " + errors + "  Warn: " + warnings + "  Info: " + infos ); 
 
 	}
+	
+	//----- add new line to the consoleHst table -----
+	static protected void addHst(ResultSet rs) throws IOException {
+
+		try {
+			System.out.println("addHst RS: " + rs.getString("id")+" Type: " + rs.getString("type").toUpperCase());
+
+			// insert new line with new timestamp and counter
+			PreparedStatement st = conn.prepareStatement("INSERT INTO ConsoleHst (credat,deldat,count,id,prio,type,status,body,agent) "
+					+ "values (?,?,?,?,?,?,?,?,?)");
+			System.out.println("Prepared insert:" + st);
+			st.setTimestamp(1, rs.getTimestamp("credat")); // credat
+			st.setTimestamp(2, new java.sql.Timestamp((new Date(System.currentTimeMillis())).getTime())); // deldat
+			st.setInt(3,rs.getInt("count")); // count
+			st.setString(4,rs.getString("id") ); 
+			st.setInt(5,rs.getInt("prio")); // prio
+			st.setString(6,rs.getString("type").toUpperCase() ); // type
+			st.setString(7,rs.getString("status") );// 
+			st.setString(8,rs.getString("body") ); // 
+			st.setString(9,rs.getString("agent") ); // 
+			int rowsInserted = st.executeUpdate();
+			System.out.println("Executed insert addHst " +rowsInserted);
+			st.close();
+			System.out.println("Closed addHst");
+		}
+		catch (SQLException e) {
+			System.err.println(e);
+			System.err.println(e.getMessage());
+		}
+		catch (Exception e) {
+			System.err.println(e);
+			System.err.println(e.getMessage());
+		}
+		finally { System.out.println("CheckStatus addHst finally routine" ); }
+	} 
+
+
+	
 }

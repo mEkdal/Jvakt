@@ -15,6 +15,7 @@ public class consoleROW {
 	public String id;
 	private int prio;
 	private String type;
+	private String credat;
 	private String condat;
 	private String status;
 	private String body;
@@ -28,6 +29,7 @@ public class consoleROW {
 		this.id = " ";
 		this.prio = 3;
 		this.type = " ";
+		this.credat = " ";
 		this.condat = " ";
 		this.status = " ";
 		this.body = " ";
@@ -48,6 +50,10 @@ public class consoleROW {
 
 	public String getType() {
 		return type;
+	}
+
+	public String getCredat() {
+		return credat;
 	}
 
 	public String getCondat() {
@@ -84,6 +90,10 @@ public class consoleROW {
 
 	public void setCondat(String condat) {
 		this.condat = condat;
+	}
+
+	public void setCredat(String credat) {
+		this.credat = credat;
 	}
 
 	public void setStatus(String status) {

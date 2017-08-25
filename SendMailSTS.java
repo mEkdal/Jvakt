@@ -218,7 +218,7 @@ public class SendMailSTS {
 //			subject = "";
 //		}
 		
-		subject = "";
+		subject = "* STATUS * ";
 		
 			if (errors > 0) {
 				errors = errors / 7;
@@ -258,7 +258,7 @@ public class SendMailSTS {
 			
 			if (swMail && !swDormant) {
 				Session session = Session.getInstance(props, auth);
-				EmailUtil.sendEmail(session, toEmail,subject, body, fromEmail);
+				if (EmailUtil.sendEmail(session, toEmail,subject, body, fromEmail)) {};
 			}
 
 	}        

@@ -16,7 +16,7 @@ import java.util.*;
 class consoleDM extends AbstractTableModel {
 
 	String afn;
-	String columnNames[] = {"Count", "Id", "Prio", "Type", "ConDate", "Status", "Body", "Agent"};
+	String columnNames[] = {"Count", "Id", "Prio", "Type", "CreDate", "ConDate", "Status", "Body", "Agent"};
 	static Vector map = new Vector(100,10);
 
 	consoleROW rad;
@@ -26,7 +26,7 @@ class consoleDM extends AbstractTableModel {
 	static String DBUrl = "jdbc:postgresql://localhost:5433/Jvakt";
 	static Connection conn = null;
 
-	String version = "jVakt 2.0 - consoleDM 1.0 Date 2017-05-05_01";
+	String version = "jVakt 2.0 - consoleDM 1.1 Date 2017-08-25_01";
 	String database = "Jvakt";
 	String dbuser   = "console";
 	String dbpassword = "Jvakt";
@@ -76,12 +76,14 @@ class consoleDM extends AbstractTableModel {
 		} else if (col == 3) {
 			return rad.getType();
 		} else if (col == 4) {
-			return rad.getCondat();
+			return rad.getCredat();
 		} else if (col == 5) {
-			return rad.getStatus();
+			return rad.getCondat();
 		} else if (col == 6) {
-			return rad.getBody();
+			return rad.getStatus();
 		} else if (col == 7) {
+			return rad.getBody();
+		} else if (col == 8) {
 			return rad.getAgent();
 		} else {
 			return null;
@@ -118,12 +120,14 @@ class consoleDM extends AbstractTableModel {
 		} else if (col == 3) {
 			rad.setType((String)value);            
 		} else if (col == 4) {
-			rad.setCondat((String)value);
+			rad.setCredat((String)value);
 		} else if (col == 5) {
-			rad.setStatus((String)value);
+			rad.setCondat((String)value);
 		} else if (col == 6) {
-			rad.setBody((String)value);
+			rad.setStatus((String)value);
 		} else if (col == 7) {
+			rad.setBody((String)value);
+		} else if (col == 8) {
 			rad.setAgent((String)value);
 		}
 		fireTableCellUpdated(row, col);
@@ -195,6 +199,7 @@ class consoleDM extends AbstractTableModel {
 					rad.setId(rs.getString("id"));
 					rad.setPrio(rs.getInt("prio"));
 					rad.setType(rs.getString("type"));
+					rad.setCredat(rs.getString("credat"));
 					rad.setCondat(rs.getString("condat"));
 					rad.setStatus(rs.getString("status"));
 					rad.setBody(rs.getString("body"));
@@ -232,6 +237,7 @@ class consoleDM extends AbstractTableModel {
 		rad.setId("**<>**");
 		rad.setPrio(0);
 		rad.setType(" ");
+		rad.setCredat(" ");
 		rad.setCondat(" ");
 		rad.setStatus(" ");
 		rad.setBody(" ");
