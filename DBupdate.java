@@ -323,7 +323,7 @@ class DBupdate {
 	//----- add new line to the consoleHst table -----
 	static protected void addHst(ResultSet rs) throws IOException {
 
-		try {
+		try { 
 			System.out.println("addHst RS: " + rs.getString("id")+" Type: " + rs.getString("type").toUpperCase());
 
 			// insert new line with new timestamp and counter

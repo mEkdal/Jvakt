@@ -347,7 +347,7 @@ public class SendMail {
 	}        
 	static boolean sendMail() {
 
-		subject = "Altered status -->   ";
+		subject = "* NEW status * -->   ";
 		body = tblStr;
 
 		if (sbody.length() > 0) {
