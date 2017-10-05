@@ -47,10 +47,7 @@ public class DW2Jvakt  {
 		boolean swLoop = false;
 		boolean swSyslogOK = false;
 		boolean swInteresting = true;
-<<<<<<< HEAD
 		boolean swPurge = false;
-=======
->>>>>>> d0e1d114a2480abb2e60d5a9021dd6fc2d76d7ef
 		int sev;
 		String sts;
 		Enumeration q = null;
@@ -99,7 +96,6 @@ public class DW2Jvakt  {
 				QueuedMessage msge = (QueuedMessage)q.nextElement();
 				msgkey = msge.getKey();
 				msg = msge.getText();
-<<<<<<< HEAD
 				System.out.println(msg + " Msgkey: " + msgkey);
 				words = msg.split(" ",2);
 				allwords = msg.split(" ");
@@ -154,42 +150,12 @@ public class DW2Jvakt  {
 					// ERR 10
 					if (msg.contains("QSYSCOMM") || msg.contains("QSYSARB")|| msg.contains("APP020")) 
 					{ sev = 10; sts = "ERR"; } 
-=======
-				System.out.println(msg +  msgkey);
-				words = msg.split(" ",2);
-				swInteresting = true;
-				swSyslogOK = true;
-
-				// not interesting
-				if (words[0].startsWith("SYSSTS")) swInteresting = false;
-				if (msg.contains(" MonIpPort_"))   swInteresting = false;
-				if (msg.contains(" MonHttpText_"))   swInteresting = false;
-//				if (msg.contains(" MonIpAddr_"))   swInteresting = false;
-
-				// info
-				sev = 4; 
-				if (swInteresting) {
-					//error
-					if (msg.contains("Err:") || msg.contains("EDH18") || msg.contains("Wrn:")) sev = 3; 
-					if (msg.contains("not ready.")) sev = 3; 
-					if (msg.contains("MSGW ") || msg.contains("QAIMPS2") || msg.contains("backup ERR")|| msg.contains("BU ERR")) sev = 3; 
-					if (msg.contains("CPA5305") || msg.contains("FTP0100")  || msg.contains("CPF090")|| msg.contains("APP020")) sev = 3; 
-					if (msg.contains("CHKJOBSTS") || msg.contains("CPF090") || msg.contains("APP020")) sev = 3; 
-					if (msg.contains("QSYSCOMM") || msg.contains("QSYSARB")|| msg.contains("APP020")) sev = 1; 
-					if (msg.contains("ITO0102") || msg.contains("ITO0202")  || msg.contains("SAP0902") ||  msg.contains("ITO0902") ) sev = 2;
-					if (msg.contains("RNQ") || msg.contains("CHK0001") || msg.contains("LOG0010") ) sev = 2;
-					if (msg.contains("CPI0964") || msg.contains("CPF1816") ) sev = 2; //UPS problem
-					// OK
-					if (msg.contains("CPF1817") || msg.contains("CPI0973") ) sev = 5; //UPS better
-					if (msg.contains("backup OK") || msg.contains("is mounted") || msg.contains("Next tape is") ) sev = 5; 
->>>>>>> d0e1d114a2480abb2e60d5a9021dd6fc2d76d7ef
 
 					try {
 						//	 System.out.println(args[0]+" - "+args[1]);
 						Message jmsg = new Message();
 						SendMsg jm = new SendMsg(jvhost, jvport);
 						System.out.println(jm.open());
-<<<<<<< HEAD
 //						if (swPurge) jmsg.setId("AS400-");
 //						else jmsg.setId("AS400-"+words[0]);
 						jmsg.setId("AS400-"+words[0]);
@@ -200,14 +166,6 @@ public class DW2Jvakt  {
 						if (swPurge) jmsg.setType("D");
 						else jmsg.setType("I");
 						
-=======
-						jmsg.setId("AS400-"+words[0]);
-						if (sev < 4)       jmsg.setRptsts("ERR");
-						else if (sev == 4) jmsg.setRptsts("INFO");
-						else 		   jmsg.setRptsts("OK");
-						jmsg.setBody(words[1]);
-						jmsg.setType("I");
->>>>>>> d0e1d114a2480abb2e60d5a9021dd6fc2d76d7ef
 						jmsg.setAgent(agent);
 						jm.sendMsg(jmsg);
 						if (jm.close()) { System.out.println("-- Rpt Delivered --"); swSyslogOK = true; }
