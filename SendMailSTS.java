@@ -165,7 +165,8 @@ public class SendMailSTS {
 				body = body +rowStr;
 				//--
 				for (int i = 1; i <= 9; i++) {
-					if (i==6) continue;  // not interested in showing credat
+					if (i==5) continue;  // not interested in showing condat
+					if (i==9) continue;  // not interested in showing agent
 					value = rs.getString (i);
 
 					if (rs.getInt("prio") < 30 && rs.getString("status").contentEquals("ERR")) {
@@ -229,7 +230,7 @@ public class SendMailSTS {
 				subject = subject + "Warnings: " + warnings + "  ";
 			}
 			if (errors == 0 && warnings == 0) {
-				subject = subject + "Jvakt OKAY   ";
+				subject = subject + "Jvakt: all is OKAY!  ";
 			}
 			if (infos > 0) {
 				infos = infos / 7;

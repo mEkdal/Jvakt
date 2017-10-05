@@ -49,6 +49,7 @@ public class console extends JFrame implements TableModelListener, WindowListene
 	private  String jvhost = "127.0.0.1";
 	private  String jvport = "1956";
 	private  int port = 1956; 
+	private  String cmdHst = "java -cp console.jar;postgresql-42.1.3.jar Jvakt.consoleHst";
 
 	private  int deselectCount = 0; 
 
@@ -68,12 +69,15 @@ public class console extends JFrame implements TableModelListener, WindowListene
 	// kallar också på metoder ärvda från Jframe att sätta vissa värden.
 	public console() throws IOException {
 
+		ImageIcon img = new ImageIcon("console.png");
+		setIconImage(img.getImage());
+		
 		// get the parameters from the console.properties file
 		getProps();
 		port = Integer.parseInt(jvport);
 
 		// funktion från Jframe att sätta rubrik
-		setTitle("Jvakt console 2.9 RC 1");
+		setTitle("Jvakt console 2.13 RC");
 		//	        setSize(5000, 5000);
 
 		// get the screen size as a java dimension
@@ -200,14 +204,14 @@ public class console extends JFrame implements TableModelListener, WindowListene
 		column.setPreferredWidth(30);
 		column.setMaxWidth(35);
 		column = table.getColumnModel().getColumn(4);
-		column.setPreferredWidth(205);
-		column.setMaxWidth(235);
+		column.setPreferredWidth(245);
+		column.setMaxWidth(255);
 		column = table.getColumnModel().getColumn(5);
-		column.setPreferredWidth(205);
-		column.setMaxWidth(235);
+		column.setPreferredWidth(245);
+		column.setMaxWidth(255);
 		column = table.getColumnModel().getColumn(6);
 		column.setPreferredWidth(40);
-		column.setMaxWidth(50);
+		column.setMaxWidth(90);
 		column = table.getColumnModel().getColumn(7);
 		column.setPreferredWidth(900);
 		column = table.getColumnModel().getColumn(8);
@@ -331,10 +335,38 @@ public class console extends JFrame implements TableModelListener, WindowListene
 
 	private void addKeyBindings() {
 		table.getActionMap().put("delRow", delRow());
+		table.getActionMap().put("strHst", strHst());
+
 		KeyStroke keyStroke = KeyStroke.getKeyStroke(KeyEvent.VK_BACK_SPACE, 0);  // delete key in mac
 		table.getInputMap(JComponent.WHEN_FOCUSED).put(keyStroke, "delRow");
+		
 		keyStroke = KeyStroke.getKeyStroke(KeyEvent.VK_DELETE, 0);  // delete key in win linux
 		table.getInputMap(JComponent.WHEN_FOCUSED).put(keyStroke, "delRow");
+		
+		keyStroke = KeyStroke.getKeyStroke(KeyEvent.VK_F1, 0);
+		table.getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(keyStroke, "strHst");
+		keyStroke = KeyStroke.getKeyStroke(KeyEvent.VK_F2, 0);
+		table.getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(keyStroke, "strHst");
+		keyStroke = KeyStroke.getKeyStroke(KeyEvent.VK_F3, 0);
+		table.getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(keyStroke, "strHst");
+		keyStroke = KeyStroke.getKeyStroke(KeyEvent.VK_F4, 0);
+		table.getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(keyStroke, "strHst");
+		keyStroke = KeyStroke.getKeyStroke(KeyEvent.VK_F5, 0);
+		table.getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(keyStroke, "strHst");
+		keyStroke = KeyStroke.getKeyStroke(KeyEvent.VK_F6, 0);
+		table.getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(keyStroke, "strHst");
+		keyStroke = KeyStroke.getKeyStroke(KeyEvent.VK_F7, 0);
+		table.getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(keyStroke, "strHst");
+		keyStroke = KeyStroke.getKeyStroke(KeyEvent.VK_F8, 0);
+		table.getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(keyStroke, "strHst");
+		keyStroke = KeyStroke.getKeyStroke(KeyEvent.VK_F9, 0);
+		table.getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(keyStroke, "strHst");
+		keyStroke = KeyStroke.getKeyStroke(KeyEvent.VK_F10, 0);
+		table.getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(keyStroke, "strHst");
+		keyStroke = KeyStroke.getKeyStroke(KeyEvent.VK_F11, 0);
+		table.getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(keyStroke, "strHst");
+		keyStroke = KeyStroke.getKeyStroke(KeyEvent.VK_F12, 0);
+		table.getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(keyStroke, "strHst");
 		
 	}  
 
@@ -396,9 +428,52 @@ public class console extends JFrame implements TableModelListener, WindowListene
 		return save;
 	}
 
+	//************
+	private AbstractAction strHst()  {
+		AbstractAction save = new AbstractAction() {
+
+			@Override
+			public void actionPerformed(ActionEvent e)  {
+			       System.out.println("-- Start consoleHst: " + cmdHst);
+
+			       try {
+//			       Runtime.getRuntime().exec("java -cp \"/Users/septpadm/OneDrive - Perstorp Group/JavaSrc;/Users/septpadm/OneDrive - Perstorp Group/JavaSrc/postgresql-42.1.3.jar\" Jvakt.consoleHst");
+			       Runtime.getRuntime().exec(cmdHst);
+			       } catch (IOException e1) {
+			    	   System.err.println(e1);
+			    	   System.err.println(e1.getMessage());
+			       }
+			       
+//			       String[] par = new String[] { "One", "Two", "Three" };
+//			       try {
+//			    	   consoleHst.main(par);
+//			       } catch (IOException e1) {
+//			    	   System.err.println(e1);
+//			    	   System.err.println(e1.getMessage());
+//			       }
+
+//			       new Thread() {
+//			    	   public void run(){
+//			    		   String[] par = new String[] { "One", "Two", "Three" };
+//			    		   try {
+//			    			   consoleHst.main(par);
+//			    		   } 		catch (IOException e1) {
+//			    			   System.err.println(e1);
+//			    			   System.err.println(e1.getMessage());
+//			    		   }
+//
+//			    	   }
+//			       }.start();
+
+			}
+	};
+	return save;
+	}
+//	************
+	
+	
 	// windows listeners
 	// vi implementerade WindowListener och addade "this" för att denna metod skulle anropas vid normalt avslut av Jframe 
-	// värdena i tabellerna skrivt till var sin fil
 	public void windowClosing(WindowEvent e) {
 		//skriv userDB
 		wD.closeDB();
@@ -416,6 +491,7 @@ public class console extends JFrame implements TableModelListener, WindowListene
 			// get the property value and print it out
 			jvport   = prop.getProperty("jvport");
 			jvhost   = prop.getProperty("jvhost");
+			cmdHst   = prop.getProperty("cmdHst");
 			input.close();
 		} catch (IOException ex) {
 			// ex.printStackTrace();

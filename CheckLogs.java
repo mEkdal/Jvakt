@@ -23,7 +23,7 @@ public class CheckLogs {
 	static String jvport   = "1956";
 	static int port ;
 	static InetAddress inet;
-	static String version = "jVakt 2.0 - CheckLogs 1.0 Date 2017-04-15_01";
+	static String version = "jVakt 2.0 - CheckLogs 1.1 Date 2017-09-08";
 	static String agent = null;
 	static boolean swSlut = false;
 
@@ -66,7 +66,7 @@ public class CheckLogs {
 		}
 
 		if (args.length < 1) {
-			System.out.println("\nCheckLogs 2.0 Date 2017-04-15_01");
+			System.out.println("\n " + version);
 			System.out.println("by Michael Ekdal Sweden.\n");
 
 			System.out.println("\nThe parameters and their meaning are:\n"+
@@ -236,11 +236,11 @@ public class CheckLogs {
 			t_desc = "No errors found";
 			sendSTS(swWarn);
 		}
-		else      {
-			swWarn=true;
-			t_desc = errors + " errors found";
-			sendSTS(swWarn);
-		}
+//		else      {
+//			swWarn=true;
+//			t_desc = errors + " errors found";
+//			sendSTS(swWarn);
+//		}
 		//         System.out.println(tdat + "-- "+c);
 
 		if (errors == 0) System.exit(0);
@@ -253,15 +253,18 @@ public class CheckLogs {
 		Message jmsg = new Message();
 		SendMsg jm = new SendMsg(jvhost, port);
 		System.out.println(jm.open());
-		if (!swSlut) jmsg.setId(id+"-CheckLogs-"+aFile);
-		else		 jmsg.setId(id+"-CheckLogs-"+aFile+"-JV");
+//		if (!swSlut) jmsg.setId(id+"-CheckLogs-"+aFile);
+//		else		 jmsg.setId(id+"-CheckLogs-"+aFile+"-JV");
+// 	    jmsg.setId(id+"-CheckLogs-"+aFile);
+ 	    jmsg.setId(id);
 		if (!STS) jmsg.setRptsts("OK");
 		else jmsg.setRptsts("ERR");
+		if (!swSlut) t_desc =aFile+": "+t_desc;
 		jmsg.setBody(t_desc);
 		jmsg.setType("R");
 		jmsg.setAgent(agent);
 		jm.sendMsg(jmsg);
-		if (jm.close()) System.out.println("--- Rpt Delivered --");
+		if (jm.close()) System.out.println("--- Rpt Delivered --  " + id + "  --  " + t_desc);
 		else            System.out.println("--- Rpt Failed --");
 
 	}

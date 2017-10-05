@@ -125,6 +125,7 @@ class DBupdate {
 						if (rs.getString("type").startsWith("D")) {
 							rs.updateString("type", m.getType().toUpperCase());
 							sType = m.getType().toUpperCase();
+							if (m.getType().toUpperCase().startsWith("I")) rs.updateInt("prio", m.getPrio());
 							//							System.out.println("sType 2 " + sType );
 						}
 						if (rs.getString("type").startsWith("I")) rs.updateInt("prio", m.getPrio());
@@ -323,7 +324,7 @@ class DBupdate {
 	//----- add new line to the consoleHst table -----
 	static protected void addHst(ResultSet rs) throws IOException {
 
-		try {
+		try { 
 			System.out.println("addHst RS: " + rs.getString("id")+" Type: " + rs.getString("type").toUpperCase());
 
 			// insert new line with new timestamp and counter

@@ -20,7 +20,7 @@ public class monIpPorts {
 	static boolean swSingle = false;
 	static String host;
 	static InetAddress inet;
-	static String version = "jVakt 2.0 - monIpPorts 1.0 Date 2017-04-05_01";
+	static String version = "jVakt 2.0 - monIpPorts 1.1 Date 2017-09-06";
 	static String database = "jVakt";
 	static String dbuser   = "jVakt";
 	static String dbpassword = "xz";
@@ -141,8 +141,8 @@ public class monIpPorts {
 			BufferedInputStream inFromClient = new BufferedInputStream(cs.getInputStream());
 			BufferedOutputStream outToClient = new BufferedOutputStream(cs.getOutputStream());
 			//cs = new Socket(host, port);
-			outToClient.write(' ');
-			outToClient.flush();
+//			outToClient.write(' ');
+//			outToClient.flush();
 		} catch (Exception e) { System.out.println("Connection failed:" + e); state = "FAILED";   }
 
 		try { Thread.currentThread(); Thread.sleep(1000); } catch (Exception e) {} ;

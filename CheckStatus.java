@@ -29,7 +29,7 @@ public class CheckStatus {
 	static int errors = 0;
 	static int warnings = 0;
 	static int infos = 0;
-	static String version = "jVakt 2.0 - CheckStatus 1.2 Date 2017-08-22_01";
+	static String version = "jVakt 2.0 - CheckStatus 1.3 Date 2017-09-22_01";
 	static String database = "jVakt";
 	static String dbuser   = "jVakt";
 	static String dbpassword = "xz";
@@ -134,7 +134,8 @@ public class CheckStatus {
 //				System.out.println("Nu " + nu + " Klocka " +nu.getHour()+":"+nu.getMinute()+":"+nu.getSecond() + " Chktim  " +rs.getTime("chktim").getHours());
 				
 				swShDay = false;
-				if (rs.getString("chkday").startsWith("*ALL") || rs.getString("chkday").startsWith(DOW.name().substring(0, 2) )) {
+//				if (rs.getString("chkday").startsWith("*ALL") || rs.getString("chkday").startsWith(DOW.name().substring(0, 2) )) {
+				if (rs.getString("chkday").startsWith("*ALL") || rs.getString("chkday").indexOf(DOW.name().substring(0, 2)) >= 0 ) {
 					if (nu.getHour() > rs.getTime("chktim").getHours() ) {
 					swShDay = true; 
 //					System.out.println("Timmen swShDay: "+swShDay);
@@ -151,7 +152,7 @@ public class CheckStatus {
 //				System.out.println("swShDay: "+swShDay);
 				swDelete = false;
 
-				// Om fel inträffat för S och R varnas till console
+				// Om fel inträffat för S, I och R varnas till console
 				if ((rs.getString("type").equalsIgnoreCase("R") || rs.getString("type").equalsIgnoreCase("S") || rs.getString("type").equalsIgnoreCase("I")) && 
 						rs.getString("status").equalsIgnoreCase("ERR") && err > accerr ) {
 					System.out.println("ERR #2: " + rs.getString("id")+" "+rs.getString("status")+"  MSG:"+rs.getString("msg"));
@@ -167,7 +168,7 @@ public class CheckStatus {
 						System.out.println("Set msg to M in ERR" + " " + rs.getString("id"));
 						rs.updateString("msg", "M");
 						rs.updateTimestamp("msgdat", new java.sql.Timestamp((new Date(System.currentTimeMillis())).getTime()));
-						rs.updateString("info", "Set msg to M in ERR");  // felsökning 
+//						rs.updateString("info", "Set msg to M in ERR");  // felsökning 
 						swPlugin = true;
 						swUpdate=true;
 					}
@@ -202,7 +203,8 @@ public class CheckStatus {
 						trigPlugin(rs.getString("id"), rs.getString("status"), "P", rs.getString("body")); 
 					}
 				} // Om allt bra tas console bort för S och R 
-				else	 if ((rs.getString("type").equalsIgnoreCase("R") || rs.getString("type").equalsIgnoreCase("S") || rs.getString("type").equalsIgnoreCase("I")) && 
+//				else	 if ((rs.getString("type").equalsIgnoreCase("R") || rs.getString("type").equalsIgnoreCase("S") || rs.getString("type").equalsIgnoreCase("I")) && 
+				else	 if ((rs.getString("type").equalsIgnoreCase("R") || rs.getString("type").equalsIgnoreCase("S")) && 
 						rs.getString("console").equalsIgnoreCase("C") && rs.getString("status").equalsIgnoreCase("OK") ) {
 					System.out.println("Del #4: " + rs.getString("id")+" "+rs.getString("status")+"  MSG:"+rs.getString("msg"));
 					swDelete = true;

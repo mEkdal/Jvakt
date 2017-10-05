@@ -37,6 +37,8 @@ class consoleCR extends JLabel implements TableCellRenderer
 			setForeground(table.getForeground());
 			setBackground(Color.lightGray);
 
+			if (vStatus.startsWith("INFO") ) setBackground(java.awt.Color.yellow); 
+
 			if (vStatus.startsWith("Timed") ) setBackground(java.awt.Color.orange); 
 			if (vPrio >= 30 && !vStatus.startsWith("INFO") && !vStatus.startsWith("Timed")  && !vStatus.startsWith(" ") ) setBackground(java.awt.Color.pink); 
 			if (vPrio < 30  && !vStatus.startsWith("Timed") ) setBackground(java.awt.Color.magenta); 

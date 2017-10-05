@@ -80,7 +80,7 @@ public class SendMail {
 	
 	public static void main(String[] args ) throws IOException, UnknownHostException {
 
-		String version = "jVakt 2.0 - SendMail 1.0 Date 2017-02-21_01";
+		String version = "jVakt 2.0 - SendMail 1.0 Date 2017-09-29";
 		String database = "jVakt";
 		String dbuser   = "jVakt";
 		String dbpassword = "xz";
@@ -216,7 +216,7 @@ public class SendMail {
 			ResultSet rs = stmt.executeQuery(s);
 			swHits = false;  // is there already a record?
 			while (rs.next()) {
-				System.out.println("---- main RS: "+rs.getString("state")+" " + rs.getString("id")+" "+rs.getString("type")+" "+rs.getString("prio")+" "+rs.getString("console")+" "+rs.getString("status")+ " "+rs.getString("msg"));
+				System.out.println("- main RS - State:"+rs.getString("state")+" Id:" + rs.getString("id")+" Type:"+rs.getString("type")+" Prio:"+rs.getString("prio")+" Console:"+rs.getString("console")+" Status:"+rs.getString("status")+ " Msg:"+rs.getString("msg"));
 				swHits = true;  
 				swTiming = false;  
 
@@ -224,7 +224,7 @@ public class SendMail {
 //					continue;
 //				}
 
-				if (!rs.getString("type").equalsIgnoreCase("R") && !rs.getString("type").equalsIgnoreCase("S") && !rs.getString("type").equalsIgnoreCase("I")) continue;
+//				if (!rs.getString("type").equalsIgnoreCase("R") && !rs.getString("type").equalsIgnoreCase("S") && !rs.getString("type").equalsIgnoreCase("I")) continue;
 
 				zD = rs.getTimestamp("rptdat");
 				Lsec = (zTs.getTime() / 1000 - zD.getTime() / 1000); 
@@ -257,25 +257,29 @@ public class SendMail {
 						cause = "Problem :\t";
 						serrors++;
 //						sbody = sbody +rowStr+boxStrM+ rs.getString("id")+boxEnd +boxStrM+ rs.getString("body")+boxEnd +boxStrM+ rs.getString("agent")+boxEnd+rowEnd;
-						sbody = sbody +rowStr+boxStrB+ rs.getString("id")+boxEnd +boxStrB+ rs.getString("body")+boxEnd +boxStrB+ rs.getString("agent")+boxEnd+rowEnd;
+//						sbody = sbody +rowStr+boxStrB+ rs.getString("id")+boxEnd +boxStrB+ rs.getString("body")+boxEnd +boxStrB+ rs.getString("agent")+boxEnd+rowEnd;
+						sbody = sbody +rowStr+boxStrB+ rs.getString("id")+boxEnd +boxStrB+ rs.getString("body")+boxEnd +rowEnd;
 					}
 					else if (rs.getString("msg").equalsIgnoreCase("M") && rs.getInt("prio") >= 30 ) { 
 						cause = "Problem :\t";
 						errors++;
 //						ebody = ebody +rowStr+boxStrR+ rs.getString("id")+boxEnd +boxStrR+ rs.getString("body")+boxEnd+boxStrR+ rs.getString("agent")+boxEnd+rowEnd;
-						ebody = ebody +rowStr+boxStrB+ rs.getString("id")+boxEnd +boxStrB+ rs.getString("body")+boxEnd+boxStrB+ rs.getString("agent")+boxEnd+rowEnd;
+//						ebody = ebody +rowStr+boxStrB+ rs.getString("id")+boxEnd +boxStrB+ rs.getString("body")+boxEnd+boxStrB+ rs.getString("agent")+boxEnd+rowEnd;
+						ebody = ebody +rowStr+boxStrB+ rs.getString("id")+boxEnd +boxStrB+ rs.getString("body")+boxEnd+rowEnd;
 					}
 					else if (rs.getString("msg").equalsIgnoreCase("R")) {
 						cause = "Resolved:\t";
 						resolved++;
 //						rbody = rbody +rowStr+boxStrG+ rs.getString("id")+boxEnd +boxStrG+ rs.getString("body")+boxEnd+boxStrG+ rs.getString("agent")+boxEnd+rowEnd;
-						rbody = rbody +rowStr+boxStrB+ rs.getString("id")+boxEnd +boxStrB+ rs.getString("body")+boxEnd+boxStrB+ rs.getString("agent")+boxEnd+rowEnd;
+//						rbody = rbody +rowStr+boxStrB+ rs.getString("id")+boxEnd +boxStrB+ rs.getString("body")+boxEnd+boxStrB+ rs.getString("agent")+boxEnd+rowEnd;
+						rbody = rbody +rowStr+boxStrB+ rs.getString("id")+boxEnd +boxStrB+ rs.getString("body")+boxEnd+rowEnd;
 					}
 					else {
 						cause = "Time out:\t";
 						warnings++;
 //						wbody = wbody +rowStr+boxStrY+ rs.getString("id")+boxEnd +boxStrY+ rs.getString("body")+boxEnd+boxStrY+ rs.getString("agent")+boxEnd+rowEnd;
-						wbody = wbody +rowStr+boxStrB+ rs.getString("id")+boxEnd +boxStrB+ rs.getString("body")+boxEnd+boxStrB+ rs.getString("agent")+boxEnd+rowEnd;
+//						wbody = wbody +rowStr+boxStrB+ rs.getString("id")+boxEnd +boxStrB+ rs.getString("body")+boxEnd+boxStrB+ rs.getString("agent")+boxEnd+rowEnd;
+						wbody = wbody +rowStr+boxStrB+ rs.getString("id")+boxEnd +boxStrB+ rs.getString("body")+boxEnd+rowEnd;
 					}
 					swMail = true;
 					if (rs.getString("msg").equalsIgnoreCase("R")) rs.updateString("msg", " ");
@@ -347,7 +351,7 @@ public class SendMail {
 	}        
 	static boolean sendMail() {
 
-		subject = "Altered status -->   ";
+		subject = "* NEW status * -->   ";
 		body = tblStr;
 
 		if (sbody.length() > 0) {
