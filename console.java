@@ -77,7 +77,11 @@ public class console extends JFrame implements TableModelListener, WindowListene
 		port = Integer.parseInt(jvport);
 
 		// funktion från Jframe att sätta rubrik
+<<<<<<< HEAD
 		setTitle("Jvakt console 2.13 RC");
+=======
+		setTitle("Jvakt console 2.12 RC 1");
+>>>>>>> d0e1d114a2480abb2e60d5a9021dd6fc2d76d7ef
 		//	        setSize(5000, 5000);
 
 		// get the screen size as a java dimension
@@ -343,6 +347,7 @@ public class console extends JFrame implements TableModelListener, WindowListene
 		keyStroke = KeyStroke.getKeyStroke(KeyEvent.VK_DELETE, 0);  // delete key in win linux
 		table.getInputMap(JComponent.WHEN_FOCUSED).put(keyStroke, "delRow");
 		
+<<<<<<< HEAD
 		keyStroke = KeyStroke.getKeyStroke(KeyEvent.VK_F1, 0);
 		table.getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(keyStroke, "strHst");
 		keyStroke = KeyStroke.getKeyStroke(KeyEvent.VK_F2, 0);
@@ -367,6 +372,10 @@ public class console extends JFrame implements TableModelListener, WindowListene
 		table.getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(keyStroke, "strHst");
 		keyStroke = KeyStroke.getKeyStroke(KeyEvent.VK_F12, 0);
 		table.getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(keyStroke, "strHst");
+=======
+		keyStroke = KeyStroke.getKeyStroke(KeyEvent.VK_F5, 0);
+		table.getInputMap(JComponent.WHEN_FOCUSED).put(keyStroke, "strHst");
+>>>>>>> d0e1d114a2480abb2e60d5a9021dd6fc2d76d7ef
 		
 	}  
 
@@ -434,15 +443,24 @@ public class console extends JFrame implements TableModelListener, WindowListene
 
 			@Override
 			public void actionPerformed(ActionEvent e)  {
+<<<<<<< HEAD
 			       System.out.println("-- Start consoleHst: " + cmdHst);
 
 			       try {
 //			       Runtime.getRuntime().exec("java -cp \"/Users/septpadm/OneDrive - Perstorp Group/JavaSrc;/Users/septpadm/OneDrive - Perstorp Group/JavaSrc/postgresql-42.1.3.jar\" Jvakt.consoleHst");
 			       Runtime.getRuntime().exec(cmdHst);
+=======
+			       System.out.println("-- Start consoleHst ");
+
+			       String[] par = new String[] { "One", "Two", "Three" };
+			       try {
+			    	   consoleHst.main(par);
+>>>>>>> d0e1d114a2480abb2e60d5a9021dd6fc2d76d7ef
 			       } catch (IOException e1) {
 			    	   System.err.println(e1);
 			    	   System.err.println(e1.getMessage());
 			       }
+<<<<<<< HEAD
 			       
 //			       String[] par = new String[] { "One", "Two", "Three" };
 //			       try {
@@ -451,6 +469,8 @@ public class console extends JFrame implements TableModelListener, WindowListene
 //			    	   System.err.println(e1);
 //			    	   System.err.println(e1.getMessage());
 //			       }
+=======
+>>>>>>> d0e1d114a2480abb2e60d5a9021dd6fc2d76d7ef
 
 //			       new Thread() {
 //			    	   public void run(){
