@@ -112,11 +112,13 @@ class consoleDM extends AbstractTableModel {
 		else rad = (consoleROW) map.get(row);
 
 		if (col == 0) {
-			rad.setCount((int)value);
+			rad.setCount((Integer)value);
+//			rad.setCount((int)value);
 		} else if (col == 1) {
 			rad.setId((String)value);
 		} else if (col == 2) {
-			rad.setPrio((int)value);
+			rad.setPrio((Integer)value);
+//			rad.setPrio((int)value);
 		} else if (col == 3) {
 			rad.setType((String)value);            
 		} else if (col == 4) {

@@ -179,6 +179,7 @@ public class SendMailSTS {
 					}
 					else if (rs.getString("status").contentEquals("INFO")) {
 						body = body + boxStrB + value + boxEnd;
+						infos++;
 					}
 					else if (rs.getString("status").startsWith("Tim")) {
 						body = body + boxStrY + value + boxEnd;

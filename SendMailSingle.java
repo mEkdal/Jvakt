@@ -96,7 +96,9 @@ public class SendMailSingle {
 		if (args.length < 1 ) {
 			System.out.println("\n"+version);
 			System.out.println("by Michael Ekdal Perstorp Sweden.\n");
-			System.out.println("-to \t - Email address");
+			System.out.println("-to 	 \t - Email address");
+			System.out.println("-subject \t - Subject");
+			System.out.println("-body	 \t - Body");
 			System.exit(4);
 		}
 

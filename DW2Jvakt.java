@@ -124,28 +124,29 @@ public class DW2Jvakt  {
 					System.out.println("-- Interesting...");
 					// INFO 30
 					if (msg.contains("DAX ")|| msg.contains("ITO0206") || msg.contains("CPI0973") || msg.contains("backup OK") || 
-							msg.contains("is mounted") || msg.contains("LOG0010") || msg.contains("SYSSTS:") ||
-							msg.contains("Next tape is") || msg.contains("ITO1206") )  
+							msg.contains("is mounted") || msg.contains("LOG0010") || msg.contains("SYSSTS:") ||   
+							msg.contains("TBM1205") ||
+							msg.contains("Next tape is") || msg.contains("ITO1206") || msg.contains("EDH30") )  
 					{ sev = 30; sts = "INFO"; } 
 					// OK 30
 					if (msg.contains("CPF1817")  || msg.contains("CPI0973")    ||
-							msg.contains("backup OK") || msg.contains("is mounted") || msg.contains("Next tape is") ) 
+							msg.contains("backup OK") || msg.contains("is mounted") ) 
 					{ sev = 30; sts = "OK"; } 
 					// ERR 30
 					if (msg.contains("Err:") || msg.contains("EDH18") || msg.contains("Wrn:") || 
 							msg.contains("not ready.") || msg.contains("RNQ") || 
 							msg.contains("MSGW ") || msg.contains("QAIMPS2") || msg.contains("backup ERR")|| msg.contains("BU ERR") || 
 							msg.contains("CPA5305") || msg.contains("FTP0100")  || msg.contains("CPF090")|| msg.contains("APP020") ||
-							msg.contains("CHKJOBSTS") || msg.contains("CPF090") || msg.contains("APP020") ||
-							msg.contains("MONOUTQ01") || words[0].contains("CHKWTRS1") ||
-							msg.contains("CPA4072") || msg.contains("CPA0701") ||
+							msg.contains("CHKJOBSTS") || msg.contains("CPF090") || msg.contains("APP020") || msg.contains("CPA3387") ||
+							msg.contains("MONOUTQ01") || words[0].contains("CHKWTRS1") || msg.contains("CPI59B2") || msg.contains("CPD27CE") ||
+							msg.contains("CPA4072") || msg.contains("CPA0701") || msg.contains("CPF0909") || msg.contains("CPF0908") || msg.contains("CPFAF98") ||
 							(msg.contains("ITO0206") & msg.toLowerCase().contains("warning")) ||
 							(msg.contains("ITO0206") & msg.toLowerCase().contains("error")) 
 							)
 					{ sev = 30; sts = "ERR"; }
 					// ERR 20
 					if (msg.contains("ITO0102") || msg.contains("ITO0202")  || msg.contains("SAP0902") ||  msg.contains("ITO0902") || 
-							msg.contains("CPI0964") || msg.contains("CPF1816") ) 
+							msg.contains("CPI0964") || msg.contains("CPF1816") || msg.contains("TBM1202") ) 
 					{ sev = 20; sts = "ERR"; } 
 					// ERR 10
 					if (msg.contains("QSYSCOMM") || msg.contains("QSYSARB")|| msg.contains("APP020")) 

@@ -77,7 +77,7 @@ public class console extends JFrame implements TableModelListener, WindowListene
 		port = Integer.parseInt(jvport);
 
 		// funktion från Jframe att sätta rubrik
-		setTitle("Jvakt console 2.13 RC");
+		setTitle("Jvakt console 2.15 RC");
 		//	        setSize(5000, 5000);
 
 		// get the screen size as a java dimension
@@ -121,6 +121,7 @@ public class console extends JFrame implements TableModelListener, WindowListene
 			System.out.println(jm.open());
 			if (jm.open().startsWith("DORMANT")) 	swDormant = true;
 			else 									swDormant = false;
+			jm.close();
 		} 
 		catch (IOException e1) {
 			swServer = false;
@@ -254,6 +255,7 @@ public class console extends JFrame implements TableModelListener, WindowListene
 //						System.out.println(jm.open());	                    
 						if (jm.open().startsWith("DORMANT")) 	swDormant = true;
 						else 									swDormant = false;
+						jm.close();
 					} 
 					catch (IOException e1) {
 						swServer = false;
@@ -336,6 +338,7 @@ public class console extends JFrame implements TableModelListener, WindowListene
 	private void addKeyBindings() {
 		table.getActionMap().put("delRow", delRow());
 		table.getActionMap().put("strHst", strHst());
+		table.getActionMap().put("clearSel", clearSel());
 
 		KeyStroke keyStroke = KeyStroke.getKeyStroke(KeyEvent.VK_BACK_SPACE, 0);  // delete key in mac
 		table.getInputMap(JComponent.WHEN_FOCUSED).put(keyStroke, "delRow");
@@ -367,9 +370,25 @@ public class console extends JFrame implements TableModelListener, WindowListene
 		table.getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(keyStroke, "strHst");
 		keyStroke = KeyStroke.getKeyStroke(KeyEvent.VK_F12, 0);
 		table.getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(keyStroke, "strHst");
+		keyStroke = KeyStroke.getKeyStroke(KeyEvent.VK_ESCAPE , 0);
+		table.getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(keyStroke, "clearSel");
 		
 	}  
 
+	private AbstractAction clearSel()  {
+		AbstractAction save = new AbstractAction() {
+
+			@Override
+			public void actionPerformed(ActionEvent e)  {
+				//	                 JOptionPane.showMessageDialog(TestTableKeyBinding.this.table, "Action Triggered.");
+				table.getSelectionModel().clearSelection();  // clear selected rows.
+			}
+		};
+		return save;
+	}
+
+
+	
 	private AbstractAction delRow()  {
 		AbstractAction save = new AbstractAction() {
 

@@ -77,7 +77,7 @@ public class consoleHst extends JFrame implements TableModelListener, WindowList
 		port = Integer.parseInt(jvport);
 
 		// funktion från Jframe att sätta rubrik
-		setTitle("Jvakt consoleHst 2.00 RC 1");
+		setTitle("Jvakt consoleHst 2.01 RC");
 		//	        setSize(5000, 5000);
 
 		// get the screen size as a java dimension

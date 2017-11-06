@@ -116,11 +116,13 @@ class consoleHstDM extends AbstractTableModel {
 		} else if (col == 1) {
 			rad.setDeldat((String)value); 
 		} else if (col == 2) {
-				rad.setCount((int)value);
+				rad.setCount((Integer)value);
+//				rad.setCount((int)value);
 		} else if (col == 3) {
 				rad.setId((String)value);
 		} else if (col == 4) {
-			rad.setPrio((int)value);
+			rad.setPrio((Integer)value);
+//			rad.setPrio((int)value);
 		} else if (col == 5) {
 			rad.setType((String)value);            
 		} else if (col == 6) {

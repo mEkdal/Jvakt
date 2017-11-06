@@ -19,7 +19,8 @@ class consoleCR extends JLabel implements TableCellRenderer
 		Object ValueStatus = table.getValueAt(row,table.getColumnModel().getColumnIndex("Status"));
 		int vPrio;
 		if (ValuePrio == null) vPrio = 30;
-		else vPrio = (int)ValuePrio;
+		else vPrio = (Integer)ValuePrio;
+//		else vPrio = (int)ValuePrio;
 		String vType = (String)ValueType;
 		String vStatus = (String)ValueStatus;
 		if (vType == null) vType = " "; 
