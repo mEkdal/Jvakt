@@ -23,9 +23,13 @@ public class CheckLogs {
 	static String jvport   = "1956";
 	static int port ;
 	static InetAddress inet;
-	static String version = "jVakt 2.0 - CheckLogs 1.1 Date 2017-09-08";
+	static String version = "CheckLogs 1.2 Date 2017-11-09";
 	static String agent = null;
 	static boolean swSlut = false;
+
+	static String config = null;
+	static File configF;
+
 
 	public static void main(String[] args) throws IOException {
 
@@ -54,6 +58,9 @@ public class CheckLogs {
 		PrintStream ut;
 		boolean swRename = false;
 		boolean swPsav = false;
+		
+		
+
 
 		// reads command line arguments
 		for ( int i = 0; i < args.length; i++) {
@@ -63,10 +70,15 @@ public class CheckLogs {
 			if (args[i].equalsIgnoreCase("-id"))  id  = args[++i];
 			if (args[i].equalsIgnoreCase("-ren")) swRename=true;
 			if (args[i].equalsIgnoreCase("-psav")) swPsav=true;
+			if (args[i].equalsIgnoreCase("-config")) config = args[++i];
 		}
 
+		if (config == null ) 	configF = new File("Jvakt.properties");
+		else 					configF = new File(config,"Jvakt.properties");
+		System.out.println("Jvakt: "+version);
+		System.out.println("-config file: "+configF);
+
 		if (args.length < 1) {
-			System.out.println("\n " + version);
 			System.out.println("by Michael Ekdal Sweden.\n");
 
 			System.out.println("\nThe parameters and their meaning are:\n"+
@@ -100,8 +112,10 @@ public class CheckLogs {
 		else             df = new DirFilter(suf);
 
 		// Importing error strings to search for.
+		configF = new File(config);
 		BufferedReader inokay;
-		inokay = new BufferedReader(new FileReader("CheckLogs.srch"));
+		if (config != null ) inokay = new BufferedReader(new FileReader(configF.toString()+"/CheckLogs.srch"));
+		else inokay = new BufferedReader(new FileReader("CheckLogs.srch"));
 		int ecount = 0;
 		String[] etab = new String[1000];
 		System.out.println("--- Searching for the following text ---");
@@ -112,7 +126,8 @@ public class CheckLogs {
 		inokay.close();
 
 		// Importing strings approved despite hits.
-		inokay = new BufferedReader(new FileReader("CheckLogs.okay"));
+		if (config != null ) inokay = new BufferedReader(new FileReader(configF.toString()+"/CheckLogs.okay"));
+		else inokay = new BufferedReader(new FileReader("CheckLogs.okay"));
 		int tcount = 0;
 		String[] tokay = new String[1000];
 		System.out.println("--- Hits contained the following text will be disregarded ---");
@@ -125,7 +140,8 @@ public class CheckLogs {
 		inokay.close();
 
 		// Importing strings mandatory present to make the check to be okay.
-		inokay = new BufferedReader(new FileReader("CheckLogs.must"));
+		if (config != null ) inokay = new BufferedReader(new FileReader(configF.toString()+"/CheckLogs.must"));
+		else inokay = new BufferedReader(new FileReader("CheckLogs.must"));
 		int mcount = 0;
 		String[] tmust = new String[100];
 		System.out.println("--- Strings that are mandatory to be found ---");
@@ -274,7 +290,7 @@ public class CheckLogs {
 		Properties prop = new Properties();
 		InputStream input = null;
 		try {
-			input = new FileInputStream("jVakt.properties");
+			input = new FileInputStream(configF);
 			prop.load(input);
 			// get the property value and print it out
 			jvport   = prop.getProperty("jvport");

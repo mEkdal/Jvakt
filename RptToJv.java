@@ -6,7 +6,7 @@ import java.util.Properties;
 public class RptToJv {
 	public static void main(String[] args ) throws IOException, UnknownHostException {
 
-		String version = "RptToDW 1.1 Date 2017-07-20";
+		String version = "RptToDW 1.2 Date 2017-11-09";
 		String host = "127.0.0.1";
 		int port = 1956; 
 		String id = null;
@@ -20,16 +20,28 @@ public class RptToJv {
 		String jvport   = "1956";
 		String jvhost   = "127.0.0.1";
 
+		String config = null;
+		File configF;
+
+		for (int i=0; i<args.length; i++) {
+			if (args[i].equalsIgnoreCase("-config")) config = args[++i];
+		}
+ 
+		if (config == null ) 	configF = new File("Jvakt.properties");
+		else 					configF = new File(config,"Jvakt.properties");
+		System.out.println("Jvakt: "+version);
+		System.out.println("-config file Server: "+configF);
+		
 		Properties prop = new Properties();
 		InputStream input = null;
 		try {
-			input = new FileInputStream("jVakt.properties");
+			input = new FileInputStream(configF);
 			prop.load(input);
 			// get the property value and print it out
 			jvhost = prop.getProperty("jvhost");
 			jvport = prop.getProperty("jvport");
 		} catch (IOException ex) {
-			// ex.printStackTrace();
+			 ex.printStackTrace();
 		}
 		port = Integer.parseInt(jvport);
 		host = jvhost;

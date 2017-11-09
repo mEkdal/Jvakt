@@ -29,7 +29,7 @@ public class CheckStatus {
 	static int errors = 0;
 	static int warnings = 0;
 	static int infos = 0;
-	static String version = "jVakt 2.0 - CheckStatus 1.3 Date 2017-09-22_01";
+	static String version = "CheckStatus 1.4 Date 2017-11-09";
 	static String database = "jVakt";
 	static String dbuser   = "jVakt";
 	static String dbpassword = "xz";
@@ -42,11 +42,22 @@ public class CheckStatus {
 
 	public static void main(String[] args ) throws IOException, UnknownHostException {
 
+		String config = null;
+		File configF;
 
+		for (int i=0; i<args.length; i++) {
+			if (args[i].equalsIgnoreCase("-config")) config = args[++i];
+		}
+ 
+		if (config == null ) 	configF = new File("Jvakt.properties");
+		else 					configF = new File(config,"Jvakt.properties");
+		System.out.println("Jvakt: "+version);
+		System.out.println("-config file: "+configF);
+		
 		Properties prop = new Properties();
 		InputStream input = null;
 		try {
-			input = new FileInputStream("jVakt.properties");
+			input = new FileInputStream(configF);
 			prop.load(input);
 			// get the property value and print it out
 			database = prop.getProperty("database");

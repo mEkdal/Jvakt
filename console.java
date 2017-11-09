@@ -57,6 +57,7 @@ public class console extends JFrame implements TableModelListener, WindowListene
 	 * @param args the command line arguments
 	 */
 	public static void main(String[] args) throws IOException {
+		
 		console mainFrame = new console();  // gör objekt av innevarande class 
 		mainFrame.pack();                   // kallar på innevarande class metod pack som ärvts via Jframe 
 		mainFrame.setVisible(true);  	    // kallar på innevarande class metod setVisible och nu visas fönster för användaren

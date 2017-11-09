@@ -28,6 +28,7 @@ class DBupdate {
 	boolean swDormant = true;
 	boolean swPerm = false;
 	boolean swLoop = true;
+	static boolean swLogg = false;
 
 	String database = "jVakt";
 	String dbuser   = "jVakt";
@@ -40,11 +41,23 @@ class DBupdate {
 	Process p;
 	List<Process> pList = new ArrayList<Process>();
 
-	DBupdate() throws Exception {
+	DBupdate(String[] args) throws Exception {
 
+		String config = null;
+		File configF;
+
+		for (int i=0; i<args.length; i++) {
+			if (args[i].equalsIgnoreCase("-config")) config = args[++i];
+			if (args[i].equalsIgnoreCase("-log")) swLogg = true;
+		}
+ 
+		if (config == null ) 	configF = new File("Jvakt.properties");
+		else 					configF = new File(config,"Jvakt.properties");
+		System.out.println("-config file DBupdate: "+configF);
+		
 		InputStream input = null; 
 		try {
-			input = new FileInputStream("jVakt.properties");
+			input = new FileInputStream(configF);
 			prop.load(input);
 			// get the property value and print it out
 			database = prop.getProperty("database");
@@ -113,6 +126,7 @@ class DBupdate {
 						swPlugin = false;
 						sType = rs.getString("type");
 						sPrio = rs.getInt("prio");
+						if (swLogg)
 						System.out.println(LocalDateTime.now()+" #1 " + rs.getString("id") + "  "  + sType + " " + rs.getString("status")+"->"+ m.getRptsts().toUpperCase() );
 						//						if ( m.getType().equalsIgnoreCase("P")) {
 						//							if (rs.getString("msg").equals("T")) status = "time-out";
@@ -228,8 +242,10 @@ class DBupdate {
 
 					// €console ** Immediate or delete type cause an update to the console table at once.
 					if ( sType.equalsIgnoreCase("I") || m.getType().equalsIgnoreCase("D") ) {   
+						if (swLogg) {
 						System.out.println(">>> Con  m.Type  >>>>: " + m.getType().toUpperCase());
 						System.out.println(">>> Con rs.sType >>>>: " + sType);
+						}
 
 						// read and remove previous line from the console table and save the count field
 						//						if ( sType.equalsIgnoreCase("I") && !m.getType().equalsIgnoreCase("D") && !m.getId().equalsIgnoreCase("SYSSTS") ) {
@@ -239,6 +255,7 @@ class DBupdate {
 									"' and type='" + sType.toUpperCase() +
 									"' and body ilike '" + m.getBody() +
 									"';");
+							if (swLogg)
 							System.out.println(s);
 						} else {  // delete
 							s = new String("select * from console " + 
@@ -246,6 +263,7 @@ class DBupdate {
 									"' AND body ilike '" + m.getBody() +
 									"' and prio='" + Integer.toString(m.getPrio()) +
 									"';");
+							if (swLogg)
 							System.out.println(s);
 						}
 
@@ -263,6 +281,7 @@ class DBupdate {
 							rs2.updateString("status", m.getRptsts());
 
 							if (m.getType().equalsIgnoreCase("D")) {
+								if (swLogg)
 								System.out.println(">>> deleterow");
 								addHst(rs2);
 								try { rs2.deleteRow(); } catch(NullPointerException npe2) {}
@@ -279,6 +298,7 @@ class DBupdate {
 
 						if ( count == 1 && sType.equalsIgnoreCase("I") && !m.getType().equalsIgnoreCase("D")) {
 							// insert new line with new timestamp and counter
+							if (swLogg)
 							System.out.println(">>> Insert new line in console");
 							PreparedStatement st = conn.prepareStatement("INSERT INTO Console (count,id,prio,type,condat,credat,status,body,agent) "
 									+ "values (?,?,?,?,?,?,?,?,?)");
@@ -324,7 +344,8 @@ class DBupdate {
 	//----- add new line to the consoleHst table -----
 	static protected void addHst(ResultSet rs) throws IOException {
 
-		try { 
+		try {
+			if (swLogg)
 			System.out.println("addHst RS: " + rs.getString("id")+" Type: " + rs.getString("type").toUpperCase());
 
 			// insert new line with new timestamp and counter
@@ -341,8 +362,10 @@ class DBupdate {
 			st.setString(8,rs.getString("body") ); // 
 			st.setString(9,rs.getString("agent") ); // 
 			int rowsInserted = st.executeUpdate();
+			if (swLogg)
 			System.out.println("Executed insert addHst " +rowsInserted);
 			st.close();
+			if (swLogg)
 			System.out.println("Closed addHst");
 		}
 		catch (SQLException e) {
@@ -353,7 +376,7 @@ class DBupdate {
 			System.err.println(e);
 			System.err.println(e.getMessage());
 		}
-		finally { System.out.println("CheckStatus addHst finally routine" ); }
+		finally { if (swLogg) System.out.println("CheckStatus addHst finally routine" ); }
 	} 
 
 

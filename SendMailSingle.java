@@ -52,7 +52,7 @@ public class SendMailSingle {
 
 	public static void main(String[] args ) throws IOException, UnknownHostException {
 
-		String version = "jVakt 2.0 - SendMailSingle 1.0 Date 2017-03-28_01";
+		String version = "jVakt 2.0 - SendMailSingle 1.1 Date 2017-11-06";
 
 		//Declare recipient's & sender's e-mail id.
 		final String toEmail;
@@ -68,12 +68,38 @@ public class SendMailSingle {
 		String status= "default";
 		String sub = "default";
 
+		String config = null;
+		File configF;
+
 		boolean swMail = false;
 
+		for (int i=0; i<args.length; i++) {
+			if (args[i].equalsIgnoreCase("-to")) to = args[++i];
+			else if (args[i].equalsIgnoreCase("-body")) body = args[++i];
+			else if (args[i].equalsIgnoreCase("-subject")) sub = args[++i];
+			else if (args[i].equalsIgnoreCase("-config")) config = args[++i];
+		}
+		System.out.println("To:"+to+" Status:"+status+" Body:"+body );		    
+ 
+		if (config == null ) 	configF = new File("Jvakt.properties");
+		else 					configF = new File(config,"Jvakt.properties");
+
+		if (args.length < 1 ) {
+			System.out.println("\n"+version);
+			System.out.println("by Michael Ekdal Perstorp Sweden.\n");
+			System.out.println("-to 	 \t - Email address");
+			System.out.println("-subject \t - Subject");
+			System.out.println("-body	 \t - Body");
+			System.out.println("-config	 \t - Folder of config files");
+			System.exit(4);
+		}
+
+		System.out.println("-config file: "+configF);
 		Properties prop = new Properties();
 		InputStream input = null;
 		//		try {
-		input = new FileInputStream("jVakt.properties");
+//		input = new FileInputStream(config + "jVakt.properties");
+		input = new FileInputStream(configF);
 		prop.load(input);
 		// get the property value and print it out
 		fromEmail= prop.getProperty("fromEmail");
@@ -85,24 +111,6 @@ public class SendMailSingle {
 		String	mode 	 =  prop.getProperty("mode");
 		if (!mode.equalsIgnoreCase("active"))  swDormant = true;
 		input.close();
-
-		for (int i=0; i<args.length; i++) {
-			if (args[i].equalsIgnoreCase("-to")) to = args[++i];
-			else if (args[i].equalsIgnoreCase("-body")) body = args[++i];
-			else if (args[i].equalsIgnoreCase("-subject")) sub = args[++i];
-			System.out.println("To:"+to+" Status:"+status+" Body:"+body );		    
-		}
-
-		if (args.length < 1 ) {
-			System.out.println("\n"+version);
-			System.out.println("by Michael Ekdal Perstorp Sweden.\n");
-			System.out.println("-to 	 \t - Email address");
-			System.out.println("-subject \t - Subject");
-			System.out.println("-body	 \t - Body");
-			System.exit(4);
-		}
-
-
 
 		//create Authenticator object to pass in Session.getInstance argument
 		Authenticator auth = new Authenticator() {

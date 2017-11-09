@@ -77,10 +77,14 @@ public class SendMail30 {
 	static String smtpport;
 
 	static Authenticator auth;
-	
+
+	static String config = null;
+	static File configF;
+
+
 	public static void main(String[] args ) throws IOException, UnknownHostException {
 
-		String version = "jVakt 2.0 - SendMail30 1.0 Date 2017-09-29";
+		String version = "SendMail30 1.1 Date 2017-11-09";
 		String database = "jVakt";
 		String dbuser   = "jVakt";
 		String dbpassword = "xz";
@@ -89,12 +93,20 @@ public class SendMail30 {
 		String jvhost   = "localhost";
 		String jvport   = "1956";
 
-
+		for (int i=0; i<args.length; i++) {
+			if (args[i].equalsIgnoreCase("-config")) config = args[++i];
+		}
+ 
+		if (config == null ) 	configF = new File("Jvakt.properties");
+		else 					configF = new File(config,"Jvakt.properties");
+		System.out.println("Jvakt: "+version);
+		System.out.println("-config file: "+configF);
+		
 		//Declare recipient's & sender's e-mail id.
 		Properties prop = new Properties();
 		InputStream input = null;
 		//		try {
-		input = new FileInputStream("jVakt.properties");
+		input = new FileInputStream(configF);
 		prop.load(input);
 		// get the property value and print it out
 		database = prop.getProperty("database");
@@ -309,6 +321,9 @@ public class SendMail30 {
 		String suf = ".csv";
 		String pos = "SendMail30";
 
+		if (config != null ) dir = new File(config);
+
+		
 		listToS = new ArrayList();  // id:mailadress.
 
 		df = new DirFilter(suf, pos);

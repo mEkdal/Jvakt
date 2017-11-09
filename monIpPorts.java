@@ -20,7 +20,7 @@ public class monIpPorts {
 	static boolean swSingle = false;
 	static String host;
 	static InetAddress inet;
-	static String version = "jVakt 2.0 - monIpPorts 1.1 Date 2017-09-06";
+	static String version = "monIpPorts 1.2 Date 2017-11-096";
 	static String database = "jVakt";
 	static String dbuser   = "jVakt";
 	static String dbpassword = "xz";
@@ -33,8 +33,8 @@ public class monIpPorts {
 	static String agent = null;
 	static Socket cs = null;
 
-
-
+	static String config = null;
+	static File configF;
 
 	public static void main(String[] args) throws UnknownHostException, IOException {
 
@@ -55,8 +55,6 @@ public class monIpPorts {
 		//                Socket cs = null;
 		//                int port;
 
-		getProps();
-
 		if (args.length < 1) {
 			System.out.println("\n " +version);
 			System.out.println("File names must contain monHttp and end with .csv. e.g. monHttp-01.csv ");
@@ -64,7 +62,7 @@ public class monIpPorts {
 			System.out.println("WSI_PLC_A209;10.100.9.2;80;Vilant truck system Penta");
 
 			System.out.println("\n\nThe parameters and their meaning are:\n"+
-					"\n-dir   \tThe dir of the input files. Like: \"-dir c:\\Temp\" "+
+					"\n-config \tThe dir of the input files. Like: \"-dir c:\\Temp\" "+
 					"\n-run   \tTo actually update the status on the server side."+
 					"\n-host  \tCheck a single host."          );
 
@@ -73,11 +71,19 @@ public class monIpPorts {
 
 		// reads command line arguments
 		for ( int i = 0; i < args.length; i++) {
-			if (args[i].equalsIgnoreCase("-dir")) dir = new File(args[++i]);
+//			if (args[i].equalsIgnoreCase("-dir")) dir = new File(args[++i]);
 			if (args[i].equalsIgnoreCase("-port")) wport = Integer.parseInt(args[++i]);
 			if (args[i].equalsIgnoreCase("-run")) swRun = true;
 			if (args[i].equalsIgnoreCase("-host")) { swSingle = true; host = args[++i]; }
+			if (args[i].equalsIgnoreCase("-config")) config = args[++i];
 		}
+		if (config != null ) dir = new File(config);
+		if (config == null ) 	configF = new File("Jvakt.properties");
+		else 					configF = new File(config,"Jvakt.properties");
+		System.out.println("Jvakt: "+version);
+		System.out.println("-config file: "+configF);
+		
+		getProps();
 
 		System.setProperty("java.net.preferIPv6Addresses", "false");
 
@@ -180,7 +186,7 @@ public class monIpPorts {
 		Properties prop = new Properties();
 		InputStream input = null;
 		try {
-			input = new FileInputStream("jVakt.properties");
+			input = new FileInputStream(configF);
 			prop.load(input);
 			// get the property value and print it out
 			jvport   = prop.getProperty("jvport");

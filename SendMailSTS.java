@@ -74,10 +74,14 @@ public class SendMailSTS {
 	static String Psmtphost = "";
 	static String Psmtpport = "";
 	static int smtpporti;
+	
+	static String config = null;
+	static File configF;
+
 
 	public static void main(String[] args ) throws IOException, UnknownHostException {
 
-		String version = "jVakt 2.0 - SendMail 1.1 Date 2017-07-18_01";
+		String version = "SendMail 1.2 Date 2017-11-09";
 
 		String subject = "";
 		String body = "";
@@ -91,6 +95,15 @@ public class SendMailSTS {
 		final String smtphost;
 		final String smtpport;
 
+		for (int i=0; i<args.length; i++) {
+			if (args[i].equalsIgnoreCase("-config")) config = args[++i];
+		}
+ 
+		if (config == null ) 	configF = new File("Jvakt.properties");
+		else 					configF = new File(config,"Jvakt.properties");
+		System.out.println("Jvakt: "+version);
+		System.out.println("-config file: "+configF);
+		
 		boolean swMail = false;
 		getProps();
 		toEmail = PtoEmail;
@@ -270,7 +283,7 @@ public class SendMailSTS {
 		Properties prop = new Properties();
 		InputStream input = null;
 		try {
-		input = new FileInputStream("jVakt.properties");
+		input = new FileInputStream(configF);
 		prop.load(input);
 		// get the property value and print it out
 		database = prop.getProperty("database");

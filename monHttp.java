@@ -20,7 +20,7 @@ public class monHttp {
 	static boolean swSingle = false;
 	static String host;
 	static InetAddress inet;
-	static String version = "jVakt 2.0 - monHttp 1.0 Date 2017-04-03_01";
+	static String version = "monHttp 1.1 Date 2017-11-09";
 	static String database = "jVakt";
 	static String dbuser   = "jVakt";
 	static String dbpassword = "xz";
@@ -34,6 +34,9 @@ public class monHttp {
 	static String webfile = "";
 	static String webcontent = "xx";
 
+	static String config = null;
+	static File configF;
+
 	public static void main(String[] args) throws UnknownHostException, IOException {
 
 		String[] tab = new String [1];
@@ -42,11 +45,10 @@ public class monHttp {
 		File[] listf;
 		DirFilter df;
 		File dir = new File(".");
+		if (config != null ) dir = new File(config);
 		String suf = ".csv";
 		String pos = "monHttp";
 		boolean swRun = false;
-
-		getProps();
 
 		if (args.length < 1) {
 			System.out.println("\n " +version);
@@ -55,21 +57,29 @@ public class monHttp {
 			System.out.println("WSI_PLC_A209;10.100.9.2;Vilant truck system Penta");
 
 			System.out.println("\n\nThe parameters and their meaning are:\n"+
-					"\n-dir   \tThe dir of the input files. Like: \"-dir c:\\Temp\" "+
-					"\n-run   \tTo actually update the status on the server side."+
-					"\n-host  \tCheck a single host."          );
+					"\n-config \tThe dir of the input files. Like: \"-dir c:\\Temp\" "+
+					"\n-run    \tTo actually update the status on the server side."+
+					"\n-host   \tCheck a single host."          );
 
 			System.exit(4);
 		}
 
 		// reads command line arguments
 		for ( int i = 0; i < args.length; i++) {
-			if (args[i].equalsIgnoreCase("-dir")) dir = new File(args[++i]);
+//			if (args[i].equalsIgnoreCase("-dir")) dir = new File(args[++i]);
 			if (args[i].equalsIgnoreCase("-port")) wport = Integer.parseInt(args[++i]);
 			if (args[i].equalsIgnoreCase("-web")) webfile = args[++i];
 			if (args[i].equalsIgnoreCase("-run")) swRun = true;
 			if (args[i].equalsIgnoreCase("-host")) { swSingle = true; host = args[++i]; }
+			if (args[i].equalsIgnoreCase("-config")) config = args[++i];
 		}
+		if (config != null ) dir = new File(config);
+		if (config == null ) 	configF = new File("Jvakt.properties");
+		else 					configF = new File(config,"Jvakt.properties");
+		System.out.println("Jvakt: "+version);
+		System.out.println("-config file: "+configF);
+
+		getProps();
 
 		System.setProperty("java.net.preferIPv6Addresses", "false");
 
@@ -169,7 +179,7 @@ public class monHttp {
 		Properties prop = new Properties();
 		InputStream input = null;
 		try {
-			input = new FileInputStream("jVakt.properties");
+			input = new FileInputStream(configF);
 			prop.load(input);
 			// get the property value and print it out
 			jvport   = prop.getProperty("jvport");
