@@ -16,7 +16,7 @@ public class Server {
 	 */
 	public static void main(String[] args ) throws Exception  {
 
-		String version = "Server 1.1 Date 2017-11-09";
+		String version = "Server 1.1 # 2017-11-09";
 		String jvport   = "1956";
 
 		String config = null;
@@ -28,7 +28,7 @@ public class Server {
  
 		if (config == null ) 	configF = new File("Jvakt.properties");
 		else 					configF = new File(config,"Jvakt.properties");
-		System.out.println("Jvakt: "+version);
+		System.out.println("----- Jvakt: "+new Date()+"  Version: "+version);
 		System.out.println("-config file Server: "+configF);
 		
 		Properties prop = new Properties();

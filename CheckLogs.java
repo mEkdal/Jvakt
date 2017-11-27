@@ -23,7 +23,7 @@ public class CheckLogs {
 	static String jvport   = "1956";
 	static int port ;
 	static InetAddress inet;
-	static String version = "CheckLogs 1.2 Date 2017-11-09";
+	static String version = "CheckLogs 1.2 # 2017-11-09";
 	static String agent = null;
 	static boolean swSlut = false;
 
@@ -75,7 +75,7 @@ public class CheckLogs {
 
 		if (config == null ) 	configF = new File("Jvakt.properties");
 		else 					configF = new File(config,"Jvakt.properties");
-		System.out.println("Jvakt: "+version);
+		System.out.println("---- Jvakt: "+new Date()+"  Version: "+version);
 		System.out.println("-config file: "+configF);
 
 		if (args.length < 1) {
@@ -112,43 +112,61 @@ public class CheckLogs {
 		else             df = new DirFilter(suf);
 
 		// Importing error strings to search for.
-		configF = new File(config);
 		BufferedReader inokay;
-		if (config != null ) inokay = new BufferedReader(new FileReader(configF.toString()+"/CheckLogs.srch"));
-		else inokay = new BufferedReader(new FileReader("CheckLogs.srch"));
+		if (config != null ) {
+			configF = new File(config);
+			inokay = new BufferedReader(new FileReader(configF.toString()+"/CheckLogs.srch"));
+			s = configF.toString()+"/CheckLogs.srch";
+		}
+		else {
+			inokay = new BufferedReader(new FileReader("CheckLogs.srch"));
+			s = "CheckLogs.srch";
+		}
 		int ecount = 0;
 		String[] etab = new String[1000];
-		System.out.println("--- Searching for the following text ---");
+		System.out.println("--- Searching for the strings found. File: "+s);
 		while((s = inokay.readLine())!= null) {
 			etab[ecount++] = s.toUpperCase();
-			System.out.println( etab[ecount - 1]);
+//			System.out.println( etab[ecount - 1]);
 		}          
 		inokay.close();
 
 		// Importing strings approved despite hits.
-		if (config != null ) inokay = new BufferedReader(new FileReader(configF.toString()+"/CheckLogs.okay"));
-		else inokay = new BufferedReader(new FileReader("CheckLogs.okay"));
+		if (config != null ) {
+			inokay = new BufferedReader(new FileReader(configF.toString()+"/CheckLogs.okay"));
+			s = configF.toString()+"/CheckLogs.okay";
+		}
+		else {
+			inokay = new BufferedReader(new FileReader("CheckLogs.okay"));
+			s = "CheckLogs.okay";
+		}
 		int tcount = 0;
 		String[] tokay = new String[1000];
-		System.out.println("--- Hits contained the following text will be disregarded ---");
+		System.out.println("--- Strings that will be disregarded. File: "+s);
 		while((s = inokay.readLine())!= null) {
 			if ( s.length() > 0 ) {
 				tokay[tcount++] = s.toUpperCase();
-				System.out.println( tokay[tcount - 1]);
+//				System.out.println( tokay[tcount - 1]);
 			}
 		}          
 		inokay.close();
 
 		// Importing strings mandatory present to make the check to be okay.
-		if (config != null ) inokay = new BufferedReader(new FileReader(configF.toString()+"/CheckLogs.must"));
-		else inokay = new BufferedReader(new FileReader("CheckLogs.must"));
+		if (config != null ) {
+			inokay = new BufferedReader(new FileReader(configF.toString()+"/CheckLogs.must"));
+			s = configF.toString()+"/CheckLogs.must";
+		}
+		else {
+			inokay = new BufferedReader(new FileReader("CheckLogs.must"));
+			s = "CheckLogs.must";
+		}
 		int mcount = 0;
 		String[] tmust = new String[100];
-		System.out.println("--- Strings that are mandatory to be found ---");
+		System.out.println("--- Strings that are mandatory to be found. File: "+s);
 		while((s = inokay.readLine())!= null) {
 			if ( s.length() > 0 ) {
 				tmust[mcount++] = s.toUpperCase();
-				System.out.println( tmust[mcount - 1]);
+//				System.out.println( tmust[mcount - 1]);
 			}
 		}          
 		inokay.close();

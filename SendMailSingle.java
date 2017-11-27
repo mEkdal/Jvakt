@@ -52,7 +52,7 @@ public class SendMailSingle {
 
 	public static void main(String[] args ) throws IOException, UnknownHostException {
 
-		String version = "jVakt 2.0 - SendMailSingle 1.1 Date 2017-11-06";
+		String version = "SendMailSingle 1.2 # 2017-11-15";
 
 		//Declare recipient's & sender's e-mail id.
 		final String toEmail;
@@ -62,11 +62,11 @@ public class SendMailSingle {
 		final String smtphost;
 		final String smtpport;
 
-		String to = "";
-		String subject = "";
-		String body = "";
-		String status= "default";
-		String sub = "default";
+		String to = null;
+		String subject = null;
+		String body = null;
+//		String status= "default";
+//		String sub = "default";
 
 		String config = null;
 		File configF;
@@ -76,15 +76,16 @@ public class SendMailSingle {
 		for (int i=0; i<args.length; i++) {
 			if (args[i].equalsIgnoreCase("-to")) to = args[++i];
 			else if (args[i].equalsIgnoreCase("-body")) body = args[++i];
-			else if (args[i].equalsIgnoreCase("-subject")) sub = args[++i];
+			else if (args[i].equalsIgnoreCase("-subject")) subject = args[++i];
 			else if (args[i].equalsIgnoreCase("-config")) config = args[++i];
 		}
-		System.out.println("To:"+to+" Status:"+status+" Body:"+body );		    
+		System.out.println("----- Jvakt: "+new Date()+"  Version: "+version);
+		System.out.println("To:"+to+" Subject:"+subject+" Body:"+body );		    
  
 		if (config == null ) 	configF = new File("Jvakt.properties");
 		else 					configF = new File(config,"Jvakt.properties");
 
-		if (args.length < 1 ) {
+		if (args.length < 1 || to == null || subject == null || body == null  ) {
 			System.out.println("\n"+version);
 			System.out.println("by Michael Ekdal Perstorp Sweden.\n");
 			System.out.println("-to 	 \t - Email address");
@@ -107,6 +108,12 @@ public class SendMailSingle {
 		pwd      = prop.getProperty("smtppwd");
 		smtphost = prop.getProperty("smtphost");
 		smtpport = prop.getProperty("smtpport");
+		
+		if (fromEmail == null || uname == null || pwd == null || smtphost == null || smtpport == null  ) {
+			System.out.println("==> fromEmail, smtpuser, smtppwd,smtphost and smtpport must be present in the Jvakt.properties file! <==\n");
+			System.exit(4);
+		}
+		
 		int smtpporti = Integer.parseInt(smtpport);
 		String	mode 	 =  prop.getProperty("mode");
 		if (!mode.equalsIgnoreCase("active"))  swDormant = true;
@@ -129,11 +136,13 @@ public class SendMailSingle {
 		props.put("mail.smtp.port", smtpporti);
 
 		swMail = true;
-		subject = sub;
+//		subject = sub;
 		toEmail = to;
 		//			System.out.println("CheckStatus Severe: " + errors + "  Problems: " + warnings + "  Info: " + infos ); 
-		System.out.println("\n\nSubject: " + subject );
-		System.out.println("\nBody: " + body );
+		System.out.println("\nTo: " + toEmail );
+		System.out.println("From: " + fromEmail );
+		System.out.println("Subject: " + subject );
+		System.out.println("Body: " + body + "\n");
 
 		if (swMail && !swDormant) {
 			Session session = Session.getInstance(props, auth);

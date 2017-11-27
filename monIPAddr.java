@@ -20,7 +20,7 @@ public class monIPAddr {
 	static boolean swSingle = false;
 	static String host;
 	static InetAddress inet;
-	static String version = "monIPAddr 1.1 Date 2017-11-09";
+	static String version = "monIPAddr 1.1 # 2017-11-09";
 	static String database = "jVakt";
 	static String dbuser   = "jVakt";
 	static String dbpassword = "xz";
@@ -71,7 +71,7 @@ public class monIPAddr {
 		if (config != null ) dir = new File(config);
 		if (config == null ) 	configF = new File("Jvakt.properties");
 		else 					configF = new File(config,"Jvakt.properties");
-		System.out.println("Jvakt: "+version);
+		System.out.println("----- Jvakt: "+new Date()+"  Version: "+version);
 		System.out.println("-config file: "+configF);
 		
 		getProps();

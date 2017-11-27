@@ -81,7 +81,7 @@ public class SendMailSTS {
 
 	public static void main(String[] args ) throws IOException, UnknownHostException {
 
-		String version = "SendMail 1.2 Date 2017-11-09";
+		String version = "SendMail 1.2 # 2017-11-09";
 
 		String subject = "";
 		String body = "";
@@ -101,7 +101,7 @@ public class SendMailSTS {
  
 		if (config == null ) 	configF = new File("Jvakt.properties");
 		else 					configF = new File(config,"Jvakt.properties");
-		System.out.println("Jvakt: "+version);
+		System.out.println("----- Jvakt: "+new Date()+"  Version: "+version);
 		System.out.println("-config file: "+configF);
 		
 		boolean swMail = false;

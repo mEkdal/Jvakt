@@ -84,7 +84,7 @@ public class SendMail30 {
 
 	public static void main(String[] args ) throws IOException, UnknownHostException {
 
-		String version = "SendMail30 1.1 Date 2017-11-09";
+		String version = "SendMail30 1.1 # 2017-11-09";
 		String database = "jVakt";
 		String dbuser   = "jVakt";
 		String dbpassword = "xz";
@@ -99,7 +99,7 @@ public class SendMail30 {
  
 		if (config == null ) 	configF = new File("Jvakt.properties");
 		else 					configF = new File(config,"Jvakt.properties");
-		System.out.println("Jvakt: "+version);
+		System.out.println("----- Jvakt: "+new Date()+"  Version: "+version);
 		System.out.println("-config file: "+configF);
 		
 		//Declare recipient's & sender's e-mail id.
@@ -186,7 +186,7 @@ public class SendMail30 {
 		zDate = new java.sql.Date((new Date(System.currentTimeMillis())).getTime());
 		zTs = new java.sql.Timestamp((new Date(System.currentTimeMillis())).getTime()); 
 
-		System.out.println("**********SendMail30 ********   " + LocalDateTime.now());
+//		System.out.println("**********SendMail30 ********   " + LocalDateTime.now());
 		try {
 
 			Class.forName("org.postgresql.Driver").newInstance();
@@ -355,7 +355,7 @@ public class SendMail30 {
 		String[] tab = new String [1];
 		boolean ok = false;
 		//		int n = 0;
-		System.out.println("-- checking intetest of: "+id);
+		System.out.println("-- checking interest of: "+id);
 		for(Object object : listToS) { 
 			String element = (String) object;
 			tab = element.toLowerCase().split(";" , 2 );
@@ -424,7 +424,7 @@ public class SendMail30 {
 			else { System.out.println("RETURN FALSE"); return false; }
 			
 		}
-		System.out.println("RETURN true");
+//		System.out.println("RETURN true");
 		return true;
 	}
 

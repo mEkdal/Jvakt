@@ -80,7 +80,7 @@ public class SendMail {
 	
 	public static void main(String[] args ) throws IOException, UnknownHostException {
 
-		String version = "SendMail 1.1 Date 2017-11-09";
+		String version = "SendMail 1.1 # 2017-11-09";
 		String database = "jVakt";
 		String dbuser   = "jVakt";
 		String dbpassword = "xz";
@@ -98,7 +98,7 @@ public class SendMail {
  
 		if (config == null ) 	configF = new File("Jvakt.properties");
 		else 					configF = new File(config,"Jvakt.properties");
-		System.out.println("Jvakt: "+version);
+		System.out.println("----- Jvakt: "+new Date()+"    Version: "+version);
 		System.out.println("-config file: "+configF);
 		
 		//Declare recipient's & sender's e-mail id.

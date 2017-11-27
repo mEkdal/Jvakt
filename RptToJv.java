@@ -6,13 +6,13 @@ import java.util.Properties;
 public class RptToJv {
 	public static void main(String[] args ) throws IOException, UnknownHostException {
 
-		String version = "RptToDW 1.2 Date 2017-11-09";
+		String version = "RptToDW 1.3 Date 2017-11-24";
 		String host = "127.0.0.1";
 		int port = 1956; 
 		String id = null;
 		String status = "OK";
-		String body = null;
-		String agent = null;
+		String body = " ";
+		String agent = " ";
 		String type = "R";  // repeating
 		String prio = "30";  
 		InetAddress inet;

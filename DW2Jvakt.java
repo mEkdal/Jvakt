@@ -18,7 +18,7 @@ public class DW2Jvakt  {
 
 		// Displays help
 		if (args.length == 0) {
-			System.out.println("\n*** DW2Jvakt 1.0 Date 2017-09-29 ***" +
+			System.out.println("\n*** DW2Jvakt 1.1 Date 2017-11-22 ***" +
 					"\n*** by Michael Ekdal Perstorp Sweden. ***");
 			System.out.println("\n\nThe parameters and their meaning are:\n"+
 					"\n-q \tThe name of the AS400 message queue, like \" /qsys.lib/itoctools.lib/xxx.msgq\" "+
@@ -118,7 +118,7 @@ public class DW2Jvakt  {
 				//				if (msg.contains(" MonIpAddr_"))   swInteresting = false;
 
 				// info  
-				sev = 10; 
+				sev = 5; 
 				sts = "ERR";
 				if (swInteresting) {
 					System.out.println("-- Interesting...");
@@ -126,31 +126,34 @@ public class DW2Jvakt  {
 					if (msg.contains("DAX ")|| msg.contains("ITO0206") || msg.contains("CPI0973") || msg.contains("backup OK") || 
 							msg.contains("is mounted") || msg.contains("LOG0010") || msg.contains("SYSSTS:") ||   
 							msg.contains("TBM1205") ||
-							msg.contains("Next tape is") || msg.contains("ITO1206") || msg.contains("EDH30") )  
-					{ sev = 30; sts = "INFO"; } 
+							msg.contains("Next tape is") || msg.contains("ITO1206") || msg.contains("EDH30") ) { 
+						sev = 30; sts = "INFO"; } 
 					// OK 30
 					if (msg.contains("CPF1817")  || msg.contains("CPI0973")    ||
-							msg.contains("backup OK") || msg.contains("is mounted") ) 
-					{ sev = 30; sts = "OK"; } 
+							msg.contains("backup OK") || msg.contains("is mounted") ) {
+						sev = 30; sts = "OK"; } 
 					// ERR 30
 					if (msg.contains("Err:") || msg.contains("EDH18") || msg.contains("Wrn:") || 
 							msg.contains("not ready.") || msg.contains("RNQ") || 
-							msg.contains("MSGW ") || msg.contains("QAIMPS2") || msg.contains("backup ERR")|| msg.contains("BU ERR") || 
-							msg.contains("CPA5305") || msg.contains("FTP0100")  || msg.contains("CPF090")|| msg.contains("APP020") ||
-							msg.contains("CHKJOBSTS") || msg.contains("CPF090") || msg.contains("APP020") || msg.contains("CPA3387") ||
-							msg.contains("MONOUTQ01") || words[0].contains("CHKWTRS1") || msg.contains("CPI59B2") || msg.contains("CPD27CE") ||
-							msg.contains("CPA4072") || msg.contains("CPA0701") || msg.contains("CPF0909") || msg.contains("CPF0908") || msg.contains("CPFAF98") ||
+							msg.contains("MSGW ")      || msg.contains("QAIMPS2") || msg.contains("backup ERR")|| msg.contains("BU ERR") || 
+							msg.contains("CPA5305")    || msg.contains("FTP0100")  || msg.contains("APP020") ||
+							msg.contains("CHKJOBSTS")  || msg.contains("CPF090") || msg.contains("CPA3387") ||
+							msg.contains("MONOUTQ01")  || words[0].contains("CHKWTRS1") || msg.contains("CPI59B2") || msg.contains("CPD27CE") ||
+							msg.contains("CPA4072")    || msg.contains("CPA0701") || msg.contains("CPF0909") || msg.contains("CPF0908") || msg.contains("CPFAF98") ||
 							(msg.contains("ITO0206") & msg.toLowerCase().contains("warning")) ||
 							(msg.contains("ITO0206") & msg.toLowerCase().contains("error")) 
-							)
-					{ sev = 30; sts = "ERR"; }
+							) { 
+						sev = 30; sts = "ERR"; }
 					// ERR 20
 					if (msg.contains("ITO0102") || msg.contains("ITO0202")  || msg.contains("SAP0902") ||  msg.contains("ITO0902") || 
-							msg.contains("CPI0964") || msg.contains("CPF1816") || msg.contains("TBM1202") ) 
-					{ sev = 20; sts = "ERR"; } 
+							msg.contains("CPI0964") || msg.contains("CPF1816") || msg.contains("TBM1202") )	{ 
+						sev = 20; sts = "ERR"; } 
 					// ERR 10
-					if (msg.contains("QSYSCOMM") || msg.contains("QSYSARB")|| msg.contains("APP020")) 
-					{ sev = 10; sts = "ERR"; } 
+					if (
+						(msg.contains("QSYSCOMM") || msg.contains("QSYSARB")  || msg.contains("APP020")) &&
+						(!msg.contains("CPF0909") && !msg.contains("CPF0908") && !msg.contains("CPI59B2") && !msg.contains("CPD27CE"))
+						) {
+						sev = 10; sts = "ERR"; } 
 
 					try {
 						//	 System.out.println(args[0]+" - "+args[1]);
@@ -174,7 +177,7 @@ public class DW2Jvakt  {
 						//					try { Thread.currentThread().sleep(1000); } catch (InterruptedException e) { e.printStackTrace();}
 						System.out.println("-- Read next from queue --");
 					}
-					catch( Exception e ) { e.printStackTrace();}
+					catch( Exception e ) { e.printStackTrace(); swSyslogOK = false;}
 				}
 
 				if (swSyslogOK) {

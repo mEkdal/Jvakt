@@ -20,7 +20,7 @@ public class monHttp {
 	static boolean swSingle = false;
 	static String host;
 	static InetAddress inet;
-	static String version = "monHttp 1.1 Date 2017-11-09";
+	static String version = "monHttp 1.1 # 2017-11-09";
 	static String database = "jVakt";
 	static String dbuser   = "jVakt";
 	static String dbpassword = "xz";
@@ -33,6 +33,7 @@ public class monHttp {
 	static String agent = null;
 	static String webfile = "";
 	static String webcontent = "xx";
+	static Date now;
 
 	static String config = null;
 	static File configF;
@@ -49,6 +50,8 @@ public class monHttp {
 		String suf = ".csv";
 		String pos = "monHttp";
 		boolean swRun = false;
+	    now = new Date();
+
 
 		if (args.length < 1) {
 			System.out.println("\n " +version);
@@ -76,7 +79,7 @@ public class monHttp {
 		if (config != null ) dir = new File(config);
 		if (config == null ) 	configF = new File("Jvakt.properties");
 		else 					configF = new File(config,"Jvakt.properties");
-		System.out.println("Jvakt: "+version);
+		System.out.println("----- Jvakt: "+now+"    Version: "+version);
 		System.out.println("-config file: "+configF);
 
 		getProps();

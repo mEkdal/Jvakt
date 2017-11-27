@@ -351,6 +351,7 @@ class DBupdate {
 			// insert new line with new timestamp and counter
 			PreparedStatement st = conn.prepareStatement("INSERT INTO ConsoleHst (credat,deldat,count,id,prio,type,status,body,agent) "
 					+ "values (?,?,?,?,?,?,?,?,?)");
+			if (swLogg)
 			System.out.println("Prepared insert:" + st);
 			st.setTimestamp(1, rs.getTimestamp("credat")); // credat
 			st.setTimestamp(2, new java.sql.Timestamp((new Date(System.currentTimeMillis())).getTime())); // deldat
