@@ -16,7 +16,7 @@ public class Server {
 	 */
 	public static void main(String[] args ) throws Exception  {
 
-		String version = "Server 1.1 # 2017-11-09";
+		String version = "Server 1.2 # 2017-12-07";
 		String jvport   = "1956";
 
 		String config = null;

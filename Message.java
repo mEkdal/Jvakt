@@ -7,7 +7,7 @@ package Jvakt;
 
 public class Message {
  private String type = " ";
- private String id = " ";
+ private String id = "";
  private String rptsts = " ";
  private String body = " ";
  private String agent = " ";
@@ -37,7 +37,9 @@ public class Message {
  public boolean setBody( String body )     { 
 //	 if (body == null) { body = " "; }
 	 if (body.length() > 255) body = body.substring(0, 255);
-	 body = body.replaceAll("[^a-zA-Z0-9.:!?;*_$#)(//\"><-=]" , " ");
+	 body = body.replaceAll("\\\\" , "/");
+	 body = body.replaceAll("[^a-zA-Z0-9.:!?;*_$#)(//\"><-=åäöÅÄÖ]" , " ");
+//	 body = body.replaceAll("[^\\S]" , " ");   // A non-whitespace character replaced with space
 	 body = body.replaceAll(" {2,}", " "); // replace multiple spaces with one
 	 String[] tab = body.split("<;>",2);
 	 this.body = tab[0];

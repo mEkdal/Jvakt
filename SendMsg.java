@@ -12,11 +12,11 @@ public class SendMsg {
 	int port;
 	String version = "SendMsg 1.2 Date 2017-07-20";
 
-	SendMsg(String host, int port ) {
+	public SendMsg(String host, int port ) {
 		this.port = port;
 		this.host = host;
 	}        
-	String open() throws IOException, UnknownHostException  {
+	public String open() throws IOException, UnknownHostException  {
 		cs = new Socket(host, port);
 		sin = cs.getInputStream();
 		in = new BufferedReader(new InputStreamReader(sin));
@@ -26,7 +26,7 @@ public class SendMsg {
 		ut.flush();
 		return in.readLine();
 	}        
-	boolean sendMsg(Message msg ) throws IOException, UnknownHostException  {
+	public boolean sendMsg(Message msg ) throws IOException, UnknownHostException  {
 		String line = null;
 		try {
 			ut.println(msg.getType()+"<;>"+msg.getId()+"<;>"+msg.getRptsts()+"<;>"+msg.getBody()+"<;>"+msg.getAgent()+"<;>"+ Integer.toString(msg.getPrio())+"<;>");
@@ -41,7 +41,7 @@ public class SendMsg {
 		}
 	}
 
-	boolean close() throws IOException, UnknownHostException  {
+	public boolean close() throws IOException, UnknownHostException  {
 		ut.close();
 		in.close();
 		cs.close();

@@ -6,7 +6,7 @@ import java.util.Properties;
 public class RptToJv {
 	public static void main(String[] args ) throws IOException, UnknownHostException {
 
-		String version = "RptToDW 1.3 Date 2017-11-24";
+		String version = "RptToDW 1.3 Date 2017-12-11";
 		String host = "127.0.0.1";
 		int port = 1956; 
 		String id = null;
@@ -41,7 +41,8 @@ public class RptToJv {
 			jvhost = prop.getProperty("jvhost");
 			jvport = prop.getProperty("jvport");
 		} catch (IOException ex) {
-			 ex.printStackTrace();
+			System.out.println("Jvakt.properties not found, continues...");
+//			 ex.printStackTrace();
 		}
 		port = Integer.parseInt(jvport);
 		host = jvhost;

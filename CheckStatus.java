@@ -29,7 +29,7 @@ public class CheckStatus {
 	static int errors = 0;
 	static int warnings = 0;
 	static int infos = 0;
-	static String version = "CheckStatus 1.5 Date 2017-11-14";
+	static String version = "CheckStatus 1.8 Date 2017-12-11";
 	static String database = "jVakt";
 	static String dbuser   = "jVakt";
 	static String dbpassword = "xz";
@@ -116,7 +116,7 @@ public class CheckStatus {
 			ResultSet rs = stmt.executeQuery(s);
 			swHits = false;  // is there already a record?
 			while (rs.next()) {
-				System.out.println("\n-#1: "+rs.getString("state")+" " + rs.getString("id")+" "+rs.getString("type")+" "+rs.getString("prio")+" "+rs.getString("console")+" "+rs.getString("status"));
+				System.out.println("\n-#1: "+rs.getString("state")+" " + rs.getString("id")+" "+rs.getString("type")+" "+rs.getString("prio")+" "+rs.getString("console")+" "+rs.getString("status")+" "+rs.getString("errors")+" "+rs.getString("accerr"));
 
 				swHits = true;  
 				swTiming = false;  
@@ -152,9 +152,9 @@ public class CheckStatus {
 				} 
 				swDelete = false;
 
-				// Om fel inträffat för S, I och R varnas till console
-				if ((rs.getString("type").equalsIgnoreCase("R") || rs.getString("type").equalsIgnoreCase("S") || rs.getString("type").equalsIgnoreCase("I")) && 
-						rs.getString("status").equalsIgnoreCase("ERR") && err > accerr ) {
+				// Om status inte är OK för S, I och R varnas till console
+				if (!rs.getString("status").equalsIgnoreCase("OK") && err >= accerr ) { 
+//					(rs.getString("type").equalsIgnoreCase("R") || rs.getString("type").equalsIgnoreCase("S") || rs.getString("type").equalsIgnoreCase("I"))) {
 					System.out.println("ERR #2: " + rs.getString("id")+" "+rs.getString("status")+"  MSG:"+rs.getString("msg"));
 					if (rs.getString("console").startsWith(" ")) {
 						System.out.println("Set console to C in ERR" + " " + rs.getString("id"));
@@ -167,6 +167,12 @@ public class CheckStatus {
 						rs.updateString("msg", "M");
 						rs.updateTimestamp("msgdat", new java.sql.Timestamp((new Date(System.currentTimeMillis())).getTime()));
 						swPlugin = true;
+						swUpdate=true;
+					}
+					if (rs.getString("sms").startsWith(" ")) {
+						System.out.println("Set sms to M in ERR" + " " + rs.getString("id"));
+						rs.updateString("sms", "M");
+						rs.updateTimestamp("smsdat", new java.sql.Timestamp((new Date(System.currentTimeMillis())).getTime()));
 						swUpdate=true;
 					}
 					if (swUpdate) try { rs.updateRow(); } catch(NullPointerException npe2) {}
@@ -193,16 +199,22 @@ public class CheckStatus {
 						swPlugin = true;
 						swUpdate=true;
 					}
+					if (rs.getString("sms").startsWith(" ")) {
+						System.out.println("Set sms to T in timeout " + rs.getString("id"));
+						rs.updateString("sms", "T");
+						rs.updateTimestamp("smsdat", new java.sql.Timestamp((new Date(System.currentTimeMillis())).getTime()));
+					}
 					System.out.println("timing #3.a :  " + rs.getString("id")+"  MSG:"+rs.getString("msg"));
 					if (swUpdate) try { rs.updateRow(); } catch(NullPointerException npe2) {}
 					updC(rs); // add new line to the console table
 					if (swPlugin && !rs.getString("plugin").startsWith(" ")) {
 						trigPlugin(rs.getString("id"), rs.getString("status"), "P", rs.getString("body")); 
 					}
-				} // Om allt bra tas console bort för S och R 
-				else	 if ((rs.getString("type").equalsIgnoreCase("R") || rs.getString("type").equalsIgnoreCase("S")) && 
-						rs.getString("console").equalsIgnoreCase("C") && rs.getString("status").equalsIgnoreCase("OK") ) {
-					System.out.println("Del #4: " + rs.getString("id")+" "+rs.getString("status")+"  MSG:"+rs.getString("msg"));
+				} // Om allt bra tas console bort för S och R och om console=C eller msg=C eller msg icke " " eller sms icke " "
+				else	 if ((rs.getString("type").equalsIgnoreCase("R") || rs.getString("type").equalsIgnoreCase("S")) && rs.getString("status").equalsIgnoreCase("OK") &&  
+						(rs.getString("console").equalsIgnoreCase("C") || !rs.getString("msg").startsWith(" ") || !rs.getString("sms").startsWith(" ") )
+						) {
+					System.out.println("Del #4: " + rs.getString("id")+" "+rs.getString("status")+"  MSG:"+rs.getString("msg")+"  SMS:"+rs.getString("sms"));
 					swDelete = true;
 					rs.updateString("console", " ");
 					rs.updateString("condat", null);
@@ -216,6 +228,16 @@ public class CheckStatus {
 						System.out.println("Set msg to R in OK" + " " + rs.getString("id"));
 						rs.updateString("msg", "R");
 						rs.updateTimestamp("msgdat", null);
+					}
+					if (rs.getString("sms").startsWith("M") || rs.getString("sms").startsWith("T")) {
+						System.out.println("Set sms to blank in OK" + " " + rs.getString("id"));
+						rs.updateString("sms", " ");
+						rs.updateTimestamp("smsdat", null);
+					}
+					else if (rs.getString("sms").startsWith("S")) {
+						System.out.println("Set sms to R in OK" + " " + rs.getString("id"));
+						rs.updateString("sms", "R");
+						rs.updateTimestamp("smsdat", null);
 					}
 					if (swUpdate) try { rs.updateRow(); } catch(NullPointerException npe2) {}
 					updC(rs); // update or remove line from the console table

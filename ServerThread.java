@@ -9,12 +9,14 @@ class ServerThread extends Thread {
 	List list;
 	Socket client;
 	DBupdate dt;
-	String version = "ServerThread 1.1 Date 2017-07-20";
+	String version = "ServerThread 1.1 Date 2017-11-29";
+	boolean swData;
 
 	ServerThread(Socket client, DBupdate dt) { this.client = client; this.dt = dt; }
 
 	public void run() {
 		try {
+			swData = false;
 			BufferedReader in = new BufferedReader(new InputStreamReader(client.getInputStream()));
 			PrintWriter    ut = new PrintWriter(new OutputStreamWriter(client.getOutputStream()));
 			dt.getStatus();
@@ -26,7 +28,10 @@ class ServerThread extends Thread {
 				if (line.length() == 0) break;
 				if (line.startsWith("SendMsg")) continue ;
 				String[] tab = line.split("<;>");
-
+//				System.out.println("ServerThread #1: " + tab.length +"   " + client.getInetAddress() );				
+				if (tab.length < 6) break; 
+				swData = true;
+				
 				jm.setType(tab[0]);
 				jm.setId(tab[1]);
 				jm.setRptsts(tab[2]);
@@ -42,12 +47,12 @@ class ServerThread extends Thread {
 			in.close();
 			ut.close();
 			client.close();
-			dt.dbWrite(jm);  // update DB
-//			System.out.println("ServerThread Session:  DBupdate klar");
+//			System.out.println("ServerThread #2: " + client.getInetAddress() + " " + jm.getType() + " " + jm.getId() + " " +jm.getRptsts() + " " + jm.getBody() + " " +jm.getAgent() + " " +jm.getPrio());
+			if (swData) dt.dbWrite(jm);  // update DB
 		}
 		catch (IOException e1) { 
-//			System.out.println("ServerThread error Session: "); 
-//			System.out.println(e1); 
+			System.out.println("ServerThread exeption:>> " + client.getInetAddress() + " " + e1 ); 
 			}
+//		System.out.println("ServerThread Session:  DBupdate klar");
 	}        
 }

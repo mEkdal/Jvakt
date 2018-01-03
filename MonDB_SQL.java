@@ -54,7 +54,7 @@ static String jvhost   = "localhost";
 static String jvport   = "1956";
 static int port ;
 static InetAddress inet;
-static String version = "jVakt 2.0 - CheckLogs 1.1 Date 2017-09-08";
+static String version = "MonDB_SQL 1.1 Date 2017-09-08";
 static String agent = null;
 static boolean swSlut = false;
 
