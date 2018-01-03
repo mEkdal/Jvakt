@@ -1,0 +1,18 @@
+@rem (Base function) This CMD file executes a number of steps.
+
+@rem CheckStatus checks the Status table for timeouts and errors. It sets the mail switch and updates the Console table.  
+java -cp C:\JavaSrc;C:\JavaSrc\postgresql-42.1.3.jar Jvakt.CheckStatus -config D:\Jvakt-console\config >> CheckStatus.log 2>> CheckStatusE.log
+
+@rem console2html creates a HTML file from the Console table.
+java -cp C:\JavaSrc;C:\JavaSrc\postgresql-42.1.3.jar Jvakt.console2html -config D:\Jvakt-console\config > console.work 2> consoleE.log
+move /Y console.work console.html
+copy /Y console.html D:\Jvakt-console
+
+@rem SendMail sends mail decided by the CheckStatus step. The Status tabled is read and updated regarding mail issues.
+@rem The prio of the must be below 30 and the "toEmail"" variabe in the jVakt.properties file is used.
+java -cp C:\JavaSrc;C:\JavaSrc\postgresql-42.1.3.jar;C:\JavaSrc\javax.mail-1.5.6.jar Jvakt.SendMail -config D:\Jvakt-console\config >> SendMail.log 2> SendMailE.log
+
+@rem SendMail30 sends mail decided by the CheckStatus step. The Status tabled is read and updated regarding mail issues.
+@rem The prio of the must be 30 and above. It is used for lesser important issues to be able to mail interested parties.
+@rem The file SendMail30-01.csv is read.
+java -cp C:\JavaSrc;C:\JavaSrc\postgresql-42.1.3.jar;C:\JavaSrc\javax.mail-1.5.6.jar Jvakt.SendMail30 -config D:\Jvakt-console\config >> SendMail30.log 2> SendMail30E.log

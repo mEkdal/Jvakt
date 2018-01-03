@@ -1,0 +1,5 @@
+### Checks the response of an IP-address.
+### IPv4. Will try to establish a TCP connection to port 7 (Echo) and will use ICMP (ping) as a fallback. 
+
+# ID of checkpoint ; host name ; description
+AS400_PPSE08;ppse08;Priduction PRISM

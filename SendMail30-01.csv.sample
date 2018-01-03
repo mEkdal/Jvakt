@@ -1,0 +1,9 @@
+### Sends mail to interested persons regarding checkpoints from prio 30 and above.
+### Some part of the first field must match the ID of the checkpoint.
+
+# part of the ID of the checkpoint ; mail address 
+
+SAP_;user1@gmail.com
+AS400_;user1@gmail.com
+
+SAP_;user2@perstorp.com
