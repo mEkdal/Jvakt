@@ -80,7 +80,7 @@ public class SendMail {
 	
 	public static void main(String[] args ) throws IOException, UnknownHostException {
 
-		String version = "SendMail 1.1 # 2017-11-09";
+		String version = "SendMail 1.2 # 2018-01-09";
 		String database = "jVakt";
 		String dbuser   = "jVakt";
 		String dbpassword = "xz";
@@ -161,6 +161,7 @@ public class SendMail {
 			if (jm.open().startsWith("DORMANT")) {
 				swDormant = true;
 			}
+			jm.close();
 		} 
 		catch (IOException e1) {
 			System.err.println(e1);

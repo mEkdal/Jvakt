@@ -42,7 +42,7 @@ public class GetImap4Msg {
 
 	public static void main(String[] args) throws IOException, FileNotFoundException {
 
-		String version = "GetImap4Msg 1.1 # 2017-11-15";
+		String version = "GetImap4Msg 1.2 # 2018-01-04";
 
 		for (int i=0; i<args.length; i++) {
 			if (args[i].equalsIgnoreCase("-config")) config = args[++i];
@@ -345,13 +345,13 @@ public class GetImap4Msg {
 		jmsg.setBody(msg);
 		jmsg.setType(type);
 		jmsg.setAgent(agent);
-		jm.sendMsg(jmsg);
-		if (jm.close()) {
+//		jm.sendMsg(jmsg);
+		if (jm.sendMsg(jmsg)) {
 			System.out.println("-- Rpt Delivered --");
 			msgFixat = true;
 		}
 		else            System.out.println("-- Rpt Failed --");
-
+		jm.close();
 	}
 
 	public static boolean scanFile(String filename, InputStream in)  throws IOException {

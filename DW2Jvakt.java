@@ -18,7 +18,7 @@ public class DW2Jvakt  {
 
 		// Displays help
 		if (args.length == 0) {
-			System.out.println("\n*** DW2Jvakt 1.1 Date 2017-11-22 ***" +
+			System.out.println("\n*** DW2Jvakt 1.1 Date 2018-01-04 ***" +
 					"\n*** by Michael Ekdal Perstorp Sweden. ***");
 			System.out.println("\n\nThe parameters and their meaning are:\n"+
 					"\n-q \tThe name of the AS400 message queue, like \" /qsys.lib/itoctools.lib/xxx.msgq\" "+
@@ -137,7 +137,7 @@ public class DW2Jvakt  {
 							msg.contains("not ready.") || msg.contains("RNQ") || 
 							msg.contains("MSGW ")      || msg.contains("QAIMPS2") || msg.contains("backup ERR")|| msg.contains("BU ERR") || 
 							msg.contains("CPA5305")    || msg.contains("FTP0100")  || msg.contains("APP020") ||
-							msg.contains("CHKJOBSTS")  || msg.contains("CPF090") || msg.contains("CPA3387") ||
+							msg.contains("CHKJOBSTS")  || msg.contains("CPF090") || msg.contains("CPA3387") ||  msg.contains("ITO0906") ||
 							msg.contains("MONOUTQ01")  || words[0].contains("CHKWTRS1") || msg.contains("CPI59B2") || msg.contains("CPD27CE") ||
 							msg.contains("CPA4072")    || msg.contains("CPA0701") || msg.contains("CPF0909") || msg.contains("CPF0908") || msg.contains("CPFAF98") ||
 							(msg.contains("ITO0206") & msg.toLowerCase().contains("warning")) ||
@@ -171,10 +171,11 @@ public class DW2Jvakt  {
 						else jmsg.setType("I");
 						
 						jmsg.setAgent(agent);
-						jm.sendMsg(jmsg);
-						if (jm.close()) { System.out.println("-- Rpt Delivered --"); swSyslogOK = true; }
-						else            { System.out.println("-- Rpt Failed --");    swSyslogOK = false; }
+//						jm.sendMsg(jmsg);
+						if (jm.sendMsg(jmsg)) { System.out.println("-- Rpt Delivered --"); swSyslogOK = true; }
+						else            	  { System.out.println("-- Rpt Failed --");    swSyslogOK = false; }
 						//					try { Thread.currentThread().sleep(1000); } catch (InterruptedException e) { e.printStackTrace();}
+						jm.close();
 						System.out.println("-- Read next from queue --");
 					}
 					catch( Exception e ) { e.printStackTrace(); swSyslogOK = false;}

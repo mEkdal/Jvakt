@@ -20,7 +20,7 @@ public class monHttp {
 	static boolean swSingle = false;
 	static String host;
 	static InetAddress inet;
-	static String version = "monHttp 1.1 # 2017-11-09";
+	static String version = "monHttp 1.2 # 2018-01-09";
 	static String database = "jVakt";
 	static String dbuser   = "jVakt";
 	static String dbpassword = "xz";
@@ -154,7 +154,7 @@ public class monHttp {
 
 		} catch (Exception e) { System.out.println(e); state = "FAILED";   }
 
-		try { Thread.currentThread(); Thread.sleep(1000); } catch (Exception e) {} ;
+//		try { Thread.currentThread(); Thread.sleep(1000); } catch (Exception e) {} ;
 
 		if (state.equals("OKAY")) {	System.out.println("Connection succcessful"); return true; }
 		else 					  { System.out.println("Connection failed"); return false; }
@@ -171,10 +171,10 @@ public class monHttp {
 		jmsg.setBody(t_desc);
 		jmsg.setType("R");
 		jmsg.setAgent(agent);
-		jm.sendMsg(jmsg);
-		if (jm.close()) System.out.println("-- Rpt Delivered --");
-		else            System.out.println("-- Rpt Failed --");
-
+//		jm.sendMsg(jmsg);
+		if (jm.sendMsg(jmsg)) System.out.println("-- Rpt Delivered --");
+		else            	  System.out.println("-- Rpt Failed --");
+		jm.close();
 	}
 
 	static void getProps() {

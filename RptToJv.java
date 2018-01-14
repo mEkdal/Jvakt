@@ -6,7 +6,7 @@ import java.util.Properties;
 public class RptToJv {
 	public static void main(String[] args ) throws IOException, UnknownHostException {
 
-		String version = "RptToDW 1.3 Date 2017-12-11";
+		String version = "RptToDW 1.4 Date 2018-01-04";
 		String host = "127.0.0.1";
 		int port = 1956; 
 		String id = null;
@@ -106,8 +106,9 @@ public class RptToJv {
 		jmsg.setType(type);
 		jmsg.setAgent(agent);
 		jmsg.setPrio( Integer.parseInt(prio) );
-		jm.sendMsg(jmsg);
-		if (jm.close()) System.out.println("-- Rpt Delivered --");
-		else            System.out.println("-- Rpt Failed --");
+//		jm.sendMsg(jmsg);
+		if (jm.sendMsg(jmsg)) System.out.println("-- Rpt Delivered --");
+		else            	  System.out.println("-- Rpt Failed --");
+		jm.close();
 	}        
 }

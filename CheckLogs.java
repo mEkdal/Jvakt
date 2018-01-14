@@ -23,7 +23,7 @@ public class CheckLogs {
 	static String jvport   = "1956";
 	static int port ;
 	static InetAddress inet;
-	static String version = "CheckLogs 1.2 # 2017-11-09";
+	static String version = "CheckLogs 1.3 # 2018-01-04";
 	static String agent = null;
 	static boolean swSlut = false;
 
@@ -297,10 +297,10 @@ public class CheckLogs {
 		jmsg.setBody(t_desc);
 		jmsg.setType("R");
 		jmsg.setAgent(agent);
-		jm.sendMsg(jmsg);
-		if (jm.close()) System.out.println("--- Rpt Delivered --  " + id + "  --  " + t_desc);
-		else            System.out.println("--- Rpt Failed --");
-
+//		jm.sendMsg(jmsg);
+		if (jm.sendMsg(jmsg)) System.out.println("--- Rpt Delivered --  " + id + "  --  " + t_desc);
+		else           		  System.out.println("--- Rpt Failed --");
+		jm.close();
 	}
 
 	static void getProps() {

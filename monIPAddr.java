@@ -20,7 +20,7 @@ public class monIPAddr {
 	static boolean swSingle = false;
 	static String host;
 	static InetAddress inet;
-	static String version = "monIPAddr 1.1 # 2017-11-09";
+	static String version = "monIPAddr 1.2 # 2018-01-04";
 	static String database = "jVakt";
 	static String dbuser   = "jVakt";
 	static String dbpassword = "xz";
@@ -171,10 +171,10 @@ public class monIPAddr {
 		jmsg.setBody(t_desc);
 		jmsg.setType("R");
 		jmsg.setAgent(agent);
-		jm.sendMsg(jmsg);
-		if (jm.close()) System.out.println("-- Rpt Delivered --");
-		else            System.out.println("-- Rpt Failed --");
-
+//		jm.sendMsg(jmsg);
+		if (jm.sendMsg(jmsg)) System.out.println("-- Rpt Delivered --");
+		else                  System.out.println("-- Rpt Failed --");
+		jm.close();
 	}
 
 	static void getProps() {

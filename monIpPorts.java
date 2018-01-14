@@ -20,7 +20,7 @@ public class monIpPorts {
 	static boolean swSingle = false;
 	static String host;
 	static InetAddress inet;
-	static String version = "monIpPorts 1.2 # 2017-11-096";
+	static String version = "monIpPorts 1.4 # 2018-01-09";
 	static String database = "jVakt";
 	static String dbuser   = "jVakt";
 	static String dbpassword = "xz";
@@ -144,14 +144,14 @@ public class monIpPorts {
 			System.out.println("Connection to: " + host + ":" + wport);
 			cs = new Socket();
 			cs.connect(new InetSocketAddress(host, wport), 5000);
-			BufferedInputStream inFromClient = new BufferedInputStream(cs.getInputStream());
-			BufferedOutputStream outToClient = new BufferedOutputStream(cs.getOutputStream());
+//			BufferedInputStream inFromClient = new BufferedInputStream(cs.getInputStream());
+//			BufferedOutputStream outToClient = new BufferedOutputStream(cs.getOutputStream());
 			//cs = new Socket(host, port);
 //			outToClient.write(' ');
 //			outToClient.flush();
 		} catch (Exception e) { System.out.println("Connection failed:" + e); state = "FAILED";   }
 
-		try { Thread.currentThread(); Thread.sleep(1000); } catch (Exception e) {} ;
+//		try { Thread.currentThread(); Thread.sleep(1000); } catch (Exception e) {} ;
 
 		// disconnect from port
 		try {
@@ -175,10 +175,9 @@ public class monIpPorts {
 		jmsg.setBody(t_desc);
 		jmsg.setType("R");
 		jmsg.setAgent(agent);
-		jm.sendMsg(jmsg);
-		if (jm.close()) System.out.println("-- Rpt Delivered --");
-		else            System.out.println("-- Rpt Failed --");
-
+		if (jm.sendMsg(jmsg)) System.out.println("-- Rpt Delivered --");
+		else            	  System.out.println("-- Rpt Failed --");
+		jm.close();
 	}
 
 	static void getProps() {

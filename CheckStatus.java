@@ -29,7 +29,7 @@ public class CheckStatus {
 	static int errors = 0;
 	static int warnings = 0;
 	static int infos = 0;
-	static String version = "CheckStatus 1.8 Date 2017-12-11";
+	static String version = "CheckStatus 1.9 Date 2018-01-04";
 	static String database = "jVakt";
 	static String dbuser   = "jVakt";
 	static String dbpassword = "xz";
@@ -274,10 +274,10 @@ public class CheckStatus {
 		jmsg.setBody(body);
 		jmsg.setType(type);
 		jmsg.setAgent(agent);
-		jm.sendMsg(jmsg);
-		if (jm.close()) System.out.println("-- Rpt Delivered --");
-		else            System.out.println("-- Rpt Failed --");
-
+//		jm.sendMsg(jmsg);
+		if (jm.sendMsg(jmsg)) System.out.println("-- Rpt Delivered --");
+		else           	      System.out.println("-- Rpt Failed --");
+		jm.close();
 	}
 
 	// sends SYSSTS to the server
@@ -290,10 +290,10 @@ public class CheckStatus {
 		jmsg.setBody("Severe: " + errors + "  Problems: " + warnings + "  Info: " + infos);
 		jmsg.setType("I");
 		jmsg.setAgent(agent);
-		jm.sendMsg(jmsg);
-		if (jm.close()) System.out.println("-- Rpt Delivered --");
-		else            System.out.println("-- Rpt Failed --");
-
+//		jm.sendMsg(jmsg);
+		if (jm.sendMsg(jmsg)) System.out.println("-- Rpt Delivered --");
+		else           	      System.out.println("-- Rpt Failed --");
+		jm.close();
 	}
 
 	//----- add new line to the console table -----

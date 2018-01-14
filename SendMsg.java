@@ -42,10 +42,10 @@ public class SendMsg {
 	}
 
 	public boolean close() throws IOException, UnknownHostException  {
+		try { Thread.currentThread().sleep(100); } catch (InterruptedException e) { e.printStackTrace();}
 		ut.close();
 		in.close();
 		cs.close();
-		try { Thread.currentThread().sleep(100); } catch (InterruptedException e) { e.printStackTrace();}
 		return true;
 	}
 }

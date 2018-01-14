@@ -30,12 +30,12 @@ public class SendSMS {
 	static java.sql.Time zT;
 	static Long lhou, lmin, Lsec, Lrptdat, Lchktim;
 	static int serrors = 0;
-	//	static int errors = 0;
+//	static int errors = 0;
 	static int warnings = 0;
 	static int infos = 0;
 	static int resolved = 0;
 
-//	static String subject = "";
+	static String subject = "";
 	static String body = "";
 
 	static String toSMSW;
@@ -54,14 +54,14 @@ public class SendSMS {
 	static   OutputStreamWriter osw;
 	static   InputStreamReader isr;
 
-
-	//	static Authenticator auth;
+	
+//	static Authenticator auth;
 
 	static List listTo;
 
 	public static void main(String[] args ) throws IOException, UnknownHostException {
 
-		String version = "SendSMS 1.0 # 2017-12-07";
+		String version = "SendSMS 1.1 # 2018-01-09";
 		String database = "jVakt";
 		String dbuser   = "jVakt";
 		String dbpassword = "xz";
@@ -125,6 +125,7 @@ public class SendSMS {
 			if (jm.open().startsWith("DORMANT")) {
 				swDormant = true;
 			}
+			jm.close();
 		} 
 		catch (IOException e1) {
 			System.err.println(e1);
@@ -138,12 +139,12 @@ public class SendSMS {
 
 		LocalDateTime nu = LocalDateTime.now(); // The current date and time
 		LocalDateTime midnatt = LocalDateTime.of(nu.getYear(), nu.getMonthValue(), nu.getDayOfMonth() , 0, 0, 0, 0);
-		//		Timestamp mi = Timestamp.valueOf(midnatt);
+//		Timestamp mi = Timestamp.valueOf(midnatt);
 		DayOfWeek DOW = nu.getDayOfWeek(); 
 		Statement stmt = null;
 		String s;
-		//		boolean swHits;
-		//		String cause = "";
+//		boolean swHits;
+//		String cause = "";
 		zDate = new java.sql.Date((new Date(System.currentTimeMillis())).getTime());
 		zTs = new java.sql.Timestamp((new Date(System.currentTimeMillis())).getTime()); 
 
@@ -169,10 +170,10 @@ public class SendSMS {
 			stmt = conn.createStatement(ResultSet.CONCUR_UPDATABLE,ResultSet.TYPE_FORWARD_ONLY,ResultSet.CLOSE_CURSORS_AT_COMMIT ); 
 			stmt.setFetchSize(1000);
 			ResultSet rs = stmt.executeQuery(s);
-			//			swHits = false;  // is there already a record?
+//			swHits = false;  // is there already a record?
 			while (rs.next()) {
 				System.out.println("- main RS - State:"+rs.getString("state")+" Id:" + rs.getString("id")+" Type:"+rs.getString("type")+" Prio:"+rs.getString("prio")+" Console:"+rs.getString("console")+" Status:"+rs.getString("status")+ " Sms:"+rs.getString("sms"));
-				//				swHits = true;  
+//				swHits = true;  
 				swTiming = false;  
 
 				zD = rs.getTimestamp("rptdat");
@@ -215,7 +216,7 @@ public class SendSMS {
 					try { rs.updateRow(); } catch(NullPointerException npe2) {}
 
 					System.out.println("After update");
-
+					
 					if (sendSMS()) conn.commit();
 					else			conn.rollback();
 				}
@@ -239,130 +240,122 @@ public class SendSMS {
 		}
 	}        
 
-	// Connects to the SNS terninal and sents the text
+	// Connects to the SMS terminal and sends the text
 	static boolean sendSMS() {
 
 		boolean swOK = false;
 		System.out.println("Sending SMS....");
-//		subject = "* NEW status * -->   ";
+		subject = "* NEW status * -->   ";
 
 		if (serrors > 0) {
-//			subject = subject + "Errors: " + serrors + "  ";
+			subject = subject + "Errors: " + serrors + "  ";
 			body = "ERROR: " + body;
 		}
 		if (warnings > 0) {
-//			subject = subject + "Time-outs: " + warnings + "  ";
+			subject = subject + "Time-outs: " + warnings + "  ";
 			body = "TIME-OUT: "+body ;
 		}
 		if (resolved > 0) { 
-//			subject = subject + "Resolved: " + resolved;
+			subject = subject + "Resolved: " + resolved;
 			body = "RESOLVED: "+body ;
 		}
 
-		//		toSMSW = "";
-//		int n = 0;
-		// Loop on all phone numbers
+
+		toSMSW = "";
+		int n = 0;
 		for(Object object : listTo) { 
 			//				if (n>0) toSMSW = toEmailW + ",";
-//			n++;
+			n++;
 			String element = (String) object;
-			//			System.out.println(object);
-			toSMS = (String) object;
-			//			toSMS = toSMSW;
+//			System.out.println(object);
+			toSMSW = (String) object;
+
+			toSMS = toSMSW;
 			//				System.out.println("To:"+toEmailW+"   Subject: " + subject );
 			System.out.println("\nSMS to:"+toSMS +"   Body: " + body );
-
-			// Connect to Com-Server
-			try {
-				System.out.println("Connecting to: "+SMShost +":" + SMSporti );
-				sock = new Socket( SMShost, SMSporti );
-				sock.setSoTimeout( 200 );  // receive timeout
-				osw = new OutputStreamWriter( sock.getOutputStream() );
-				isr = new InputStreamReader( sock.getInputStream() );
-			} catch( IOException e ) {
-				System.out.println("IOExeption while connecting " + e);
-				break;
-			}
-			// Sending 
-			try {
-				System.out.println("Sending \"AT+CMGF=1\\r\\n\"" );
-				osw.write( "AT+CMGF=1\r\n" );
-				osw.flush();
-				ReceiveText();
-				System.out.println("Sending AT+CMGS="+toSMS +"\\r\\n" );
-				osw.write( "AT+CMGS="+ toSMS + "\r\n" );
-				osw.flush();
-				ReceiveText();
-				if (body.length() > 152 ) body = body.substring(0, 152);
-				body = body.replace('_', '-'); // replace _ with - because SMS creates a §
-				body = body.replace('Å', 'A'); 
-				body = body.replace('Å', 'A'); 
-				body = body.replace('Ö', 'O'); 
-				body = body.replace('å', 'a'); 
-				body = body.replace('ä', 'a'); 
-				body = body.replace('ö', 'o'); 
-				body = body.replaceAll("[^a-zA-Z0-9.:-]" , " ");
-				System.out.println("Sending "+body +"\\r\\n" );
-				osw.write( body + "\r\n" + "\u001A" );
-				osw.flush();
-				ReceiveText();
-				swOK = true;
-			} catch( IOException e ) {
-				System.out.println("IOExeption while sending " + e);
-			}		      
-			// closing and disconnecting 
-			try {
-				osw.close();
-				isr.close();
-				sock.close();
-			} catch( IOException e ) {System.out.println("IOExeption while closing " + e); }
-
+			
+		      // Connect to Com-Server
+		      try {
+		    	  System.out.println("Connecting to: "+SMShost +":" + SMSporti );
+		        sock = new Socket( SMShost, SMSporti );
+		        sock.setSoTimeout( 100 );  // receive timeout
+		        osw = new OutputStreamWriter( sock.getOutputStream() );
+		        isr = new InputStreamReader( sock.getInputStream() );
+		      } catch( IOException e ) {
+		    	  System.out.println("IOExeption while connecting " + e);
+		    	  break;
+		      }
+		      // Sending 
+		      try {
+    	    	  System.out.println("Sending \"AT+CMGF=1\\r\\n\"" );
+		        osw.write( "AT+CMGF=1\r\n" );
+		        osw.flush();
+		        ReceiveText();
+  	    	  System.out.println("Sending AT+CMGS="+toSMS +"\\r\\n" );
+		        osw.write( "AT+CMGS="+ toSMS + "\r\n" );
+		        osw.flush();
+		        ReceiveText();
+		        if (body.length() > 160 ) body = body.substring(0, 160);
+		        body = body.replaceAll("_", "-"); // replace _ with - because SMS creates a §
+		        body = body.replaceAll("[^a-zA-Z0-9.:-]" , " ");
+	  	    	  System.out.println("Sending "+body +"\\r\\n" );
+			        osw.write( body + "\r\n" + "\u001A" );
+			        osw.flush();
+			        ReceiveText();
+		      } catch( IOException e ) {
+		    	  System.out.println("IOExeption while sending " + e);
+		      }		      
+		      swOK = true;
+		      // closing and disconnecting 
+		      try {
+		      osw.close();
+		      isr.close();
+		      sock.close();
+		      } catch( IOException e ) {}
+			
 		}
 
 		if (swOK) {
-			System.out.println("\nRETURN true");
-			return true;
+		System.out.println("\nRETURN true");
+		return true;
 		}
 		else {
-			System.out.println("\nRETURN false");
-			return false;
+		System.out.println("\nRETURN false");
+		return false;
 		}
-
-	}
-
-	static public void ReceiveText() {
-		try { Thread.currentThread().sleep(200); } catch (InterruptedException e) { e.printStackTrace();}
-		String s;
-		int i, len, timeouts;
-		char c[] = new char[ 100 ];
 		
-		timeouts = 0;
-		for( ;; ) {
-			s = "";
-			try {
-				len = isr.read( c, 0, 100 );
-				if( len < 0 ) {
-					return;
-				}
-				for( i = 0; i < len; i++ ) {
-					if( c[ i ] != 0 ) s += c[ i ];
-				}
-			} catch (InterruptedIOException e) {
-				timeouts++;
-				if (timeouts>999) break;
-				// timeout in input stream
-				//	    	  System.out.println("ReceiverText timeout in input stream: " + e);
-			} catch (IOException e) {
-				System.out.println("ReceiverText IOException: " + e);
-				break;
-			}
-
-			if( s.length() > 0 ) {
-				System.out.println(s);  
-				return;
-			}	      
-		}
 	}
 
+	  static public void ReceiveText() {
+		  try { Thread.currentThread().sleep(200); } catch (InterruptedException e) { e.printStackTrace();}
+	    String s;
+	    int i, len;
+	    char c[] = new char[ 100 ];
+	    
+	    for( ;; ) {
+	      s = "";
+	      try {
+	        len = isr.read( c, 0, 100 );
+	        if( len < 0 ) {
+	          return;
+	          }
+	        for( i = 0; i < len; i++ )
+	          if( c[ i ] != 0 )
+	            s += c[ i ];
+	      } catch (InterruptedIOException e) {
+	        // timeout in input stream
+//	    	  System.out.println("ReceiverText timeout in input stream: " + e);
+	      } catch (IOException e) {
+	        System.out.println("ReceiverText IOException: " + e);
+	        break;
+	      }
+	      
+	      if( s.length() > 0 ) {
+	    	  System.out.println(s);  
+	    	  return;
+	      }	      
+	    }
+	  }
 
+	
 }
