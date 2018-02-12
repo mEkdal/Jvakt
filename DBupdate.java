@@ -133,8 +133,10 @@ class DBupdate {
 						swPlugin = false;
 						sType = rs.getString("type");
 						sPrio = rs.getInt("prio");
-						if (swLogg)
-							System.out.println(LocalDateTime.now()+" #1 " + rs.getString("id") + "  "  + sType + " " + rs.getString("status")+"->"+ m.getRptsts().toUpperCase() );
+						if (swLogg) {
+							if (!rs.getString("status").equals(m.getRptsts().toUpperCase()))
+								System.out.println(LocalDateTime.now()+" #1 " + rs.getString("id") + "  "  + sType + " " + rs.getString("status")+"->"+ m.getRptsts().toUpperCase() );
+						}
 						// trigger plugin
 						if ( m.getType().equalsIgnoreCase("P")) {
 							if (rs.getString("msg").equals("T")) status = "time-out";
@@ -145,6 +147,7 @@ class DBupdate {
 						rs.updateTimestamp("rptdat", new java.sql.Timestamp(new java.util.Date().getTime())); 
 						rs.updateString("status", m.getRptsts().toUpperCase());
 						rs.updateString("body", m.getBody());
+						rs.updateString("agent", m.getAgent());
 						if (rs.getString("type").startsWith("D")) {
 							rs.updateString("type", m.getType().toUpperCase());
 							sType = m.getType().toUpperCase();
@@ -308,18 +311,18 @@ class DBupdate {
 						while (rs2.next()) {
 							count = count + rs2.getInt(1);
 							if (swLogg)	System.out.println(">>> inuti rs2.update  " + count);
-							rs2.updateTimestamp("condat", new java.sql.Timestamp((new Date(System.currentTimeMillis())).getTime()));
-							rs2.updateInt("count", count);
-							rs2.updateString("status", m.getRptsts());
 
 							if (m.getType().equalsIgnoreCase("D")) {
+								addHst(rs2);
 								if (swLogg)
 									System.out.println(">>> deleterow");
-								addHst(rs2);
-								try { rs2.deleteRow(); } catch(NullPointerException npe2) {}
+								try { rs2.deleteRow(); } catch(NullPointerException npe2) {System.out.println(">>> deleterow npe " + npe2 );}
 							}
 							else { 
-								try { rs2.updateRow(); } catch(NullPointerException npe2) {}
+								rs2.updateTimestamp("condat", new java.sql.Timestamp((new Date(System.currentTimeMillis())).getTime()));
+								rs2.updateInt("count", count);
+								rs2.updateString("status", m.getRptsts());
+								try { rs2.updateRow(); } catch(NullPointerException npe2) {System.out.println(">>> updaterow npe " + npe2 );}
 							}
 						}
 						//						System.out.println(">>> innan rs2.close");
@@ -380,7 +383,7 @@ class DBupdate {
 
 		try {
 			if (swLogg)
-				System.out.println("addHst RS: " + rs.getString("id")+" Type: " + rs.getString("type").toUpperCase());
+				System.out.println("addHst RS: " + rs.getString("id")+" Type: " + rs.getString("type").toUpperCase()+" Body: " + rs.getString("body"));
 
 			// insert new line with new timestamp and counter
 			PreparedStatement st = conn.prepareStatement("INSERT INTO ConsoleHst (credat,deldat,count,id,prio,type,status,body,agent) "

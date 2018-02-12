@@ -78,7 +78,7 @@ public class console extends JFrame implements TableModelListener, WindowListene
 		port = Integer.parseInt(jvport);
 
 		// funktion från Jframe att sätta rubrik
-		setTitle("Jvakt console 2.16 RC");
+		setTitle("Jvakt console 2.16");
 		//	        setSize(5000, 5000);
 
 		// get the screen size as a java dimension
@@ -119,7 +119,7 @@ public class console extends JFrame implements TableModelListener, WindowListene
 		swServer = true;
 		try {
 			SendMsg jm = new SendMsg(jvhost, port);  // kollar om JvaktServer är tillgänglig.
-			System.out.println(jm.open());
+//			System.out.println(jm.open());
 			if (jm.open().startsWith("DORMANT")) 	swDormant = true;
 			else 									swDormant = false;
 			jm.close();

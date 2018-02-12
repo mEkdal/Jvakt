@@ -18,6 +18,7 @@ public class GetImap4Msg {
 	static boolean swSunet = false;
 
 	static boolean swSmq1PXP = false;
+	static boolean swSmq2PCP = false;
 
 	static String from;
 	static String subject;
@@ -202,15 +203,15 @@ public class GetImap4Msg {
 					msgFixat = true;  
 					// Problem from EqualLogic
 					if (subject.indexOf("SAN HQ Notification Alert") >= 0 || subject.indexOf("BGTGROUP0") >= 0) {
-						sendJv("MAIL_From_EqualLogic" , "ERR" , "I", subject + " " + body);
+						sendJv("MAIL_From_EqualLogic" , "INFO" , "I", subject + " " + body);
 					}
 					// Mount request från DP
 					if (subject.indexOf("Mount Request Report") >= 0) {
-						sendJv("MAIL_from_HP_DP" , "ERR" , "I",  "Data Protector Mount Request!");
+						sendJv("MAIL_from_HP_DP" , "INFO" , "I",  "Data Protector Mount Request!");
 					}
 					// Mount request från DP
 					if (subject.indexOf("Device Error Report") >= 0) {
-						sendJv("MAIL_From_HP_DP" , "ERR" , "I",  "Data Protector Device Error Report!");
+						sendJv("MAIL_From_HP_DP" , "INFO" , "I",  "Data Protector Device Error Report!");
 					}
 					// Rapport på fulla tabeller osv. från OeBS
 					if (subject.indexOf("Rapport från OeBS på object där antal lediga extents är lågt") >= 0) {
@@ -219,11 +220,11 @@ public class GetImap4Msg {
 						}
 						if (subject.indexOf("SessionError") >= 0) {
 							if (body.indexOf("has errors: 0.") < 0) {
-								sendJv("MAIL_from_HP_DP" , "ERR" , "I",  subject + " " + body);
+								sendJv("MAIL_from_HP_DP" , "INFO" , "I",  subject + " " + body);
 							}
 							if (subject.indexOf("Alarm") == 0) {
 								if (body.indexOf("Warning") == 0) {
-									sendJv("MAIL_From_HP_DP" , "ERR" , "I",  subject + " " + body);
+									sendJv("MAIL_From_HP_DP" , "INFO" , "I",  subject + " " + body);
 								}
 								// Icke intressant
 								if (subject.indexOf("LicenseWarning") >= 0 || subject.indexOf("List of Pools") >= 0 || subject.indexOf("PTPGroup") >= 0 || subject.indexOf("StartOfSession") >= 0 || subject.indexOf("End Of Session Report") >= 0 ) {
@@ -262,7 +263,7 @@ public class GetImap4Msg {
 
 				// Error från Qnap
 				if (from.indexOf("QNAP") >= 0 || from.indexOf("PTP292") >= 0 || from.indexOf("ptp267") >= 0 || from.indexOf("ptp257") >= 0 || from.indexOf("ptp258") >= 0 || from.indexOf("ptp259") >= 0 ) {
-					sendJv("MAIL_From_Qnap" , "ERR" , "I",  subject + " " + body);
+					sendJv("MAIL_From_Qnap" , "INFO" , "I",  subject + " " + body);
 				}
 
 				if (subject.indexOf("Autosvar:") == 0) {
@@ -292,6 +293,37 @@ public class GetImap4Msg {
 							scanFile(part.getFileName(), part.getInputStream()); 
 							if (swSmq1PXP) {
 								sendJv("MAIL_From_SAP_PXP" , "ERR" , "I",  "SAP PXP warning. Check SMQ1 for errors");
+							}
+						}									
+					}
+				}
+
+				if (subject.startsWith("Job PTP CHECK SMQ2")) {  // Mail från övervakning av SMQ2 i PCP
+					msgFixat = true;  
+					System.out.println("*** PCP check> " + body);
+					System.out.println("*** SAP Monitor SMQ2  ");
+					if (messages[i].getContentType().startsWith("multipart")) {
+						System.out.println("*** multipart ");
+						Multipart mp = (Multipart)messages[i].getContent();
+						//         			    System.out.println("***Count> " + mp.getCount());
+
+						for (int j=0, n=mp.getCount(); j<n; j++) {
+							Part part = mp.getBodyPart(j);
+
+							String disposition = part.getDisposition();
+							//System.out.println("***Disp> " + disposition);
+
+							//        	        		  if ( (disposition != null) && 
+							//        		        		     ( disposition.equals(Part.ATTACHMENT) )) {
+							System.out.println("*** Attachment Descript : "+part.getDescription());
+							System.out.println("*** Attachment ContentType : "+part.getContentType());
+							swSmq2PCP = false;
+							scanFile(part.getFileName(), part.getInputStream()); 
+							if (swSmq2PCP) {
+								sendJv("MAIL_From_SAP_PCP_SMQ2" , "OK" , "R",  "SMQ2 OK");
+							}
+							else {
+								sendJv("MAIL_From_SAP_PCP_SMQ2" , "ERR" , "R",  "SAP PCP warning. Check SMQ2 for errors");
 							}
 						}									
 					}
@@ -383,6 +415,14 @@ public class GetImap4Msg {
 			if (s.indexOf("PXP") >= 0) {
 				swSmq1PXP = true;
 				System.out.println("** Found PXP in input stream!");
+			} 
+			if (s.indexOf("Entries&nbsp;Displayed&#x3a;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;0&nbsp") >= 0) {
+				System.out.println("** Found Entries Displayed: 0 !");
+				swSmq2PCP = true;
+			} 
+			if (s.indexOf("Queues&nbsp;Displayed&#x3a;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;0&nbsp") >= 0) {
+				System.out.println("** Found Queues Displayed: 0 !");
+				swSmq2PCP = true;
 			} 
 		}
 		in2.close();

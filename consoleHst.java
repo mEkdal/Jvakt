@@ -17,7 +17,7 @@ import javax.swing.table.*;
 import java.io.*;
 import java.sql.SQLException;
 import java.util.*;
-import javax.swing.ListSelectionModel;
+
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 import javax.swing.Timer;
@@ -77,7 +77,7 @@ public class consoleHst extends JFrame implements TableModelListener, WindowList
 		port = Integer.parseInt(jvport);
 
 		// funktion från Jframe att sätta rubrik
-		setTitle("Jvakt consoleHst 2.01 RC");
+		setTitle("Jvakt consoleHst 2.03");
 		//	        setSize(5000, 5000);
 
 		// get the screen size as a java dimension
@@ -118,9 +118,10 @@ public class consoleHst extends JFrame implements TableModelListener, WindowList
 		swServer = true;
 		try {
 			SendMsg jm = new SendMsg(jvhost, port);  // kollar om JvaktServer är tillgänglig.
-			System.out.println(jm.open());
+//			System.out.println(jm.open());
 			if (jm.open().startsWith("DORMANT")) 	swDormant = true;
 			else 									swDormant = false;
+			jm.close();
 		} 
 		catch (IOException e1) {
 			swServer = false;
@@ -255,6 +256,7 @@ public class consoleHst extends JFrame implements TableModelListener, WindowList
 //						System.out.println(jm.open());	                    
 						if (jm.open().startsWith("DORMANT")) 	swDormant = true;
 						else 									swDormant = false;
+						jm.close();
 					} 
 					catch (IOException e1) {
 						swServer = false;
@@ -340,8 +342,27 @@ public class consoleHst extends JFrame implements TableModelListener, WindowList
 //		table.getInputMap(JComponent.WHEN_FOCUSED).put(keyStroke, "delRow");
 //		keyStroke = KeyStroke.getKeyStroke(KeyEvent.VK_DELETE, 0);  // delete key in win linux
 //		table.getInputMap(JComponent.WHEN_FOCUSED).put(keyStroke, "delRow");
+
+		table.getActionMap().put("clearSel", clearSel());
 		
+		KeyStroke keyStroke = KeyStroke.getKeyStroke(KeyEvent.VK_ESCAPE , 0);
+		table.getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(keyStroke, "clearSel");
+
+
 	}  
+	
+	private AbstractAction clearSel()  {
+		AbstractAction save = new AbstractAction() {
+
+			@Override
+			public void actionPerformed(ActionEvent e)  {
+				//	                 JOptionPane.showMessageDialog(TestTableKeyBinding.this.table, "Action Triggered.");
+				table.getSelectionModel().clearSelection();  // clear selected rows.
+			}
+		};
+		return save;
+	}
+
 
 	// windows listeners
 	// vi implementerade WindowListener och addade "this" för att denna metod skulle anropas vid normalt avslut av Jframe 

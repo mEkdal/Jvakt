@@ -198,11 +198,6 @@ public class SendMail30 {
 //			conn.setAutoCommit(true);
 			conn.setAutoCommit(false);
 
-			//			s = new String("select * from status " + 
-			//					"WHERE (state='A' or  state='D') " +
-			//					" and (msg='M' or msg='T' or msg='R')" +
-			//					" and prio < 3" +
-			//					";"); 
 			s = new String("select * from status " + 
 					"WHERE state='A' " +
 					" and (msg='M' or msg='T' or msg='R')" +
