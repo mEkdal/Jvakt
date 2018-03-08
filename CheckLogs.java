@@ -24,12 +24,13 @@ public class CheckLogs {
 	static String jvtype = "R";
 	static int port ;
 	static InetAddress inet;
-	static String version = "CheckLogs 1.6 # 2018-01-30";
+	static String version = "CheckLogs 1.8 # 2018-03-06";
 	static String agent = null;
 	static boolean swSlut = false;
 
 	static String config = null;
 	static File configF;
+	static FileInputStream fis;
 
 	static boolean swJvakt = false;
 
@@ -78,7 +79,7 @@ public class CheckLogs {
 			System.out.println("\n\n"+version + " by Michael Ekdal Sweden.\n");
 
 			System.out.println("\nThe parameters and their meaning are:\n"+
-					"\n\n-dir    \tThe directory to scan, like \"-dir c:\\Temp\" "+
+					"\n\n-dir    \tThe directory to scan, like \"-dir c:\\Temp\". UTF-8 is assumed. "+
 					"\n\n-suf    \tThe suffix of the files you want to include in the scan, like \"-suf .log\" "+
 					"\n\n-pos    \tAn optional string that must be contained in the file names." +
 					"\n\n-psav   \tA switch that saves the position of the scanned fil until next scan. No rename. Optional." +
@@ -188,7 +189,8 @@ public class CheckLogs {
 			aFile   = oldnamn.getName();
 
 			if (swPsav) {
-				in = new BufferedReader( new FileReader(oldnamn) );
+		        fis = new FileInputStream(oldnamn);
+//				in = new BufferedReader( new FileReader(oldnamn) );
 
 				try{  // read last position if present.
 					inokay = new BufferedReader(new FileReader(listf[i]+".position"));
@@ -212,17 +214,22 @@ public class CheckLogs {
 				if (!oldnamn.renameTo(newnamn)) {
 					System.out.println(tdat+"-- Rename failed. Tries "+ oldnamn +" instead...");
 					aFile   = oldnamn.getName();
-					in = new BufferedReader(new FileReader(oldnamn));
+			        fis = new FileInputStream(oldnamn);
+//					in = new BufferedReader(new FileReader(oldnamn));
 				}
 				else {
 					aFile   = newnamn.getName();
-					in = new BufferedReader(new FileReader(nyttnamn));
+			        fis = new FileInputStream(nyttnamn);
+//					in = new BufferedReader(new FileReader(nyttnamn));
 				}
 			}
 			else { // open the original file name.
 				aFile   = oldnamn.getName();
-				in = new BufferedReader( new FileReader(oldnamn) );
+		        fis = new FileInputStream(aFile);
+//				in = new BufferedReader( new FileReader(oldnamn) );
 			}
+	        InputStreamReader isr = new InputStreamReader(fis, "UTF8");
+	        in = new BufferedReader(isr);
 
 			position = 0;
 			while ((s = in.readLine()) != null) {
@@ -269,7 +276,7 @@ public class CheckLogs {
 			}
 		}
 
-		if (!swMust ) {
+		if (!swMust && aFile != null ) {
 			errors++;
 			swWarn=true;
 			t_desc = "Missing hits in must file!";
@@ -279,7 +286,11 @@ public class CheckLogs {
 		swSlut = true;
 		if (errors == 0 ) {
 			swWarn=false;
-			t_desc = "No errors found";
+			
+			if (listf.length == 0 ) {
+				t_desc = " No logfiles found to scan!";
+			} else t_desc = "No errors found"; 
+
 			sendSTS(swWarn);
 		}
 		else      {
@@ -287,7 +298,9 @@ public class CheckLogs {
 			t_desc = errors + " errors found";
 			sendSTS(swWarn);
 		}
-		//         System.out.println(tdat + "-- "+c);
+
+//		System.out.println("-- "+ listf.length);
+		
 
 		if (errors == 0) System.exit(0);
 		else             System.exit(errors);

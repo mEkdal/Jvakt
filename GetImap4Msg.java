@@ -19,6 +19,7 @@ public class GetImap4Msg {
 
 	static boolean swSmq1PXP = false;
 	static boolean swSmq2PCP = false;
+	static int Sm58PCPerr = 0;
 
 	static String from;
 	static String subject;
@@ -43,7 +44,7 @@ public class GetImap4Msg {
 
 	public static void main(String[] args) throws IOException, FileNotFoundException {
 
-		String version = "GetImap4Msg 1.2 # 2018-01-04";
+		String version = "GetImap4Msg 1.3 # 2018-02-20";
 
 		for (int i=0; i<args.length; i++) {
 			if (args[i].equalsIgnoreCase("-config")) config = args[++i];
@@ -145,9 +146,14 @@ public class GetImap4Msg {
 				if (from.contains("postmaster@internal.perscorp.com")) continue;
 				body = null;
 				swHtml = false;
+				Object o = null;
 				if (messages[i].isMimeType("text/plain") || messages[i].isMimeType("text/html")  ) {
-					Object o = messages[i].getContent();
-					body = (String)o;
+					try {
+					 o = messages[i].getContent();
+					 body = (String)o;
+					} catch (IOException e) {
+						body = "";
+					}
 					if (messages[i].isMimeType("text/html")) swHtml = true;  
 				}
 				//	        if (body == null) subject = "null."; 2013-05-23
@@ -155,7 +161,7 @@ public class GetImap4Msg {
 
 				//********************************
 				//************** analys start *****
-				
+
 				//				System.out.println("From> " + from);
 				//				System.out.println("Subject> " + subject);
 				//    		System.out.println("Body> " + body);
@@ -163,12 +169,12 @@ public class GetImap4Msg {
 
 				// Msg från Equallogic  
 				if (from.indexOf("PTPGroup") >= 0) {
-//									System.out.println("From> " + from);
-//									System.out.println("Subject> " + subject);
-//						    		System.out.println("Body length> " + body.length());
-//						    		System.out.println("Body> " + body);
-//					if (swHtml) sendJv("MAIL_PTPGroup" , "INFO" , "I",  subject );
-//					else 		sendJv("MAIL_PTPGroup" , "INFO" , "I",  subject + " " + body);
+					//									System.out.println("From> " + from);
+					//									System.out.println("Subject> " + subject);
+					//						    		System.out.println("Body length> " + body.length());
+					//						    		System.out.println("Body> " + body);
+					//					if (swHtml) sendJv("MAIL_PTPGroup" , "INFO" , "I",  subject );
+					//					else 		sendJv("MAIL_PTPGroup" , "INFO" , "I",  subject + " " + body);
 					sendJv("MAIL_From_PTPGroup" , "INFO" , "I",  subject + " " + body);
 					msgFixat = true;
 				}
@@ -300,6 +306,10 @@ public class GetImap4Msg {
 
 				if (subject.startsWith("Job PTP CHECK SMQ2")) {  // Mail från övervakning av SMQ2 i PCP
 					msgFixat = true;  
+										if (imaprw.startsWith("Y")) {
+											messages[i].setFlag(Flags.Flag.DELETED, true); // markera mailet för deletion
+											System.out.println("* Mark as DELETED ");
+										}
 					System.out.println("*** PCP check> " + body);
 					System.out.println("*** SAP Monitor SMQ2  ");
 					if (messages[i].getContentType().startsWith("multipart")) {
@@ -318,12 +328,49 @@ public class GetImap4Msg {
 							System.out.println("*** Attachment Descript : "+part.getDescription());
 							System.out.println("*** Attachment ContentType : "+part.getContentType());
 							swSmq2PCP = false;
-							scanFile(part.getFileName(), part.getInputStream()); 
-							if (swSmq2PCP) {
-								sendJv("MAIL_From_SAP_PCP_SMQ2" , "OK" , "R",  "SMQ2 OK");
+							if (scanFile(part.getFileName(), part.getInputStream())) {
+								if (swSmq2PCP) {
+									sendJv("MAIL_From_SAP_PCP_SMQ2" , "OK" , "R",  "SMQ2 OK");
+								}
+								else {
+									sendJv("MAIL_From_SAP_PCP_SMQ2" , "ERR" , "R",  "SAP PCP warning. Check SMQ2 for errors.");
+								}
 							}
-							else {
-								sendJv("MAIL_From_SAP_PCP_SMQ2" , "ERR" , "R",  "SAP PCP warning. Check SMQ2 for errors");
+						}									
+					}
+				}
+
+				if (subject.startsWith("Job PTP CHECK SM58")) {  // Mail från övervakning av SM58 i PCP
+					msgFixat = true;  
+					if (imaprw.startsWith("Y")) {
+						messages[i].setFlag(Flags.Flag.DELETED, true); // markera mailet för deletion
+						System.out.println("* Mark as DELETED ");
+					}
+					System.out.println("*** PCP check> " + body);
+					System.out.println("*** SAP Monitor SM58  ");
+					if (messages[i].getContentType().startsWith("multipart")) {
+						System.out.println("*** multipart ");
+						Multipart mp = (Multipart)messages[i].getContent();
+						//         			    System.out.println("***Count> " + mp.getCount());
+
+						for (int j=0, n=mp.getCount(); j<n; j++) {
+							Part part = mp.getBodyPart(j);
+
+							String disposition = part.getDisposition();
+							//System.out.println("***Disp> " + disposition);
+
+							//        	        		  if ( (disposition != null) && 
+							//        		        		     ( disposition.equals(Part.ATTACHMENT) )) {
+							System.out.println("*** Attachment Descript : "+part.getDescription());
+							System.out.println("*** Attachment ContentType : "+part.getContentType());
+							Sm58PCPerr = 0;
+							if (scanFile(part.getFileName(), part.getInputStream())) {
+								if (Sm58PCPerr <= 5) {
+									sendJv("MAIL_From_SAP_PCP_SM58" , "OK" , "R",  "SM58 OK");
+								}
+								else {
+									sendJv("MAIL_From_SAP_PCP_SM58" , "ERR" , "R",  "SAP PCP warning. Check SM58 for errors.");
+								}
 							}
 						}									
 					}
@@ -333,7 +380,7 @@ public class GetImap4Msg {
 					System.out.println("* Mark as SEEN ");
 					messages[i].setFlag(Flags.Flag.SEEN, true); // markera mailet som sett
 				}
-				
+
 				if (!msgFixat) {
 					System.out.println("* Mail ignored ");
 					messages[i].setFlag(Flags.Flag.SEEN, false); // markera mailet som oläst
@@ -377,7 +424,7 @@ public class GetImap4Msg {
 		jmsg.setBody(msg);
 		jmsg.setType(type);
 		jmsg.setAgent(agent);
-//		jm.sendMsg(jmsg);
+		//		jm.sendMsg(jmsg);
 		if (jm.sendMsg(jmsg)) {
 			System.out.println("-- Rpt Delivered --");
 			msgFixat = true;
@@ -424,6 +471,14 @@ public class GetImap4Msg {
 				System.out.println("** Found Queues Displayed: 0 !");
 				swSmq2PCP = true;
 			} 
+			int offset = 0;
+			while (s.indexOf("Transaction&nbsp;executing", offset) >= 0) {
+				Sm58PCPerr++;
+				offset = s.indexOf("Transaction&nbsp;executing", offset);
+				offset++;
+				System.out.println("** Found Transaction executing: " + Sm58PCPerr );
+				swSmq1PXP = false; 
+			}
 		}
 		in2.close();
 		in.close();

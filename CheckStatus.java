@@ -29,7 +29,7 @@ public class CheckStatus {
 	static int errors = 0;
 	static int warnings = 0;
 	static int infos = 0;
-	static String version = "CheckStatus 1.9 Date 2018-01-04";
+	static String version = "CheckStatus 1.13 Date 2018-03-08";
 	static String database = "jVakt";
 	static String dbuser   = "jVakt";
 	static String dbpassword = "xz";
@@ -93,10 +93,10 @@ public class CheckStatus {
 		}
 		catch (Exception e) { System.out.println(e);  }
 
-		zDate = new java.sql.Date((new Date(System.currentTimeMillis())).getTime());
-		zTs = new java.sql.Timestamp((new Date(System.currentTimeMillis())).getTime()); 
+		zDate = new java.sql.Date((new Date(System.currentTimeMillis())).getTime());     // YYYY-MM-DD
+		zTs = new java.sql.Timestamp((new Date(System.currentTimeMillis())).getTime());  // YYYY-MM-DD hh:mm.ss.nnn
 
-		//		System.out.println(DOW + " "+ zDate + " " + zTs);
+		System.out.println(DOW + " <> "+ zDate + " <> " + zTs);
 		//		System.out.println("******* Nu ****** " + nu + " Klocka " +nu.getHour()+":"+nu.getMinute()+":"+nu.getSecond());
 
 		try {
@@ -116,17 +116,16 @@ public class CheckStatus {
 			ResultSet rs = stmt.executeQuery(s);
 			swHits = false;  // is there already a record?
 			while (rs.next()) {
-				System.out.println("\n-#1: "+rs.getString("state")+" " + rs.getString("id")+" "+rs.getString("type")+" "+rs.getString("prio")+" "+rs.getString("console")+" "+rs.getString("status")+" "+rs.getString("errors")+" "+rs.getString("accerr"));
-
 				swHits = true;  
 				swTiming = false;  
 				swPlugin = false;  
 				swUpdate = false;
 
-				if (rs.getString("id").equalsIgnoreCase("syssts")) continue;
-
 				// Only types R, S or I is acceptable.
 				if (!rs.getString("type").equalsIgnoreCase("R") && !rs.getString("type").equalsIgnoreCase("S") && !rs.getString("type").equalsIgnoreCase("I")) continue;
+
+				if (!rs.getString("status").equalsIgnoreCase("OK"))
+				System.out.println("-#1: "+rs.getString("state")+" " + rs.getString("id")+" "+rs.getString("type")+" "+rs.getString("prio")+" "+rs.getString("console")+" "+rs.getString("status")+" "+rs.getString("errors")+" "+rs.getString("accerr"));
 
 				zD = rs.getTimestamp("rptdat");
 				accerr = rs.getInt("accerr");
@@ -153,8 +152,10 @@ public class CheckStatus {
 				swDelete = false;
 
 				// Om status inte är OK för S, I och R varnas till console
-				if (!rs.getString("status").equalsIgnoreCase("OK") && err >= accerr ) { 
-//					(rs.getString("type").equalsIgnoreCase("R") || rs.getString("type").equalsIgnoreCase("S") || rs.getString("type").equalsIgnoreCase("I"))) {
+//				if (!rs.getString("status").equalsIgnoreCase("OK") && err > accerr && swShDay ) { 
+				if (( (rs.getString("status").equalsIgnoreCase("ERR") && err > accerr) || rs.getString("status").equalsIgnoreCase("INFO") ) 
+						&& swShDay ) { 
+					//					(rs.getString("type").equalsIgnoreCase("R") || rs.getString("type").equalsIgnoreCase("S") || rs.getString("type").equalsIgnoreCase("I"))) {
 					System.out.println("ERR #2: " + rs.getString("id")+" "+rs.getString("status")+"  MSG:"+rs.getString("msg"));
 					if (rs.getString("console").startsWith(" ")) {
 						System.out.println("Set console to C in ERR" + " " + rs.getString("id"));
@@ -180,18 +181,24 @@ public class CheckStatus {
 					if (swPlugin && !rs.getString("plugin").startsWith(" ") && rs.getString("state").startsWith("A")) {
 						trigPlugin(rs.getString("id"), rs.getString("status"), "P", rs.getString("body")); 
 					}
-				} // Om OK men timeout inträffat för S och R varnas till console
+				} 
+				// Om OK men timeout inträffat för S och R varnas till console
 				//				else	if ( (rs.getString("type").equalsIgnoreCase("R") && rs.getString("status").equalsIgnoreCase("OK") && swShDay && Lsec > 1200) ||
-				if ( (rs.getString("type").equalsIgnoreCase("R") && swShDay && Lsec > 1200) ||
-					 (rs.getString("type").equalsIgnoreCase("S") && rs.getString("status").equalsIgnoreCase("OK") && swShDay && 
-					  rs.getTimestamp("rptdat").getTime() < mi.getTime() )    // mi is the date and time of midnight
-						) {
+				if ( (rs.getString("type").equalsIgnoreCase("R") && rs.getString("status").equalsIgnoreCase("OK") && swShDay && 
+						(Lsec > 1200 || rs.getTimestamp("rptdat").getTime() < mi.getTime() ) // mi is the date and time of midnight
+						) 
+						||
+						(rs.getString("type").equalsIgnoreCase("S") && rs.getString("status").equalsIgnoreCase("OK") && swShDay && 
+								rs.getTimestamp("rptdat").getTime() < mi.getTime() )    // mi is the date and time of midnight
+						)
+				{
 					if (!rs.getString("console").equalsIgnoreCase("C")) {
 						rs.updateString("console", "C");
 						rs.updateTimestamp("condat", new java.sql.Timestamp((new Date(System.currentTimeMillis())).getTime()));
 						swUpdate=true;					}
 					swTiming = true;
 					System.out.println("timing #3: " + rs.getString("id")+"  MSG:"+rs.getString("msg"));
+					rs.updateString("status", "TOut");
 					if (rs.getString("msg").startsWith(" ")) {
 						System.out.println("Set msg to T in timeout " + rs.getString("id"));
 						rs.updateString("msg", "T");
@@ -215,7 +222,7 @@ public class CheckStatus {
 						(rs.getString("console").equalsIgnoreCase("C") || !rs.getString("msg").startsWith(" ") || !rs.getString("sms").startsWith(" ") )
 						) {
 					System.out.println("Del #4: " + rs.getString("id")+" "+rs.getString("status")+"  MSG:"+rs.getString("msg")+"  SMS:"+rs.getString("sms"));
-					swDelete = true;
+					swDelete = true;   // remove lines from console
 					rs.updateString("console", " ");
 					rs.updateString("condat", null);
 					swUpdate=true;
@@ -274,7 +281,7 @@ public class CheckStatus {
 		jmsg.setBody(body);
 		jmsg.setType(type);
 		jmsg.setAgent(agent);
-//		jm.sendMsg(jmsg);
+		//		jm.sendMsg(jmsg);
 		if (jm.sendMsg(jmsg)) System.out.println("-- Rpt Delivered --");
 		else           	      System.out.println("-- Rpt Failed --");
 		jm.close();
@@ -290,7 +297,7 @@ public class CheckStatus {
 		jmsg.setBody("Severe: " + errors + "  Problems: " + warnings + "  Info: " + infos);
 		jmsg.setType("I");
 		jmsg.setAgent(agent);
-//		jm.sendMsg(jmsg);
+		//		jm.sendMsg(jmsg);
 		if (jm.sendMsg(jmsg)) System.out.println("-- Rpt Delivered --");
 		else           	      System.out.println("-- Rpt Failed --");
 		jm.close();
@@ -337,7 +344,7 @@ public class CheckStatus {
 				else { 
 					rs2.updateTimestamp("condat", new java.sql.Timestamp((new Date(System.currentTimeMillis())).getTime()));
 					rs2.updateInt("count", count);
-					if (swTiming) rs2.updateString("status","Timed out");
+					if (swTiming) rs2.updateString("status","TOut");
 					else rs2.updateString("status",rs.getString("status").toUpperCase() ); 
 					rs2.updateString("body", rs.getString("body"));
 					try { rs2.updateRow(); } catch(NullPointerException npe2) {}
@@ -360,7 +367,7 @@ public class CheckStatus {
 				st.setTimestamp(5, zTs); // condat
 				st.setTimestamp(6, zTs); // credat
 				System.out.println(">>> swTiming >>>>: " + swTiming);
-				if (swTiming) st.setString(7,"Timed out");
+				if (swTiming) st.setString(7,"TOut");
 				else st.setString(7,rs.getString("status").toUpperCase() );// 
 				st.setString(8,rs.getString("body") ); // 
 				st.setString(9,rs.getString("agent") ); // 

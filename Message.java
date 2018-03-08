@@ -35,10 +35,14 @@ public class Message {
 	 return true;  
 	 }
  public boolean setBody( String body )     { 
+//		 regex metacharacters: <([{\^-=$!|]})?*+.>
 //	 if (body == null) { body = " "; }
 	 if (body.length() > 255) body = body.substring(0, 255);
 	 body = body.replaceAll("\\\\" , "/");
-	 body = body.replaceAll("[^a-zA-Z0-9.:!?;*_$#)(//\"><-=åäöÅÄÖ]" , " ");
+//	 body = body.replaceAll("\\xc3\\xa5]" , "a"); // å -> a
+	 body = body.replaceAll("[^a-zA-Z0-9:;_#/><åäöÅÄÖ\"\\.\\!\\?\\*\\$\\)\\(\\-\\=\\{\\}\\]\\[]" , " ");
+	 
+//	 body = body.replaceAll("[^a-zA-Z0-9.:!?;*_$#)(//\"><-=åäöÅÄÖ]" , " ");
 //	 body = body.replaceAll("[^\\S]" , " ");   // A non-whitespace character replaced with space
 	 body = body.replaceAll(" {2,}", " "); // replace multiple spaces with one
 	 String[] tab = body.split("<;>",2);

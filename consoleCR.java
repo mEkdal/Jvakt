@@ -27,6 +27,13 @@ class consoleCR extends JLabel implements TableCellRenderer
 		if (vStatus == null) vStatus = " "; 
 		if (value != null) setText(value.toString());
 		else 				setText(" ");
+		
+//		System.out.println("getFont :" + getFont());		 new javax.swing.plaf.FontUIResource("Serif"
+//		setFont(new Font(Font.SERIF, Font.BOLD, table.getRowHeight()-4));
+		setFont(new javax.swing.plaf.FontUIResource("Dialog", Font.BOLD, table.getRowHeight()-3));
+//		System.out.println("rowHeight :" + table.getRowHeight());		 
+
+		
 		if(isSelected)
 		{
 			setBackground(table.getSelectionBackground());
@@ -40,9 +47,9 @@ class consoleCR extends JLabel implements TableCellRenderer
 
 			if (vStatus.startsWith("INFO") ) setBackground(java.awt.Color.yellow); 
 
-			if (vStatus.startsWith("Timed") ) setBackground(java.awt.Color.orange); 
-			if (vPrio >= 30 && !vStatus.startsWith("INFO") && !vStatus.startsWith("Timed")  && !vStatus.startsWith(" ") ) setBackground(java.awt.Color.pink); 
-			if (vPrio < 30  && !vStatus.startsWith("Timed") ) setBackground(java.awt.Color.magenta); 
+			if (vStatus.startsWith("T") ) setBackground(java.awt.Color.orange); 
+			if (vPrio >= 30 && !vStatus.startsWith("INFO") && !vStatus.startsWith("T")  && !vStatus.startsWith(" ") ) setBackground(java.awt.Color.pink); 
+			if (vPrio < 30  && !vStatus.startsWith("T") ) setBackground(java.awt.Color.magenta); 
 
 			if (vStatus.startsWith(" ") ) setBackground(java.awt.Color.lightGray); 
 			if (vStatus.startsWith("OK") ) setBackground(java.awt.Color.green); 

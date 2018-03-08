@@ -81,7 +81,7 @@ public class SendMailSTS {
 
 	public static void main(String[] args ) throws IOException, UnknownHostException {
 
-		String version = "SendMail 1.3 # 2018-01-09";
+		String version = "SendMailSTS 1.5 # 2018-03-06";
 
 		String subject = "";
 		String body = "";
@@ -154,15 +154,14 @@ public class SendMailSTS {
 
 			Class.forName("org.postgresql.Driver").newInstance();
 			DBUrl = "jdbc:postgresql://"+dbhost+":"+dbport+"/"+database;
-			System.out.println(DBUrl);
-//			System.out.println("dbuser= " + dbuser +"  dbpassword "+ dbpassword);
+//			System.out.println(DBUrl);
 			conn = DriverManager.getConnection(DBUrl,dbuser,dbpassword);
 			conn.setAutoCommit(true);
 
 			s = new String("select * from console order by credat desc;"); 
 
 
-			System.out.println(s);
+//			System.out.println(s);
 //			stmt = conn.createStatement(ResultSet.CONCUR_UPDATABLE,ResultSet.TYPE_SCROLL_INSENSITIVE);
 //			stmt = conn.createStatement(ResultSet.CONCUR_UPDATABLE,ResultSet.TYPE_FORWARD_ONLY,ResultSet.CLOSE_CURSORS_AT_COMMIT ); 
 			stmt = conn.createStatement(ResultSet.CONCUR_READ_ONLY,ResultSet.TYPE_FORWARD_ONLY,ResultSet.CLOSE_CURSORS_AT_COMMIT ); 
@@ -179,6 +178,7 @@ public class SendMailSTS {
 				body = body +rowStr;
 				//--
 				for (int i = 1; i <= 9; i++) {
+					if (i==1) continue;  // not interested in showing count
 					if (i==5) continue;  // not interested in showing condat
 					if (i==9) continue;  // not interested in showing agent
 					value = rs.getString (i);
@@ -195,7 +195,7 @@ public class SendMailSTS {
 						body = body + boxStrB + value + boxEnd;
 						infos++;
 					}
-					else if (rs.getString("status").startsWith("Tim")) {
+					else if (rs.getString("status").startsWith("TOut")) {
 						body = body + boxStrY + value + boxEnd;
 						warnings++;
 					}
@@ -237,18 +237,18 @@ public class SendMailSTS {
 		subject = "* STATUS * ";
 		
 			if (errors > 0) {
-				errors = errors / 7;
+				errors = errors / 6;
 				subject = subject + "Errors: " + errors + "  ";
 			}
 			if (warnings > 0) {
-				warnings = warnings / 7;
+				warnings = warnings / 6;
 				subject = subject + "Warnings: " + warnings + "  ";
 			}
 			if (errors == 0 && warnings == 0) {
 				subject = subject + "Jvakt: all is OKAY!  ";
 			}
 			if (infos > 0) {
-				infos = infos / 7;
+				infos = infos / 6;
 				subject = subject + "Infos: " + infos + "  ";
 			}
 			
@@ -269,7 +269,8 @@ public class SendMailSTS {
 				swMail = true;
 			}
 
-			System.out.println("\n\n" + subject );
+			System.out.println("\n" + toEmail );
+			System.out.println( subject );
 			System.out.println( body );
 			
 			if (swMail && !swDormant) {

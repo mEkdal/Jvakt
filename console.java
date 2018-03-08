@@ -36,6 +36,7 @@ public class console extends JFrame implements TableModelListener, WindowListene
 	private JTable table;
 	private JScrollPane scrollPane;
 	private JButton bu1;
+	private JTableHeader header;
 	//	    private JScrollPane scrollPane2;
 	private consoleDM wD;
 	private Boolean swAuto = true;
@@ -57,7 +58,7 @@ public class console extends JFrame implements TableModelListener, WindowListene
 	 * @param args the command line arguments
 	 */
 	public static void main(String[] args) throws IOException {
-		
+
 		console mainFrame = new console();  // gör objekt av innevarande class 
 		mainFrame.pack();                   // kallar på innevarande class metod pack som ärvts via Jframe 
 		mainFrame.setVisible(true);  	    // kallar på innevarande class metod setVisible och nu visas fönster för användaren
@@ -72,21 +73,21 @@ public class console extends JFrame implements TableModelListener, WindowListene
 
 		ImageIcon img = new ImageIcon("console.png");
 		setIconImage(img.getImage());
-		
+
 		// get the parameters from the console.properties file
 		getProps();
 		port = Integer.parseInt(jvport);
 
 		// funktion från Jframe att sätta rubrik
-		setTitle("Jvakt console 2.16");
+		setTitle("Jvakt console 2.27  -  F1 = Help");
 		//	        setSize(5000, 5000);
 
 		// get the screen size as a java dimension
 		Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
 
 		// get 2/5 of the height, and 2/3 of the width
-		int height = screenSize.height * 2 / 5;
-		int width = screenSize.width * 2 / 3;
+		int height = screenSize.height * 1 / 5;
+		int width = screenSize.width * 5 / 6;
 
 		// set the jframe height and width
 		setPreferredSize(new Dimension(width, height));
@@ -110,16 +111,30 @@ public class console extends JFrame implements TableModelListener, WindowListene
 		// table kommer att visa userDB
 		table = new JTable(wD);
 
-		JTableHeader header = table.getTableHeader();
+//		JTableHeader header = table.getTableHeader();
+		header = table.getTableHeader();
 		header.setBackground(Color.LIGHT_GRAY);
-//		header.setBackground(Color.white);
+		//		header.setBackground(Color.white);
 
 		bu1 = new JButton();
+
+		System.out.println("screenHeightWidth :" +screenSize.height+" " +screenSize.width);
+		if (screenSize.height > 1200) {
+			table.setRowHeight(table.getRowHeight()*2);
+			header.setFont(new javax.swing.plaf.FontUIResource("Dialog", Font.PLAIN, table.getRowHeight()));
+			bu1.setFont(new javax.swing.plaf.FontUIResource("Dialog", Font.PLAIN, table.getRowHeight()));
+		}
+		else 
+			if (screenSize.height > 1080) {
+				table.setRowHeight(table.getRowHeight()*1,5);
+				header.setFont(new javax.swing.plaf.FontUIResource("Dialog", Font.PLAIN, table.getRowHeight()));
+				bu1.setFont(new javax.swing.plaf.FontUIResource("Dialog", Font.PLAIN, table.getRowHeight()));
+			}
 
 		swServer = true;
 		try {
 			SendMsg jm = new SendMsg(jvhost, port);  // kollar om JvaktServer är tillgänglig.
-//			System.out.println(jm.open());
+			//			System.out.println(jm.open());
 			if (jm.open().startsWith("DORMANT")) 	swDormant = true;
 			else 									swDormant = false;
 			jm.close();
@@ -129,7 +144,7 @@ public class console extends JFrame implements TableModelListener, WindowListene
 			System.err.println(e1);
 			System.err.println(e1.getMessage());
 		}
-//		System.out.println("swServer :" + swServer);
+		//		System.out.println("swServer :" + swServer);
 
 		swDBopen = wD.refreshData(); // kollar om DB är tillgänglig
 		setBu1Color();
@@ -182,43 +197,76 @@ public class console extends JFrame implements TableModelListener, WindowListene
 		// sätter färg på raderna
 		consoleCR cr=new consoleCR();
 
-		for (int i=0; i <= 8 ; i++ ) {      
+//		for (int i=0; i <= 8 ; i++ ) {      
+//			table.getColumn(table.getColumnName(i)).setCellRenderer(cr);
+//		}
+		
+		for (int i=0; i <= 7 ; i++ ) {
 			table.getColumn(table.getColumnName(i)).setCellRenderer(cr);
 		}
+
 
 		// skapar nya JScrollPane och lägger till tabellerna via construktorn. För att kunna scrolla tabellerna.
 
 		scrollPane = new JScrollPane(table);
-//		table.setAutoResizeMode(JTable.AUTO_RESIZE_ALL_COLUMNS);
+		//		table.setAutoResizeMode(JTable.AUTO_RESIZE_ALL_COLUMNS);
 		table.setAutoResizeMode(JTable. 	AUTO_RESIZE_SUBSEQUENT_COLUMNS);
 		//	        table.setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
 
 		TableColumn column = null;
+//		column = table.getColumnModel().getColumn(0);
+//		column.setPreferredWidth(30);
+//		column.setMaxWidth(85);
+//		column = table.getColumnModel().getColumn(1);
+//		column.setPreferredWidth(400);
+//		column.setMaxWidth(1100);
+//		column = table.getColumnModel().getColumn(2);
+//		column.setPreferredWidth(30);
+//		column.setMaxWidth(65);
+//		column = table.getColumnModel().getColumn(3);
+//		column.setPreferredWidth(30);
+//		column.setMaxWidth(65);
+//		column = table.getColumnModel().getColumn(4);
+//		column.setPreferredWidth(255);
+//		column.setMaxWidth(895);
+//		column = table.getColumnModel().getColumn(5);
+//		column.setPreferredWidth(255);
+//		column.setMaxWidth(895);
+//		column = table.getColumnModel().getColumn(6);
+//		column.setPreferredWidth(100);
+//		column.setMaxWidth(420);
+//		column = table.getColumnModel().getColumn(7);
+//		column.setPreferredWidth(900);
+//		column.setMaxWidth(2800);
+//		column = table.getColumnModel().getColumn(8);
+//		column.setPreferredWidth(100);
+//		column.setMaxWidth(950);
+
 		column = table.getColumnModel().getColumn(0);
-		column.setPreferredWidth(30);
-		column.setMaxWidth(45);
+		column.setPreferredWidth(400);
+		column.setMaxWidth(1100);
 		column = table.getColumnModel().getColumn(1);
-		column.setPreferredWidth(500);
+		column.setPreferredWidth(30);
+		column.setMaxWidth(65);
 		column = table.getColumnModel().getColumn(2);
 		column.setPreferredWidth(30);
-		column.setMaxWidth(35);
+		column.setMaxWidth(65);
 		column = table.getColumnModel().getColumn(3);
-		column.setPreferredWidth(30);
-		column.setMaxWidth(35);
+		column.setPreferredWidth(255);
+		column.setMaxWidth(895);
 		column = table.getColumnModel().getColumn(4);
-		column.setPreferredWidth(245);
-		column.setMaxWidth(255);
+		column.setPreferredWidth(255);
+		column.setMaxWidth(895);
 		column = table.getColumnModel().getColumn(5);
-		column.setPreferredWidth(245);
-		column.setMaxWidth(255);
-		column = table.getColumnModel().getColumn(6);
-		column.setPreferredWidth(40);
-		column.setMaxWidth(90);
-		column = table.getColumnModel().getColumn(7);
-		column.setPreferredWidth(900);
-		column = table.getColumnModel().getColumn(8);
 		column.setPreferredWidth(100);
-		column.setMaxWidth(250);
+		column.setMaxWidth(420);
+		column = table.getColumnModel().getColumn(6);
+		column.setPreferredWidth(900);
+		column.setMaxWidth(2800);
+		column = table.getColumnModel().getColumn(7);
+		column.setPreferredWidth(100);
+		column.setMaxWidth(950);
+
 		addKeyBindings();
 
 		scrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
@@ -253,7 +301,7 @@ public class console extends JFrame implements TableModelListener, WindowListene
 					try {
 						swServer = true;
 						SendMsg jm = new SendMsg(jvhost, port);  // kollar om JvaktServer är tillgänglig.
-//						System.out.println(jm.open());	                    
+						//						System.out.println(jm.open());	                    
 						if (jm.open().startsWith("DORMANT")) 	swDormant = true;
 						else 									swDormant = false;
 						jm.close();
@@ -263,7 +311,7 @@ public class console extends JFrame implements TableModelListener, WindowListene
 						System.err.println(e1);
 						System.err.println(e1.getMessage());
 					}
-//					System.out.println("swServer 2 : " + swServer);
+					//					System.out.println("swServer 2 : " + swServer);
 
 					swDBopen = wD.refreshData();
 					//	            	if (!swDBopen) {
@@ -309,7 +357,7 @@ public class console extends JFrame implements TableModelListener, WindowListene
 		String txt = "";
 		if (swAuto) {
 			bu1.setBackground(Color.GRAY);
-//			bu1.setBackground(Color.LIGHT_GRAY);
+			//			bu1.setBackground(Color.LIGHT_GRAY);
 			txt = "Auto Update ON.";
 			//	            bu1.setText("Auto Update ON");
 		}
@@ -340,21 +388,22 @@ public class console extends JFrame implements TableModelListener, WindowListene
 		table.getActionMap().put("delRow", delRow());
 		table.getActionMap().put("strHst", strHst());
 		table.getActionMap().put("clearSel", clearSel());
+		table.getActionMap().put("increaseH", increaseH());
+		table.getActionMap().put("decreaseH", decreaseH());
+		table.getActionMap().put("showHelp", showHelp());
 
 		KeyStroke keyStroke = KeyStroke.getKeyStroke(KeyEvent.VK_BACK_SPACE, 0);  // delete key in mac
 		table.getInputMap(JComponent.WHEN_FOCUSED).put(keyStroke, "delRow");
-		
+
 		keyStroke = KeyStroke.getKeyStroke(KeyEvent.VK_DELETE, 0);  // delete key in win linux
 		table.getInputMap(JComponent.WHEN_FOCUSED).put(keyStroke, "delRow");
-		
-		keyStroke = KeyStroke.getKeyStroke(KeyEvent.VK_F1, 0);
-		table.getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(keyStroke, "strHst");
-		keyStroke = KeyStroke.getKeyStroke(KeyEvent.VK_F2, 0);
-		table.getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(keyStroke, "strHst");
+
+		keyStroke = KeyStroke.getKeyStroke(KeyEvent.VK_F1, 0); 
+		table.getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(keyStroke, "showHelp");
 		keyStroke = KeyStroke.getKeyStroke(KeyEvent.VK_F3, 0);
-		table.getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(keyStroke, "strHst");
+		table.getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(keyStroke, "increaseH");
 		keyStroke = KeyStroke.getKeyStroke(KeyEvent.VK_F4, 0);
-		table.getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(keyStroke, "strHst");
+		table.getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(keyStroke, "decreaseH");
 		keyStroke = KeyStroke.getKeyStroke(KeyEvent.VK_F5, 0);
 		table.getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(keyStroke, "strHst");
 		keyStroke = KeyStroke.getKeyStroke(KeyEvent.VK_F6, 0);
@@ -370,26 +419,72 @@ public class console extends JFrame implements TableModelListener, WindowListene
 		keyStroke = KeyStroke.getKeyStroke(KeyEvent.VK_F11, 0);
 		table.getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(keyStroke, "strHst");
 		keyStroke = KeyStroke.getKeyStroke(KeyEvent.VK_F12, 0);
-		table.getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(keyStroke, "strHst");
+		table.getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(keyStroke, "delRow");
 		keyStroke = KeyStroke.getKeyStroke(KeyEvent.VK_ESCAPE , 0);
 		table.getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(keyStroke, "clearSel");
-		
+
 	}  
+
+	private AbstractAction showHelp()  {
+		AbstractAction save = new AbstractAction() {
+
+			@Override
+			public void actionPerformed(ActionEvent e)  {
+//					                 JOptionPane.showMessageDialog(TestTableKeyBinding.this.table, "Action Triggered.");
+				System.out.println("ShowHelp");
+				JOptionPane.showMessageDialog(getContentPane(),
+					    "F1 : Help \nF3 : Increase font size \nF4 : Decrease font size \nF5 : History \n\nESC : Unselect \nDEL : delete selected rows.",
+					    "Jvakt Help",
+					    JOptionPane.INFORMATION_MESSAGE);
+			}
+		};
+		return save;
+	}
 
 	private AbstractAction clearSel()  {
 		AbstractAction save = new AbstractAction() {
 
 			@Override
 			public void actionPerformed(ActionEvent e)  {
-				//	                 JOptionPane.showMessageDialog(TestTableKeyBinding.this.table, "Action Triggered.");
+//					                 JOptionPane.showMessageDialog(TestTableKeyBinding.this.table, "Action Triggered.");
 				table.getSelectionModel().clearSelection();  // clear selected rows.
 			}
 		};
 		return save;
 	}
 
+	private AbstractAction increaseH()  {
+		AbstractAction save = new AbstractAction() {
 
-	
+			@Override
+			public void actionPerformed(ActionEvent e)  {
+				if (table.getRowHeight()<100) {
+					table.setRowHeight(table.getRowHeight()+1);
+					header.setFont(new javax.swing.plaf.FontUIResource("Dialog", Font.PLAIN, table.getRowHeight()));
+					bu1.setFont(new javax.swing.plaf.FontUIResource("Dialog", Font.PLAIN, table.getRowHeight()));
+				}
+			}
+		};
+		return save;
+	}
+
+	private AbstractAction decreaseH()  {
+		AbstractAction save = new AbstractAction() {
+
+			@Override
+			public void actionPerformed(ActionEvent e)  {
+				//				System.out.println("getRowHeight :" + table.getRowHeight());
+				if (table.getRowHeight()>10) {
+					table.setRowHeight(table.getRowHeight()-1);
+					header.setFont(new javax.swing.plaf.FontUIResource("Dialog", Font.PLAIN, table.getRowHeight()));
+					bu1.setFont(new javax.swing.plaf.FontUIResource("Dialog", Font.PLAIN, table.getRowHeight()));
+				}
+			}
+		};
+		return save;
+	}
+
+
 	private AbstractAction delRow()  {
 		AbstractAction save = new AbstractAction() {
 
@@ -401,9 +496,9 @@ public class console extends JFrame implements TableModelListener, WindowListene
 				//				int selectedRow = table.getSelectedRow();
 				int[] selectedRow = table.getSelectedRows();
 
-//				for (int i = 0; i <  selectedRow.length; i++) {
-//					System.out.println("*** Row do delete :" + selectedRow[i]);
-//				}
+				//				for (int i = 0; i <  selectedRow.length; i++) {
+				//					System.out.println("*** Row do delete :" + selectedRow[i]);
+				//				}
 
 				//	                 if (selectedRow != -1) {
 				//	                     ((DefaultTableModel) table.getModel()).removeRow(selectedRow);
@@ -419,17 +514,17 @@ public class console extends JFrame implements TableModelListener, WindowListene
 						System.out.println(ValueId);
 						jmsg.setId(ValueId.toString());
 						jmsg.setRptsts("OK");
-//						jmsg.setBody("Delete of row from GUI");
+						//						jmsg.setBody("Delete of row from GUI");
 						ValueId   = table.getValueAt(selectedRow[i],table.getColumnModel().getColumnIndex("Body"));
 						System.out.println(ValueId);
 						jmsg.setBody(ValueId.toString());
-//						jmsg.setBody("Delete of row from GUI");
+						//						jmsg.setBody("Delete of row from GUI");
 						ValueId   = table.getValueAt(selectedRow[i],table.getColumnModel().getColumnIndex("Prio"));
 						System.out.println(ValueId);
 						jmsg.setPrio(Integer.parseInt(ValueId.toString()));
 						jmsg.setType("D");
 						jmsg.setAgent("GUI");
-//						jm.sendMsg(jmsg);
+						//						jm.sendMsg(jmsg);
 						if (jm.sendMsg(jmsg)) System.out.println("-- Rpt Delivered --");
 						else            	  System.out.println("-- Rpt Failed --");
 						jm.close();
@@ -455,44 +550,44 @@ public class console extends JFrame implements TableModelListener, WindowListene
 
 			@Override
 			public void actionPerformed(ActionEvent e)  {
-			       System.out.println("-- Start consoleHst: " + cmdHst);
+				System.out.println("-- Start consoleHst: " + cmdHst);
 
-			       try {
-//			       Runtime.getRuntime().exec("java -cp \"/Users/septpadm/OneDrive - Perstorp Group/JavaSrc;/Users/septpadm/OneDrive - Perstorp Group/JavaSrc/postgresql-42.1.3.jar\" Jvakt.consoleHst");
-			       Runtime.getRuntime().exec(cmdHst);
-			       } catch (IOException e1) {
-			    	   System.err.println(e1);
-			    	   System.err.println(e1.getMessage());
-			       }
-			       
-//			       String[] par = new String[] { "One", "Two", "Three" };
-//			       try {
-//			    	   consoleHst.main(par);
-//			       } catch (IOException e1) {
-//			    	   System.err.println(e1);
-//			    	   System.err.println(e1.getMessage());
-//			       }
+				try {
+					//			       Runtime.getRuntime().exec("java -cp \"/Users/septpadm/OneDrive - Perstorp Group/JavaSrc;/Users/septpadm/OneDrive - Perstorp Group/JavaSrc/postgresql-42.1.3.jar\" Jvakt.consoleHst");
+					Runtime.getRuntime().exec(cmdHst);
+				} catch (IOException e1) {
+					System.err.println(e1);
+					System.err.println(e1.getMessage());
+				}
 
-//			       new Thread() {
-//			    	   public void run(){
-//			    		   String[] par = new String[] { "One", "Two", "Three" };
-//			    		   try {
-//			    			   consoleHst.main(par);
-//			    		   } 		catch (IOException e1) {
-//			    			   System.err.println(e1);
-//			    			   System.err.println(e1.getMessage());
-//			    		   }
-//
-//			    	   }
-//			       }.start();
+				//			       String[] par = new String[] { "One", "Two", "Three" };
+				//			       try {
+				//			    	   consoleHst.main(par);
+				//			       } catch (IOException e1) {
+				//			    	   System.err.println(e1);
+				//			    	   System.err.println(e1.getMessage());
+				//			       }
+
+				//			       new Thread() {
+				//			    	   public void run(){
+				//			    		   String[] par = new String[] { "One", "Two", "Three" };
+				//			    		   try {
+				//			    			   consoleHst.main(par);
+				//			    		   } 		catch (IOException e1) {
+				//			    			   System.err.println(e1);
+				//			    			   System.err.println(e1.getMessage());
+				//			    		   }
+				//
+				//			    	   }
+				//			       }.start();
 
 			}
-	};
-	return save;
+		};
+		return save;
 	}
-//	************
-	
-	
+	//	************
+
+
 	// windows listeners
 	// vi implementerade WindowListener och addade "this" för att denna metod skulle anropas vid normalt avslut av Jframe 
 	public void windowClosing(WindowEvent e) {

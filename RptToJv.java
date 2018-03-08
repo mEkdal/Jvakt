@@ -86,7 +86,7 @@ public class RptToJv {
 			System.out.println(">>> Failure! The -id switch must contain a value! <<<");
 			System.exit(8);
 		}
-		if (!type.toUpperCase().equals("R") && !type.toUpperCase().equals("I") && !type.toUpperCase().equals("S") && !type.toUpperCase().equals("D") && !type.equalsIgnoreCase("Active") && !type.equalsIgnoreCase("Dormant")  ) {
+		if (!type.toUpperCase().equals("R") && !type.toUpperCase().equals("I") && !type.toUpperCase().equals("S") && !type.toUpperCase().equals("D") && !type.toUpperCase().equals("P") && !type.equalsIgnoreCase("Active") && !type.equalsIgnoreCase("Dormant")  ) {
 			System.out.println(">>> Failure! The type must be R, I, S or D <<<");
 			System.exit(8);
 		}

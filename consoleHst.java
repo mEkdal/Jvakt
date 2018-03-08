@@ -37,6 +37,7 @@ public class consoleHst extends JFrame implements TableModelListener, WindowList
 	private JTable table;
 	private JScrollPane scrollPane;
 	private JButton bu1;
+	private JTableHeader header;
 	//	    private JScrollPane scrollPane2;
 	private consoleHstDM wD;
 	private Boolean swAuto = true;
@@ -77,15 +78,15 @@ public class consoleHst extends JFrame implements TableModelListener, WindowList
 		port = Integer.parseInt(jvport);
 
 		// funktion från Jframe att sätta rubrik
-		setTitle("Jvakt consoleHst 2.03");
+		setTitle("Jvakt consoleHst 2.11  -  F1 = Help");
 		//	        setSize(5000, 5000);
 
 		// get the screen size as a java dimension
 		Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
 
 		// get 2/5 of the height, and 2/3 of the width
-		int height = screenSize.height * 2 / 5;
-		int width = screenSize.width * 2 / 3;
+		int height = screenSize.height * 1 / 5;
+		int width = screenSize.width * 5 / 6;
 
 		// set the jframe height and width
 		setPreferredSize(new Dimension(width, height));
@@ -109,11 +110,26 @@ public class consoleHst extends JFrame implements TableModelListener, WindowList
 		// table kommer att visa userDB
 		table = new JTable(wD);
 
-		JTableHeader header = table.getTableHeader();
+//		JTableHeader header = table.getTableHeader();
+		header = table.getTableHeader();
 		header.setBackground(Color.LIGHT_GRAY);
 //		header.setBackground(Color.white);
 
 		bu1 = new JButton();
+
+		System.out.println("screenHeightWidth :" +screenSize.height+" " +screenSize.width);
+		if (screenSize.height > 1200) {
+			table.setRowHeight(table.getRowHeight()*2);
+			header.setFont(new javax.swing.plaf.FontUIResource("Dialog", Font.PLAIN, table.getRowHeight()));
+			bu1.setFont(new javax.swing.plaf.FontUIResource("Dialog", Font.PLAIN, table.getRowHeight()));
+		}
+		else 
+			if (screenSize.height > 1080) {
+				table.setRowHeight(table.getRowHeight()*1,5);
+				header.setFont(new javax.swing.plaf.FontUIResource("Dialog", Font.PLAIN, table.getRowHeight()));
+				bu1.setFont(new javax.swing.plaf.FontUIResource("Dialog", Font.PLAIN, table.getRowHeight()));
+			}
+
 
 		swServer = true;
 		try {
@@ -195,30 +211,31 @@ public class consoleHst extends JFrame implements TableModelListener, WindowList
 		TableColumn column = null;
 		column = table.getColumnModel().getColumn(0);
 		column.setPreferredWidth(245);
-		column.setMaxWidth(255);
+		column.setMaxWidth(555);
 		column = table.getColumnModel().getColumn(1);
 		column.setPreferredWidth(245);
-		column.setMaxWidth(255);
+		column.setMaxWidth(555);
 		column = table.getColumnModel().getColumn(2);
 		column.setPreferredWidth(30);
-		column.setMaxWidth(35);
+		column.setMaxWidth(95);
 		column = table.getColumnModel().getColumn(3);
 		column.setPreferredWidth(500);
-		column.setMaxWidth(900);
+		column.setMaxWidth(1500);
 		column = table.getColumnModel().getColumn(4);
 		column.setPreferredWidth(30);
-		column.setMaxWidth(40);
+		column.setMaxWidth(110);
 		column = table.getColumnModel().getColumn(5);
 		column.setPreferredWidth(30);
-		column.setMaxWidth(40);
+		column.setMaxWidth(110);
 		column = table.getColumnModel().getColumn(6);
 		column.setPreferredWidth(40);
-		column.setMaxWidth(90);
+		column.setMaxWidth(150);
 		column = table.getColumnModel().getColumn(7);
 		column.setPreferredWidth(900);
+		column.setMaxWidth(2800);
 		column = table.getColumnModel().getColumn(8);
 		column.setPreferredWidth(100);
-		column.setMaxWidth(250);
+		column.setMaxWidth(950);
 		addKeyBindings();
 
 		scrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
@@ -344,13 +361,43 @@ public class consoleHst extends JFrame implements TableModelListener, WindowList
 //		table.getInputMap(JComponent.WHEN_FOCUSED).put(keyStroke, "delRow");
 
 		table.getActionMap().put("clearSel", clearSel());
+		table.getActionMap().put("increaseH", increaseH());
+		table.getActionMap().put("decreaseH", decreaseH());
+		table.getActionMap().put("showHelp", showHelp());
 		
 		KeyStroke keyStroke = KeyStroke.getKeyStroke(KeyEvent.VK_ESCAPE , 0);
 		table.getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(keyStroke, "clearSel");
-
+		keyStroke = KeyStroke.getKeyStroke(KeyEvent.VK_F1, 0); 
+		table.getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(keyStroke, "showHelp");
+		keyStroke = KeyStroke.getKeyStroke(KeyEvent.VK_F3, 0);
+		table.getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(keyStroke, "increaseH");
+		keyStroke = KeyStroke.getKeyStroke(KeyEvent.VK_F4, 0);
+		table.getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(keyStroke, "decreaseH");
 
 	}  
 	
+	private AbstractAction showHelp()  {
+		AbstractAction save = new AbstractAction() {
+
+			@Override
+			public void actionPerformed(ActionEvent e)  {
+//					                 JOptionPane.showMessageDialog(TestTableKeyBinding.this.table, "Action Triggered.");
+				System.out.println("ShowHelp");
+			    JOptionPane pane = new JOptionPane("Jvakt help");
+			    pane.showMessageDialog(getContentPane(),
+					    "F1 : Help \nF3 : Increase font size \nF4 : Decrease font size \n\nESC : Unselect",
+					    "Jvakt Help",
+					    JOptionPane.INFORMATION_MESSAGE);
+			    
+//				JOptionPane.showMessageDialog(table,
+//					    "F1 : Help \nF3 : Increase font size \nF4 : Decrease font size \n\nESC : Unselect",
+//					    "Jvakt Help",
+//					    JOptionPane.INFORMATION_MESSAGE);
+			}
+		};
+		return save;
+	}
+
 	private AbstractAction clearSel()  {
 		AbstractAction save = new AbstractAction() {
 
@@ -363,7 +410,47 @@ public class consoleHst extends JFrame implements TableModelListener, WindowList
 		return save;
 	}
 
+	private AbstractAction increaseH()  {
+		AbstractAction save = new AbstractAction() {
 
+			@Override
+			public void actionPerformed(ActionEvent e)  {
+				//	                 JOptionPane.showMessageDialog(TestTableKeyBinding.this.table, "Action Triggered.");
+				//				table.getSelectionModel().clearSelection();  // clear selected rows.
+				//				System.out.println("getRowHeight :" + table.getRowHeight());
+				if (table.getRowHeight()<100) {
+				table.setRowHeight(table.getRowHeight()+1);
+//								System.out.println("getRowHeight :" + table.getRowHeight());
+				header.setFont(new javax.swing.plaf.FontUIResource("Dialog", Font.PLAIN, table.getRowHeight()));
+				bu1.setFont(new javax.swing.plaf.FontUIResource("Dialog", Font.PLAIN, table.getRowHeight()));
+				}
+			}
+		};
+		return save;
+	}
+
+	private AbstractAction decreaseH()  {
+		AbstractAction save = new AbstractAction() {
+
+			@Override
+			public void actionPerformed(ActionEvent e)  {
+				//	                 JOptionPane.showMessageDialog(TestTableKeyBinding.this.table, "Action Triggered.");
+				//				table.getSelectionModel().clearSelection();  // clear selected rows.
+//								System.out.println("getRowHeight :" + table.getRowHeight());
+				if (table.getRowHeight()>10) {
+				table.setRowHeight(table.getRowHeight()-1);
+				header.setFont(new javax.swing.plaf.FontUIResource("Dialog", Font.PLAIN, table.getRowHeight()));
+				bu1.setFont(new javax.swing.plaf.FontUIResource("Dialog", Font.PLAIN, table.getRowHeight()));
+				}
+//								System.out.println("getRowHeight :" + table.getRowHeight());
+
+			}
+		};
+		return save;
+	}
+
+
+	
 	// windows listeners
 	// vi implementerade WindowListener och addade "this" för att denna metod skulle anropas vid normalt avslut av Jframe 
 	// värdena i tabellerna skrivt till var sin fil

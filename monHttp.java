@@ -1,6 +1,7 @@
 package Jvakt;
 import java.io.*;
 import java.util.*;
+import java.net.*;
 
 //import org.icmp4j.IcmpPingRequest;
 //import org.icmp4j.IcmpPingResponse;
@@ -10,7 +11,7 @@ import java.net.*;
 
 public class monHttp {
 
-	static String state = "a";
+	static boolean state = false;
 	static String t_sys;
 	static String t_id;
 	static String t_ip;
@@ -20,7 +21,7 @@ public class monHttp {
 	static boolean swSingle = false;
 	static String host;
 	static InetAddress inet;
-	static String version = "monHttp 1.2 # 2018-01-09";
+	static String version = "monHttp 1.3 # 2018-03-02";
 	static String database = "jVakt";
 	static String dbuser   = "jVakt";
 	static String dbpassword = "xz";
@@ -120,12 +121,13 @@ public class monHttp {
 					webfile = tab[3];
 					webcontent = tab[4];
 					t_desc = tab[5];
+					state = false;
 
 					checkHttp();
 
 					if (swRun)  {
-						if (state.equals("OKAY")) 	sendSTS(true);
-						else 						sendSTS(false);
+						if (state) 	sendSTS(true);
+						else 		sendSTS(false);
 					}
 
 				}
@@ -139,25 +141,31 @@ public class monHttp {
 		try {
 			System.out.println("-- URL    : http://"+host+":"+wport+webfile);
 			System.out.println("-- OK text: " +webcontent);
-			URL url = new URL("http://"+host+":"+wport+webfile);
+			URL url = new URL("http://"+host+":"+wport+webfile); 
+			URLConnection con = url.openConnection();  // new
+			con.setReadTimeout(4000);
+			con.setConnectTimeout(2000);
+//			BufferedReader httpin = new BufferedReader(
+//					new InputStreamReader(url.openStream()));
 			BufferedReader httpin = new BufferedReader(
-					new InputStreamReader(url.openStream()));
+					new InputStreamReader(con.getInputStream()));
 
 			String inputLine;
-			while ((inputLine = httpin.readLine()) != null) {
+			while ((inputLine = httpin.readLine()) != null  && !state) {
 				if (inputLine.indexOf(webcontent) >= 0) {
-					state = "OKAY";                      
+					state = true;
+					System.out.println("-- OK text: "+ webcontent + " found! ");
 				}
-				System.out.println(inputLine);
+//				System.out.println(inputLine);
 			}
 			httpin.close();
 
-		} catch (Exception e) { System.out.println(e); state = "FAILED";   }
+		} catch (Exception e) { System.out.println(e); state = false;   }
 
 //		try { Thread.currentThread(); Thread.sleep(1000); } catch (Exception e) {} ;
 
-		if (state.equals("OKAY")) {	System.out.println("Connection succcessful"); return true; }
-		else 					  { System.out.println("Connection failed"); return false; }
+		if (state) {System.out.println("Connection succcessful"); return true; }
+		else 	   {System.out.println("Connection failed"); return false; }
 	}
 
 	// sends status to the server

@@ -16,7 +16,8 @@ import java.util.*;
 class consoleDM extends AbstractTableModel {
 
 	String afn;
-	String columnNames[] = {"Count", "Id", "Prio", "Type", "CreDate", "ConDate", "Status", "Body", "Agent"};
+//	String columnNames[] = {"Count", "Id", "Prio", "Type", "CreDate", "ConDate", "Status", "Body", "Agent"};
+	String columnNames[] = { "Id", "Prio", "Type", "CreDate", "ConDate", "Status", "Body", "Agent"};
 	static Vector map = new Vector(100,10);
 
 	consoleROW rad;
@@ -26,7 +27,7 @@ class consoleDM extends AbstractTableModel {
 	static String DBUrl = "jdbc:postgresql://localhost:5433/Jvakt";
 	static Connection conn = null;
 
-	String version = "jVakt 2.0 - consoleDM 1.1 Date 2017-08-25_01";
+	String version = "jVakt 2.0 - consoleDM 1.2 Date 2017-08-25_01";
 	String database = "Jvakt";
 	String dbuser   = "console";
 	String dbpassword = "Jvakt";
@@ -68,26 +69,47 @@ class consoleDM extends AbstractTableModel {
 		rad = (consoleROW) map.get(row);
 
 		if (col == 0) {
-			return rad.getCount();
-		} else if (col == 1) {
 			return rad.getId();
-		} else if (col == 2) {
+		} else if (col == 1) {
 			return rad.getPrio();
-		} else if (col == 3) {
+		} else if (col == 2) {
 			return rad.getType();
-		} else if (col == 4) {
+		} else if (col == 3) {
 			return rad.getCredat();
-		} else if (col == 5) {
+		} else if (col == 4) {
 			return rad.getCondat();
-		} else if (col == 6) {
+		} else if (col == 5) {
 			return rad.getStatus();
-		} else if (col == 7) {
+		} else if (col == 6) {
 			return rad.getBody();
-		} else if (col == 8) {
+		} else if (col == 7) {
 			return rad.getAgent();
 		} else {
 			return null;
 		}
+
+		
+//		if (col == 0) {
+//			return rad.getCount();
+//		} else if (col == 1) {
+//			return rad.getId();
+//		} else if (col == 2) {
+//			return rad.getPrio();
+//		} else if (col == 3) {
+//			return rad.getType();
+//		} else if (col == 4) {
+//			return rad.getCredat();
+//		} else if (col == 5) {
+//			return rad.getCondat();
+//		} else if (col == 6) {
+//			return rad.getStatus();
+//		} else if (col == 7) {
+//			return rad.getBody();
+//		} else if (col == 8) {
+//			return rad.getAgent();
+//		} else {
+//			return null;
+//		}
 
 	}
 

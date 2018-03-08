@@ -139,7 +139,7 @@ class DBupdate {
 						}
 						// trigger plugin
 						if ( m.getType().equalsIgnoreCase("P")) {
-							if (rs.getString("msg").equals("T")) status = "time-out";
+							if (rs.getString("msg").equals("T")) status = "TOut";
 							else 								 status = rs.getString("status");
 							swPlugin = true;
 						}
@@ -147,7 +147,7 @@ class DBupdate {
 						rs.updateTimestamp("rptdat", new java.sql.Timestamp(new java.util.Date().getTime())); 
 						rs.updateString("status", m.getRptsts().toUpperCase());
 						rs.updateString("body", m.getBody());
-						rs.updateString("agent", m.getAgent());
+						if (!m.getAgent().equalsIgnoreCase("GUI")) rs.updateString("agent", m.getAgent());
 						if (rs.getString("type").startsWith("D")) {
 							rs.updateString("type", m.getType().toUpperCase());
 							sType = m.getType().toUpperCase();
@@ -199,8 +199,8 @@ class DBupdate {
 						// trigger the background process for the plugin.
 						if (swPlugin && !swDormant && !rs.getString("type").startsWith("D")) {
 							if (!rs.getString("plugin").startsWith(" ")) {
-								System.out.println("plugin " + rs.getString("plugin") + " " + rs.getString("id")+ " " + rs.getString("prio")+ " " + status + " \"" + rs.getString("body")+"\"");
-								p =  Runtime.getRuntime().exec(rs.getString("plugin") + " " + rs.getString("id")+ " " + rs.getString("prio")+ " " + status + " \"" + rs.getString("body")+"\"");
+								System.out.println(LocalDateTime.now()+" #4 plugin " + rs.getString("plugin") + " " + rs.getString("id")+ " " + rs.getString("prio")+ " " + status + " \"" + m.getBody() +"\"");
+								p =  Runtime.getRuntime().exec(rs.getString("plugin") + " " + rs.getString("id")+ " " + rs.getString("prio")+ " " + status + " \"" + m.getBody() +"\"");
 								pList.add(p);
 							}
 						}
@@ -261,10 +261,10 @@ class DBupdate {
 						try { 
 							int exitVal = pIte.next().exitValue(); 
 							pIte.remove();
-							System.out.println("Process removed ");
+							System.out.println(LocalDateTime.now()+" #5 " +" Plugin Process finished, exitValue: "+exitVal);
 						} 
 						catch (Exception e) {
-							System.out.println("Process exitValue exeption " + e);
+//							System.out.println(" Plugin Process exitValue exeption " + e);
 						} 
 					}
 

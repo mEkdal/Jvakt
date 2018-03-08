@@ -20,7 +20,7 @@ public class monIPAddr {
 	static boolean swSingle = false;
 	static String host;
 	static InetAddress inet;
-	static String version = "monIPAddr 1.2 # 2018-01-04";
+	static String version = "monIPAddr 1.3 # 2018-02-22";
 	static String database = "jVakt";
 	static String dbuser   = "jVakt";
 	static String dbpassword = "xz";
@@ -63,7 +63,7 @@ public class monIPAddr {
 
 		// reads command line arguments
 		for ( int i = 0; i < args.length; i++) {
-//			if (args[i].equalsIgnoreCase("-dir")) dir = new File(args[++i]);
+			//			if (args[i].equalsIgnoreCase("-dir")) dir = new File(args[++i]);
 			if (args[i].equalsIgnoreCase("-run")) swRun = true;
 			if (args[i].equalsIgnoreCase("-host")) { swSingle = true; host = args[++i]; }
 			if (args[i].equalsIgnoreCase("-config")) config = args[++i];
@@ -73,7 +73,7 @@ public class monIPAddr {
 		else 					configF = new File(config,"Jvakt.properties");
 		System.out.println("----- Jvakt: "+new Date()+"  Version: "+version);
 		System.out.println("-config file: "+configF);
-		
+
 		getProps();
 
 		System.setProperty("java.net.preferIPv6Addresses", "false");
@@ -130,12 +130,14 @@ public class monIPAddr {
 	public static boolean checkIPAddr() {
 		// connect to host
 		try {
-			//System.out.println("-- Host: "+host);
+			if (t_id == null) t_id = "";
+			System.out.println("\n-- Host: "+t_id+" - "+host);
 			inet = InetAddress.getByName(host);
 			System.out.println("-- Inet: "+inet);
 			//System.out.println("-- Inet bool: "+inet.isReachable(5000));
-			if (!inet.isReachable(5000)) { state = "FAILED"; System.out.println("-- isreachable: "+state);}
-			else { System.out.println("-- isreachable: "+state);}
+			if (!inet.isReachable(5000)) { state = "FAILED"; }
+			else 						 { state = "OKAY";   }
+			System.out.println("-- isreachable: "+state);
 		} catch (Exception e) { state = "FAILED"; System.out.println("-- exeption state: "+state);  }
 
 		if (state.equals("FAILED")) { // make a second attempt by use of ICMP 
@@ -171,7 +173,7 @@ public class monIPAddr {
 		jmsg.setBody(t_desc);
 		jmsg.setType("R");
 		jmsg.setAgent(agent);
-//		jm.sendMsg(jmsg);
+		//		jm.sendMsg(jmsg);
 		if (jm.sendMsg(jmsg)) System.out.println("-- Rpt Delivered --");
 		else                  System.out.println("-- Rpt Failed --");
 		jm.close();
@@ -190,11 +192,12 @@ public class monIPAddr {
 			port = Integer.parseInt(jvport);
 			System.out.println("getProps jvport:" + jvport + "  jvhost"+jvhost) ;
 		} catch (IOException ex) {
-			ex.printStackTrace();
+			System.out.println(ex);
+			//			ex.printStackTrace();
 		}
 		try {
 			inet = InetAddress.getLocalHost();
-			System.out.println("-- Inet: "+inet);
+			System.out.println("-- Inet self: "+inet);
 			agent = inet.toString();
 		}
 		catch (Exception e) { System.out.println(e);  }
