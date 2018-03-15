@@ -61,7 +61,7 @@ public class SendSMS {
 
 	public static void main(String[] args ) throws IOException, UnknownHostException {
 
-		String version = "SendSMS 1.1 # 2018-01-09";
+		String version = "SendSMS 1.2 (2018-MAR-09)";
 		String database = "jVakt";
 		String dbuser   = "jVakt";
 		String dbpassword = "xz";
@@ -79,9 +79,7 @@ public class SendSMS {
 
 		if (config == null ) 	configF = new File("Jvakt.properties");
 		else 					configF = new File(config,"Jvakt.properties");
-		System.out.println("----- Jvakt: "+new Date()+"    Version: "+version);
-		System.out.println("-config file: "+configF);
-
+		System.out.println("----- Jvakt: "+new Date()+"    Version: "+version+"  -  config file: "+configF);
 
 		prop = new Properties();
 		InputStream input = null;
@@ -148,7 +146,7 @@ public class SendSMS {
 		zDate = new java.sql.Date((new Date(System.currentTimeMillis())).getTime());
 		zTs = new java.sql.Timestamp((new Date(System.currentTimeMillis())).getTime()); 
 
-		System.out.println("**********SendSMS ********   " + LocalDateTime.now());
+//		System.out.println("**********SendSMS ********   " + LocalDateTime.now());
 		try {
 
 			Class.forName("org.postgresql.Driver").newInstance();

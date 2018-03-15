@@ -52,7 +52,7 @@ public class SendMailSingle {
 
 	public static void main(String[] args ) throws IOException, UnknownHostException {
 
-		String version = "SendMailSingle 1.2 # 2017-11-15";
+		String version = "SendMailSingle 1.3 (2018-MAR-14)";
 
 		//Declare recipient's & sender's e-mail id.
 		final String toEmail;
@@ -132,6 +132,7 @@ public class SendMailSingle {
 		Properties props = new Properties();
 		props.put("mail.smtp.auth", "true");
 		props.put("mail.smtp.starttls.enable", "true");
+		props.put("mail.smtp.ssl.trust", "*");
 		props.put("mail.smtp.host", smtphost);
 		props.put("mail.smtp.port", smtpporti);
 

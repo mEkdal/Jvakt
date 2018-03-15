@@ -29,7 +29,7 @@ public class CheckStatus {
 	static int errors = 0;
 	static int warnings = 0;
 	static int infos = 0;
-	static String version = "CheckStatus 1.13 Date 2018-03-08";
+	static String version = "CheckStatus 1.14 (2018-MAR-09)";
 	static String database = "jVakt";
 	static String dbuser   = "jVakt";
 	static String dbpassword = "xz";
@@ -51,8 +51,7 @@ public class CheckStatus {
 
 		if (config == null ) 	configF = new File("Jvakt.properties");
 		else 					configF = new File(config,"Jvakt.properties");
-		System.out.println("----- Jvakt: "+new Date()+"  Version: "+version);
-		System.out.println("-config file: "+configF);
+		System.out.println("----- Jvakt: "+new Date()+"  Version: "+version +"  -  config file: "+configF);
 
 		Properties prop = new Properties();
 		InputStream input = null;
@@ -96,7 +95,7 @@ public class CheckStatus {
 		zDate = new java.sql.Date((new Date(System.currentTimeMillis())).getTime());     // YYYY-MM-DD
 		zTs = new java.sql.Timestamp((new Date(System.currentTimeMillis())).getTime());  // YYYY-MM-DD hh:mm.ss.nnn
 
-		System.out.println(DOW + " <> "+ zDate + " <> " + zTs);
+		//		System.out.println(DOW + " <> "+ zDate + " <> " + zTs);
 		//		System.out.println("******* Nu ****** " + nu + " Klocka " +nu.getHour()+":"+nu.getMinute()+":"+nu.getSecond());
 
 		try {
@@ -110,7 +109,7 @@ public class CheckStatus {
 					"WHERE state='A' or state = 'D';"); 
 
 
-			System.out.println(s);
+			//			System.out.println(s);
 			stmt = conn.createStatement(ResultSet.CONCUR_UPDATABLE,ResultSet.TYPE_FORWARD_ONLY,ResultSet.CLOSE_CURSORS_AT_COMMIT ); 
 			stmt.setFetchSize(1000);
 			ResultSet rs = stmt.executeQuery(s);
@@ -125,7 +124,7 @@ public class CheckStatus {
 				if (!rs.getString("type").equalsIgnoreCase("R") && !rs.getString("type").equalsIgnoreCase("S") && !rs.getString("type").equalsIgnoreCase("I")) continue;
 
 				if (!rs.getString("status").equalsIgnoreCase("OK"))
-				System.out.println("-#1: "+rs.getString("state")+" " + rs.getString("id")+" "+rs.getString("type")+" "+rs.getString("prio")+" "+rs.getString("console")+" "+rs.getString("status")+" "+rs.getString("errors")+" "+rs.getString("accerr"));
+					System.out.println("-#1: "+rs.getString("state")+" " + rs.getString("id")+" "+rs.getString("type")+" "+rs.getString("prio")+" "+rs.getString("console")+" "+rs.getString("status")+" "+rs.getString("errors")+" "+rs.getString("accerr"));
 
 				zD = rs.getTimestamp("rptdat");
 				accerr = rs.getInt("accerr");
@@ -152,7 +151,7 @@ public class CheckStatus {
 				swDelete = false;
 
 				// Om status inte är OK för S, I och R varnas till console
-//				if (!rs.getString("status").equalsIgnoreCase("OK") && err > accerr && swShDay ) { 
+				//				if (!rs.getString("status").equalsIgnoreCase("OK") && err > accerr && swShDay ) { 
 				if (( (rs.getString("status").equalsIgnoreCase("ERR") && err > accerr) || rs.getString("status").equalsIgnoreCase("INFO") ) 
 						&& swShDay ) { 
 					//					(rs.getString("type").equalsIgnoreCase("R") || rs.getString("type").equalsIgnoreCase("S") || rs.getString("type").equalsIgnoreCase("I"))) {
@@ -184,9 +183,8 @@ public class CheckStatus {
 				} 
 				// Om OK men timeout inträffat för S och R varnas till console
 				//				else	if ( (rs.getString("type").equalsIgnoreCase("R") && rs.getString("status").equalsIgnoreCase("OK") && swShDay && Lsec > 1200) ||
-				if ( (rs.getString("type").equalsIgnoreCase("R") && rs.getString("status").equalsIgnoreCase("OK") && swShDay && 
-						(Lsec > 1200 || rs.getTimestamp("rptdat").getTime() < mi.getTime() ) // mi is the date and time of midnight
-						) 
+				//				(Lsec > 1200 || rs.getTimestamp("rptdat").getTime() < mi.getTime() ) // mi is the date and time of midnight
+				if ( (rs.getString("type").equalsIgnoreCase("R") && rs.getString("status").equalsIgnoreCase("OK") && swShDay &&	Lsec > 1200	) 
 						||
 						(rs.getString("type").equalsIgnoreCase("S") && rs.getString("status").equalsIgnoreCase("OK") && swShDay && 
 								rs.getTimestamp("rptdat").getTime() < mi.getTime() )    // mi is the date and time of midnight

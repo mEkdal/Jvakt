@@ -113,8 +113,16 @@ class consoleDM extends AbstractTableModel {
 
 	}
 
+//	public Class getColumnClass(int c) {
+//		return getValueAt(0, c).getClass();
+//	}
 	public Class getColumnClass(int c) {
-		return getValueAt(0, c).getClass();
+		try {
+			//		return getValueAt(0, c).getClass();
+			return getValueAt(0, c).getClass();
+		} catch (NullPointerException e) {
+			return String.class;
+		}
 	}
 
 

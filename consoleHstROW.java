@@ -35,7 +35,7 @@ public class consoleHstROW {
 		this.body = " ";
 		this.agent = " ";
 	}
-
+ 
 	public int getCount() {
 		return count;
 	}

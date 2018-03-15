@@ -80,7 +80,7 @@ public class SendMail {
 	
 	public static void main(String[] args ) throws IOException, UnknownHostException {
 
-		String version = "SendMail 1.2 # 2018-01-09";
+		String version = "SendMail 1.4 (2018-MAR-14)";
 		String database = "jVakt";
 		String dbuser   = "jVakt";
 		String dbpassword = "xz";
@@ -98,8 +98,7 @@ public class SendMail {
  
 		if (config == null ) 	configF = new File("Jvakt.properties");
 		else 					configF = new File(config,"Jvakt.properties");
-		System.out.println("----- Jvakt: "+new Date()+"    Version: "+version);
-		System.out.println("-config file: "+configF);
+		System.out.println("----- Jvakt: "+new Date()+"    Version: "+version+"  -  config file: "+configF);
 		
 		//Declare recipient's & sender's e-mail id.
 //		String toEmailW;
@@ -186,6 +185,7 @@ public class SendMail {
 		props = new Properties();
 		props.put("mail.smtp.auth", "true");
 		props.put("mail.smtp.starttls.enable", "true");
+		props.put("mail.smtp.ssl.trust", "*");
 		props.put("mail.smtp.host", smtphost);
 		props.put("mail.smtp.port", smtpporti);
 
@@ -200,7 +200,7 @@ public class SendMail {
 		zDate = new java.sql.Date((new Date(System.currentTimeMillis())).getTime());
 		zTs = new java.sql.Timestamp((new Date(System.currentTimeMillis())).getTime()); 
 		
-		System.out.println("**********SendMail ********   " + LocalDateTime.now());
+//		System.out.println("**********SendMail ********   " + LocalDateTime.now());
 		try {
 
 			Class.forName("org.postgresql.Driver").newInstance();
@@ -414,7 +414,7 @@ public class SendMail {
 			else { System.out.println("RETURN FALSE"); return false; }
 			
 		}
-		System.out.println("RETURN true");
+//		System.out.println("RETURN true");
 		return true;
 	}
 

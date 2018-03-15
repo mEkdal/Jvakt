@@ -81,7 +81,7 @@ public class SendMailSTS {
 
 	public static void main(String[] args ) throws IOException, UnknownHostException {
 
-		String version = "SendMailSTS 1.5 # 2018-03-06";
+		String version = "SendMailSTS 1.7 (2018-MAR-14)";
 
 		String subject = "";
 		String body = "";
@@ -101,8 +101,7 @@ public class SendMailSTS {
  
 		if (config == null ) 	configF = new File("Jvakt.properties");
 		else 					configF = new File(config,"Jvakt.properties");
-		System.out.println("----- Jvakt: "+new Date()+"  Version: "+version);
-		System.out.println("-config file: "+configF);
+		System.out.println("----- Jvakt: "+new Date()+"  Version: "+version+"  -  config file: "+configF);
 		
 		boolean swMail = false;
 		getProps();
@@ -126,6 +125,7 @@ public class SendMailSTS {
 		Properties props = new Properties();
 		props.put("mail.smtp.auth", "true");
 		props.put("mail.smtp.starttls.enable", "true");
+		props.put("mail.smtp.ssl.trust", "*");
 		props.put("mail.smtp.host", smtphost);
 		props.put("mail.smtp.port", smtpporti);
 
@@ -269,9 +269,9 @@ public class SendMailSTS {
 				swMail = true;
 			}
 
-			System.out.println("\n" + toEmail );
-			System.out.println( subject );
-			System.out.println( body );
+			System.out.println("-> Mail receivers: " + toEmail );
+			System.out.println("-> Mail subject  : " + subject );
+			System.out.println("-> Mail body     : " + body );
 			
 			if (swMail && !swDormant) {
 				Session session = Session.getInstance(props, auth);

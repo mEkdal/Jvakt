@@ -37,6 +37,7 @@ public class consoleHst extends JFrame implements TableModelListener, WindowList
 	private JTable table;
 	private JScrollPane scrollPane;
 	private JButton bu1;
+	private JTextField where;
 	private JTableHeader header;
 	//	    private JScrollPane scrollPane2;
 	private consoleHstDM wD;
@@ -78,7 +79,7 @@ public class consoleHst extends JFrame implements TableModelListener, WindowList
 		port = Integer.parseInt(jvport);
 
 		// funktion från Jframe att sätta rubrik
-		setTitle("Jvakt consoleHst 2.11  -  F1 = Help");
+		setTitle("Jvakt consoleHst 2.13  -  F1 = Help");
 		//	        setSize(5000, 5000);
 
 		// get the screen size as a java dimension
@@ -99,7 +100,7 @@ public class consoleHst extends JFrame implements TableModelListener, WindowList
 		topPanel = new JPanel();
 		// berättar för topPanel vilken layout den ska använda genom att skapa ett BorderLayout object utan namn.
 		topPanel.setLayout(new BorderLayout());
-		//topPanel.setLayout(new FlowLayout());
+//		topPanel.setLayout(new FlowLayout());
 		// Hämtar Jpanels enkla content hanterare och lägger dit topPanel i stället att hantera resten av objekten
 		getContentPane().add(topPanel);
 		//topPanel.setComponentOrientation(ComponentOrientation.RIGHT_TO_LEFT);
@@ -116,18 +117,21 @@ public class consoleHst extends JFrame implements TableModelListener, WindowList
 //		header.setBackground(Color.white);
 
 		bu1 = new JButton();
+		where = new JTextField(40);
 
 		System.out.println("screenHeightWidth :" +screenSize.height+" " +screenSize.width);
 		if (screenSize.height > 1200) {
 			table.setRowHeight(table.getRowHeight()*2);
 			header.setFont(new javax.swing.plaf.FontUIResource("Dialog", Font.PLAIN, table.getRowHeight()));
 			bu1.setFont(new javax.swing.plaf.FontUIResource("Dialog", Font.PLAIN, table.getRowHeight()));
+			where.setFont(new javax.swing.plaf.FontUIResource("Dialog", Font.PLAIN, table.getRowHeight()));
 		}
 		else 
 			if (screenSize.height > 1080) {
 				table.setRowHeight(table.getRowHeight()*1,5);
 				header.setFont(new javax.swing.plaf.FontUIResource("Dialog", Font.PLAIN, table.getRowHeight()));
 				bu1.setFont(new javax.swing.plaf.FontUIResource("Dialog", Font.PLAIN, table.getRowHeight()));
+				where.setFont(new javax.swing.plaf.FontUIResource("Dialog", Font.PLAIN, table.getRowHeight()));
 			}
 
 
@@ -242,16 +246,18 @@ public class consoleHst extends JFrame implements TableModelListener, WindowList
 		//	        scrollPane.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_ALWAYS);
 
 		// skapar två nya JPanel att användas inuti topPanel, som också är en JPanel
-		//	        usrPanel = new JPanel();
-		//	        usrPanel.setLayout(new BorderLayout());
+			        usrPanel = new JPanel();
+			        usrPanel.setLayout(new BorderLayout());
 		//	        logPanel = new JPanel();
 		//	        logPanel.setLayout(new BorderLayout());
 		// talar om för de nya JPanels vilka scrollPanes dom ska innehålla (scrollPanes innehåller tabellerna).
 		//	        usrPanel.add(scrollPane, BorderLayout.CENTER);
-		topPanel.add(scrollPane, BorderLayout.CENTER);
 		// talar om för topPanel att den ska innehålla två JPanelobjekt NORTH och CENTER       
 		//	        usrPanel.add(bu1, BorderLayout.NORTH);
-		topPanel.add(bu1, BorderLayout.NORTH);
+		usrPanel.add(bu1, BorderLayout.NORTH);
+		usrPanel.add(where, BorderLayout.CENTER);
+		topPanel.add(usrPanel, BorderLayout.NORTH);
+		topPanel.add(scrollPane, BorderLayout.CENTER);
 		//	        topPanel.add(usrPanel, BorderLayout.NORTH);
 		//	        topPanel.add(logPanel, BorderLayout.CENTER);
 		// talar om för innevarande object att den lyssnar på sig själv. (metoderna för WindowListener)
@@ -282,6 +288,10 @@ public class consoleHst extends JFrame implements TableModelListener, WindowList
 					}
 //					System.out.println("swServer 2 : " + swServer);
 
+					if (where.getText().length() > 5) 	wD.setWhere(where.getText());
+					else {			
+						where.setText("id ilike '%search%'");
+					}
 					swDBopen = wD.refreshData();
 					//	            	if (!swDBopen) {
 					setBu1Color();
@@ -385,7 +395,8 @@ public class consoleHst extends JFrame implements TableModelListener, WindowList
 				System.out.println("ShowHelp");
 			    JOptionPane pane = new JOptionPane("Jvakt help");
 			    pane.showMessageDialog(getContentPane(),
-					    "F1 : Help \nF3 : Increase font size \nF4 : Decrease font size \n\nESC : Unselect",
+					    "F1 : Help \nF3 : Increase font size \nF4 : Decrease font size \n\nESC : Unselect "
+					    + "\n\nThe SEARCH field (where statement) is active when an ending space is present",
 					    "Jvakt Help",
 					    JOptionPane.INFORMATION_MESSAGE);
 			    
@@ -423,6 +434,7 @@ public class consoleHst extends JFrame implements TableModelListener, WindowList
 //								System.out.println("getRowHeight :" + table.getRowHeight());
 				header.setFont(new javax.swing.plaf.FontUIResource("Dialog", Font.PLAIN, table.getRowHeight()));
 				bu1.setFont(new javax.swing.plaf.FontUIResource("Dialog", Font.PLAIN, table.getRowHeight()));
+				where.setFont(new javax.swing.plaf.FontUIResource("Dialog", Font.PLAIN, table.getRowHeight()));
 				}
 			}
 		};
@@ -441,6 +453,7 @@ public class consoleHst extends JFrame implements TableModelListener, WindowList
 				table.setRowHeight(table.getRowHeight()-1);
 				header.setFont(new javax.swing.plaf.FontUIResource("Dialog", Font.PLAIN, table.getRowHeight()));
 				bu1.setFont(new javax.swing.plaf.FontUIResource("Dialog", Font.PLAIN, table.getRowHeight()));
+				where.setFont(new javax.swing.plaf.FontUIResource("Dialog", Font.PLAIN, table.getRowHeight()));
 				}
 //								System.out.println("getRowHeight :" + table.getRowHeight());
 

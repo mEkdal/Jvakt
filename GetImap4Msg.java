@@ -204,6 +204,14 @@ public class GetImap4Msg {
 					msgFixat = true;
 				}
 
+				// Msg från id_prove@perstorp.com  
+				if (from.indexOf("id_prove@perstorp.com") >= 0) {
+					if (body.indexOf("ERROR") >= 0) {
+						sendJv("MAIL_From_ID_PROVE" , "ERR" , "I",  subject + " " + body);
+					} 
+					msgFixat = true;
+				}
+
 				//diverse på samma avsändare
 				if (from.indexOf("itoc@perstorp.com") >= 0) {
 					msgFixat = true;  

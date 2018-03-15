@@ -26,7 +26,7 @@ class consoleHstDM extends AbstractTableModel {
 	static String DBUrl = "jdbc:postgresql://localhost:5433/Jvakt";
 	static Connection conn = null;
 
-	String version = "jVakt 2.0 - consoleHstDM 1.0 Date 2017-09-25_03";
+	String version = "jVakt 2.0 - consoleHstDM 1.1 Date 2017-09-25_03";
 	String database = "Jvakt";
 	String dbuser   = "console";
 	String dbpassword = "Jvakt";
@@ -38,7 +38,7 @@ class consoleHstDM extends AbstractTableModel {
 
 	Boolean swDBopen = false; 
 
-
+	String where = "";
 
 	public consoleHstDM() throws IOException {
 
@@ -92,13 +92,25 @@ class consoleHstDM extends AbstractTableModel {
 	}
 
 	public Class getColumnClass(int c) {
-		return getValueAt(0, c).getClass();
+		try {
+			//		return getValueAt(0, c).getClass();
+			return getValueAt(0, c).getClass();
+		} catch (NullPointerException e) {
+			return String.class;
+		}
 	}
 
 
 	public boolean isCellEditable(int row, int col) {
 		return false;
 	}
+
+	public void setWhere(String where) {
+		this.where = where;
+		//		System.out.println("This where: " + this.where);
+	}
+
+
 
 	public void setValueAt(Object value, int row, int col) {
 		// se till att objektet User sparar värdet med rätt set metod ( if (col == 2) .........
@@ -116,13 +128,13 @@ class consoleHstDM extends AbstractTableModel {
 		} else if (col == 1) {
 			rad.setDeldat((String)value); 
 		} else if (col == 2) {
-				rad.setCount((Integer)value);
-//				rad.setCount((int)value);
+			rad.setCount((Integer)value);
+			//				rad.setCount((int)value);
 		} else if (col == 3) {
-				rad.setId((String)value);
+			rad.setId((String)value);
 		} else if (col == 4) {
 			rad.setPrio((Integer)value);
-//			rad.setPrio((int)value);
+			//			rad.setPrio((int)value);
 		} else if (col == 5) {
 			rad.setType((String)value);            
 		} else if (col == 6) {
@@ -175,39 +187,43 @@ class consoleHstDM extends AbstractTableModel {
 		}
 
 		try {
-			String s = new String("select * from consoleHst order by credat desc;"); 
+			String s;
+			if (where.length() < 5 || !where.endsWith(" ") )
+				s = new String("select * from consoleHst order by credat desc;");
+			else
+				s = new String("select * from consoleHst where "+ where +" order by credat desc;");
 
 			map.clear();
 
-//			System.out.println(s);
-//			Statement stmt = conn.createStatement(ResultSet.CONCUR_READ_ONLY,ResultSet.TYPE_SCROLL_INSENSITIVE); 
+			//			System.out.println(s);
+			//			Statement stmt = conn.createStatement(ResultSet.CONCUR_READ_ONLY,ResultSet.TYPE_SCROLL_INSENSITIVE); 
 			Statement stmt = conn.createStatement(ResultSet.CONCUR_READ_ONLY,ResultSet.TYPE_FORWARD_ONLY,ResultSet.CLOSE_CURSORS_AT_COMMIT ); 
 			stmt.setFetchSize(1000);
 			ResultSet rs = stmt.executeQuery(s);
 
-//			if (!rs.first()) {
-//				System.out.println("createemptyrow");
-//				createEmptyRow();
-//			}
+			//			if (!rs.first()) {
+			//				System.out.println("createemptyrow");
+			//				createEmptyRow();
+			//			}
 
 			while (rs.next()) {
 				//--
-//				System.out.println("rs.next");
+				//				System.out.println("rs.next");
 				rad = new consoleHstROW();
 
-//				for (int i = 1; i <= 7; i++) {
+				//				for (int i = 1; i <= 7; i++) {
 
-					rad.setCount(rs.getInt("count"));
-					rad.setId(rs.getString("id"));
-					rad.setPrio(rs.getInt("prio"));
-					rad.setType(rs.getString("type"));
-					rad.setCredat(rs.getString("credat"));
-					rad.setDeldat(rs.getString("deldat"));
-					rad.setStatus(rs.getString("status"));
-					rad.setBody(rs.getString("body"));
-					rad.setAgent(rs.getString("agent"));
+				rad.setCount(rs.getInt("count"));
+				rad.setId(rs.getString("id"));
+				rad.setPrio(rs.getInt("prio"));
+				rad.setType(rs.getString("type"));
+				rad.setCredat(rs.getString("credat"));
+				rad.setDeldat(rs.getString("deldat"));
+				rad.setStatus(rs.getString("status"));
+				rad.setBody(rs.getString("body"));
+				rad.setAgent(rs.getString("agent"));
 
-//				}
+				//				}
 				map.add(rad);
 			}
 
@@ -244,7 +260,7 @@ class consoleHstDM extends AbstractTableModel {
 		rad.setStatus(" ");
 		rad.setBody(" ");
 		rad.setAgent(" ");
-//		map.add(rad);
+		//		map.add(rad);
 
 		return true;	
 	}
@@ -264,24 +280,24 @@ class consoleHstDM extends AbstractTableModel {
 
 	void getProps() {
 
-    	Properties prop = new Properties();
-    	InputStream input = null;
-    	try {
-    	input = new FileInputStream("console.properties");
-    	prop.load(input);
-    	// get the property value and print it out
-    	database = prop.getProperty("database");
-    	dbuser   = prop.getProperty("dbuser");
-    	dbpassword = prop.getProperty("dbpassword");
-    	dbhost   = prop.getProperty("dbhost");
-    	dbport   = prop.getProperty("dbport");
-    	jvport   = prop.getProperty("jvport");
-    	jvhost   = prop.getProperty("jvhost");
-    	input.close();
-    	} catch (IOException ex) {
-    		// ex.printStackTrace();
-    	}
-    	
+		Properties prop = new Properties();
+		InputStream input = null;
+		try {
+			input = new FileInputStream("console.properties");
+			prop.load(input);
+			// get the property value and print it out
+			database = prop.getProperty("database");
+			dbuser   = prop.getProperty("dbuser");
+			dbpassword = prop.getProperty("dbpassword");
+			dbhost   = prop.getProperty("dbhost");
+			dbport   = prop.getProperty("dbport");
+			jvport   = prop.getProperty("jvport");
+			jvhost   = prop.getProperty("jvhost");
+			input.close();
+		} catch (IOException ex) {
+			// ex.printStackTrace();
+		}
+
 	}
 
 }

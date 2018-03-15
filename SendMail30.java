@@ -84,7 +84,7 @@ public class SendMail30 {
 
 	public static void main(String[] args ) throws IOException, UnknownHostException {
 
-		String version = "SendMail30 1.2 # 2018-01-09";
+		String version = "SendMail30 1.4 (2018-MAR-14)";
 		String database = "jVakt";
 		String dbuser   = "jVakt";
 		String dbpassword = "xz";
@@ -99,8 +99,7 @@ public class SendMail30 {
  
 		if (config == null ) 	configF = new File("Jvakt.properties");
 		else 					configF = new File(config,"Jvakt.properties");
-		System.out.println("----- Jvakt: "+new Date()+"  Version: "+version);
-		System.out.println("-config file: "+configF);
+		System.out.println("----- Jvakt: "+new Date()+"  Version: "+version+"  -  config file: "+configF);
 		
 		//Declare recipient's & sender's e-mail id.
 		Properties prop = new Properties();
@@ -173,6 +172,7 @@ public class SendMail30 {
 		//Set properties and their values
 		props.put("mail.smtp.auth", "true");
 		props.put("mail.smtp.starttls.enable", "true");
+		props.put("mail.smtp.ssl.trust", "*");
 		props.put("mail.smtp.host", smtphost);
 		props.put("mail.smtp.port", smtpporti);
 
@@ -326,13 +326,13 @@ public class SendMail30 {
 
 		listf = dir.listFiles(df);
 
-		System.out.println("-- Antal filer:"+ listf.length);
+//		System.out.println("-- Antal filer:"+ listf.length);
 		try {
 			BufferedReader in;
 
 			for (int i = 0; i < listf.length; i++) {
 
-				System.out.println("-- Checking: "+listf[i]);
+				System.out.println("-- Importing: "+listf[i]);
 				in = new BufferedReader(new FileReader(listf[i]));
 
 				while ((s = in.readLine()) != null) {
@@ -340,7 +340,7 @@ public class SendMail30 {
 					if (s.startsWith("#")) continue; 
 
 					listToS.add(s);
-					System.out.println("-- add: "+s);
+//					System.out.println("-- add: "+s);
 				}
 				in.close();
 			}

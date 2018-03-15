@@ -15,7 +15,7 @@ class ServerThread extends Thread {
 	Message jm = new Message();
 
 	ServerThread(Socket client, DBupdate dt) { this.client = client; this.dt = dt; }
-
+ 
 	public void run() {
 		try {
 			swData = false;
