@@ -126,15 +126,14 @@ public class CheckStatus {
 				if (!rs.getString("status").equalsIgnoreCase("OK"))
 					System.out.println("-#1: "+rs.getString("state")+" " + rs.getString("id")+" "+rs.getString("type")+" "+rs.getString("prio")+" "+rs.getString("console")+" "+rs.getString("status")+" "+rs.getString("errors")+" "+rs.getString("accerr"));
 
-				zD = rs.getTimestamp("rptdat");
+				zD = rs.getTimestamp("rptdat"); 
 				accerr = rs.getInt("accerr");
 				err    = rs.getInt("errors");
-
 				Lsec = (zTs.getTime() / 1000 - zD.getTime() / 1000);  // Aktuella tiden minus tiden rptdat i sekunder  
 
 				Lchktim = rs.getTime("chktim").getTime();
-				Lrptdat = rs.getTime("rptdat").getTime();
-
+				Lrptdat = rs.getTime("rptdat").getTime(); 
+				
 				// swShDay will be set to true if the chktim time has passed and chkday is *ALL or the name of day like MON, TUE... 
 				swShDay = false;
 				if (rs.getString("chkday").startsWith("*ALL") || rs.getString("chkday").indexOf(DOW.name().substring(0, 2)) >= 0 ) {
@@ -255,11 +254,11 @@ public class CheckStatus {
 		}
 		catch (SQLException e) {
 			System.err.println(e);
-			System.err.println(e.getMessage());
+//			System.err.println(e.getMessage());
 		}
 		catch (Exception e) {
 			System.err.println(e);
-			System.err.println(e.getMessage());
+//			System.err.println(e.getMessage());
 		}
 		finally { 
 			//			System.out.println("CheckStatus Severe: " + errors + "  Problems: " + warnings + "  Info: " + infos ); 

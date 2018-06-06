@@ -80,7 +80,7 @@ public class console extends JFrame implements TableModelListener, WindowListene
 		port = Integer.parseInt(jvport);
 
 		// funktion från Jframe att sätta rubrik
-		setTitle("Jvakt console 2.30  -  F1 = Help");
+		setTitle("Jvakt console 2.33  -  F1 = Help");
 		//	        setSize(5000, 5000);
 
 		// get the screen size as a java dimension
@@ -135,16 +135,23 @@ public class console extends JFrame implements TableModelListener, WindowListene
 		swServer = true;
 		try {
 			SendMsg jm = new SendMsg(jvhost, port);  // kollar om JvaktServer är tillgänglig.
-			//			System.out.println(jm.open());
-			if (jm.open().startsWith("DORMANT")) 	swDormant = true;
-			else 									swDormant = false;
+			String oSts = jm.open();
+//			System.out.println("#1 "+oSts);
+			if (oSts.startsWith("failed")) 	swServer  = false;
+			if (oSts.startsWith("DORMANT")) swDormant = true;
+			else 							swDormant = false;
 			jm.close();
 		} 
 		catch (IOException e1) {
 			swServer = false;
 			System.err.println(e1);
-			System.err.println(e1.getMessage());
+//			System.err.println(e1.getMessage());
 		}
+		catch (NullPointerException npe2 )   {
+			swServer = false;
+			System.out.println("-- Rpt Failed --" + npe2);
+			}
+
 		//		System.out.println("swServer :" + swServer);
 
 		swDBopen = wD.refreshData(); // kollar om DB är tillgänglig
@@ -302,17 +309,23 @@ public class console extends JFrame implements TableModelListener, WindowListene
 					try {
 						swServer = true;
 						SendMsg jm = new SendMsg(jvhost, port);  // kollar om JvaktServer är tillgänglig.
-						//						System.out.println(jm.open());	                    
-						if (jm.open().startsWith("DORMANT")) 	swDormant = true;
-						else 									swDormant = false;
+						String oSts = jm.open();
+//						System.out.println("#1 "+oSts);
+						if (oSts.startsWith("failed")) 	swServer  = false;
+						if (oSts.startsWith("DORMANT")) swDormant = true;
+						else 							swDormant = false;
 						jm.close();
 					} 
 					catch (IOException e1) {
 						swServer = false;
 						System.err.println(e1);
-						System.err.println(e1.getMessage());
+//						System.err.println(e1.getMessage());
 					}
-					//					System.out.println("swServer 2 : " + swServer);
+					catch (NullPointerException npe2 )   {
+						swServer = false;
+						System.out.println("-- Rpt Failed --" + npe2);
+						}
+//										System.out.println("swServer 2 : " + swServer);
 
 					swDBopen = wD.refreshData();
 					//	            	if (!swDBopen) {
@@ -393,6 +406,7 @@ public class console extends JFrame implements TableModelListener, WindowListene
 		table.getActionMap().put("increaseH", increaseH());
 		table.getActionMap().put("decreaseH", decreaseH());
 		table.getActionMap().put("showHelp", showHelp());
+		table.getActionMap().put("showLine", showLine());
 
 		KeyStroke keyStroke = KeyStroke.getKeyStroke(KeyEvent.VK_BACK_SPACE, 0);  // delete key in mac
 		table.getInputMap(JComponent.WHEN_FOCUSED).put(keyStroke, "delRow");
@@ -401,6 +415,8 @@ public class console extends JFrame implements TableModelListener, WindowListene
 		table.getInputMap(JComponent.WHEN_FOCUSED).put(keyStroke, "delRow");
 
 		keyStroke = KeyStroke.getKeyStroke(KeyEvent.VK_F1, 0); 
+		table.getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(keyStroke, "showHelp");
+		keyStroke = KeyStroke.getKeyStroke(KeyEvent.VK_HELP, 0); 
 		table.getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(keyStroke, "showHelp");
 		keyStroke = KeyStroke.getKeyStroke(KeyEvent.VK_F3, 0);
 		table.getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(keyStroke, "increaseH");
@@ -411,7 +427,7 @@ public class console extends JFrame implements TableModelListener, WindowListene
 		keyStroke = KeyStroke.getKeyStroke(KeyEvent.VK_F6, 0);
 		table.getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(keyStroke, "strSts");
 		keyStroke = KeyStroke.getKeyStroke(KeyEvent.VK_F7, 0);
-		table.getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(keyStroke, "strHst");
+		table.getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(keyStroke, "showLine");
 		keyStroke = KeyStroke.getKeyStroke(KeyEvent.VK_F8, 0);
 		table.getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(keyStroke, "strHst");
 		keyStroke = KeyStroke.getKeyStroke(KeyEvent.VK_F9, 0);
@@ -435,9 +451,72 @@ public class console extends JFrame implements TableModelListener, WindowListene
 //					                 JOptionPane.showMessageDialog(TestTableKeyBinding.this.table, "Action Triggered.");
 				System.out.println("ShowHelp");
 				JOptionPane.showMessageDialog(getContentPane(),
-					    "F1 : Help \nF3 : Increase font size \nF4 : Decrease font size \nF5 : History \nF6 : Status table (beta) \n\nESC : Unselect \nDEL : delete selected rows.",
+					    "F1 : Help \nF3 : Increase font size \nF4 : Decrease font size \nF5 : History \nF6 : Status table \nF7 : Show line \n\nESC : Unselect \nDEL : delete selected rows.",
 					    "Jvakt Help",
 					    JOptionPane.INFORMATION_MESSAGE);
+			}
+		};
+		return save;
+	}
+
+	private AbstractAction showLine()  {
+		AbstractAction save = new AbstractAction() {
+
+			@Override
+			public void actionPerformed(ActionEvent e)  {
+				System.out.println("ShowLine");
+				table.editingCanceled(null);
+				table.editingStopped(null);
+				int[] selectedRow = table.getSelectedRows();
+
+				try {
+					for (int i = 0; i <  selectedRow.length; i++) {
+						System.out.println("*** Row to show :" + selectedRow[i]);
+						Object ValueId   = table.getValueAt(selectedRow[i],table.getColumnModel().getColumnIndex("Id"));
+						System.out.println(ValueId);
+						String id = (String) ValueId;
+						if (id == null) continue;
+						ValueId   = table.getValueAt(selectedRow[i],table.getColumnModel().getColumnIndex("Prio"));
+						System.out.println(ValueId);
+						int prio = (Integer) ValueId;
+						ValueId   = table.getValueAt(selectedRow[i],table.getColumnModel().getColumnIndex("Type"));
+						System.out.println(ValueId);
+						String type = (String) ValueId;
+						ValueId   = table.getValueAt(selectedRow[i],table.getColumnModel().getColumnIndex("CreDate"));
+						System.out.println(ValueId);
+						String credate = (String) ValueId;
+						ValueId   = table.getValueAt(selectedRow[i],table.getColumnModel().getColumnIndex("ConDate"));
+						System.out.println(ValueId);
+						String condate = (String) ValueId;
+						ValueId   = table.getValueAt(selectedRow[i],table.getColumnModel().getColumnIndex("Status"));
+						System.out.println(ValueId);
+						String status = (String) ValueId;
+						ValueId   = table.getValueAt(selectedRow[i],table.getColumnModel().getColumnIndex("Body"));
+						System.out.println(ValueId);
+						String body = (String) ValueId;
+						ValueId   = table.getValueAt(selectedRow[i],table.getColumnModel().getColumnIndex("Agent"));
+						System.out.println(ValueId);
+						String agent = (String) ValueId;
+						JOptionPane.showMessageDialog(getContentPane(),
+								"- ID (the unique id if the message) -\n"+id+" \n\n" +
+								"- Prio (the priority. Below 30 trigger email and SMS text) -\n"+prio +"\n\n" + 
+								"- Type (R=repeated, S= scheduled and I=immediate/impromptu) -\n"+type +"\n\n" + 
+								"- CreDate (the date it appeared in the console) -\n"+credate +"\n\n" + 
+								"- ConDate (the date it updated in the console) -\n"+condate +"\n\n" + 
+								"- Status (OK, INFO, TOut or ERR) -\n"+status +"\n\n" + 
+								"- Body (any text) -\n"+body +"\n\n" + 
+								"- Agent (description of the reporting agent) -\n"+agent  
+								,						
+							    "Jvakt Show line",
+							    JOptionPane.INFORMATION_MESSAGE);
+					}
+				} 
+				catch (Exception e2) {
+					System.err.println(e2);
+					System.err.println(e2.getMessage());
+				}
+				table.getSelectionModel().clearSelection();  // clear selected rows.				
+				
 			}
 		};
 		return save;

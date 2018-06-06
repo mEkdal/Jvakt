@@ -44,7 +44,7 @@ public class GetImap4Msg {
 
 	public static void main(String[] args) throws IOException, FileNotFoundException {
 
-		String version = "GetImap4Msg 1.3 # 2018-02-20";
+		String version = "GetImap4Msg 1.4 # 2018-05-15";
 
 		for (int i=0; i<args.length; i++) {
 			if (args[i].equalsIgnoreCase("-config")) config = args[++i];
@@ -373,7 +373,7 @@ public class GetImap4Msg {
 							System.out.println("*** Attachment ContentType : "+part.getContentType());
 							Sm58PCPerr = 0;
 							if (scanFile(part.getFileName(), part.getInputStream())) {
-								if (Sm58PCPerr <= 5) {
+								if (Sm58PCPerr <= 7) {
 									sendJv("MAIL_From_SAP_PCP_SM58" , "OK" , "R",  "SM58 OK");
 								}
 								else {

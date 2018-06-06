@@ -12,6 +12,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.*;
+import java.net.*;
 
 class consoleDM extends AbstractTableModel {
 
@@ -178,15 +179,15 @@ class consoleDM extends AbstractTableModel {
 			swDBopen = true;
 		}
 		catch (SQLException e) {
-			System.err.println(e);
-			System.err.println(e.getMessage());
+//			System.err.println(e);
+			System.err.println("#e1 "+e.getMessage());
 			swDBopen = false;
 			map.clear();
 			createEmptyRow();
 		}
 		catch (Exception e) {
-			System.err.println(e);
-			System.err.println(e.getMessage());
+//			System.err.println(e);
+			System.err.println("#e2 "+e.getMessage());
 			swDBopen = false;
 			map.clear();
 			createEmptyRow();

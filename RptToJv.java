@@ -6,7 +6,7 @@ import java.util.Properties;
 public class RptToJv {
 	public static void main(String[] args ) throws IOException, UnknownHostException {
 
-		String version = "RptToDW 1.4 Date 2018-01-04";
+		String version = "RptToDW 1.5 (2018-JUN-16)";
 		String host = "127.0.0.1";
 		int port = 1956; 
 		String id = null;
@@ -24,7 +24,7 @@ public class RptToJv {
 		File configF;
 
 		for (int i=0; i<args.length; i++) {
-			if (args[i].equalsIgnoreCase("-config")) config = args[++i];
+			if (args[i].equalsIgnoreCase("-config")) config = args[++i]; 
 		}
  
 		if (config == null ) 	configF = new File("Jvakt.properties");
@@ -99,6 +99,7 @@ public class RptToJv {
 		//	 System.out.println(args[0]+" - "+args[1]);
 		Message jmsg = new Message();
 		SendMsg jm = new SendMsg(host, port);
+		try {
 		System.out.println(jm.open());
 		jmsg.setId(id);
 		jmsg.setRptsts(status);
@@ -109,6 +110,9 @@ public class RptToJv {
 //		jm.sendMsg(jmsg);
 		if (jm.sendMsg(jmsg)) System.out.println("-- Rpt Delivered --");
 		else            	  System.out.println("-- Rpt Failed --");
-		jm.close();
+		jm.close(); }
+		catch (java.net.ConnectException e ) {System.out.println("-- Rpt Failed --" + e); }
+		catch (NullPointerException npe2 )   {System.out.println("-- Rpt Failed --" + npe2);}
+		
 	}        
 }

@@ -19,9 +19,10 @@ public class monHttp {
 	static long ts;
 	static boolean swFound;
 	static boolean swSingle = false;
+	static boolean swShow = false;
 	static String host;
 	static InetAddress inet;
-	static String version = "monHttp 1.3 # 2018-03-02";
+	static String version = "monHttp 1.4 # 2018-05-03";
 	static String database = "jVakt";
 	static String dbuser   = "jVakt";
 	static String dbpassword = "xz";
@@ -33,7 +34,7 @@ public class monHttp {
 	static int wport = 80 ;
 	static String agent = null;
 	static String webfile = "";
-	static String webcontent = "xx";
+	static String webcontent = "400";
 	static Date now;
 
 	static String config = null;
@@ -58,12 +59,17 @@ public class monHttp {
 			System.out.println("\n " +version);
 			System.out.println("File names must contain monHttp and end with .csv. e.g. monHttp-01.csv ");
 			System.out.println("Row in the file example: ");
-			System.out.println("WSI_PLC_A209;10.100.9.2;Vilant truck system Penta");
+			System.out.println("wikipedia;sv.wikipedia.org;80;/wiki/Portal:Huvudsida;wikipedia;descriptive text");
 
 			System.out.println("\n\nThe parameters and their meaning are:\n"+
 					"\n-config \tThe dir of the input files. Like: \"-dir c:\\Temp\" "+
 					"\n-run    \tTo actually update the status on the server side."+
-					"\n-host   \tCheck a single host."          );
+					"\n-host   \tCheck a single host." +      
+					"\n-port   \tDefault is 80." +
+					"\n-web    \tlike /index.html" +
+					"\n-webcontent \tstring in the response to check for." +
+					"\n-show   \tShow the response from teh server."
+);
 
 			System.exit(4);
 		}
@@ -74,8 +80,11 @@ public class monHttp {
 			if (args[i].equalsIgnoreCase("-port")) wport = Integer.parseInt(args[++i]);
 			if (args[i].equalsIgnoreCase("-web")) webfile = args[++i];
 			if (args[i].equalsIgnoreCase("-run")) swRun = true;
+			if (args[i].equalsIgnoreCase("-show")) swShow = true;
 			if (args[i].equalsIgnoreCase("-host")) { swSingle = true; host = args[++i]; }
 			if (args[i].equalsIgnoreCase("-config")) config = args[++i];
+			if (args[i].equalsIgnoreCase("-webcontent")) webcontent = args[++i];
+
 		}
 		if (config != null ) dir = new File(config);
 		if (config == null ) 	configF = new File("Jvakt.properties");
@@ -156,7 +165,7 @@ public class monHttp {
 					state = true;
 					System.out.println("-- OK text: "+ webcontent + " found! ");
 				}
-//				System.out.println(inputLine);
+				if (swShow)	System.out.println(inputLine);
 			}
 			httpin.close();
 

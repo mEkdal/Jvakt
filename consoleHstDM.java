@@ -26,7 +26,7 @@ class consoleHstDM extends AbstractTableModel {
 	static String DBUrl = "jdbc:postgresql://localhost:5433/Jvakt";
 	static Connection conn = null;
 
-	String version = "jVakt 2.0 - consoleHstDM 1.1 Date 2017-09-25_03";
+	String version = "jVakt 2.0 - consoleHstDM 1.2 (2018-MAR-16)";
 	String database = "Jvakt";
 	String dbuser   = "console";
 	String dbpassword = "Jvakt";
@@ -160,14 +160,14 @@ class consoleHstDM extends AbstractTableModel {
 			swDBopen = true;
 		}
 		catch (SQLException e) {
-			System.err.println(e);
+//			System.err.println(e);
 			System.err.println(e.getMessage());
 			swDBopen = false;
 			map.clear();
 			createEmptyRow();
 		}
 		catch (Exception e) {
-			System.err.println(e);
+//			System.err.println(e);
 			System.err.println(e.getMessage());
 			swDBopen = false;
 			map.clear();

@@ -17,14 +17,18 @@ public class SendMsg {
 		this.host = host;
 	}        
 	public String open() throws IOException, UnknownHostException  {
+		try {
 		cs = new Socket(host, port);
 		sin = cs.getInputStream();
 		in = new BufferedReader(new InputStreamReader(sin));
 		sut = cs.getOutputStream();
 		ut = new PrintWriter(new OutputStreamWriter(sut));
 		ut.println(version);
-		ut.flush();
-		return in.readLine();
+		ut.flush(); }
+		catch ( ConnectException e ) {
+			return "failed";	
+		}
+		return in.readLine(); 
 	}        
 	public boolean sendMsg(Message msg ) throws IOException, UnknownHostException  {
 		String line = null;
@@ -36,7 +40,7 @@ public class SendMsg {
 			else                         return false;
 		}
 		catch (Exception e) {
-			System.err.println(e.getMessage());
+//			System.err.println(e);
 			return false;
 		}
 	}

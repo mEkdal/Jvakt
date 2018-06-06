@@ -24,7 +24,7 @@ public class CheckLogs {
 	static String jvtype = "R";
 	static int port ;
 	static InetAddress inet;
-	static String version = "CheckLogs 1.8 # 2018-03-06";
+	static String version = "CheckLogs 1.10 (2018-MAR-22)";
 	static String agent = null;
 	static boolean swSlut = false;
 
@@ -179,7 +179,7 @@ public class CheckLogs {
 		inokay.close();
 		if (mcount == 0 ) swMust = true;
 
-		listf = dir.listFiles(df);
+		listf = dir.listFiles(df); 
 		System.out.println(tdat+"-- Number of files to scan: "+ listf.length);
 
 		for (int i = 0; i < listf.length; i++) {
@@ -234,7 +234,7 @@ public class CheckLogs {
 			position = 0;
 			while ((s = in.readLine()) != null) {
 				position++;
-				if ( position == 1 && !s.equals(strprev)) { posprev = 0; } // If it's a new logfile start from the begining 
+				if ( position == 1 && !s.equals(strprev)) { posprev = 0; } // If it's a new logfile start from the beginning 
 				if ( position == 1 ) { strprev = s; } // Store first row 
 				if ( position <= posprev  ) continue; // read next line if scanned previously. 
 
@@ -242,7 +242,7 @@ public class CheckLogs {
 				for ( int k = 0; k < ecount ; k++) {  // check if any scan string is present in the line.
 					if (s.toUpperCase().indexOf(etab[k]) >= 0) { 
 						swWarn = true;
-						s = s.substring(s.toUpperCase().indexOf(etab[k]));
+//						s = s.substring(s.toUpperCase().indexOf(etab[k]));
 						etab[k] = "-*dummy-entry*-";
 					}
 				}
@@ -316,7 +316,12 @@ public class CheckLogs {
 			System.out.println("--- Connecting to "+jvhost+":"+jvport);
 			Message jmsg = new Message();
 			SendMsg jm = new SendMsg(jvhost, port);
-			System.out.println(jm.open());
+			try {
+			System.out.println(jm.open()); 
+			}
+			catch (java.net.ConnectException e ) {System.out.println("-- Rpt Failed --" + e);    return;}
+			catch (NullPointerException npe2 )   {System.out.println("-- Rpt Failed --" + npe2); return;}
+
 			//		if (!swSlut) jmsg.setId(id+"-CheckLogs-"+aFile);
 			//		else		 jmsg.setId(id+"-CheckLogs-"+aFile+"-JV");
 			// 	    jmsg.setId(id+"-CheckLogs-"+aFile);

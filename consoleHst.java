@@ -79,15 +79,15 @@ public class consoleHst extends JFrame implements TableModelListener, WindowList
 		port = Integer.parseInt(jvport);
 
 		// funktion från Jframe att sätta rubrik
-		setTitle("Jvakt consoleHst 2.13  -  F1 = Help");
+		setTitle("Jvakt consoleHst 2.16  -  F1 = Help");
 		//	        setSize(5000, 5000);
 
 		// get the screen size as a java dimension
 		Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
 
 		// get 2/5 of the height, and 2/3 of the width
-		int height = screenSize.height * 1 / 5;
-		int width = screenSize.width * 5 / 6;
+		int height = screenSize.height * 3 / 5;
+		int width = screenSize.width * 9 / 10;
 
 		// set the jframe height and width
 		setPreferredSize(new Dimension(width, height));
@@ -118,6 +118,7 @@ public class consoleHst extends JFrame implements TableModelListener, WindowList
 
 		bu1 = new JButton();
 		where = new JTextField(40);
+		where.setText("id ilike '%search%'");
 
 		System.out.println("screenHeightWidth :" +screenSize.height+" " +screenSize.width);
 		if (screenSize.height > 1200) {
@@ -138,16 +139,22 @@ public class consoleHst extends JFrame implements TableModelListener, WindowList
 		swServer = true;
 		try {
 			SendMsg jm = new SendMsg(jvhost, port);  // kollar om JvaktServer är tillgänglig.
-//			System.out.println(jm.open());
-			if (jm.open().startsWith("DORMANT")) 	swDormant = true;
-			else 									swDormant = false;
+			String oSts = jm.open();
+//			System.out.println("#1 "+oSts);
+			if (oSts.startsWith("failed")) 	swServer  = false;
+			if (oSts.startsWith("DORMANT")) swDormant = true;
+			else 							swDormant = false;
 			jm.close();
 		} 
 		catch (IOException e1) {
 			swServer = false;
 			System.err.println(e1);
-			System.err.println(e1.getMessage());
+//			System.err.println(e1.getMessage());
 		}
+		catch (NullPointerException npe2 )   {
+			swServer = false;
+			System.out.println("-- Rpt Failed --" + npe2);
+			}
 //		System.out.println("swServer :" + swServer);
 
 		swDBopen = wD.refreshData(); // kollar om DB är tillgänglig
@@ -276,16 +283,22 @@ public class consoleHst extends JFrame implements TableModelListener, WindowList
 					try {
 						swServer = true;
 						SendMsg jm = new SendMsg(jvhost, port);  // kollar om JvaktServer är tillgänglig.
-//						System.out.println(jm.open());	                    
-						if (jm.open().startsWith("DORMANT")) 	swDormant = true;
-						else 									swDormant = false;
+						String oSts = jm.open();
+//						System.out.println("#1 "+oSts);
+						if (oSts.startsWith("failed")) 	swServer  = false;
+						if (oSts.startsWith("DORMANT")) swDormant = true;
+						else 							swDormant = false;
 						jm.close();
 					} 
 					catch (IOException e1) {
 						swServer = false;
 						System.err.println(e1);
-						System.err.println(e1.getMessage());
+//						System.err.println(e1.getMessage());
 					}
+					catch (NullPointerException npe2 )   {
+						swServer = false;
+						System.out.println("-- Rpt Failed --" + npe2);
+						}
 //					System.out.println("swServer 2 : " + swServer);
 
 					if (where.getText().length() > 5) 	wD.setWhere(where.getText());
@@ -374,15 +387,20 @@ public class consoleHst extends JFrame implements TableModelListener, WindowList
 		table.getActionMap().put("increaseH", increaseH());
 		table.getActionMap().put("decreaseH", decreaseH());
 		table.getActionMap().put("showHelp", showHelp());
+		table.getActionMap().put("showLine", showLine());
 		
 		KeyStroke keyStroke = KeyStroke.getKeyStroke(KeyEvent.VK_ESCAPE , 0);
 		table.getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(keyStroke, "clearSel");
 		keyStroke = KeyStroke.getKeyStroke(KeyEvent.VK_F1, 0); 
 		table.getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(keyStroke, "showHelp");
+		keyStroke = KeyStroke.getKeyStroke(KeyEvent.VK_HELP, 0); 
+		table.getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(keyStroke, "showHelp");
 		keyStroke = KeyStroke.getKeyStroke(KeyEvent.VK_F3, 0);
 		table.getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(keyStroke, "increaseH");
 		keyStroke = KeyStroke.getKeyStroke(KeyEvent.VK_F4, 0);
 		table.getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(keyStroke, "decreaseH");
+		keyStroke = KeyStroke.getKeyStroke(KeyEvent.VK_F7, 0);
+		table.getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(keyStroke, "showLine");
 
 	}  
 	
@@ -395,7 +413,7 @@ public class consoleHst extends JFrame implements TableModelListener, WindowList
 				System.out.println("ShowHelp");
 			    JOptionPane pane = new JOptionPane("Jvakt help");
 			    pane.showMessageDialog(getContentPane(),
-					    "F1 : Help \nF3 : Increase font size \nF4 : Decrease font size \n\nESC : Unselect "
+					    "F1 : Help \nF3 : Increase font size \nF4 : Decrease font size\nF7 : Show line \n\nESC : Unselect "
 					    + "\n\nThe SEARCH field (where statement) is active when an ending space is present",
 					    "Jvakt Help",
 					    JOptionPane.INFORMATION_MESSAGE);
@@ -409,6 +427,74 @@ public class consoleHst extends JFrame implements TableModelListener, WindowList
 		return save;
 	}
 
+	private AbstractAction showLine()  {
+		AbstractAction save = new AbstractAction() {
+
+			@Override
+			public void actionPerformed(ActionEvent e)  {
+				System.out.println("ShowLine");
+				table.editingCanceled(null);
+				table.editingStopped(null);
+				int[] selectedRow = table.getSelectedRows();
+
+				try {
+					for (int i = 0; i <  selectedRow.length; i++) {
+						System.out.println("*** Row to show :" + selectedRow[i]);
+						Object ValueId   = table.getValueAt(selectedRow[i],table.getColumnModel().getColumnIndex("Id"));
+						System.out.println(ValueId);
+						String id = (String) ValueId;
+						if (id == null) continue;
+						ValueId   = table.getValueAt(selectedRow[i],table.getColumnModel().getColumnIndex("Prio"));
+						System.out.println(ValueId);
+						int prio = (Integer) ValueId;
+						ValueId   = table.getValueAt(selectedRow[i],table.getColumnModel().getColumnIndex("Count"));
+						System.out.println(ValueId);
+						int count = (Integer) ValueId;
+						ValueId   = table.getValueAt(selectedRow[i],table.getColumnModel().getColumnIndex("Type"));
+						System.out.println(ValueId);
+						String type = (String) ValueId;
+						ValueId   = table.getValueAt(selectedRow[i],table.getColumnModel().getColumnIndex("CreDate"));
+						System.out.println(ValueId);
+						String credate = (String) ValueId;
+						ValueId   = table.getValueAt(selectedRow[i],table.getColumnModel().getColumnIndex("DelDate"));
+						System.out.println(ValueId);
+						String deldate = (String) ValueId;
+						ValueId   = table.getValueAt(selectedRow[i],table.getColumnModel().getColumnIndex("Status"));
+						System.out.println(ValueId);
+						String status = (String) ValueId;
+						ValueId   = table.getValueAt(selectedRow[i],table.getColumnModel().getColumnIndex("Body"));
+						System.out.println(ValueId);
+						String body = (String) ValueId;
+						ValueId   = table.getValueAt(selectedRow[i],table.getColumnModel().getColumnIndex("Agent"));
+						System.out.println(ValueId);
+						String agent = (String) ValueId;
+						JOptionPane.showMessageDialog(getContentPane(),
+								"- CreDate (the date it appeared in the console) -\n"+credate +"\n\n" + 
+								"- DelDate (the date it wanished from the console) -\n"+deldate +"\n\n" + 
+								"- Count (the number of times the same error appeared) -\n"+count +"\n\n" + 
+								"- ID (the unique id if the message) -\n"+id+" \n\n" +
+								"- Prio (the priority. Below 30 trigger email and SMS text) -\n"+prio +"\n\n" + 
+								"- Type (R=repeated, S=scheduled and I=immediate/impromptu) -\n"+type +"\n\n" + 
+								"- Status (OK, INFO, TOut or ERR) -\n"+status +"\n\n" + 
+								"- Body (any text) -\n"+body +"\n\n" + 
+								"- Agent (description of the reporting agent) -\n"+agent  
+								,						
+							    "Jvakt Show line",
+							    JOptionPane.INFORMATION_MESSAGE);
+					}
+				} 
+				catch (Exception e2) {
+					System.err.println(e2);
+					System.err.println(e2.getMessage());
+				}
+				table.getSelectionModel().clearSelection();  // clear selected rows.				
+				
+			}
+		};
+		return save;
+	}
+	
+	
 	private AbstractAction clearSel()  {
 		AbstractAction save = new AbstractAction() {
 
