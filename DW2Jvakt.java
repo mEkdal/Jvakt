@@ -134,7 +134,7 @@ public class DW2Jvakt  {
 						sev = 30; sts = "OK"; } 
 					// ERR 30
 					if (msg.contains("Err:") || msg.contains("EDH18") || msg.contains("Wrn:") || 
-							msg.contains("not ready.") || msg.contains("RNQ") || msg.contains("CPA4278")    ||
+							msg.contains("not ready.") || msg.contains("RNQ") || msg.contains("CPA4278")    || msg.contains("TBM1202") || msg.contains("TBM1203") ||
 							msg.contains("QAIMPS2") || msg.contains("backup ERR")|| msg.contains("BU ERR") || msg.contains("MSGW ") || 
 							msg.contains("CPA5305")    || msg.contains("FTP0100")  || msg.contains("APP020") || msg.contains("RPG0121") || msg.contains("RPG0202") ||
 							msg.contains("CHKJOBSTS")  || msg.contains("CPF090") || msg.contains("CPA3387") ||  msg.contains("ITO0906") ||
@@ -146,7 +146,7 @@ public class DW2Jvakt  {
 						sev = 30; sts = "ERR"; }
 					// ERR 20
 					if (msg.contains("ITO0102") || msg.contains("ITO0202")  || msg.contains("SAP0902") ||  msg.contains("ITO0902") || 
-							msg.contains("CPI0964") || msg.contains("CPF1816") || msg.contains("TBM1202") 
+							msg.contains("CPI0964") || msg.contains("CPF1816")  
 							)	{ 
 						sev = 20; sts = "ERR"; } 
 					// ERR 10
