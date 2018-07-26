@@ -32,6 +32,7 @@ public class SendMail {
 	static int warnings = 0;
 	static int infos = 0;
 	static int resolved = 0;
+	static Date now;
 
 	static String sbody = "";
 	static String ebody = "";
@@ -80,7 +81,7 @@ public class SendMail {
 	
 	public static void main(String[] args ) throws IOException, UnknownHostException {
 
-		String version = "SendMail 1.4 (2018-MAR-14)";
+		String version = "SendMail 1.5 (2018-JUL-10)";
 		String database = "jVakt";
 		String dbuser   = "jVakt";
 		String dbpassword = "xz";
@@ -406,6 +407,9 @@ public class SendMail {
 //			final String Lsmtphost = smtphost;
 //			final String Lsmtpport = smtpport;
 			//				System.out.println("To:"+toEmailW+"   Subject: " + subject );
+			now = new Date();
+			subject = subject + " -- " + now;
+
 			System.out.println("To:"+toEmail +"   Subject: " + subject );
 			System.out.println( body );
 			Session session = Session.getInstance(props, auth);

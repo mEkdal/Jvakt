@@ -32,6 +32,7 @@ public class SendMail30 {
 	static int warnings = 0;
 	static int infos = 0;
 	static int resolved = 0;
+	static Date now;
 
 	static Set<String>  listTo;
 	static List<String> listToS;
@@ -84,7 +85,7 @@ public class SendMail30 {
 
 	public static void main(String[] args ) throws IOException, UnknownHostException {
 
-		String version = "SendMail30 1.4 (2018-MAR-14)";
+		String version = "SendMail30 1.4 (2018-JUL-11)";
 		String database = "jVakt";
 		String dbuser   = "jVakt";
 		String dbpassword = "xz";
@@ -412,6 +413,9 @@ public class SendMail30 {
 //			final String Lsmtphost = smtphost;
 //			final String Lsmtpport = smtpport;
 			//				System.out.println("To:"+toEmailW+"   Subject: " + subject );
+			now = new Date();
+			subject = subject + " -- " + now;
+
 			System.out.println("To:"+toEmail +"   Subject: " + subject );
 			System.out.println( body );
 			Session session = Session.getInstance(props, auth);

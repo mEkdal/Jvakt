@@ -37,6 +37,7 @@ public class SendMailSTS {
 	static String ebody = "";
 	static String wbody = "";
 	static String rbody = "";
+	static Date now;
 
 	static String tblStr = "<TABLE COLS=2 BORDER=4 cellpadding=\"3\" width=\"100%\"  >"; 
 	static String tblEnd = "</TABLE>";
@@ -81,7 +82,7 @@ public class SendMailSTS {
 
 	public static void main(String[] args ) throws IOException, UnknownHostException {
 
-		String version = "SendMailSTS 1.7 (2018-MAR-14)";
+		String version = "SendMailSTS 1.8 (2018-JUL-10)";
 
 		String subject = "";
 		String body = "";
@@ -268,7 +269,9 @@ public class SendMailSTS {
 				body = body + "\n - Jvakt Server not accessible ! -\n"; 
 				swMail = true;
 			}
-
+			
+			now = new Date();
+			subject = subject + " -- " + now;
 			System.out.println("-> Mail receivers: " + toEmail );
 			System.out.println("-> Mail subject  : " + subject );
 			System.out.println("-> Mail body     : " + body );
