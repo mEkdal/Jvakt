@@ -19,8 +19,9 @@ public class monIPAddr {
 	static boolean swFound;
 	static boolean swSingle = false;
 	static String host;
+	static String host2;
 	static InetAddress inet;
-	static String version = "monIPAddr 1.3 # 2018-02-22";
+	static String version = "monIPAddr 1.4 # 2018-10-02";
 	static String database = "jVakt";
 	static String dbuser   = "jVakt";
 	static String dbpassword = "xz";
@@ -51,7 +52,8 @@ public class monIPAddr {
 			System.out.println("\n " +version);
 			System.out.println("File names must contain monIPAddr and end with .csv. e.g. monIPAddr-01.csv ");
 			System.out.println("Row in the file example: ");
-			System.out.println("WSI_PLC_A209;10.100.9.2;Vilant truck system Penta");
+			System.out.println("either: WSI_PLC_A209;10.100.9.2;Vilant truck system Penta");
+			System.out.println("or:     WSI_PLC_A209;10.100.9.2;Vilant truck system Penta;10.4.2.1");
 
 			System.out.println("\n\nThe parameters and their meaning are:\n"+
 					"\n-config \tThe dir of the input files. Like: \"-dir c:\\Temp\" "+
@@ -105,16 +107,29 @@ public class monIPAddr {
 					if (s.startsWith("#")) continue; 
 
 					// splittar rad från fil
-					tab = s.split(";" , 3);
+					host2 = null;
+					tab = s.split(";" , 4);
 					t_id   = tab[0];
 					host   = tab[1];
 					t_desc = tab[2];
+					if (tab.length > 3)	host2 = tab[3];
 					state = "OKAY";    
 
 					checkIPAddr();
+					
+					// checks host2 to verify WAN is up. Else host is considered okay
+					if (state.equals("FAILED") && host2 != null) { 
+						host = host2;
+						if (checkIPAddr()) { // checks host2
+							state = "FAILED"; 
+						}
+						else state = "OKAY";  
+						host   = tab[1];
+					}
 
 					// try { Thread.currentThread(); Thread.sleep(1000); } catch (Exception e) {} ;
 
+					System.out.println("-- State: "+state);
 					if (swRun)  {
 						if (state.equals("OKAY")) 	sendSTS(true);
 						else 						sendSTS(false);
@@ -168,12 +183,12 @@ public class monIPAddr {
 		SendMsg jm = new SendMsg(jvhost, port);
 		System.out.println(jm.open());
 		jmsg.setId(t_id+"-monIPAddr-"+host);
+//		System.out.println("-- id --"+t_id+"-monIPAddr-"+host);
 		if (STS) jmsg.setRptsts("OK");
 		else jmsg.setRptsts("ERR");
 		jmsg.setBody(t_desc);
 		jmsg.setType("R");
 		jmsg.setAgent(agent);
-		//		jm.sendMsg(jmsg);
 		if (jm.sendMsg(jmsg)) System.out.println("-- Rpt Delivered --");
 		else                  System.out.println("-- Rpt Failed --");
 		jm.close();

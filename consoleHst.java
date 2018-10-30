@@ -54,6 +54,7 @@ public class consoleHst extends JFrame implements TableModelListener, WindowList
 	private  int port = 1956; 
 
 	private  int deselectCount = 0; 
+	private  int jvconnectCount = 0; 
 
 	/**
 	 * @param args the command line arguments
@@ -73,13 +74,13 @@ public class consoleHst extends JFrame implements TableModelListener, WindowList
 
 		ImageIcon img = new ImageIcon("console.png");
 		setIconImage(img.getImage());
-		
+
 		// get the parameters from the console.properties file
 		getProps();
 		port = Integer.parseInt(jvport);
 
 		// funktion från Jframe att sätta rubrik
-		setTitle("Jvakt consoleHst 2.16  -  F1 = Help");
+		setTitle("Jvakt consoleHst 2.17  -  F1 = Help");
 		//	        setSize(5000, 5000);
 
 		// get the screen size as a java dimension
@@ -100,7 +101,7 @@ public class consoleHst extends JFrame implements TableModelListener, WindowList
 		topPanel = new JPanel();
 		// berättar för topPanel vilken layout den ska använda genom att skapa ett BorderLayout object utan namn.
 		topPanel.setLayout(new BorderLayout());
-//		topPanel.setLayout(new FlowLayout());
+		//		topPanel.setLayout(new FlowLayout());
 		// Hämtar Jpanels enkla content hanterare och lägger dit topPanel i stället att hantera resten av objekten
 		getContentPane().add(topPanel);
 		//topPanel.setComponentOrientation(ComponentOrientation.RIGHT_TO_LEFT);
@@ -111,10 +112,10 @@ public class consoleHst extends JFrame implements TableModelListener, WindowList
 		// table kommer att visa userDB
 		table = new JTable(wD);
 
-//		JTableHeader header = table.getTableHeader();
+		//		JTableHeader header = table.getTableHeader();
 		header = table.getTableHeader();
 		header.setBackground(Color.LIGHT_GRAY);
-//		header.setBackground(Color.white);
+		//		header.setBackground(Color.white);
 
 		bu1 = new JButton();
 		where = new JTextField(40);
@@ -140,7 +141,7 @@ public class consoleHst extends JFrame implements TableModelListener, WindowList
 		try {
 			SendMsg jm = new SendMsg(jvhost, port);  // kollar om JvaktServer är tillgänglig.
 			String oSts = jm.open();
-//			System.out.println("#1 "+oSts);
+			//			System.out.println("#1 "+oSts);
 			if (oSts.startsWith("failed")) 	swServer  = false;
 			if (oSts.startsWith("DORMANT")) swDormant = true;
 			else 							swDormant = false;
@@ -149,13 +150,13 @@ public class consoleHst extends JFrame implements TableModelListener, WindowList
 		catch (IOException e1) {
 			swServer = false;
 			System.err.println(e1);
-//			System.err.println(e1.getMessage());
+			//			System.err.println(e1.getMessage());
 		}
 		catch (NullPointerException npe2 )   {
 			swServer = false;
 			System.out.println("-- Rpt Failed --" + npe2);
-			}
-//		System.out.println("swServer :" + swServer);
+		}
+		//		System.out.println("swServer :" + swServer);
 
 		swDBopen = wD.refreshData(); // kollar om DB är tillgänglig
 		setBu1Color();
@@ -215,7 +216,7 @@ public class consoleHst extends JFrame implements TableModelListener, WindowList
 		// skapar nya JScrollPane och lägger till tabellerna via construktorn. För att kunna scrolla tabellerna.
 
 		scrollPane = new JScrollPane(table);
-//		table.setAutoResizeMode(JTable.AUTO_RESIZE_ALL_COLUMNS);
+		//		table.setAutoResizeMode(JTable.AUTO_RESIZE_ALL_COLUMNS);
 		table.setAutoResizeMode(JTable. 	AUTO_RESIZE_SUBSEQUENT_COLUMNS);
 		//	        table.setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
 
@@ -253,8 +254,8 @@ public class consoleHst extends JFrame implements TableModelListener, WindowList
 		//	        scrollPane.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_ALWAYS);
 
 		// skapar två nya JPanel att användas inuti topPanel, som också är en JPanel
-			        usrPanel = new JPanel();
-			        usrPanel.setLayout(new BorderLayout());
+		usrPanel = new JPanel();
+		usrPanel.setLayout(new BorderLayout());
 		//	        logPanel = new JPanel();
 		//	        logPanel.setLayout(new BorderLayout());
 		// talar om för de nya JPanels vilka scrollPanes dom ska innehålla (scrollPanes innehåller tabellerna).
@@ -280,26 +281,30 @@ public class consoleHst extends JFrame implements TableModelListener, WindowList
 				}
 				deselectCount++;
 				if (swAuto) {
-					try {
-						swServer = true;
-						SendMsg jm = new SendMsg(jvhost, port);  // kollar om JvaktServer är tillgänglig.
-						String oSts = jm.open();
-//						System.out.println("#1 "+oSts);
-						if (oSts.startsWith("failed")) 	swServer  = false;
-						if (oSts.startsWith("DORMANT")) swDormant = true;
-						else 							swDormant = false;
-						jm.close();
-					} 
-					catch (IOException e1) {
-						swServer = false;
-						System.err.println(e1);
-//						System.err.println(e1.getMessage());
-					}
-					catch (NullPointerException npe2 )   {
-						swServer = false;
-						System.out.println("-- Rpt Failed --" + npe2);
+					jvconnectCount++;
+					if (jvconnectCount > 5 || !swServer) {    // keep the number of connections down because of limitations in Win10
+						jvconnectCount = 0;
+						try {
+							swServer = true;
+							SendMsg jm = new SendMsg(jvhost, port);  // kollar om JvaktServer är tillgänglig.
+							String oSts = jm.open();
+							//						System.out.println("#1 "+oSts);
+							if (oSts.startsWith("failed")) 	swServer  = false;
+							if (oSts.startsWith("DORMANT")) swDormant = true;
+							else 							swDormant = false;
+							jm.close();
+						} 
+						catch (IOException e1) {
+							swServer = false;
+							System.err.println(e1);
+							//						System.err.println(e1.getMessage());
 						}
-//					System.out.println("swServer 2 : " + swServer);
+						catch (NullPointerException npe2 )   {
+							swServer = false;
+							System.out.println("-- Rpt Failed --" + npe2);
+						}
+						//					System.out.println("swServer 2 : " + swServer);
+					}
 
 					if (where.getText().length() > 5) 	wD.setWhere(where.getText());
 					else {			
@@ -349,7 +354,7 @@ public class consoleHst extends JFrame implements TableModelListener, WindowList
 		String txt = "";
 		if (swAuto) {
 			bu1.setBackground(Color.GRAY);
-//			bu1.setBackground(Color.LIGHT_GRAY);
+			//			bu1.setBackground(Color.LIGHT_GRAY);
 			txt = "Auto Update ON.";
 			//	            bu1.setText("Auto Update ON");
 		}
@@ -377,18 +382,18 @@ public class consoleHst extends JFrame implements TableModelListener, WindowList
 	}
 
 	private void addKeyBindings() {
-//		table.getActionMap().put("delRow", delRow());
-//		KeyStroke keyStroke = KeyStroke.getKeyStroke(KeyEvent.VK_BACK_SPACE, 0);  // delete key in mac
-//		table.getInputMap(JComponent.WHEN_FOCUSED).put(keyStroke, "delRow");
-//		keyStroke = KeyStroke.getKeyStroke(KeyEvent.VK_DELETE, 0);  // delete key in win linux
-//		table.getInputMap(JComponent.WHEN_FOCUSED).put(keyStroke, "delRow");
+		//		table.getActionMap().put("delRow", delRow());
+		//		KeyStroke keyStroke = KeyStroke.getKeyStroke(KeyEvent.VK_BACK_SPACE, 0);  // delete key in mac
+		//		table.getInputMap(JComponent.WHEN_FOCUSED).put(keyStroke, "delRow");
+		//		keyStroke = KeyStroke.getKeyStroke(KeyEvent.VK_DELETE, 0);  // delete key in win linux
+		//		table.getInputMap(JComponent.WHEN_FOCUSED).put(keyStroke, "delRow");
 
 		table.getActionMap().put("clearSel", clearSel());
 		table.getActionMap().put("increaseH", increaseH());
 		table.getActionMap().put("decreaseH", decreaseH());
 		table.getActionMap().put("showHelp", showHelp());
 		table.getActionMap().put("showLine", showLine());
-		
+
 		KeyStroke keyStroke = KeyStroke.getKeyStroke(KeyEvent.VK_ESCAPE , 0);
 		table.getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(keyStroke, "clearSel");
 		keyStroke = KeyStroke.getKeyStroke(KeyEvent.VK_F1, 0); 
@@ -403,25 +408,25 @@ public class consoleHst extends JFrame implements TableModelListener, WindowList
 		table.getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(keyStroke, "showLine");
 
 	}  
-	
+
 	private AbstractAction showHelp()  {
 		AbstractAction save = new AbstractAction() {
 
 			@Override
 			public void actionPerformed(ActionEvent e)  {
-//					                 JOptionPane.showMessageDialog(TestTableKeyBinding.this.table, "Action Triggered.");
+				//					                 JOptionPane.showMessageDialog(TestTableKeyBinding.this.table, "Action Triggered.");
 				System.out.println("ShowHelp");
-			    JOptionPane pane = new JOptionPane("Jvakt help");
-			    pane.showMessageDialog(getContentPane(),
-					    "F1 : Help \nF3 : Increase font size \nF4 : Decrease font size\nF7 : Show line \n\nESC : Unselect "
-					    + "\n\nThe SEARCH field (where statement) is active when an ending space is present",
-					    "Jvakt Help",
-					    JOptionPane.INFORMATION_MESSAGE);
-			    
-//				JOptionPane.showMessageDialog(table,
-//					    "F1 : Help \nF3 : Increase font size \nF4 : Decrease font size \n\nESC : Unselect",
-//					    "Jvakt Help",
-//					    JOptionPane.INFORMATION_MESSAGE);
+				JOptionPane pane = new JOptionPane("Jvakt help");
+				pane.showMessageDialog(getContentPane(),
+						"F1 : Help \nF3 : Increase font size \nF4 : Decrease font size\nF7 : Show line \n\nESC : Unselect "
+								+ "\n\nThe SEARCH field (where statement) is active when an ending space is present",
+								"Jvakt Help",
+								JOptionPane.INFORMATION_MESSAGE);
+
+				//				JOptionPane.showMessageDialog(table,
+				//					    "F1 : Help \nF3 : Increase font size \nF4 : Decrease font size \n\nESC : Unselect",
+				//					    "Jvakt Help",
+				//					    JOptionPane.INFORMATION_MESSAGE);
 			}
 		};
 		return save;
@@ -470,17 +475,17 @@ public class consoleHst extends JFrame implements TableModelListener, WindowList
 						String agent = (String) ValueId;
 						JOptionPane.showMessageDialog(getContentPane(),
 								"- CreDate (the date it appeared in the console) -\n"+credate +"\n\n" + 
-								"- DelDate (the date it wanished from the console) -\n"+deldate +"\n\n" + 
-								"- Count (the number of times the same error appeared) -\n"+count +"\n\n" + 
-								"- ID (the unique id if the message) -\n"+id+" \n\n" +
-								"- Prio (the priority. Below 30 trigger email and SMS text) -\n"+prio +"\n\n" + 
-								"- Type (R=repeated, S=scheduled and I=immediate/impromptu) -\n"+type +"\n\n" + 
-								"- Status (OK, INFO, TOut or ERR) -\n"+status +"\n\n" + 
-								"- Body (any text) -\n"+body +"\n\n" + 
-								"- Agent (description of the reporting agent) -\n"+agent  
-								,						
-							    "Jvakt Show line",
-							    JOptionPane.INFORMATION_MESSAGE);
+										"- DelDate (the date it wanished from the console) -\n"+deldate +"\n\n" + 
+										"- Count (the number of times the same error appeared) -\n"+count +"\n\n" + 
+										"- ID (the unique id if the message) -\n"+id+" \n\n" +
+										"- Prio (the priority. Below 30 trigger email and SMS text) -\n"+prio +"\n\n" + 
+										"- Type (R=repeated, S=scheduled and I=immediate/impromptu) -\n"+type +"\n\n" + 
+										"- Status (OK, INFO, TOut or ERR) -\n"+status +"\n\n" + 
+										"- Body (any text) -\n"+body +"\n\n" + 
+										"- Agent (description of the reporting agent) -\n"+agent  
+										,						
+										"Jvakt Show line",
+										JOptionPane.INFORMATION_MESSAGE);
 					}
 				} 
 				catch (Exception e2) {
@@ -488,13 +493,13 @@ public class consoleHst extends JFrame implements TableModelListener, WindowList
 					System.err.println(e2.getMessage());
 				}
 				table.getSelectionModel().clearSelection();  // clear selected rows.				
-				
+
 			}
 		};
 		return save;
 	}
-	
-	
+
+
 	private AbstractAction clearSel()  {
 		AbstractAction save = new AbstractAction() {
 
@@ -516,11 +521,11 @@ public class consoleHst extends JFrame implements TableModelListener, WindowList
 				//				table.getSelectionModel().clearSelection();  // clear selected rows.
 				//				System.out.println("getRowHeight :" + table.getRowHeight());
 				if (table.getRowHeight()<100) {
-				table.setRowHeight(table.getRowHeight()+1);
-//								System.out.println("getRowHeight :" + table.getRowHeight());
-				header.setFont(new javax.swing.plaf.FontUIResource("Dialog", Font.PLAIN, table.getRowHeight()));
-				bu1.setFont(new javax.swing.plaf.FontUIResource("Dialog", Font.PLAIN, table.getRowHeight()));
-				where.setFont(new javax.swing.plaf.FontUIResource("Dialog", Font.PLAIN, table.getRowHeight()));
+					table.setRowHeight(table.getRowHeight()+1);
+					//								System.out.println("getRowHeight :" + table.getRowHeight());
+					header.setFont(new javax.swing.plaf.FontUIResource("Dialog", Font.PLAIN, table.getRowHeight()));
+					bu1.setFont(new javax.swing.plaf.FontUIResource("Dialog", Font.PLAIN, table.getRowHeight()));
+					where.setFont(new javax.swing.plaf.FontUIResource("Dialog", Font.PLAIN, table.getRowHeight()));
 				}
 			}
 		};
@@ -534,14 +539,14 @@ public class consoleHst extends JFrame implements TableModelListener, WindowList
 			public void actionPerformed(ActionEvent e)  {
 				//	                 JOptionPane.showMessageDialog(TestTableKeyBinding.this.table, "Action Triggered.");
 				//				table.getSelectionModel().clearSelection();  // clear selected rows.
-//								System.out.println("getRowHeight :" + table.getRowHeight());
+				//								System.out.println("getRowHeight :" + table.getRowHeight());
 				if (table.getRowHeight()>10) {
-				table.setRowHeight(table.getRowHeight()-1);
-				header.setFont(new javax.swing.plaf.FontUIResource("Dialog", Font.PLAIN, table.getRowHeight()));
-				bu1.setFont(new javax.swing.plaf.FontUIResource("Dialog", Font.PLAIN, table.getRowHeight()));
-				where.setFont(new javax.swing.plaf.FontUIResource("Dialog", Font.PLAIN, table.getRowHeight()));
+					table.setRowHeight(table.getRowHeight()-1);
+					header.setFont(new javax.swing.plaf.FontUIResource("Dialog", Font.PLAIN, table.getRowHeight()));
+					bu1.setFont(new javax.swing.plaf.FontUIResource("Dialog", Font.PLAIN, table.getRowHeight()));
+					where.setFont(new javax.swing.plaf.FontUIResource("Dialog", Font.PLAIN, table.getRowHeight()));
 				}
-//								System.out.println("getRowHeight :" + table.getRowHeight());
+				//								System.out.println("getRowHeight :" + table.getRowHeight());
 
 			}
 		};
@@ -549,7 +554,7 @@ public class consoleHst extends JFrame implements TableModelListener, WindowList
 	}
 
 
-	
+
 	// windows listeners
 	// vi implementerade WindowListener och addade "this" för att denna metod skulle anropas vid normalt avslut av Jframe 
 	// värdena i tabellerna skrivt till var sin fil

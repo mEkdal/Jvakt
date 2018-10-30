@@ -115,6 +115,7 @@ class DBupdate {
 					if (!swPerm) {
 						swDormant = false; System.out.println("Active");
 					}
+					swPerm = false;    // swPerm denies change to Active only once. 
 				}
 				else {
 

@@ -5,8 +5,7 @@ import java.util.Properties;
 import java.io.*;
 import java.util.*;
 import java.text.*;
-
-
+ 
 public class CheckLogs {
 
 	static String state = "a";

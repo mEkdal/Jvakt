@@ -319,7 +319,7 @@ class consoleStsDM extends AbstractTableModel {
 					rad.setPlugin(rs.getString("plugin"));
 					rad.setAgent(rs.getString("agent"));
 					rad.setSms(rs.getString("sms"));
-					rad.setMsgdat(rs.getString("msgdat"));
+					rad.setSmsdat(rs.getString("smsdat"));
 					
 				map.add(rad);
 			}
@@ -367,7 +367,7 @@ class consoleStsDM extends AbstractTableModel {
 		rad.setPlugin(" ");
 		rad.setAgent(" ");
 		rad.setSms(" ");
-		rad.setMsgdat(" ");
+		rad.setSmsdat(" ");
 
 //		map.add(rad);
 

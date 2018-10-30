@@ -14,7 +14,7 @@ public class ManFiles {
 			swMove = false, swSettings = false, swSN = false, swDed = false,
 			swRepl = true, swAppend = false, swUnique = false, swCountC = false;
 	static boolean swExists = false, swFlat = false, swNew = false,
-			swNrunq = false, swLogg = false, swNfile = false;
+			swNrunq = false, swLogg = false, swNfile = false, swLoop = false, swArgs = true;
 
 	static boolean moved = false;
 	static File sdir, tdir, newfile;
@@ -48,7 +48,8 @@ public class ManFiles {
 		swNrunq = false;
 
 		parseParameters(args);
-
+		swArgs = false;
+		
 		now = new Date();
 		System.out.println("\n*** Jvakt.ManFiles starting --- " + now);
 		//		if (swLogg && sLog) {
@@ -67,7 +68,7 @@ public class ManFiles {
 					+ "\t exfile=" + exfile + "\t expath=" + expath
 					+ "\t inpath=" + inpath + "\t swRepl=" + swRepl
 					+ "\t swNrunq=" + swNrunq + "\t swFlat=" + swFlat
-					+ "\t swAppend=" + swAppend + "\t swUnique=" + swUnique
+					+ "\t swAppend=" + swAppend + "\t swUnique=" + swUnique + "\t swLoop=" + swLoop
 					+ "\t swNew=" + swNew + "\t swLogg=" + swLogg + "\t swCountC=" + swCountC + "\t parfile=" + parFile;
 			System.out.println(infTxt);
 			if (swLogg) {
@@ -76,7 +77,7 @@ public class ManFiles {
 			}
 		}
 
-		if (sdir == null && parFile == null) {
+		if (sdir == null && !swParfile) {
 			System.out.println("\n>>> You must supply a source directory or a parfile <<<");
 			swHelp = true;
 		} else if (tdir != null && sdir.equals(tdir) && !swUnique ) {
@@ -87,12 +88,13 @@ public class ManFiles {
 
 		if (swHelp) {
 			System.out
-			.println("\n*** Jvakt.ManFiles V2.0 2018-05-29 ***"
+			.println("\n*** Jvakt.ManFiles V2.1 2018-09-21 ***"
 					+ "\n*** by Michael Ekdal, Sweden. ***");
 			System.out
 			.println("\nThe parameters and their meaning are:\n"
-					+ "\n-parfile \tThe name prefix of the parameter file. The prefix must end with .par (default is ManFiles)"
-					+ "\n         \tIn this case files named ManFiles01.par, ManFiles02.par and so on will be found."
+					+ "\n-parfile \tThe name prefix of the parameter file (default is ManFiles). The suffix must end with .par"
+					+ "\n         \tIn the default case files named ManFiles01.par, ManFiles02.par and so on will be found."
+					+ "\n         \tThe files must resied in the current directory."
 					+ "\n-sdir    \tThe name of the source directory, like \"-sdir c:\\Temp\" "
 					+ "\n-tdir    \tThe name of the target directory, like \"-tdir c:\\Temp2\" "
 					+ "\n-sub     \tThe subdirectories are seached.(default) "
@@ -105,7 +107,7 @@ public class ManFiles {
 					+ "\n-nolist  \tThe selected files are NOT listed."
 					+ "\n-log     \tWrite to specific file. like \"-log c:\\logg.txt\" "
 					+ "\n-run     \tLive, no simulation"
-					+ "\n-norun   \tSimulation. No copies, moves or deleteions (default)"
+					+ "\n-norun   \tSimulation. No copies, moves or deleteions are made (default)"
 					+ "\n-ded     \tEmpty sub-directories are deleted from the source directory."
 					+ "\n-noded   \tNo delete of empty sub-directories. (default)"
 					+ "\n-repl    \tReplace target files. (default)"
@@ -114,8 +116,8 @@ public class ManFiles {
 					+ "\n-append  \tAppend an existing target file"
 					+ "\n-nfile   \tName of new file. Used with append to merge a number of related files."
 					+ "\n-unique  \tThe moved or copied file is sufixed with the unique string _YYYYMMDDHHMMSS. like (_20100111113539)"
-					+ "\n-flat    \tFiles to the new dir without the original structure"
-					+ "\n-noflat  \tFiles to the new dir with the original structure (default)"
+					+ "\n-flat    \tFiles are copied or moved to the -sdir without the original structure"
+					+ "\n-noflat  \tFiles are copied or moved to the -sdir with the original structure (default)"
 					+ "\n-suf     \tA file suffix to look for. like \"-suf .log \" "
 					+ "\n-pref    \tA file prefix to look for. like \"-pref Z \" "
 					+ "\n-pos     \tA any string in the file name to look for. like \"-pos per\" "
@@ -132,41 +134,52 @@ public class ManFiles {
 					+ "\n-?       \tThis help text are shown."
 					+ "\n-help    \tThis help text are shown."
 					+ "\n-set     \tShows the program settings."
-					+ "\n-countc  \tShows the number of children in each traversed directory."
+					+ "\n-countc  \tShows the number of children in each traversed directory." 
+					+ "\n-loop    \tExecutes every second in a never ending loop. No loop is the default value." 
 					+ "\n\nComments:"
 					+ "\nErrorlevel is set to the number of found files. Max value is 255 though.\n");
 
 			System.exit(12);
 		}
+		for (;;) {
+			if (swParfile) {
+				//			System.out.println("--> innan readParFile");
+				readParFile();  // reads the parameter files.
+				for(Object object : listToS) { 
+					//				String element = (String) object;
+					element = (String) object;
+					System.out.println("\n*** Executing ParRow: " + element);
+					String[] tab = null;
+					tab = element.split("\\s+"); // split on one or many white spaces
+					parseParameters(tab);
 
-		if (swParfile) {
-			//			System.out.println("--> innan readParFile");
-			readParFile();  // reads the parameter files.
-
-			for(Object object : listToS) { 
-				//				String element = (String) object;
-				element = (String) object;
-				System.out.println("\n*** Executing ParRow: " + element);
-				String[] tab = null;
-				tab = element.split("\\s+"); // split on one or many white spaces
-				parseParameters(tab);
-
-				execOneParSet(); // execute one line set of parameters from the parfile.
+					execOneParSet(); // execute one line set of parameters from the parfile.
+				}
 			}
-		}
-		else execOneParSet(); // execute the set of parameters from the command line.   
+			else execOneParSet(); // execute the set of parameters from the command line.   
 
-		System.out.println("\nTotal  - Files found:" + antalT + "  deleted:" + antdeletedT
-				+ "  copied:" + antcopiesT + "  moved:" + antmovedT + "  errors:"
-				+ anterrorsT + "  empty:" + antemptyT + "  del dir:" + antdedT);
-		//		if (antal>0) sLog=true;   // Hittades filer vill vi ha avslutande logg
-		if (swLogg && antalT>0) {
-			logg.newLine();
-			logg.write("Total  - Files found:" + antalT + "  deleted:" + antdeletedT
-					+ "  copied:" + antcopiesT + "  moved:" + antmovedT
-					+ "  errors:" + anterrorsT + "  empty:" + antemptyT
-					+ "  del dir:" + antdedT);
-			logg.newLine();
+			System.out.println("\nTotal  - Files found:" + antalT + "  deleted:" + antdeletedT
+					+ "  copied:" + antcopiesT + "  moved:" + antmovedT + "  errors:"
+					+ anterrorsT + "  empty:" + antemptyT + "  del dir:" + antdedT);
+			//		if (antal>0) sLog=true;   // Hittades filer vill vi ha avslutande logg
+			if (swLogg && antalT>0) {
+				logg.newLine();
+				logg.write("Total  - Files found:" + antalT + "  deleted:" + antdeletedT
+						+ "  copied:" + antcopiesT + "  moved:" + antmovedT
+						+ "  errors:" + anterrorsT + "  empty:" + antemptyT
+						+ "  del dir:" + antdedT);
+				logg.newLine();
+			}
+
+			// sleep for one second and then to it all over again.
+			if (!swLoop) break;
+			antalT=0;antdeletedT=0;antcopiesT=0;antmovedT=0;anterrorsT=0;antemptyT=0;antdedT=0;
+			try {
+				Thread.currentThread().sleep(1000);
+			}
+			catch (InterruptedException e) {
+				e.printStackTrace();
+			}
 		}
 
 
@@ -201,15 +214,16 @@ public class ManFiles {
 		lmin = new Long(min);
 		Lsec = new Long(sec);
 		//		x = new ManFiles();
+		//		System.out.println("pref: "+pref+" inpath: "+inpath+" sdir "+ sdir); 
 		ff = x.new FileFilter(lhou, lmin, Lsec, suf, pos, pref, expath, inpath,	swNew, exfile);
 		x.new VisitAllFiles(sdir);
 		if (swParfile) {
-			System.out.println("ParRow - Files found:" + antal + "  deleted:" + antdeleted
+			System.out.println("*** ParRow - Files found:" + antal + "  deleted:" + antdeleted
 					+ "  copied:" + antcopies + "  moved:" + antmoved + "  errors:"
 					+ anterrors + "  empty:" + antempty + "  del dir:" + antded);
 			//		if (antal>0) sLog=true;   // Hittades filer vill vi ha avslutande logg
 			if (swLogg && antal>0) {
-				logg.write("ParRow - Files found:" + antal + "  deleted:" + antdeleted
+				logg.write("*** ParRow - Files found:" + antal + "  deleted:" + antdeleted
 						+ "  copied:" + antcopies + "  moved:" + antmoved
 						+ "  errors:" + anterrors + "  empty:" + antempty
 						+ "  del dir:" + antded);
@@ -222,7 +236,7 @@ public class ManFiles {
 	static void parseParameters(String[] args ) throws IOException,	FileNotFoundException {
 		//		System.out.println("---> parse " +args[0]);
 
-		String ssdir;
+		String ssdir = null;
 		swList = true; swDelete = false; swHelp = false;
 		swSub = true; swFirst = true; swCopy = false; swRun = false;
 		swMove = false; swSettings = false; swSN = false; swDed = false;
@@ -245,7 +259,7 @@ public class ManFiles {
 
 
 		for (int i = 0; i < args.length; i++) {
-			//			System.out.println("---> parse " + i +"  " +args[i]);
+			//						System.out.println("---> parse " + i +"  " +args[i]);
 			if (args[i].equalsIgnoreCase("-list"))
 				swList = true;
 			else if (args[i].equalsIgnoreCase("-nolist"))
@@ -275,7 +289,9 @@ public class ManFiles {
 			else if (args[i].equalsIgnoreCase("-ded"))
 				swDed = true;
 			else if (args[i].equalsIgnoreCase("-noded"))
-				swDed = false;
+				swDed = false; 
+			else if (args[i].equalsIgnoreCase("-loop"))
+				swLoop = true;
 			else if (args[i].equalsIgnoreCase("-sn"))
 				swSN = true;
 			else if (args[i].equalsIgnoreCase("-nosn"))
@@ -345,8 +361,11 @@ public class ManFiles {
 				swParfile = true;
 				if (args.length == i+1) parFile = "ManFiles";
 				else parFile = args[++i];
-				if (parFile.startsWith("-")) parFile = "ManFiles";
-				//				System.out.println("---> parFile: " + parFile); 
+				if (parFile.startsWith("-")) {
+					parFile = "ManFiles";
+					i--;
+				}
+				System.out.println("---> parFile: " + parFile); 
 			}
 		}
 
@@ -365,6 +384,15 @@ public class ManFiles {
 			swMove = true;
 		} // Use move instead of copy and delete.
 
+		if (sdir == null && !swArgs) {
+			System.out.println("**** -sdir is missing!! Execution aborted!!!");	
+			System.exit(12);
+		}
+//		if (sdir == null && !swParfile) {
+//			System.out.println("**** Both -sdir and -parfile is missing!!");	
+//			System.exit(12);
+//		}
+		
 	}
 
 	static void readParFile() {
@@ -382,7 +410,7 @@ public class ManFiles {
 
 		listf = dir.listFiles(df);
 
-		System.out.println("-- Number of parameter files found: "+ listf.length);
+		System.out.println("\n*** Number of parameter files found: "+ listf.length);
 		try {
 			BufferedReader in;
 
@@ -542,9 +570,9 @@ public class ManFiles {
 							}
 						}
 						if (swList && (swRepl || !swExists)) {
-							System.out.println(" -move: " + newfile);
+							System.out.println(" -moved> " + newfile);
 							if (swLogg) {
-								logg.write(" -move: " + newfile);
+								logg.write(" -moved> " + newfile);
 								logg.newLine();
 							}
 						}
@@ -603,9 +631,9 @@ public class ManFiles {
 							}
 						}
 						if (swList) {
-							System.out.println(" -copy: " + newfile);
+							System.out.println(" -copied> " + newfile);
 							if (swLogg) {
-								logg.write(" -copy: " + newfile);
+								logg.write(" -copied> " + newfile);
 								logg.newLine();
 							}
 						}
@@ -623,9 +651,9 @@ public class ManFiles {
 					}
 					if (swDelete && !copyerror && !moveerror && !moved) {
 						if (swList) {
-							System.out.println(" -delete: " + sdir);
+							System.out.println(" -deleted: " + sdir);
 							if (swLogg) {
-								logg.write(" -delete: " + sdir);
+								logg.write(" -deleted: " + sdir);
 								logg.newLine();
 							}
 						}

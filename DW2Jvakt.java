@@ -18,7 +18,7 @@ public class DW2Jvakt  {
 
 		// Displays help
 		if (args.length == 0) {
-			System.out.println("\n*** DW2Jvakt 1.1 Date 2018-01-04 ***" +
+			System.out.println("\n*** DW2Jvakt 1.1 Date 2018-10-20 ***" +
 					"\n*** by Michael Ekdal Perstorp Sweden. ***");
 			System.out.println("\n\nThe parameters and their meaning are:\n"+
 					"\n-q \tThe name of the AS400 message queue, like \" /qsys.lib/itoctools.lib/xxx.msgq\" "+
@@ -125,7 +125,7 @@ public class DW2Jvakt  {
 					// INFO 30
 					if (msg.contains("DAX ")|| msg.contains("ITO0206") || msg.contains("CPI0973") || msg.contains("backup OK") || 
 							msg.contains("is mounted") || msg.contains("LOG0010") || msg.contains("SYSSTS:") ||   
-							msg.contains("TBM1205") ||
+							msg.contains("TBM1205") || msg.contains("ITO9806") || msg.contains("CPF1251") ||
 							msg.contains("Next tape is") || msg.contains("ITO1206") || msg.contains("EDH30") ) { 
 						sev = 30; sts = "INFO"; } 
 					// OK 30
@@ -140,6 +140,8 @@ public class DW2Jvakt  {
 							msg.contains("CHKJOBSTS")  || msg.contains("CPF090") || msg.contains("CPA3387") ||  msg.contains("ITO0906") ||
 							msg.contains("MONOUTQ01")  || words[0].contains("CHKWTRS1") || msg.contains("CPI59B2") || msg.contains("CPD27CE") ||
 							msg.contains("CPA4072")    || msg.contains("CPA0701") || msg.contains("CPF0909") || msg.contains("CPF0908") || msg.contains("CPFAF98") ||
+							msg.contains("CPIEF07") || msg.contains("CPIEF02") || msg.contains("CPP6307") || msg.contains("CPIEF09") ||  
+							 msg.contains("CPIEF03") || msg.contains("TCP8500") ||
 							(msg.contains("ITO0206") & msg.toLowerCase().contains("warning")) ||
 							(msg.contains("ITO0206") & msg.toLowerCase().contains("error")) 
 							) { 

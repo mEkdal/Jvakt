@@ -93,7 +93,7 @@ public class consoleStsROW {
 	public void setMsg(String msg)   { this.msg = msg;	}
 	public void setMsgdat(String msgdat) { this.msgdat = msgdat;	}
 	public void setConsole(String console) { this.console = console;	}
-	public void setCondat(String console) { this.condat = condat;	}
+	public void setCondat(String condat) { this.condat = condat;	}
 	public void setInfo(String info)   { this.info = info;	}
 	public void setPlugin(String plugin) { this.plugin = plugin;	}
 	public void setAgent(String agent)  { this.agent = agent; }

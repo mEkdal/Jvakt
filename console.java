@@ -54,6 +54,7 @@ public class console extends JFrame implements TableModelListener, WindowListene
 	private  String cmdSts = "java -cp console.jar;postgresql-42.1.3.jar Jvakt.consoleSts";
 
 	private  int deselectCount = 0; 
+	private  int jvconnectCount = 0; 
 
 	/**
 	 * @param args the command line arguments
@@ -80,7 +81,7 @@ public class console extends JFrame implements TableModelListener, WindowListene
 		port = Integer.parseInt(jvport);
 
 		// funktion från Jframe att sätta rubrik
-		setTitle("Jvakt console 2.33  -  F1 = Help");
+		setTitle("Jvakt console 2.35  -  F1 = Help");
 		//	        setSize(5000, 5000);
 
 		// get the screen size as a java dimension
@@ -112,7 +113,7 @@ public class console extends JFrame implements TableModelListener, WindowListene
 		// table kommer att visa userDB
 		table = new JTable(wD);
 
-//		JTableHeader header = table.getTableHeader();
+		//		JTableHeader header = table.getTableHeader();
 		header = table.getTableHeader();
 		header.setBackground(Color.LIGHT_GRAY);
 		//		header.setBackground(Color.white);
@@ -136,7 +137,7 @@ public class console extends JFrame implements TableModelListener, WindowListene
 		try {
 			SendMsg jm = new SendMsg(jvhost, port);  // kollar om JvaktServer är tillgänglig.
 			String oSts = jm.open();
-//			System.out.println("#1 "+oSts);
+			//			System.out.println("#1 "+oSts);
 			if (oSts.startsWith("failed")) 	swServer  = false;
 			if (oSts.startsWith("DORMANT")) swDormant = true;
 			else 							swDormant = false;
@@ -145,12 +146,12 @@ public class console extends JFrame implements TableModelListener, WindowListene
 		catch (IOException e1) {
 			swServer = false;
 			System.err.println(e1);
-//			System.err.println(e1.getMessage());
+			//			System.err.println(e1.getMessage());
 		}
 		catch (NullPointerException npe2 )   {
 			swServer = false;
 			System.out.println("-- Rpt Failed --" + npe2);
-			}
+		}
 
 		//		System.out.println("swServer :" + swServer);
 
@@ -205,10 +206,10 @@ public class console extends JFrame implements TableModelListener, WindowListene
 		// sätter färg på raderna
 		consoleCR cr=new consoleCR();
 
-//		for (int i=0; i <= 8 ; i++ ) {      
-//			table.getColumn(table.getColumnName(i)).setCellRenderer(cr);
-//		}
-		
+		//		for (int i=0; i <= 8 ; i++ ) {      
+		//			table.getColumn(table.getColumnName(i)).setCellRenderer(cr);
+		//		}
+
 		for (int i=0; i <= 7 ; i++ ) {
 			table.getColumn(table.getColumnName(i)).setCellRenderer(cr);
 		}
@@ -222,33 +223,33 @@ public class console extends JFrame implements TableModelListener, WindowListene
 		//	        table.setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
 
 		TableColumn column = null;
-//		column = table.getColumnModel().getColumn(0);
-//		column.setPreferredWidth(30);
-//		column.setMaxWidth(85);
-//		column = table.getColumnModel().getColumn(1);
-//		column.setPreferredWidth(400);
-//		column.setMaxWidth(1100);
-//		column = table.getColumnModel().getColumn(2);
-//		column.setPreferredWidth(30);
-//		column.setMaxWidth(65);
-//		column = table.getColumnModel().getColumn(3);
-//		column.setPreferredWidth(30);
-//		column.setMaxWidth(65);
-//		column = table.getColumnModel().getColumn(4);
-//		column.setPreferredWidth(255);
-//		column.setMaxWidth(895);
-//		column = table.getColumnModel().getColumn(5);
-//		column.setPreferredWidth(255);
-//		column.setMaxWidth(895);
-//		column = table.getColumnModel().getColumn(6);
-//		column.setPreferredWidth(100);
-//		column.setMaxWidth(420);
-//		column = table.getColumnModel().getColumn(7);
-//		column.setPreferredWidth(900);
-//		column.setMaxWidth(2800);
-//		column = table.getColumnModel().getColumn(8);
-//		column.setPreferredWidth(100);
-//		column.setMaxWidth(950);
+		//		column = table.getColumnModel().getColumn(0);
+		//		column.setPreferredWidth(30);
+		//		column.setMaxWidth(85);
+		//		column = table.getColumnModel().getColumn(1);
+		//		column.setPreferredWidth(400);
+		//		column.setMaxWidth(1100);
+		//		column = table.getColumnModel().getColumn(2);
+		//		column.setPreferredWidth(30);
+		//		column.setMaxWidth(65);
+		//		column = table.getColumnModel().getColumn(3);
+		//		column.setPreferredWidth(30);
+		//		column.setMaxWidth(65);
+		//		column = table.getColumnModel().getColumn(4);
+		//		column.setPreferredWidth(255);
+		//		column.setMaxWidth(895);
+		//		column = table.getColumnModel().getColumn(5);
+		//		column.setPreferredWidth(255);
+		//		column.setMaxWidth(895);
+		//		column = table.getColumnModel().getColumn(6);
+		//		column.setPreferredWidth(100);
+		//		column.setMaxWidth(420);
+		//		column = table.getColumnModel().getColumn(7);
+		//		column.setPreferredWidth(900);
+		//		column.setMaxWidth(2800);
+		//		column = table.getColumnModel().getColumn(8);
+		//		column.setPreferredWidth(100);
+		//		column.setMaxWidth(950);
 
 		column = table.getColumnModel().getColumn(0);
 		column.setPreferredWidth(400);
@@ -306,26 +307,30 @@ public class console extends JFrame implements TableModelListener, WindowListene
 				}
 				deselectCount++;
 				if (swAuto) {
-					try {
-						swServer = true;
-						SendMsg jm = new SendMsg(jvhost, port);  // kollar om JvaktServer är tillgänglig.
-						String oSts = jm.open();
-//						System.out.println("#1 "+oSts);
-						if (oSts.startsWith("failed")) 	swServer  = false;
-						if (oSts.startsWith("DORMANT")) swDormant = true;
-						else 							swDormant = false;
-						jm.close();
-					} 
-					catch (IOException e1) {
-						swServer = false;
-						System.err.println(e1);
-//						System.err.println(e1.getMessage());
-					}
-					catch (NullPointerException npe2 )   {
-						swServer = false;
-						System.out.println("-- Rpt Failed --" + npe2);
+					jvconnectCount++;
+					if (jvconnectCount > 5 || !swServer) {    // keep the number of connections down because of limitations in Win10
+						jvconnectCount = 0;
+						try {
+							swServer = true;
+							SendMsg jm = new SendMsg(jvhost, port);  // kollar om JvaktServer är tillgänglig.
+							String oSts = jm.open();
+							//						System.out.println("#1 "+oSts);
+							if (oSts.startsWith("failed")) 	swServer  = false;
+							if (oSts.startsWith("DORMANT")) swDormant = true;
+							else 							swDormant = false;
+							jm.close();
+						} 
+						catch (IOException e1) {
+							swServer = false;
+							System.err.println(e1);
+							//						System.err.println(e1.getMessage());
 						}
-//										System.out.println("swServer 2 : " + swServer);
+						catch (NullPointerException npe2 )   {
+							swServer = false;
+							System.out.println("-- Rpt Failed --" + npe2);
+						}
+//						System.out.println("swServer 2 : " + swServer);
+					}
 
 					swDBopen = wD.refreshData();
 					//	            	if (!swDBopen) {
@@ -407,7 +412,8 @@ public class console extends JFrame implements TableModelListener, WindowListene
 		table.getActionMap().put("decreaseH", decreaseH());
 		table.getActionMap().put("showHelp", showHelp());
 		table.getActionMap().put("showLine", showLine());
-
+		table.getActionMap().put("toggleDormant", toggleDormant());
+		
 		KeyStroke keyStroke = KeyStroke.getKeyStroke(KeyEvent.VK_BACK_SPACE, 0);  // delete key in mac
 		table.getInputMap(JComponent.WHEN_FOCUSED).put(keyStroke, "delRow");
 
@@ -429,7 +435,7 @@ public class console extends JFrame implements TableModelListener, WindowListene
 		keyStroke = KeyStroke.getKeyStroke(KeyEvent.VK_F7, 0);
 		table.getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(keyStroke, "showLine");
 		keyStroke = KeyStroke.getKeyStroke(KeyEvent.VK_F8, 0);
-		table.getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(keyStroke, "strHst");
+		table.getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(keyStroke, "toggleDormant");
 		keyStroke = KeyStroke.getKeyStroke(KeyEvent.VK_F9, 0);
 		table.getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(keyStroke, "strHst");
 		keyStroke = KeyStroke.getKeyStroke(KeyEvent.VK_F10, 0);
@@ -448,12 +454,12 @@ public class console extends JFrame implements TableModelListener, WindowListene
 
 			@Override
 			public void actionPerformed(ActionEvent e)  {
-//					                 JOptionPane.showMessageDialog(TestTableKeyBinding.this.table, "Action Triggered.");
+				//					                 JOptionPane.showMessageDialog(TestTableKeyBinding.this.table, "Action Triggered.");
 				System.out.println("ShowHelp");
 				JOptionPane.showMessageDialog(getContentPane(),
-					    "F1 : Help \nF3 : Increase font size \nF4 : Decrease font size \nF5 : History \nF6 : Status table \nF7 : Show line \n\nESC : Unselect \nDEL : delete selected rows.",
-					    "Jvakt Help",
-					    JOptionPane.INFORMATION_MESSAGE);
+						"F1 : Help \nF3 : Increase font size \nF4 : Decrease font size \nF5 : History \nF6 : Status table \nF7 : Show line \nF8 : Toggle dormant \n\nESC : Unselect \nDEL : delete selected rows.",
+						"Jvakt Help",
+						JOptionPane.INFORMATION_MESSAGE);
 			}
 		};
 		return save;
@@ -499,16 +505,16 @@ public class console extends JFrame implements TableModelListener, WindowListene
 						String agent = (String) ValueId;
 						JOptionPane.showMessageDialog(getContentPane(),
 								"- ID (the unique id if the message) -\n"+id+" \n\n" +
-								"- Prio (the priority. Below 30 trigger email and SMS text) -\n"+prio +"\n\n" + 
-								"- Type (R=repeated, S= scheduled and I=immediate/impromptu) -\n"+type +"\n\n" + 
-								"- CreDate (the date it appeared in the console) -\n"+credate +"\n\n" + 
-								"- ConDate (the date it updated in the console) -\n"+condate +"\n\n" + 
-								"- Status (OK, INFO, TOut or ERR) -\n"+status +"\n\n" + 
-								"- Body (any text) -\n"+body +"\n\n" + 
-								"- Agent (description of the reporting agent) -\n"+agent  
-								,						
-							    "Jvakt Show line",
-							    JOptionPane.INFORMATION_MESSAGE);
+										"- Prio (the priority. Below 30 trigger email and SMS text) -\n"+prio +"\n\n" + 
+										"- Type (R=repeated, S= scheduled and I=immediate/impromptu) -\n"+type +"\n\n" + 
+										"- CreDate (the date it appeared in the console) -\n"+credate +"\n\n" + 
+										"- ConDate (the date it updated in the console) -\n"+condate +"\n\n" + 
+										"- Status (OK, INFO, TOut or ERR) -\n"+status +"\n\n" + 
+										"- Body (any text) -\n"+body +"\n\n" + 
+										"- Agent (description of the reporting agent) -\n"+agent  
+										,						
+										"Jvakt Show line",
+										JOptionPane.INFORMATION_MESSAGE);
 					}
 				} 
 				catch (Exception e2) {
@@ -516,7 +522,7 @@ public class console extends JFrame implements TableModelListener, WindowListene
 					System.err.println(e2.getMessage());
 				}
 				table.getSelectionModel().clearSelection();  // clear selected rows.				
-				
+
 			}
 		};
 		return save;
@@ -527,7 +533,7 @@ public class console extends JFrame implements TableModelListener, WindowListene
 
 			@Override
 			public void actionPerformed(ActionEvent e)  {
-//					                 JOptionPane.showMessageDialog(TestTableKeyBinding.this.table, "Action Triggered.");
+				//					                 JOptionPane.showMessageDialog(TestTableKeyBinding.this.table, "Action Triggered.");
 				table.getSelectionModel().clearSelection();  // clear selected rows.
 			}
 		};
@@ -620,6 +626,37 @@ public class console extends JFrame implements TableModelListener, WindowListene
 					System.err.println(e2.getMessage());
 				}
 				table.getSelectionModel().clearSelection();  // clear selected rows.
+			}
+		};
+		return save;
+	}
+	
+	private AbstractAction toggleDormant()  {
+		AbstractAction save = new AbstractAction() {
+
+			@Override
+			public void actionPerformed(ActionEvent e)  {
+
+				try {
+						Message jmsg = new Message();
+						SendMsg jm = new SendMsg(jvhost, port);
+						System.out.println(jm.open());
+						jmsg.setId("Jvakt");
+						if (swDormant) jmsg.setType("Active");
+						else jmsg.setType("Dormant");
+						jmsg.setAgent("GUI");
+						if (jm.sendMsg(jmsg)) System.out.println("-- Rpt Delivered --");
+						else            	  System.out.println("-- Rpt Failed --");
+						jm.close();
+				} 
+				catch (IOException e1) {
+					System.err.println(e1);
+					System.err.println(e1.getMessage());
+				}
+				catch (Exception e2) {
+					System.err.println(e2);
+					System.err.println(e2.getMessage());
+				}
 			}
 		};
 		return save;

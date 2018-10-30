@@ -54,6 +54,7 @@ public class consoleSts extends JFrame implements TableModelListener, WindowList
 	private  int port = 1956; 
 
 	private  int deselectCount = 0; 
+	private  int jvconnectCount = 0; 
 
 	/**
 	 * @param args the command line arguments
@@ -73,13 +74,13 @@ public class consoleSts extends JFrame implements TableModelListener, WindowList
 
 		ImageIcon img = new ImageIcon("console.png");
 		setIconImage(img.getImage());
-		
+
 		// get the parameters from the console.properties file
 		getProps();
 		port = Integer.parseInt(jvport);
 
 		// funktion från Jframe att sätta rubrik
-		setTitle("Jvakt consoleSts 2.06  -  F1 = Help");
+		setTitle("Jvakt consoleSts 2.09  -  F1 = Help");
 		//	        setSize(5000, 5000);
 
 		// get the screen size as a java dimension
@@ -111,10 +112,10 @@ public class consoleSts extends JFrame implements TableModelListener, WindowList
 		// table kommer att visa userDB
 		table = new JTable(wD);
 
-//		JTableHeader header = table.getTableHeader();
+		//		JTableHeader header = table.getTableHeader();
 		header = table.getTableHeader();
 		header.setBackground(Color.LIGHT_GRAY);
-//		header.setBackground(Color.white);
+		//		header.setBackground(Color.white);
 
 		bu1 = new JButton();
 		where = new JTextField(40);
@@ -140,7 +141,7 @@ public class consoleSts extends JFrame implements TableModelListener, WindowList
 		try {
 			SendMsg jm = new SendMsg(jvhost, port);  // kollar om JvaktServer är tillgänglig.
 			String oSts = jm.open();
-//			System.out.println("#1 "+oSts);
+			//			System.out.println("#1 "+oSts);
 			if (oSts.startsWith("failed")) 	swServer  = false;
 			if (oSts.startsWith("DORMANT")) swDormant = true;
 			else 							swDormant = false;
@@ -149,13 +150,13 @@ public class consoleSts extends JFrame implements TableModelListener, WindowList
 		catch (IOException e1) {
 			swServer = false;
 			System.err.println(e1);
-//			System.err.println(e1.getMessage());
+			//			System.err.println(e1.getMessage());
 		}
 		catch (NullPointerException npe2 )   {
 			swServer = false;
 			System.out.println("-- Rpt Failed --" + npe2);
-			}
-//		System.out.println("swServer :" + swServer);
+		}
+		//		System.out.println("swServer :" + swServer);
 		wD.setEditable(!swAuto);
 		swDBopen = wD.refreshData(); // kollar om DB är tillgänglig
 		setBu1Color();
@@ -171,7 +172,7 @@ public class consoleSts extends JFrame implements TableModelListener, WindowList
 
 		// talar om för table att man bara får välja en rad i taget
 		table.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
-//		table.setSelectionMode(ListSelectionModel.MULTIPLE_INTERVAL_SELECTION);
+		//		table.setSelectionMode(ListSelectionModel.MULTIPLE_INTERVAL_SELECTION);
 
 		// ber table om referensen till LIstSecectionModel objektet, sparar i rowSM
 		ListSelectionModel rowSM = table.getSelectionModel();
@@ -216,10 +217,10 @@ public class consoleSts extends JFrame implements TableModelListener, WindowList
 		// skapar nya JScrollPane och lägger till tabellerna via construktorn. För att kunna scrolla tabellerna.
 
 		scrollPane = new JScrollPane(table);
-//		table.setAutoResizeMode(JTable.AUTO_RESIZE_ALL_COLUMNS);
+		//		table.setAutoResizeMode(JTable.AUTO_RESIZE_ALL_COLUMNS);
 		table.setAutoResizeMode(JTable.AUTO_RESIZE_SUBSEQUENT_COLUMNS);
 		//	        table.setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
-//state id prio type status body rptdat chkday chktim errors accerr msg msgdat console condat info plugin agent sms smsdat
+		//state id prio type status body rptdat chkday chktim errors accerr msg msgdat console condat info plugin agent sms smsdat
 		TableColumn column = null;
 		column = table.getColumnModel().getColumn(0); // state
 		column.setPreferredWidth(40);
@@ -288,17 +289,17 @@ public class consoleSts extends JFrame implements TableModelListener, WindowList
 		//	        scrollPane.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_ALWAYS);
 
 		// skapar två nya JPanel att användas inuti topPanel, som också är en JPanel
-			        usrPanel = new JPanel();
-			        usrPanel.setLayout(new BorderLayout());
+		usrPanel = new JPanel();
+		usrPanel.setLayout(new BorderLayout());
 		//	        logPanel = new JPanel();
 		//	        logPanel.setLayout(new BorderLayout());
 		// talar om för de nya JPanels vilka scrollPanes dom ska innehålla (scrollPanes innehåller tabellerna).
 		//	        usrPanel.add(scrollPane, BorderLayout.CENTER);
-//		topPanel.add(scrollPane, BorderLayout.CENTER);
+		//		topPanel.add(scrollPane, BorderLayout.CENTER);
 		// talar om för topPanel att den ska innehålla två JPanelobjekt NORTH och CENTER       
 		//	        usrPanel.add(bu1, BorderLayout.NORTH);
-//		topPanel.add(bu1, BorderLayout.NORTH);
-		
+		//		topPanel.add(bu1, BorderLayout.NORTH);
+
 		usrPanel.add(bu1, BorderLayout.NORTH);
 		usrPanel.add(where, BorderLayout.CENTER);
 		topPanel.add(usrPanel, BorderLayout.NORTH);
@@ -319,29 +320,33 @@ public class consoleSts extends JFrame implements TableModelListener, WindowList
 				}
 				deselectCount++;
 				if (swAuto) {
-					try {
-						swServer = true;
-						SendMsg jm = new SendMsg(jvhost, port);  // kollar om JvaktServer är tillgänglig.
-						String oSts = jm.open();
-//						System.out.println("#1 "+oSts);
-						if (oSts.startsWith("failed")) 	swServer  = false;
-						if (oSts.startsWith("DORMANT")) swDormant = true;
-						else 							swDormant = false;
-						jm.close();
-					} 
-					catch (IOException e1) {
-						swServer = false;
-						System.err.println(e1);
-//						System.err.println(e1.getMessage());
-					}
-					catch (NullPointerException npe2 )   {
-						swServer = false;
-						System.out.println("-- Rpt Failed --" + npe2);
+					jvconnectCount++;
+					if (jvconnectCount > 5 || !swServer) {    // keep the number of connections down because of limitations in Win10
+						jvconnectCount = 0;
+						try {
+							swServer = true;
+							SendMsg jm = new SendMsg(jvhost, port);  // kollar om JvaktServer är tillgänglig.
+							String oSts = jm.open();
+							//						System.out.println("#1 "+oSts);
+							if (oSts.startsWith("failed")) 	swServer  = false;
+							if (oSts.startsWith("DORMANT")) swDormant = true;
+							else 							swDormant = false;
+							jm.close();
+						} 
+						catch (IOException e1) {
+							swServer = false;
+							System.err.println(e1);
+							//						System.err.println(e1.getMessage());
 						}
-//					System.out.println("swServer 2 : " + swServer);
+						catch (NullPointerException npe2 )   {
+							swServer = false;
+							System.out.println("-- Rpt Failed --" + npe2);
+						}
+						//					System.out.println("swServer 2 : " + swServer);
+					}
 
 					if (where.getText().length() > 5) {
-//						System.out.println("swServer :" + swServer);
+						//						System.out.println("swServer :" + swServer);
 						wD.setWhere(where.getText());
 					}
 					else {			
@@ -387,9 +392,9 @@ public class consoleSts extends JFrame implements TableModelListener, WindowList
 			int datai = (Integer)model.getValueAt(row, column);
 			ls = "Workout tableChanged " + row + " " + column + " " +  datai;		} 
 		else {
-		String columnName = model.getColumnName(column);
-		String data = (String)model.getValueAt(row, column);
-		ls = "Workout tableChanged " + row + " " + column + " " +  data;
+			String columnName = model.getColumnName(column);
+			String data = (String)model.getValueAt(row, column);
+			ls = "Workout tableChanged " + row + " " + column + " " +  data;
 		}
 		System.out.println(ls);
 	}
@@ -398,7 +403,7 @@ public class consoleSts extends JFrame implements TableModelListener, WindowList
 		String txt = "";
 		if (swAuto) {
 			bu1.setBackground(Color.GRAY);
-//			bu1.setBackground(Color.LIGHT_GRAY);
+			//			bu1.setBackground(Color.LIGHT_GRAY);
 			txt = "Auto Update ON.";
 			//	            bu1.setText("Auto Update ON");
 		}
@@ -426,17 +431,17 @@ public class consoleSts extends JFrame implements TableModelListener, WindowList
 	}
 
 	private void addKeyBindings() {
-//		table.getActionMap().put("delRow", delRow());
-//		KeyStroke keyStroke = KeyStroke.getKeyStroke(KeyEvent.VK_BACK_SPACE, 0);  // delete key in mac
-//		table.getInputMap(JComponent.WHEN_FOCUSED).put(keyStroke, "delRow");
-//		keyStroke = KeyStroke.getKeyStroke(KeyEvent.VK_DELETE, 0);  // delete key in win linux
-//		table.getInputMap(JComponent.WHEN_FOCUSED).put(keyStroke, "delRow");
+		//		table.getActionMap().put("delRow", delRow());
+		//		KeyStroke keyStroke = KeyStroke.getKeyStroke(KeyEvent.VK_BACK_SPACE, 0);  // delete key in mac
+		//		table.getInputMap(JComponent.WHEN_FOCUSED).put(keyStroke, "delRow");
+		//		keyStroke = KeyStroke.getKeyStroke(KeyEvent.VK_DELETE, 0);  // delete key in win linux
+		//		table.getInputMap(JComponent.WHEN_FOCUSED).put(keyStroke, "delRow");
 
 		table.getActionMap().put("clearSel", clearSel());
 		table.getActionMap().put("increaseH", increaseH());
 		table.getActionMap().put("decreaseH", decreaseH());
 		table.getActionMap().put("showHelp", showHelp());
-		
+
 		KeyStroke keyStroke = KeyStroke.getKeyStroke(KeyEvent.VK_ESCAPE , 0);
 		table.getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(keyStroke, "clearSel");
 		keyStroke = KeyStroke.getKeyStroke(KeyEvent.VK_F1, 0); 
@@ -449,36 +454,36 @@ public class consoleSts extends JFrame implements TableModelListener, WindowList
 		table.getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(keyStroke, "decreaseH");
 
 	}  
-	
+
 	private AbstractAction showHelp()  {
 		AbstractAction save = new AbstractAction() {
 
 			@Override
 			public void actionPerformed(ActionEvent e)  {
-//					                 JOptionPane.showMessageDialog(TestTableKeyBinding.this.table, "Action Triggered.");
+				//					                 JOptionPane.showMessageDialog(TestTableKeyBinding.this.table, "Action Triggered.");
 				System.out.println("ShowHelp");
-			    JOptionPane pane = new JOptionPane("Jvakt help");
-			    pane.showMessageDialog(getContentPane(),
-					    "F1 : Help \nF3 : Increase font size \nF4 : Decrease font size \n\nESC : Unselect"+
-					    		"\n\nThe SEARCH field (where statement) is active when an ending space is present"+
-					    		"\n\nSome fields are updatable when the 'Auto Update' is off!\n Please heed the rules for the fields!" +
-					    		"\n\nstate  - Must be A (active), I (inactive) or D (dormant)" + 
-					    		"\nprio   - Below 30   may trigger SMS or Mail depending on chkday/chktim " + 
-					    		"\nprio   - 10 or less may trigger SMS or Mail 00:00-2400. " +
-					    		"\ntype   - S = a check that rptday is updated 'today' is made at chkday/chktim. " +
-					    		"\ntype   - R = a check that rptdat is updated at least every 20 minute is made from chkday/chktim. " +
-					    		"\ntype   - I = a temporary type used for impromptu messages. " +
-					    		"\ntype   - D = delete mark. the row will be purged by the nightly housekeeping routine. " +
-					    		"\nchkday - Must be *ALL or a mix of MON TUE WED THU FRI SAT SUN"+ 
-					    		"\nchktim - Must adhere to the format HH:MM:TT"+ 
-					    		"\naccerr - A number indicating the number of acceptable errors." 
-					    ,"Jvakt Help",
-					    JOptionPane.INFORMATION_MESSAGE);
-			    
-//				JOptionPane.showMessageDialog(table,
-//					    "F1 : Help \nF3 : Increase font size \nF4 : Decrease font size \n\nESC : Unselect",
-//					    "Jvakt Help",
-//					    JOptionPane.INFORMATION_MESSAGE);
+				JOptionPane pane = new JOptionPane("Jvakt help");
+				pane.showMessageDialog(getContentPane(),
+						"F1 : Help \nF3 : Increase font size \nF4 : Decrease font size \n\nESC : Unselect"+
+								"\n\nThe SEARCH field (where statement) is active when an ending space is present"+
+								"\n\nSome fields are updatable when the 'Auto Update' is off!\n Please heed the rules for the fields!" +
+								"\n\nstate  - Must be A (active), I (inactive) or D (dormant)" + 
+								"\nprio   - Below 30   may trigger SMS or Mail depending on chkday/chktim " + 
+								"\nprio   - 10 or less may trigger SMS or Mail 00:00-2400. " +
+								"\ntype   - S = a check that rptday is updated 'today' is made at chkday/chktim. " +
+								"\ntype   - R = a check that rptdat is updated at least every 20 minute is made from chkday/chktim. " +
+								"\ntype   - I = a temporary type used for impromptu messages. " +
+								"\ntype   - D = delete mark. the row will be purged by the nightly housekeeping routine. " +
+								"\nchkday - Must be *ALL or a mix of MON TUE WED THU FRI SAT SUN"+ 
+								"\nchktim - Must adhere to the format HH:MM:TT"+ 
+								"\naccerr - A number indicating the number of acceptable errors." 
+								,"Jvakt Help",
+								JOptionPane.INFORMATION_MESSAGE);
+
+				//				JOptionPane.showMessageDialog(table,
+				//					    "F1 : Help \nF3 : Increase font size \nF4 : Decrease font size \n\nESC : Unselect",
+				//					    "Jvakt Help",
+				//					    JOptionPane.INFORMATION_MESSAGE);
 			}
 		};
 		return save;
@@ -505,11 +510,11 @@ public class consoleSts extends JFrame implements TableModelListener, WindowList
 				//				table.getSelectionModel().clearSelection();  // clear selected rows.
 				//				System.out.println("getRowHeight :" + table.getRowHeight());
 				if (table.getRowHeight()<100) {
-				table.setRowHeight(table.getRowHeight()+1);
-//								System.out.println("getRowHeight :" + table.getRowHeight());
-				header.setFont(new javax.swing.plaf.FontUIResource("Dialog", Font.PLAIN, table.getRowHeight()));
-				bu1.setFont(new javax.swing.plaf.FontUIResource("Dialog", Font.PLAIN, table.getRowHeight()));
-				where.setFont(new javax.swing.plaf.FontUIResource("Dialog", Font.PLAIN, table.getRowHeight()));
+					table.setRowHeight(table.getRowHeight()+1);
+					//								System.out.println("getRowHeight :" + table.getRowHeight());
+					header.setFont(new javax.swing.plaf.FontUIResource("Dialog", Font.PLAIN, table.getRowHeight()));
+					bu1.setFont(new javax.swing.plaf.FontUIResource("Dialog", Font.PLAIN, table.getRowHeight()));
+					where.setFont(new javax.swing.plaf.FontUIResource("Dialog", Font.PLAIN, table.getRowHeight()));
 				}
 			}
 		};
@@ -523,14 +528,14 @@ public class consoleSts extends JFrame implements TableModelListener, WindowList
 			public void actionPerformed(ActionEvent e)  {
 				//	                 JOptionPane.showMessageDialog(TestTableKeyBinding.this.table, "Action Triggered.");
 				//				table.getSelectionModel().clearSelection();  // clear selected rows.
-//								System.out.println("getRowHeight :" + table.getRowHeight());
+				//								System.out.println("getRowHeight :" + table.getRowHeight());
 				if (table.getRowHeight()>10) {
-				table.setRowHeight(table.getRowHeight()-1);
-				header.setFont(new javax.swing.plaf.FontUIResource("Dialog", Font.PLAIN, table.getRowHeight()));
-				bu1.setFont(new javax.swing.plaf.FontUIResource("Dialog", Font.PLAIN, table.getRowHeight()));
-				where.setFont(new javax.swing.plaf.FontUIResource("Dialog", Font.PLAIN, table.getRowHeight()));
+					table.setRowHeight(table.getRowHeight()-1);
+					header.setFont(new javax.swing.plaf.FontUIResource("Dialog", Font.PLAIN, table.getRowHeight()));
+					bu1.setFont(new javax.swing.plaf.FontUIResource("Dialog", Font.PLAIN, table.getRowHeight()));
+					where.setFont(new javax.swing.plaf.FontUIResource("Dialog", Font.PLAIN, table.getRowHeight()));
 				}
-//								System.out.println("getRowHeight :" + table.getRowHeight());
+				//								System.out.println("getRowHeight :" + table.getRowHeight());
 
 			}
 		};
@@ -538,7 +543,7 @@ public class consoleSts extends JFrame implements TableModelListener, WindowList
 	}
 
 
-	
+
 	// windows listeners
 	// vi implementerade WindowListener och addade "this" för att denna metod skulle anropas vid normalt avslut av Jframe 
 	// värdena i tabellerna skrivt till var sin fil
