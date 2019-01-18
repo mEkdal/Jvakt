@@ -80,7 +80,7 @@ public class consoleSts extends JFrame implements TableModelListener, WindowList
 		port = Integer.parseInt(jvport);
 
 		// funktion från Jframe att sätta rubrik
-		setTitle("Jvakt consoleSts 2.09  -  F1 = Help");
+		setTitle("Jvakt consoleSts 2.10  -  F1 = Help");
 		//	        setSize(5000, 5000);
 
 		// get the screen size as a java dimension
@@ -431,16 +431,12 @@ public class consoleSts extends JFrame implements TableModelListener, WindowList
 	}
 
 	private void addKeyBindings() {
-		//		table.getActionMap().put("delRow", delRow());
-		//		KeyStroke keyStroke = KeyStroke.getKeyStroke(KeyEvent.VK_BACK_SPACE, 0);  // delete key in mac
-		//		table.getInputMap(JComponent.WHEN_FOCUSED).put(keyStroke, "delRow");
-		//		keyStroke = KeyStroke.getKeyStroke(KeyEvent.VK_DELETE, 0);  // delete key in win linux
-		//		table.getInputMap(JComponent.WHEN_FOCUSED).put(keyStroke, "delRow");
 
 		table.getActionMap().put("clearSel", clearSel());
 		table.getActionMap().put("increaseH", increaseH());
 		table.getActionMap().put("decreaseH", decreaseH());
 		table.getActionMap().put("showHelp", showHelp());
+		table.getActionMap().put("delRow", delRow());
 
 		KeyStroke keyStroke = KeyStroke.getKeyStroke(KeyEvent.VK_ESCAPE , 0);
 		table.getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(keyStroke, "clearSel");
@@ -453,6 +449,11 @@ public class consoleSts extends JFrame implements TableModelListener, WindowList
 		keyStroke = KeyStroke.getKeyStroke(KeyEvent.VK_F4, 0);
 		table.getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(keyStroke, "decreaseH");
 
+		keyStroke = KeyStroke.getKeyStroke(KeyEvent.VK_BACK_SPACE, 0);  	// delete key in Mac
+		table.getInputMap(JComponent.WHEN_FOCUSED).put(keyStroke, "delRow");
+		keyStroke = KeyStroke.getKeyStroke(KeyEvent.VK_DELETE, 0);  		// delete key in Win  Linux
+		table.getInputMap(JComponent.WHEN_FOCUSED).put(keyStroke, "delRow");
+
 	}  
 
 	private AbstractAction showHelp()  {
@@ -464,7 +465,7 @@ public class consoleSts extends JFrame implements TableModelListener, WindowList
 				System.out.println("ShowHelp");
 				JOptionPane pane = new JOptionPane("Jvakt help");
 				pane.showMessageDialog(getContentPane(),
-						"F1 : Help \nF3 : Increase font size \nF4 : Decrease font size \n\nESC : Unselect"+
+						"F1 : Help \nF3 : Increase font size \nF4 : Decrease font size \nDEL : Mark for deletion \n\nESC : Unselect"+
 								"\n\nThe SEARCH field (where statement) is active when an ending space is present"+
 								"\n\nSome fields are updatable when the 'Auto Update' is off!\n Please heed the rules for the fields!" +
 								"\n\nstate  - Must be A (active), I (inactive) or D (dormant)" + 
@@ -541,7 +542,33 @@ public class consoleSts extends JFrame implements TableModelListener, WindowList
 		};
 		return save;
 	}
+	
+	private AbstractAction delRow()  {
+		AbstractAction save = new AbstractAction() {
 
+			@Override
+			public void actionPerformed(ActionEvent e)  {
+				table.editingCanceled(null);
+				table.editingStopped(null);
+				int[] selectedRow = table.getSelectedRows();
+
+				try {
+					for (int i = 0; i <  selectedRow.length; i++) {
+						System.out.println("*** Row do delete :" + selectedRow[i]);
+						wD.setValueAt("D", selectedRow[i], 3);   // Set the type field to D to mark it as deletable by housekeeping 
+					}
+				} 
+				catch (Exception e2) {
+					System.out.println("-- Exeption delRow 1 --");
+					System.err.println(e2);
+					System.err.println(e2.getMessage());
+				}
+				table.getSelectionModel().clearSelection();  // clear selected rows.
+			}
+		};
+		return save;
+	}
+	
 
 
 	// windows listeners

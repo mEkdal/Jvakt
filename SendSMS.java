@@ -29,13 +29,17 @@ public class SendSMS {
 	static java.sql.Timestamp zTs;
 	static java.sql.Time zT;
 	static Long lhou, lmin, Lsec, Lrptdat, Lchktim;
-	static int serrors = 0;
+//	static int serrors = 0;
+	static boolean error = false;
 //	static int errors = 0;
-	static int warnings = 0;
-	static int infos = 0;
-	static int resolved = 0;
+//	static int warnings = 0;
+	static boolean warning = false;
+//	static int infos = 0;
+//	static int resolved = 0;
+	static boolean resolved = false;
 
-	static String subject = "";
+
+//	static String subject = "";
 	static String body = "";
 
 	static String toSMSW;
@@ -61,7 +65,7 @@ public class SendSMS {
 
 	public static void main(String[] args ) throws IOException, UnknownHostException {
 
-		String version = "SendSMS 1.2 (2018-MAR-09)";
+		String version = "SendSMS 1.3 (2018-NOV-26)";
 		String database = "jVakt";
 		String dbuser   = "jVakt";
 		String dbpassword = "xz";
@@ -173,6 +177,9 @@ public class SendSMS {
 				System.out.println("- main RS - State:"+rs.getString("state")+" Id:" + rs.getString("id")+" Type:"+rs.getString("type")+" Prio:"+rs.getString("prio")+" Console:"+rs.getString("console")+" Status:"+rs.getString("status")+ " Sms:"+rs.getString("sms"));
 //				swHits = true;  
 				swTiming = false;  
+				error = false;
+				resolved = false;
+				warning = false;
 
 				zD = rs.getTimestamp("rptdat");
 				Lsec = (zTs.getTime() / 1000 - zD.getTime() / 1000); 
@@ -197,16 +204,19 @@ public class SendSMS {
 				if (swShDay) {
 					body = rs.getString("id")+" "+rs.getString("body");
 					if (rs.getString("sms").equalsIgnoreCase("M") ) { 
-						System.out.println("Problem " + body);
-						serrors++;
+						System.out.println("Error " + body);
+//						serrors++; 
+						error = true;
 					}
 					else if (rs.getString("sms").equalsIgnoreCase("R")) {
 						System.out.println("Resolved " + body);
-						resolved++;
+//						resolved++;
+						resolved = true;
 					}
 					else {
 						System.out.println("Timeout " + body);
-						warnings++;
+//						warnings++;
+						warning = true;
 					}
 					if (rs.getString("sms").equalsIgnoreCase("R")) rs.updateString("sms", " ");
 					else rs.updateString("sms", "S");
@@ -243,18 +253,14 @@ public class SendSMS {
 
 		boolean swOK = false;
 		System.out.println("Sending SMS....");
-		subject = "* NEW status * -->   ";
 
-		if (serrors > 0) {
-			subject = subject + "Errors: " + serrors + "  ";
+		if (error) {
 			body = "ERROR: " + body;
 		}
-		if (warnings > 0) {
-			subject = subject + "Time-outs: " + warnings + "  ";
+		if (warning) {
 			body = "TIME-OUT: "+body ;
 		}
-		if (resolved > 0) { 
-			subject = subject + "Resolved: " + resolved;
+		if (resolved) { 
 			body = "RESOLVED: "+body ;
 		}
 

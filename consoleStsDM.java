@@ -28,7 +28,7 @@ class consoleStsDM extends AbstractTableModel {
 	static Connection conn = null;
 	PreparedStatement prepStmt = null;
 
-	String version = "jVakt 2.0 - consoleStsDM 1.1 (2018-MAR-16)";
+	String version = "jVakt - consoleStsDM 1.2 (2018-DEC-16)";
 	String database = "Jvakt";
 	String dbuser   = "console";
 	String dbpassword = "Jvakt";
@@ -244,6 +244,7 @@ class consoleStsDM extends AbstractTableModel {
 			System.out.println("dbuser= " + dbuser +"  dbpassword "+ dbpassword);
 			conn = DriverManager.getConnection(DBUrl,dbuser,dbpassword);
 			conn.setAutoCommit(true);
+			conn.setNetworkTimeout(null, 5000);
 			swDBopen = true;
 		}
 		catch (SQLException e) {
@@ -288,6 +289,7 @@ class consoleStsDM extends AbstractTableModel {
 //			Statement stmt = conn.createStatement(ResultSet.CONCUR_READ_ONLY,ResultSet.TYPE_SCROLL_INSENSITIVE); 
 			Statement stmt = conn.createStatement(ResultSet.CONCUR_READ_ONLY,ResultSet.TYPE_FORWARD_ONLY,ResultSet.CLOSE_CURSORS_AT_COMMIT ); 
 			stmt.setFetchSize(1000);
+			stmt.setQueryTimeout(5);
 			ResultSet rs = stmt.executeQuery(s);
 
 //			if (!rs.first()) {

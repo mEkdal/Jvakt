@@ -10,7 +10,7 @@ public class SendMsg {
 	OutputStream sut;
 	PrintWriter ut;
 	int port;
-	String version = "SendMsg 1.2 Date 2017-07-20";
+	String version = "SendMsg 1.3 Date 2018-NOV-19";
 
 	public SendMsg(String host, int port ) {
 		this.port = port;
@@ -18,14 +18,18 @@ public class SendMsg {
 	}        
 	public String open() throws IOException, UnknownHostException  {
 		try {
-		cs = new Socket(host, port);
+//		cs = new Socket(host, port);
+		cs = new Socket();
+		cs.connect(new InetSocketAddress(host, port), 5000);
+		cs.setSoTimeout(5000);
+
 		sin = cs.getInputStream();
 		in = new BufferedReader(new InputStreamReader(sin));
 		sut = cs.getOutputStream();
 		ut = new PrintWriter(new OutputStreamWriter(sut));
 		ut.println(version);
 		ut.flush(); }
-		catch ( ConnectException e ) {
+		catch ( Exception e ) {
 			return "failed";	
 		}
 		return in.readLine(); 

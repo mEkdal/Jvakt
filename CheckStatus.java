@@ -21,6 +21,7 @@ public class CheckStatus {
 	static boolean swPlugin = false;
 	static boolean swShDay; // set when the scheduled day is active
 	static boolean swDormant = false;
+	static boolean swRowDormant = false;
 	static java.sql.Date zDate;
 	static java.sql.Timestamp zD;
 	static java.sql.Timestamp zTs;
@@ -29,7 +30,7 @@ public class CheckStatus {
 	static int errors = 0;
 	static int warnings = 0;
 	static int infos = 0;
-	static String version = "CheckStatus 1.14 (2018-MAR-09)";
+	static String version = "CheckStatus 1.19 (2019-JAN-03)";
 	static String database = "jVakt";
 	static String dbuser   = "jVakt";
 	static String dbpassword = "xz";
@@ -119,6 +120,9 @@ public class CheckStatus {
 				swTiming = false;  
 				swPlugin = false;  
 				swUpdate = false;
+				
+				if (rs.getString("state").equalsIgnoreCase("D")) 	swRowDormant = true;
+				else 												swRowDormant = false;
 
 				// Only types R, S or I is acceptable.
 				if (!rs.getString("type").equalsIgnoreCase("R") && !rs.getString("type").equalsIgnoreCase("S") && !rs.getString("type").equalsIgnoreCase("I")) continue;
@@ -148,6 +152,7 @@ public class CheckStatus {
 					}
 				} 
 				swDelete = false;
+//				System.out.println("ERR #1,5 swShDay: " + swShDay);
 
 				// Om status inte är OK för S, I och R varnas till console
 				//				if (!rs.getString("status").equalsIgnoreCase("OK") && err > accerr && swShDay ) { 
@@ -180,14 +185,13 @@ public class CheckStatus {
 						trigPlugin(rs.getString("id"), rs.getString("status"), "P", rs.getString("body")); 
 					}
 				} 
-				// Om OK men timeout inträffat för S och R varnas till console
-				//				else	if ( (rs.getString("type").equalsIgnoreCase("R") && rs.getString("status").equalsIgnoreCase("OK") && swShDay && Lsec > 1200) ||
-				//				(Lsec > 1200 || rs.getTimestamp("rptdat").getTime() < mi.getTime() ) // mi is the date and time of midnight
-				if ( (rs.getString("type").equalsIgnoreCase("R") && rs.getString("status").equalsIgnoreCase("OK") && swShDay &&	Lsec > 1200	) 
+				// Om timeout inträffat för S och R varnas till console
+				if ( 
+						(rs.getString("type").equalsIgnoreCase("R") && rs.getString("status").equalsIgnoreCase("OK") && swShDay &&	Lsec > 1200	) 
 						||
-						(rs.getString("type").equalsIgnoreCase("S") && rs.getString("status").equalsIgnoreCase("OK") && swShDay && 
+						(rs.getString("type").equalsIgnoreCase("S") && swShDay && 
 								rs.getTimestamp("rptdat").getTime() < mi.getTime() )    // mi is the date and time of midnight
-						)
+					)
 				{
 					if (!rs.getString("console").equalsIgnoreCase("C")) {
 						rs.updateString("console", "C");
@@ -312,16 +316,21 @@ public class CheckStatus {
 
 			// read and remove previous line from the console table and save the count field
 			String s=null;
+			String prioS;
+			if (swRowDormant)	prioS = "99";
+			else 				prioS =  rs.getString("prio");
+			System.out.println("-- PRIO -- " + prioS);
+			
 			if (swDelete) {
 				s = new String("select * from console " + 
 						"WHERE id ilike '" + rs.getString("id") + 
-						"' and prio='" 	 +	rs.getString("prio") +
+						"' and prio='" 	 +	prioS +
 						"' and type='" 	 +	rs.getString("type").toUpperCase() +
 						"';");
 			} else {
 				s = new String("select * from console " + 
 						"WHERE id ilike '" + rs.getString("id") + 
-						"' and prio='" 	 +	rs.getString("prio") +
+						"' and prio='" 	 +	prioS +
 						"' and type='" 	 +	rs.getString("type").toUpperCase() +
 						"' and body ilike '" + rs.getString("body") +
 						"';");        		
@@ -341,9 +350,16 @@ public class CheckStatus {
 				else { 
 					rs2.updateTimestamp("condat", new java.sql.Timestamp((new Date(System.currentTimeMillis())).getTime()));
 					rs2.updateInt("count", count);
-					if (swTiming) rs2.updateString("status","TOut");
-					else rs2.updateString("status",rs.getString("status").toUpperCase() ); 
-					rs2.updateString("body", rs.getString("body"));
+					if (swTiming) {
+						rs2.updateString("status","TOut");
+						rs2.updateString("body", "The Jvakt agent did not report in set time.");
+					}
+					else {
+						rs2.updateString("status",rs.getString("status").toUpperCase() );
+						rs2.updateString("body", rs.getString("body"));
+					}
+					// om dormant
+//					if (swRowDormant) rs2.updateInt("prio", 99);
 					try { rs2.updateRow(); } catch(NullPointerException npe2) {}
 				}
 			}
@@ -359,14 +375,24 @@ public class CheckStatus {
 				System.out.println("Prepared insert:" + st);
 				st.setInt(1,count); // count
 				st.setString(2,rs.getString("id") ); 
-				st.setInt(3,rs.getInt("prio")); // prio
+				// om dormant
+				if (swRowDormant) 	st.setInt(3,99); // prio
+				else 				st.setInt(3,rs.getInt("prio")); // prio
 				st.setString(4,rs.getString("type").toUpperCase() ); // type
 				st.setTimestamp(5, zTs); // condat
 				st.setTimestamp(6, zTs); // credat
 				System.out.println(">>> swTiming >>>>: " + swTiming);
-				if (swTiming) st.setString(7,"TOut");
-				else st.setString(7,rs.getString("status").toUpperCase() );// 
-				st.setString(8,rs.getString("body") ); // 
+//				if (swTiming) st.setString(7,"TOut");
+//				else st.setString(7,rs.getString("status").toUpperCase() );// 
+				if (swTiming) {
+					st.setString(7,"TOut");
+					st.setString(8,"The Jvakt agent did not report in set time.." );
+				}
+				else {
+					st.setString(7,rs.getString("status").toUpperCase() );
+					st.setString(8,rs.getString("body") );
+				}
+//				st.setString(8,rs.getString("body") ); // 
 				st.setString(9,rs.getString("agent") ); // 
 				int rowsInserted = st.executeUpdate();
 				System.out.println("Executed insert addC " +rowsInserted);

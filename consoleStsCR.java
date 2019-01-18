@@ -50,6 +50,7 @@ class consoleStsCR extends JLabel implements TableCellRenderer
 			if (vPrio <= 10 ) 				setBackground(java.awt.Color.magenta); 
 
 			try{if (!vState.startsWith("A") ) setBackground(java.awt.Color.lightGray); } catch(NullPointerException npe2) {}
+			try{if (vType.startsWith("D") ) setBackground(java.awt.Color.yellow); } catch(NullPointerException npe2) {}
 //			if (vStatus.startsWith("OK") ) setBackground(java.awt.Color.green); 
 
 		}

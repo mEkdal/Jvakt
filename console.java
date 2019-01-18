@@ -81,7 +81,7 @@ public class console extends JFrame implements TableModelListener, WindowListene
 		port = Integer.parseInt(jvport);
 
 		// funktion från Jframe att sätta rubrik
-		setTitle("Jvakt console 2.35  -  F1 = Help");
+		setTitle("Jvakt console 2.37  -  F1 = Help");
 		//	        setSize(5000, 5000);
 
 		// get the screen size as a java dimension
@@ -457,8 +457,28 @@ public class console extends JFrame implements TableModelListener, WindowListene
 				//					                 JOptionPane.showMessageDialog(TestTableKeyBinding.this.table, "Action Triggered.");
 				System.out.println("ShowHelp");
 				JOptionPane.showMessageDialog(getContentPane(),
-						"F1 : Help \nF3 : Increase font size \nF4 : Decrease font size \nF5 : History \nF6 : Status table \nF7 : Show line \nF8 : Toggle dormant \n\nESC : Unselect \nDEL : delete selected rows.",
-						"Jvakt Help",
+								"F1 : Help \nF3 : Increase font size \nF4 : Decrease font size \nF5 : History \nF6 : Status table \nF7 : Show line \nF8 : Toggle dormant  \n\nESC : Unselect\n" +
+								"\nThis app shows the filtered report/messages sent to the Jvakt server. OK messages of types 'R' and 'S' remain in the database." + 
+								"\nThe upper bar acts a button to stop/start the automatic update. It will also show the status of the server and database." + 
+								"\n\nFields: " + 
+								"\nId = The Id if the message. " + 
+								"\nPrio = Prio 30 and higher is meant for office hours and messages will remain in the console. No mail or SMS." + 
+								"\n       Below 30 is important and might trigger SMS and/or mail depending on chkday/chktim " + 
+								"\n       Prio 10 or less is very important and will trigger SMS and/or mail 24/7. " +
+								"\ntype = 'S' means a check that rptday is updated 'today'. The check is made once at the time in the chkday and chktim fields. " +
+								"\n           When read and acted upon the line may be selected and removed with the DEL button." +
+								"\n           It will be removed automatically the next time the check sends an OK report. Usually the next day." +
+								"\ntype = 'R' means a check that rptdat is updated at least every 20 minute. The check starts from the time in chkday and chktim fields." +
+								"\n           The message will dissappear automatically when the issue is resolved. " +
+								"\ntype = 'I' means impromptu messages. " +
+								"\n           When read and acted upon the line must be selected and removed with the DEL button. " +
+								"\nCreDate = The inital time the message arrived the the console."+ 
+								"\nConDate = The latest time the message was updated. "+ 
+								"\nStatus  = ERR, INFO, OK or TOut."+ 
+								"\n          TOut means the agent has stopped sending the expected status reports. This applied only to types 'S' and 'R'. "+ 
+								"\nbody = Contains the text sent by the agent"+ 
+								"\nagent = Contains the host name and IP address where the agent is executed."
+								,"Jvakt Help",
 						JOptionPane.INFORMATION_MESSAGE);
 			}
 		};

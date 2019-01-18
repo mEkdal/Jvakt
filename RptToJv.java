@@ -6,7 +6,7 @@ import java.util.Properties;
 public class RptToJv {
 	public static void main(String[] args ) throws IOException, UnknownHostException {
 
-		String version = "RptToDW 1.5 (2018-JUN-16)";
+		String version = "RptToDW 1.6 (2018-NOV-19)";
 		String host = "127.0.0.1";
 		int port = 1956; 
 		String id = null;
@@ -15,8 +15,9 @@ public class RptToJv {
 		String agent = " ";
 		String type = "R";  // repeating
 		String prio = "30";  
+		String reply = "";  
 		InetAddress inet;
- 
+
 		String jvport   = "1956";
 		String jvhost   = "127.0.0.1";
 
@@ -24,14 +25,14 @@ public class RptToJv {
 		File configF;
 
 		for (int i=0; i<args.length; i++) {
-			if (args[i].equalsIgnoreCase("-config")) config = args[++i]; 
+			if (args[i].equalsIgnoreCase("-config")) config = args[++i];
 		}
- 
+
 		if (config == null ) 	configF = new File("Jvakt.properties");
 		else 					configF = new File(config,"Jvakt.properties");
 		System.out.println("Jvakt: "+version);
 		System.out.println("-config file Server: "+configF);
-		
+
 		Properties prop = new Properties();
 		InputStream input = null;
 		try {
@@ -42,7 +43,7 @@ public class RptToJv {
 			jvport = prop.getProperty("jvport");
 		} catch (IOException ex) {
 			System.out.println("Jvakt.properties not found, continues...");
-//			 ex.printStackTrace();
+			//			 ex.printStackTrace();
 		}
 		port = Integer.parseInt(jvport);
 		host = jvhost;
@@ -100,19 +101,24 @@ public class RptToJv {
 		Message jmsg = new Message();
 		SendMsg jm = new SendMsg(host, port);
 		try {
-		System.out.println(jm.open());
-		jmsg.setId(id);
-		jmsg.setRptsts(status);
-		jmsg.setBody(body);
-		jmsg.setType(type);
-		jmsg.setAgent(agent);
-		jmsg.setPrio( Integer.parseInt(prio) );
-//		jm.sendMsg(jmsg);
-		if (jm.sendMsg(jmsg)) System.out.println("-- Rpt Delivered --");
-		else            	  System.out.println("-- Rpt Failed --");
-		jm.close(); }
+			reply = jm.open();
+			System.out.println("Status: open "+reply);
+			if (!reply.equalsIgnoreCase("failed")) {
+				jmsg.setId(id);
+				jmsg.setRptsts(status);
+				jmsg.setBody(body);
+				jmsg.setType(type);
+				jmsg.setAgent(agent);
+				jmsg.setPrio( Integer.parseInt(prio) );
+				//		jm.sendMsg(jmsg);
+				if (jm.sendMsg(jmsg)) System.out.println("-- Rpt Delivered --");
+				else            	  System.out.println("-- Rpt Failed --");
+				jm.close();
+			}
+			else System.out.println("-- Rpt Failed --");
+		}
 		catch (java.net.ConnectException e ) {System.out.println("-- Rpt Failed --" + e); }
 		catch (NullPointerException npe2 )   {System.out.println("-- Rpt Failed --" + npe2);}
-		
+
 	}        
 }

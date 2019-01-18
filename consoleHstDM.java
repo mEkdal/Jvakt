@@ -26,7 +26,7 @@ class consoleHstDM extends AbstractTableModel {
 	static String DBUrl = "jdbc:postgresql://localhost:5433/Jvakt";
 	static Connection conn = null;
 
-	String version = "jVakt 2.0 - consoleHstDM 1.2 (2018-MAR-16)";
+	String version = "jVakt - consoleHstDM 1.3 (2018-DEC-16)";
 	String database = "Jvakt";
 	String dbuser   = "console";
 	String dbpassword = "Jvakt";
@@ -157,6 +157,7 @@ class consoleHstDM extends AbstractTableModel {
 			System.out.println("dbuser= " + dbuser +"  dbpassword "+ dbpassword);
 			conn = DriverManager.getConnection(DBUrl,dbuser,dbpassword);
 			conn.setAutoCommit(false);
+			conn.setNetworkTimeout(null, 5000);
 			swDBopen = true;
 		}
 		catch (SQLException e) {
@@ -199,6 +200,7 @@ class consoleHstDM extends AbstractTableModel {
 			//			Statement stmt = conn.createStatement(ResultSet.CONCUR_READ_ONLY,ResultSet.TYPE_SCROLL_INSENSITIVE); 
 			Statement stmt = conn.createStatement(ResultSet.CONCUR_READ_ONLY,ResultSet.TYPE_FORWARD_ONLY,ResultSet.CLOSE_CURSORS_AT_COMMIT ); 
 			stmt.setFetchSize(1000);
+			stmt.setQueryTimeout(5);
 			ResultSet rs = stmt.executeQuery(s);
 
 			//			if (!rs.first()) {

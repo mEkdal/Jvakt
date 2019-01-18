@@ -44,7 +44,7 @@ public class GetImap4Msg {
 
 	public static void main(String[] args) throws IOException, FileNotFoundException {
 
-		String version = "GetImap4Msg 1.4 # 2018-05-15";
+		String version = "GetImap4Msg # 2019-01-03";
 
 		for (int i=0; i<args.length; i++) {
 			if (args[i].equalsIgnoreCase("-config")) config = args[++i];
@@ -209,6 +209,18 @@ public class GetImap4Msg {
 					if (body.indexOf("ERROR") >= 0) {
 						sendJv("MAIL_From_ID_PROVE" , "ERR" , "I",  subject + " " + body);
 					} 
+					msgFixat = true;
+				}
+
+				// Msg från UPS_BGT@perstorp.com  
+				if (from.indexOf("UPS_BGT@perstorp.com") >= 0) {
+					sendJv("MAIL_from_UPS_BGT" , "INFO" , "I",  subject + " " + body);
+					msgFixat = true;
+				}
+
+				// Msg från SOCOMEC UPS Mail Service  
+				if (from.indexOf("SOCOMEC UPS Mail Service") >= 0) {
+					sendJv("MAIL_from_UPS_HQ" , "INFO" , "I",  subject + " " + body);
 					msgFixat = true;
 				}
 

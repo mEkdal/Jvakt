@@ -82,7 +82,7 @@ public class SendMailSTS {
 
 	public static void main(String[] args ) throws IOException, UnknownHostException {
 
-		String version = "SendMailSTS 1.8 (2018-JUL-10)";
+		String version = "SendMailSTS 1.9 (2018-DEC-07)";
 
 		String subject = "";
 		String body = "";
@@ -257,7 +257,7 @@ public class SendMailSTS {
 
 			if (!swDB) {
 				subject = "\n - Jvakt Database not accessible ! -\n"; 
-				body = "\n - Jvakt Database not accessible ! -\n"; 
+				body = "<br><p> - Jvakt Database not accessible ! -</p>"; 
 				swMail = true;
 			}
 			if (!swServer) {
@@ -266,9 +266,12 @@ public class SendMailSTS {
 					body = "";
 				}
 				subject = subject + "\n - Jvakt Server not accessible ! - \n"; 
-				body = body + "\n - Jvakt Server not accessible ! -\n"; 
+				body = body + "<br><p> - Jvakt Server not accessible ! -</p>"; 
 				swMail = true;
 			}
+			 
+			if (errors == 0 && warnings == 0 && infos == 0 ) body = body + "<br><p> All is OKAY! There is nothing to report!</p>";
+			else body = body + "<br><p> - On-call Duty -<br>Only rows with Prio less than 30 is to be handeled out of office hours !</p>"; 
 			
 			now = new Date();
 			subject = subject + " -- " + now;

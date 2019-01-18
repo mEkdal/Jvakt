@@ -18,7 +18,7 @@ public class DW2Jvakt  {
 
 		// Displays help
 		if (args.length == 0) {
-			System.out.println("\n*** DW2Jvakt 1.1 Date 2018-10-20 ***" +
+			System.out.println("\n*** DW2Jvakt 1.2 Date 2019-01-14 ***" +
 					"\n*** by Michael Ekdal Perstorp Sweden. ***");
 			System.out.println("\n\nThe parameters and their meaning are:\n"+
 					"\n-q \tThe name of the AS400 message queue, like \" /qsys.lib/itoctools.lib/xxx.msgq\" "+
@@ -115,6 +115,8 @@ public class DW2Jvakt  {
 				if (msg.contains(" MonHttpText_"))   swInteresting = false;
 				if (msg.contains(" MonDBOra"))   swInteresting = false;
 				if (msg.contains("Wrn: AZU30"))   swInteresting = false;
+				if (msg.contains("CPIEF"))   swInteresting = false;  // IBM Service agent
+				if (msg.contains("CPFEF"))   swInteresting = false;  // IBM Service agent
 				//				if (msg.contains(" MonIpAddr_"))   swInteresting = false;
 
 				// info  
@@ -125,38 +127,43 @@ public class DW2Jvakt  {
 					// INFO 30
 					if (msg.contains("DAX ")|| msg.contains("ITO0206") || msg.contains("CPI0973") || msg.contains("backup OK") || 
 							msg.contains("is mounted") || msg.contains("LOG0010") || msg.contains("SYSSTS:") ||   
-							msg.contains("TBM1205") || msg.contains("ITO9806") || msg.contains("CPF1251") ||
+							msg.contains("TBM1205") || msg.contains("ITO9806") || msg.contains("CPF1251") || msg.contains("ITO9906") ||
 							msg.contains("Next tape is") || msg.contains("ITO1206") || msg.contains("EDH30") ) { 
 						sev = 30; sts = "INFO"; } 
 					// OK 30
 					if (msg.contains("CPF1817")  || msg.contains("CPI0973")    ||
-							msg.contains("backup OK") || msg.contains("is mounted") ) {
+							msg.contains("backup OK") || msg.contains("running okay") || msg.contains("is mounted") ) {
 						sev = 30; sts = "OK"; } 
-					// ERR 30
+					// ERR 30 
 					if (msg.contains("Err:") || msg.contains("EDH18") || msg.contains("Wrn:") || 
 							msg.contains("not ready.") || msg.contains("RNQ") || msg.contains("CPA4278")    || msg.contains("TBM1202") || msg.contains("TBM1203") ||
 							msg.contains("QAIMPS2") || msg.contains("backup ERR")|| msg.contains("BU ERR") || msg.contains("MSGW ") || 
 							msg.contains("CPA5305")    || msg.contains("FTP0100")  || msg.contains("APP020") || msg.contains("RPG0121") || msg.contains("RPG0202") ||
 							msg.contains("CHKJOBSTS")  || msg.contains("CPF090") || msg.contains("CPA3387") ||  msg.contains("ITO0906") ||
-							msg.contains("MONOUTQ01")  || words[0].contains("CHKWTRS1") || msg.contains("CPI59B2") || msg.contains("CPD27CE") ||
+							msg.contains("MONOUTQ01")  || words[0].contains("CHKWTRS1") || msg.contains("CPI59B2") || msg.contains("CPD27CE") || msg.contains("CPD2643") ||
 							msg.contains("CPA4072")    || msg.contains("CPA0701") || msg.contains("CPF0909") || msg.contains("CPF0908") || msg.contains("CPFAF98") ||
 							msg.contains("CPIEF07") || msg.contains("CPIEF02") || msg.contains("CPP6307") || msg.contains("CPIEF09") ||  
-							 msg.contains("CPIEF03") || msg.contains("TCP8500") ||
+							 msg.contains("CPIEF03") || msg.contains("TCP8500") || msg.contains("CPFEF") || msg.contains("CPI93B9") ||
 							(msg.contains("ITO0206") & msg.toLowerCase().contains("warning")) ||
 							(msg.contains("ITO0206") & msg.toLowerCase().contains("error")) 
 							) { 
 						sev = 30; sts = "ERR"; }
 					// ERR 20
 					if (msg.contains("ITO0102") || msg.contains("ITO0202")  || msg.contains("SAP0902") ||  msg.contains("ITO0902") || 
-							msg.contains("CPI0964") || msg.contains("CPF1816")  
+							msg.contains("CPI0964") || msg.contains("CPF1816") || msg.contains("CPF1338")
 							)	{ 
 						sev = 20; sts = "ERR"; } 
 					// ERR 10
 					if (
-						(msg.contains("QSYSCOMM") || msg.contains("QSYSARB")  || msg.contains("APP020")) &&
-						(!msg.contains("CPF0909") && !msg.contains("CPF0908") && !msg.contains("CPI59B2") && !msg.contains("CPD27CE"))
+						(msg.contains("QSYSCOMM") || msg.contains("QSYSARB") &&
+						(!msg.contains("CPF0909") && !msg.contains("CPF0908") && !msg.contains("CPI59B2") && !msg.contains("CPD27CE")))
+						|| ( msg.contains("APP0203") && !msg.contains("NOT successfully")) 
 						) {
 						sev = 10; sts = "ERR"; } 
+
+					// INFO 30 again
+					if (msg.contains("Autoanswer:")) { 
+						sev = 30; sts = "INFO"; } 
 
 					try {
 						//	 System.out.println(args[0]+" - "+args[1]);

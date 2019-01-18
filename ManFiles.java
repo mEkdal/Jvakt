@@ -19,7 +19,9 @@ public class ManFiles {
 	static boolean moved = false;
 	static File sdir, tdir, newfile;
 	static String origdir, norigdir, suf, pos, pref, hou, min, sec, nfile,
-	exfile, expath, inpath, unique, infTxt, parFile;
+	exfile, expath, inpath, unique, infTxt, parFile, scanstr;
+	static String fdat = "00000000000000";
+	static String tdat = "99999999999999";
 	static Date now;
 	static FileFilter ff;
 	static Long lhou, lmin, Lsec;
@@ -45,11 +47,12 @@ public class ManFiles {
 		hou = "0";
 		min = "0";
 		sec = "0";
+		scanstr = null;
 		swNrunq = false;
 
 		parseParameters(args);
 		swArgs = false;
-		
+
 		now = new Date();
 		System.out.println("\n*** Jvakt.ManFiles starting --- " + now);
 		//		if (swLogg && sLog) {
@@ -64,12 +67,13 @@ public class ManFiles {
 					+ "\t Suf=" + suf + "\t Prefix=" + pref
 					+ "\t Pos=" + pos + "\t Hours=" + hou
 					+ "\t Minutes=" + min + "\t Seconds=" + sec + "\t swDed="
+					+ "\t FromDate=" + fdat + "\t ToDAte=" + tdat
 					+ swDed + "\t swSN=" + swSN + "\t nfile=" + nfile
 					+ "\t exfile=" + exfile + "\t expath=" + expath
 					+ "\t inpath=" + inpath + "\t swRepl=" + swRepl
 					+ "\t swNrunq=" + swNrunq + "\t swFlat=" + swFlat
 					+ "\t swAppend=" + swAppend + "\t swUnique=" + swUnique + "\t swLoop=" + swLoop
-					+ "\t swNew=" + swNew + "\t swLogg=" + swLogg + "\t swCountC=" + swCountC + "\t parfile=" + parFile;
+					+ "\t swNew=" + swNew + "\t swLogg=" + swLogg + "\t swCountC=" + swCountC +"\t scan=" + scanstr + "\t parfile=" + parFile;
 			System.out.println(infTxt);
 			if (swLogg) {
 				logg.write(infTxt);
@@ -88,26 +92,28 @@ public class ManFiles {
 
 		if (swHelp) {
 			System.out
-			.println("\n*** Jvakt.ManFiles V2.1 2018-09-21 ***"
+			.println("\n*** Jvakt.ManFiles V2.3 2018-DEC-05 ***"
 					+ "\n*** by Michael Ekdal, Sweden. ***");
 			System.out
 			.println("\nThe parameters and their meaning are:\n"
 					+ "\n-parfile \tThe name prefix of the parameter file (default is ManFiles). The suffix must end with .par"
-					+ "\n         \tIn the default case files named ManFiles01.par, ManFiles02.par and so on will be found."
-					+ "\n         \tThe files must resied in the current directory."
+					+ "\n         \tIn the default case, files named ManFiles01.par, ManFiles02.par and so on will be found."
+					+ "\n         \tThe files must reside in the current directory."
+					+ "\n         \tNOTE: -sdir and -tdir can contain maximum one blank in the string."
+					+ "\n         \tNOTE: No single or dubble quotes are allowed anyware in the file."
 					+ "\n-sdir    \tThe name of the source directory, like \"-sdir c:\\Temp\" "
 					+ "\n-tdir    \tThe name of the target directory, like \"-tdir c:\\Temp2\" "
 					+ "\n-sub     \tThe subdirectories are seached.(default) "
 					+ "\n-nosub   \tThe subdirectories are NOT searched. "
 					+ "\n-copy    \tCopy the files "
 					+ "\n-move    \tMove the files "
-					+ "\n-del     \tAll files selected are deleted from the source directory!"
+					+ "\n-del     \tAll selected files are deleted from the source directory!"
 					+ "\n-nodel   \tNo files are deleted. (default)"
 					+ "\n-list    \tThe selected files are listed.(default) "
 					+ "\n-nolist  \tThe selected files are NOT listed."
 					+ "\n-log     \tWrite to specific file. like \"-log c:\\logg.txt\" "
 					+ "\n-run     \tLive, no simulation"
-					+ "\n-norun   \tSimulation. No copies, moves or deleteions are made (default)"
+					+ "\n-norun   \tSimulation. No copies, moves or deletions are made (default)"
 					+ "\n-ded     \tEmpty sub-directories are deleted from the source directory."
 					+ "\n-noded   \tNo delete of empty sub-directories. (default)"
 					+ "\n-repl    \tReplace target files. (default)"
@@ -124,6 +130,8 @@ public class ManFiles {
 					+ "\n-inpath  \t(include) string in the path name. like \"-inpath INV\" "
 					+ "\n-expath  \t(exclude) string in the path name. like \"-expath INV\" "
 					+ "\n-exfile  \t(exclude) string in the file name. like \"-exfile TEMP01\" "
+					+ "\n-fdat    \tSelect files from the date it was last changed . like (-fdat 20181101000000)"
+					+ "\n-tdat    \tSelect files to   the date it was last changed . like (-tdat 20181205140000)"
 					+ "\n-hou     \tHours since file last changed. like \"-hou 48\" (default=0) "
 					+ "\n-min     \tMinutes since file last changed. like \"-min 8\" (default=0) "
 					+ "\n-sec     \tSeconds since file last changed. like \"-sec 30\" (default=0) "
@@ -134,6 +142,7 @@ public class ManFiles {
 					+ "\n-?       \tThis help text are shown."
 					+ "\n-help    \tThis help text are shown."
 					+ "\n-set     \tShows the program settings."
+            		+ "\n-scan    \tThe string that is searched for inside the files. It must be a single string with no blanks."
 					+ "\n-countc  \tShows the number of children in each traversed directory." 
 					+ "\n-loop    \tExecutes every second in a never ending loop. No loop is the default value." 
 					+ "\n\nComments:"
@@ -215,7 +224,7 @@ public class ManFiles {
 		Lsec = new Long(sec);
 		//		x = new ManFiles();
 		//		System.out.println("pref: "+pref+" inpath: "+inpath+" sdir "+ sdir); 
-		ff = x.new FileFilter(lhou, lmin, Lsec, suf, pos, pref, expath, inpath,	swNew, exfile);
+		ff = x.new FileFilter(lhou, lmin, Lsec, suf, pos, pref, expath, inpath,	swNew, exfile,scanstr,fdat,tdat);
 		x.new VisitAllFiles(sdir);
 		if (swParfile) {
 			System.out.println("*** ParRow - Files found:" + antal + "  deleted:" + antdeleted
@@ -256,6 +265,9 @@ public class ManFiles {
 		hou = "0";
 		min = "0";
 		sec = "0";
+		scanstr = null;
+		fdat = "00000000000000";
+		tdat = "99999999999999";
 
 
 		for (int i = 0; i < args.length; i++) {
@@ -357,6 +369,12 @@ public class ManFiles {
 			}
 			else if (args[i].equalsIgnoreCase("-countc"))
 				swCountC = true;
+			else if (args[i].equalsIgnoreCase("-scan"))
+				scanstr = args[++i];
+			else if (args[i].equalsIgnoreCase("-fdat"))
+				fdat = args[++i];
+			else if (args[i].equalsIgnoreCase("-tdat"))
+				tdat = args[++i];
 			else if (args[i].equalsIgnoreCase("-parfile")) {
 				swParfile = true;
 				if (args.length == i+1) parFile = "ManFiles";
@@ -388,11 +406,11 @@ public class ManFiles {
 			System.out.println("**** -sdir is missing!! Execution aborted!!!");	
 			System.exit(12);
 		}
-//		if (sdir == null && !swParfile) {
-//			System.out.println("**** Both -sdir and -parfile is missing!!");	
-//			System.exit(12);
-//		}
-		
+		//		if (sdir == null && !swParfile) {
+		//			System.out.println("**** Both -sdir and -parfile is missing!!");	
+		//			System.exit(12);
+		//		}
+
 	}
 
 	static void readParFile() {
@@ -681,6 +699,9 @@ public class ManFiles {
 		String exfile;
 		String expath;
 		String inpath;
+		String scanstr;
+		String tdat;
+		String fdat;
 		long inhours;
 		long inmin;
 		long insec;
@@ -690,7 +711,7 @@ public class ManFiles {
 
 		FileFilter(Long inhours, Long inmin, Long insec, String afn,
 				String infix, String inpref, String expath, String inpath,
-				boolean swNew, String exfile) {
+				boolean swNew, String exfile, String scanstr, String fdat,String tdat) {
 			this.afn = afn.toLowerCase();
 			this.infix = infix.toLowerCase();
 			this.inpref = inpref.toLowerCase();
@@ -701,16 +722,33 @@ public class ManFiles {
 			this.inpath = inpath.toLowerCase();
 			this.swNew = swNew;
 			this.exfile = exfile.toLowerCase();
+			if (scanstr==null) 	this.scanstr=null;
+			else 				this.scanstr = scanstr.toLowerCase();
+			this.fdat = fdat;
+			this.tdat = tdat;
 
 		}
 
 		public boolean accept(File dir, String name) {
 			// System.out.println("DifFilter name: " + name);
 			// System.out.println("DifFilter dir: " + dir);
-
+			okay = true;
+			//
+			String chdat = new String("yyyyMMddHHmmss");
+			String changed;
+			SimpleDateFormat dat_form;			
+//			
 			fi = new File(dir + "\\" + name);
 			String f = fi.getName();
 			long lm = fi.lastModified();
+//
+			dat_form = new SimpleDateFormat(chdat);
+			changed = dat_form.format(lm);
+//			System.out.println(">>> "+fi+"   Changed : " +" "+ changed + "  Fdat:" +fdat + "  Tdat:" +tdat); 
+//
+			if (changed.compareTo(fdat) <= 0 ) okay = false;
+			if (changed.compareTo(tdat) >= 0 ) okay = false;
+			
 			if (fi.isDirectory())
 				return true;
 			// System.out.println("inhou, inmin, insec: " +" "+ inhours +" "+
@@ -738,7 +776,6 @@ public class ManFiles {
 
 			// System.out.println("Lm: " + lm);
 
-			okay = true;
 
 			// System.out.println("nu " + nu + "   inhours " + inhours);
 			if (swNew) { // if files newer or equal than hours is wished for
@@ -777,8 +814,27 @@ public class ManFiles {
 				if (dir.toString().toLowerCase().indexOf(expath) >= 0)
 					okay = false;
 			}
+			if (okay && scanstr!=null) {
+				try {okay = scanF(fi,scanstr); }
+				catch (IOException e) {	
+					e.printStackTrace(); 
+					okay = false; }
+
+			}
 
 			return okay;
+		}
+
+		// searches for a string inside the file 
+		protected boolean scanF(File src, String scanstr) throws IOException {
+			boolean found = false;
+			String s;
+			BufferedReader in = new BufferedReader(new FileReader(src));
+			while ((s = in.readLine()) != null && !found) {
+				if (s.toLowerCase().indexOf(scanstr) >= 0) found = true;
+			} 
+			in.close();
+			return found;
 		}
 
 	}
