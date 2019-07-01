@@ -1,0 +1,14 @@
+@rem Sends a message to the Jvalt server.
+@rem   
+
+java -cp "C:\JavaSrc" Jvakt.RptToJv -host 127.0.0.1 -port 1956 -type i -id AAAAAA -ok -body "Test 1"
+
+@rem -host    - default is 127.0.0.1
+@rem -port    - default is 1956
+@rem -id
+@rem -ok      -> sts=OK
+@rem -err     -> sts=ERR
+@rem -info    -> sts=INFO
+@rem -sts     - default is OK
+@rem -body    - Any descriptive text
+@rem -type    - R=repetetive I=immediate S=scheduled D=delete

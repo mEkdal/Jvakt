@@ -1,0 +1,2 @@
+@rem (Base function) Starts the Jvakt.console
+start javaw -cp C:\JavaSrc;C:\JavaSrc\postgresql-42.1.3.jar Jvakt.console

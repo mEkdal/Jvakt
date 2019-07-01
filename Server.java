@@ -10,19 +10,33 @@ import java.net.*;
 import java.util.*;
 
 public class Server {
+	private static ServerSocket ss;
+
 	/**
 	 * @param  		port 	The port the program will listen on.
 	 * @throws		exeption
 	 */
 	public static void main(String[] args ) throws Exception  {
 
-		String version = "Server 1.0 Date 2017-02-14_01";
+		String version = "Server 1.3 # 2019-04-29";
 		String jvport   = "1956";
 
+		String config = null;
+		File configF;
+
+		for (int i=0; i<args.length; i++) {
+			if (args[i].equalsIgnoreCase("-config")) config = args[++i];
+		}
+ 
+		if (config == null ) 	configF = new File("Jvakt.properties");
+		else 					configF = new File(config,"Jvakt.properties");
+		System.out.println("----- Jvakt: "+new Date()+"  Version: "+version);
+		System.out.println("-config file Server: "+configF);
+		
 		Properties prop = new Properties();
 		InputStream input = null;
 		try {
-			input = new FileInputStream("jVakt.properties");
+			input = new FileInputStream(configF);
 			prop.load(input);
 			// get the property value and print it out
 			jvport = prop.getProperty("jvport");
@@ -31,9 +45,11 @@ public class Server {
 		}
 		input.close();
 
+		
+		// Main loop
 		int port = Integer.parseInt(jvport);
-		ServerSocket ss = new ServerSocket(port);
-		DBupdate dt = new DBupdate( );
+		ss = new ServerSocket(port);
+		DBupdate dt = new DBupdate( args );
 		while( true ) {
 			try {
 				Socket client = ss.accept();

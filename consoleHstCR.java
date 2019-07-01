@@ -5,10 +5,10 @@ import javax.swing.*;
 import java.awt.*;
 import javax.swing.table.*;
 
-class consoleCR extends JLabel implements TableCellRenderer
+class consoleHstCR extends JLabel implements TableCellRenderer
 {
 //	private String columnName;
-	public consoleCR()
+	public consoleHstCR()
 	{
 		setOpaque(true);
 	}
@@ -28,11 +28,7 @@ class consoleCR extends JLabel implements TableCellRenderer
 		if (value != null) setText(value.toString());
 		else 				setText(" ");
 		
-//		System.out.println("getFont :" + getFont());		 new javax.swing.plaf.FontUIResource("Serif"
-//		setFont(new Font(Font.SERIF, Font.BOLD, table.getRowHeight()-4));
 		setFont(new javax.swing.plaf.FontUIResource("Dialog", Font.BOLD, table.getRowHeight()-3));
-//		System.out.println("rowHeight :" + table.getRowHeight());		 
-
 		
 		if(isSelected)
 		{
@@ -46,7 +42,7 @@ class consoleCR extends JLabel implements TableCellRenderer
 			setBackground(Color.lightGray);
 
 			if (vStatus.startsWith("INFO") ) setBackground(java.awt.Color.yellow); 
-
+			
 			if (vStatus.startsWith("T") ) setBackground(java.awt.Color.orange); 
 			if (vPrio >= 30 && !vStatus.startsWith("INFO") && !vStatus.startsWith("T")  && !vStatus.startsWith(" ") ) setBackground(java.awt.Color.pink); 
 			if (vPrio < 30  && !vStatus.startsWith("T") ) setBackground(java.awt.Color.magenta); 

@@ -6,30 +6,44 @@ import java.util.Properties;
 public class RptToJv {
 	public static void main(String[] args ) throws IOException, UnknownHostException {
 
-		String version = "RptToDW 1.1 Date 2017-07-20";
+		String version = "RptToDW (2019-JAN-22)";
 		String host = "127.0.0.1";
 		int port = 1956; 
 		String id = null;
 		String status = "OK";
-		String body = null;
-		String agent = null;
+		String body = " ";
+		String agent = " ";
 		String type = "R";  // repeating
 		String prio = "30";  
+		String reply = "";  
 		InetAddress inet;
- 
+
 		String jvport   = "1956";
 		String jvhost   = "127.0.0.1";
+
+		String config = null;
+		File configF;
+
+		for (int i=0; i<args.length; i++) {
+			if (args[i].equalsIgnoreCase("-config")) config = args[++i];
+		}
+
+		if (config == null ) 	configF = new File("Jvakt.properties");
+		else 					configF = new File(config,"Jvakt.properties");
+		System.out.println("Jvakt: "+version);
+		System.out.println("-config file Server: "+configF);
 
 		Properties prop = new Properties();
 		InputStream input = null;
 		try {
-			input = new FileInputStream("jVakt.properties");
+			input = new FileInputStream(configF);
 			prop.load(input);
 			// get the property value and print it out
 			jvhost = prop.getProperty("jvhost");
 			jvport = prop.getProperty("jvport");
 		} catch (IOException ex) {
-			// ex.printStackTrace();
+			System.out.println("Jvakt.properties not found, continues...");
+			//			 ex.printStackTrace();
 		}
 		port = Integer.parseInt(jvport);
 		host = jvhost;
@@ -65,7 +79,7 @@ public class RptToJv {
 			System.out.println("-info \t -> sts=INFO");
 			System.out.println("-sts  \t - default is OK");
 			System.out.println("-body \t - Any descriptive text");
-			System.out.println("-type \t - R=repetetive I=immediate S=scheduled D=delete");
+			System.out.println("-type \t - R=repetetive S=scheduled T=regular(no timeout) I=immediate D=delete");
 			System.exit(4);
 		}
 
@@ -73,8 +87,8 @@ public class RptToJv {
 			System.out.println(">>> Failure! The -id switch must contain a value! <<<");
 			System.exit(8);
 		}
-		if (!type.toUpperCase().equals("R") && !type.toUpperCase().equals("I") && !type.toUpperCase().equals("S") && !type.toUpperCase().equals("D") && !type.equalsIgnoreCase("Active") && !type.equalsIgnoreCase("Dormant")  ) {
-			System.out.println(">>> Failure! The type must be R, I, S or D <<<");
+		if (!type.toUpperCase().equals("T") && !type.toUpperCase().equals("R") && !type.toUpperCase().equals("I") && !type.toUpperCase().equals("S") && !type.toUpperCase().equals("D") && !type.toUpperCase().equals("P") && !type.equalsIgnoreCase("Active") && !type.equalsIgnoreCase("Dormant")  ) {
+			System.out.println(">>> Failure! The type must be R, I, S, T or D <<<");
 			System.exit(8);
 		}
 
@@ -86,15 +100,25 @@ public class RptToJv {
 		//	 System.out.println(args[0]+" - "+args[1]);
 		Message jmsg = new Message();
 		SendMsg jm = new SendMsg(host, port);
-		System.out.println(jm.open());
-		jmsg.setId(id);
-		jmsg.setRptsts(status);
-		jmsg.setBody(body);
-		jmsg.setType(type);
-		jmsg.setAgent(agent);
-		jmsg.setPrio( Integer.parseInt(prio) );
-		jm.sendMsg(jmsg);
-		if (jm.close()) System.out.println("-- Rpt Delivered --");
-		else            System.out.println("-- Rpt Failed --");
+		try {
+			reply = jm.open();
+			System.out.println("Status: open "+reply);
+			if (!reply.equalsIgnoreCase("failed")) {
+				jmsg.setId(id);
+				jmsg.setRptsts(status);
+				jmsg.setBody(body);
+				jmsg.setType(type);
+				jmsg.setAgent(agent);
+				jmsg.setPrio( Integer.parseInt(prio) );
+				//		jm.sendMsg(jmsg);
+				if (jm.sendMsg(jmsg)) System.out.println("-- Rpt Delivered --");
+				else            	  System.out.println("-- Rpt Failed --");
+				jm.close();
+			}
+			else System.out.println("-- Rpt Failed --");
+		}
+		catch (java.net.ConnectException e ) {System.out.println("-- Rpt Failed --" + e); }
+		catch (NullPointerException npe2 )   {System.out.println("-- Rpt Failed --" + npe2);}
+
 	}        
 }

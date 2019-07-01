@@ -1,0 +1,6 @@
+@rem (Base function) purges old rows from history
+set PGPASSWORD=pw
+"C:\Program Files (x86)\PostgreSQL\9.6\bin\psql.exe" -d Jvakt -U Jvakt -c "select * from consolehst where credat < now()::date - 31;" > c:\JavaSrc\Housekeeping.log
+"C:\Program Files (x86)\PostgreSQL\9.6\bin\psql.exe" -d Jvakt -U Jvakt -c "delete from consolehst where credat < now()::date - 31;"  >> c:\JavaSrc\Housekeeping.log
+"C:\Program Files (x86)\PostgreSQL\9.6\bin\psql.exe" -d Jvakt -U Jvakt -c "select * from status where type = 'D';" >> c:\JavaSrc\Housekeeping.log
+"C:\Program Files (x86)\PostgreSQL\9.6\bin\psql.exe" -d Jvakt -U Jvakt -c "delete from status where type = 'D';" >> c:\JavaSrc\Housekeeping.log

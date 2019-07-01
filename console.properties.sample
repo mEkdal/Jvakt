@@ -1,0 +1,13 @@
+# PostgreSQL DB name
+database = Jvakt
+# PostgreSQL user name and pw. read only access
+dbuser = console
+dbpassword = pw
+# host name and port of PostgreSQL server
+dbhost = localhost
+dbport = 5432
+# host name and port of Jvakt server process
+jvhost = 127.0.0.1
+jvport = 1956
+# The command to start the history app, which runs a a completley separate process. 
+cmdHst = java -cp /JavaSrc;/JavaSrc/postgresql-42.1.3.jar\ Jvakt.consoleHst

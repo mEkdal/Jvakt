@@ -1,0 +1,5 @@
+@rem (Base function) Monitor the response of a port at an IP-address.
+@rem IPv4. Will try to establish a TCP connection to the port.  
+@rem The file monIpPorts-01.csv is read.  
+
+java -cp c:\JavaSrc Jvakt.monIpPorts -run -config D:\Jvakt-console\config

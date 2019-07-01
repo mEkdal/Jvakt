@@ -12,23 +12,21 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.*;
-//import java.net.*;
 
-class consoleDM extends AbstractTableModel {
+class consoleHstDM extends AbstractTableModel {
 
 	String afn;
-//	String columnNames[] = {"Count", "Id", "Prio", "Type", "CreDate", "ConDate", "Status", "Body", "Agent"};
-	String columnNames[] = { "Id", "Prio", "Type", "CreDate", "ConDate", "Status", "Body", "Agent"};
-	static Vector<consoleROW> map = new Vector<consoleROW>(100,10);
+	String columnNames[] = {"CreDate", "DelDate","Count", "Id", "Prio", "Type",  "Status", "Body", "Agent"};
+	static Vector map = new Vector(1000,100);
 
-	consoleROW rad;
+	consoleHstROW rad;
 
 	int i = 0;
 
 	static String DBUrl = "jdbc:postgresql://localhost:5433/Jvakt";
 	static Connection conn = null;
 
-	String version = "jVakt - consoleDM 2018-DEC-16";
+	String version = "jVakt - consoleHstDM 1.3 (2018-DEC-16)";
 	String database = "Jvakt";
 	String dbuser   = "console";
 	String dbpassword = "Jvakt";
@@ -40,9 +38,9 @@ class consoleDM extends AbstractTableModel {
 
 	Boolean swDBopen = false; 
 
+	String where = "";
 
-
-	public consoleDM() throws IOException {
+	public consoleHstDM() throws IOException {
 
 		getProps();
 		if (openDB()) refreshData();
@@ -66,57 +64,36 @@ class consoleDM extends AbstractTableModel {
 
 		if ( row >= map.size()) return null;
 
-		consoleROW rad;
-		rad = (consoleROW) map.get(row);
+		consoleHstROW rad;
+		rad = (consoleHstROW) map.get(row);
 
 		if (col == 0) {
-			return rad.getId();
-		} else if (col == 1) {
-			return rad.getPrio();
-		} else if (col == 2) {
-			return rad.getType();
-		} else if (col == 3) {
 			return rad.getCredat();
+		} else if (col == 1) {
+			return rad.getDeldat();
+		} else if (col == 2) {
+			return rad.getCount();
+		} else if (col == 3) {
+			return rad.getId();
 		} else if (col == 4) {
-			return rad.getCondat();
+			return rad.getPrio();
 		} else if (col == 5) {
-			return rad.getStatus();
+			return rad.getType();
 		} else if (col == 6) {
-			return rad.getBody();
+			return rad.getStatus();
 		} else if (col == 7) {
+//			if (rad.getStatus().startsWith("T")) return "The Jvakt agent did not report in set time";
+			return rad.getBody();
+		} else if (col == 77) {
+			return rad.getBody();
+		} else if (col == 8) {
 			return rad.getAgent();
 		} else {
 			return null;
 		}
 
-		
-//		if (col == 0) {
-//			return rad.getCount();
-//		} else if (col == 1) {
-//			return rad.getId();
-//		} else if (col == 2) {
-//			return rad.getPrio();
-//		} else if (col == 3) {
-//			return rad.getType();
-//		} else if (col == 4) {
-//			return rad.getCredat();
-//		} else if (col == 5) {
-//			return rad.getCondat();
-//		} else if (col == 6) {
-//			return rad.getStatus();
-//		} else if (col == 7) {
-//			return rad.getBody();
-//		} else if (col == 8) {
-//			return rad.getAgent();
-//		} else {
-//			return null;
-//		}
-
 	}
 
-//	public Class getColumnClass(int c) {
-//		return getValueAt(0, c).getClass();
-//	}
 	public Class getColumnClass(int c) {
 		try {
 			//		return getValueAt(0, c).getClass();
@@ -131,31 +108,38 @@ class consoleDM extends AbstractTableModel {
 		return false;
 	}
 
+	public void setWhere(String where) {
+		this.where = where;
+		//		System.out.println("This where: " + this.where);
+	}
+
+
+
 	public void setValueAt(Object value, int row, int col) {
 		// se till att objektet User sparar värdet med rätt set metod ( if (col == 2) .........
 		// 	System.out.println("wD setValueAt " + value + " " + row + " "+ col);
 
-		consoleROW rad;
+		consoleHstROW rad;
 		if ( row >= map.size()) { 
-			rad = new consoleROW(); 
+			rad = new consoleHstROW(); 
 			map.add(rad); 
 		}
-		else rad = map.get(row);
+		else rad = (consoleHstROW) map.get(row);
 
 		if (col == 0) {
-			rad.setCount((Integer)value);
-//			rad.setCount((int)value);
-		} else if (col == 1) {
-			rad.setId((String)value);
-		} else if (col == 2) {
-			rad.setPrio((Integer)value);
-//			rad.setPrio((int)value);
-		} else if (col == 3) {
-			rad.setType((String)value);            
-		} else if (col == 4) {
 			rad.setCredat((String)value);
+		} else if (col == 1) {
+			rad.setDeldat((String)value); 
+		} else if (col == 2) {
+			rad.setCount((Integer)value);
+			//				rad.setCount((int)value);
+		} else if (col == 3) {
+			rad.setId((String)value);
+		} else if (col == 4) {
+			rad.setPrio((Integer)value);
+			//			rad.setPrio((int)value);
 		} else if (col == 5) {
-			rad.setCondat((String)value);
+			rad.setType((String)value);            
 		} else if (col == 6) {
 			rad.setStatus((String)value);
 		} else if (col == 7) {
@@ -181,14 +165,14 @@ class consoleDM extends AbstractTableModel {
 		}
 		catch (SQLException e) {
 //			System.err.println(e);
-			System.err.println("#e1 "+e.getMessage());
+			System.err.println(e.getMessage());
 			swDBopen = false;
 			map.clear();
 			createEmptyRow();
 		}
 		catch (Exception e) {
 //			System.err.println(e);
-			System.err.println("#e2 "+e.getMessage());
+			System.err.println(e.getMessage());
 			swDBopen = false;
 			map.clear();
 			createEmptyRow();
@@ -207,41 +191,44 @@ class consoleDM extends AbstractTableModel {
 		}
 
 		try {
-			String s = new String("select * from console order by credat desc;"); 
+			String s;
+			if (where.length() < 5 || !where.endsWith(" ") )
+				s = new String("select * from consoleHst order by credat desc;");
+			else
+				s = new String("select * from consoleHst where "+ where +" order by credat desc;");
 
 			map.clear();
 
-//			System.out.println(s);
-//			Statement stmt = conn.createStatement(ResultSet.CONCUR_READ_ONLY,ResultSet.TYPE_SCROLL_INSENSITIVE); 
-//			Statement stmt = conn.createStatement(ResultSet.CONCUR_UPDATABLE,ResultSet.TYPE_FORWARD_ONLY,ResultSet.CLOSE_CURSORS_AT_COMMIT ); 
+			//			System.out.println(s);
+			//			Statement stmt = conn.createStatement(ResultSet.CONCUR_READ_ONLY,ResultSet.TYPE_SCROLL_INSENSITIVE); 
 			Statement stmt = conn.createStatement(ResultSet.CONCUR_READ_ONLY,ResultSet.TYPE_FORWARD_ONLY,ResultSet.CLOSE_CURSORS_AT_COMMIT ); 
 			stmt.setFetchSize(1000);
-			stmt.setQueryTimeout(5); 
+			stmt.setQueryTimeout(5);
 			ResultSet rs = stmt.executeQuery(s);
 
-//			if (!rs.first()) {
-//				System.out.println("createemptyrow");
-//				createEmptyRow();
-//			}
+			//			if (!rs.first()) {
+			//				System.out.println("createemptyrow");
+			//				createEmptyRow();
+			//			}
 
 			while (rs.next()) {
 				//--
-//				System.out.println("rs.next");
-				rad = new consoleROW();
+				//				System.out.println("rs.next");
+				rad = new consoleHstROW();
 
-//				for (int i = 1; i <= 7; i++) {
+				//				for (int i = 1; i <= 7; i++) {
 
-					rad.setCount(rs.getInt("count"));
-					rad.setId(rs.getString("id"));
-					rad.setPrio(rs.getInt("prio"));
-					rad.setType(rs.getString("type"));
-					rad.setCredat(rs.getString("credat"));
-					rad.setCondat(rs.getString("condat"));
-					rad.setStatus(rs.getString("status"));
-					rad.setBody(rs.getString("body"));
-					rad.setAgent(rs.getString("agent"));
+				rad.setCount(rs.getInt("count"));
+				rad.setId(rs.getString("id"));
+				rad.setPrio(rs.getInt("prio"));
+				rad.setType(rs.getString("type"));
+				rad.setCredat(rs.getString("credat"));
+				rad.setDeldat(rs.getString("deldat"));
+				rad.setStatus(rs.getString("status"));
+				rad.setBody(rs.getString("body"));
+				rad.setAgent(rs.getString("agent"));
 
-//				}
+				//				}
 				map.add(rad);
 			}
 
@@ -267,18 +254,18 @@ class consoleDM extends AbstractTableModel {
 
 	private boolean createEmptyRow() {
 
-		rad = new consoleROW();
+		rad = new consoleHstROW();
 
 		rad.setCount(0);
 		rad.setId("**<>**");
 		rad.setPrio(0);
 		rad.setType(" ");
 		rad.setCredat(" ");
-		rad.setCondat(" ");
+		rad.setDeldat(" ");
 		rad.setStatus(" ");
 		rad.setBody(" ");
 		rad.setAgent(" ");
-//		map.add(rad);
+		//		map.add(rad);
 
 		return true;	
 	}
@@ -298,24 +285,24 @@ class consoleDM extends AbstractTableModel {
 
 	void getProps() {
 
-    	Properties prop = new Properties();
-    	InputStream input = null;
-    	try {
-    	input = new FileInputStream("console.properties");
-    	prop.load(input);
-    	// get the property value and print it out
-    	database = prop.getProperty("database");
-    	dbuser   = prop.getProperty("dbuser");
-    	dbpassword = prop.getProperty("dbpassword");
-    	dbhost   = prop.getProperty("dbhost");
-    	dbport   = prop.getProperty("dbport");
-    	jvport   = prop.getProperty("jvport");
-    	jvhost   = prop.getProperty("jvhost");
-    	input.close();
-    	} catch (IOException ex) {
-    		// ex.printStackTrace();
-    	}
-    	
+		Properties prop = new Properties();
+		InputStream input = null;
+		try {
+			input = new FileInputStream("console.properties");
+			prop.load(input);
+			// get the property value and print it out
+			database = prop.getProperty("database");
+			dbuser   = prop.getProperty("dbuser");
+			dbpassword = prop.getProperty("dbpassword");
+			dbhost   = prop.getProperty("dbhost");
+			dbport   = prop.getProperty("dbport");
+			jvport   = prop.getProperty("jvport");
+			jvhost   = prop.getProperty("jvhost");
+			input.close();
+		} catch (IOException ex) {
+			// ex.printStackTrace();
+		}
+
 	}
 
 }

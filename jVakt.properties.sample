@@ -1,0 +1,38 @@
+# PostgreSQL DB name
+database = Jvakt
+# PostgreSQL user name and pw. Update access
+dbuser = Jvakt
+dbpassword = pw
+# host name and port of PostgreSQL server
+dbhost = 127.0.0.1
+dbport = 5432
+# host name and port of Jvakt server process
+jvhost = 127.0.0.1
+jvport = 1956
+# receivers of status mail, comma separated multiple addresses allowed
+toSts = user1@gmail.com,user2@gmail.com
+# receivers of error and warning mail, comma separated multiple addresses allowed
+toEmail = user1@gmail.com,user2@gmail.com
+# Sender email address
+fromEmail = sedinguser@gmail.com
+# properties of smtp and imap connection. Note that the smtpuser and smtppwd is used in the imap connection too.
+smtphost = smtp.gmail.com
+smtpuser = sendinguser@gmail.com
+smtppwd = pw
+smtpport = 587
+imaphost = imap.gmail.com
+imapport = 993
+imapport = 143
+imapSSL = Y
+#
+imapRW = N
+imapFolder= INBOX
+# mode of the server. active or dormant. When dormant no mail is sent.
+mode = active
+# To send SMS via a "Cinterion MC55i Terminal GPRS modem with serial conn" and a "W&T COM Port Redirector" that connects the terminal to ethernet.
+# "W&T COM Port Redirector" https://www.wut.de/e-58www-10-inus-000.php
+# Cinterion MC55i Terminal GPRS modem with serial conn http://www.warburtech.co.uk/products/gsm/terminals/cinterion.mc55i.terminal/
+# "W&T COM Port Redirector" https://www.wut.de/e-58www-10-inus-000.php
+SMShost = 10.10.10.10
+SMSport = 8000
+toSMS = +4623232323232323

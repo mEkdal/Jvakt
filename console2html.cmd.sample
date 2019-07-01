@@ -1,0 +1,4 @@
+@rem (Base function) console2html creates a HTML file from the Console table.
+
+java -cp "C:\Users\micke\workspace\jVakt\bin;C:\Users\micke\workspace\postgresql-9.4.1211.jar" Jvakt.console2html > console.work
+move /Y console.work console.html

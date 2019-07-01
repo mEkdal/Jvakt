@@ -1,0 +1,10 @@
+@rem (Base function) Sends an activate message to the Jvakt server after a timeout of 1200 seconds. 
+@rem The time out gives the agents and monitors a chance to report in.
+@rem This cmd file is triggered from the StartServer.cmd. 
+@rem The Jvakt.Server always starts in dormant mode and need to be activated after a while.
+
+timeout 1200
+
+java -cp C:\JavaSrc Jvakt.RptToJv -host 127.0.0.1 -port 1956 -type Active -id Jvakt -config D:\Jvakt-console\config
+
+exit

@@ -21,22 +21,29 @@ public class CheckLogs {
 
 	static String jvhost   = "localhost";
 	static String jvport   = "1956";
+	static String jvtype = "R";
 	static int port ;
 	static InetAddress inet;
-	static String version = "jVakt 2.0 - CheckLogs 1.0 Date 2017-04-15_01";
+	static String version = "CheckLogs (2019-MAR-08)";
 	static String agent = null;
 	static boolean swSlut = false;
 
+	static String config = null;
+	static File configF;
+	static FileInputStream fis;
+
+	static boolean swJvakt = false;
+
 	public static void main(String[] args) throws IOException {
 
-		int j = 0;
+		//		int j = 0;
 		int errors = 0;
 		int position=0;
 		int posprev = 0;
 		String strprev = null;
 		String nyttnamn;
 		String tdat;
-		String c;
+		//		String c;
 		String s;
 		String prev_s = "";
 		boolean swWarn;
@@ -48,9 +55,9 @@ public class CheckLogs {
 		File dir = null;
 		String suf = null;
 		String pos = ".";
-		String sys = ".";
-		String res = ".";
-		String typ = ".";
+		//		String sys = ".";
+		//		String res = ".";
+		//		String typ = ".";
 		PrintStream ut;
 		boolean swRename = false;
 		boolean swPsav = false;
@@ -63,30 +70,43 @@ public class CheckLogs {
 			if (args[i].equalsIgnoreCase("-id"))  id  = args[++i];
 			if (args[i].equalsIgnoreCase("-ren")) swRename=true;
 			if (args[i].equalsIgnoreCase("-psav")) swPsav=true;
+			if (args[i].equalsIgnoreCase("-jvakt")) swJvakt=true;
+			if (args[i].equalsIgnoreCase("-jvtype")) jvtype  = args[++i];
+			if (args[i].equalsIgnoreCase("-config")) config = args[++i];
 		}
 
 		if (args.length < 1) {
-			System.out.println("\nCheckLogs 2.0 Date 2017-04-15_01");
-			System.out.println("by Michael Ekdal Sweden.\n");
+			System.out.println("\n\n"+version + " by Michael Ekdal Sweden.\n");
 
 			System.out.println("\nThe parameters and their meaning are:\n"+
-					"\n-dir  \tThe name of the directory to scan, like \"-dir c:\\Temp\" "+
-					"\n-suf  \tThe suffix of the files you want to include in the scan, like \"-suf .log\" "+
-					"\n-pos  \tText that must be contained in the file names." +
-					"\n-id   \tUsed as identifier in monitoring system." +
-					"\n-psav \tA switch that saves the position of the scanned fil until next scan. No rename." +
-					"\n-ren  \tA switch that makes the scanned file be renamed instead of saving position.");
+					"\n-dir    \tThe directory to scan, like \"-dir c:\\Temp\". UTF-8 is assumed. "+
+					"\n-suf    \tThe suffix of the files you want to include in the scan, like \"-suf .log\" "+
+					"\n-pos    \tAn optional string that must be contained in the file names." +
+					"\n-psav   \tA switch that saves the position of the scanned fil until next scan. No rename. Optional." +
+					"\n-ren    \tA switch that makes the scanned file be renamed instead of saving position. Optional." +
+					"\n\n--- the following switches is needed if Jvakt is to be used ---" +
+					"\n-jvakt  \tA switch to enable report to Jvakt. Default is no connection to Jvakt." +
+					"\n-jvtype \tThe type of the Jvakt report. Optional.  The default is \"R\"" +
+					"\n-id     \tUsed as identifier in the Jvakt monitoring system." +
+					"\n-config \tThe directory where to find the Jvakt.properties file. like \"-config c:\\Temp\". Optional. Default is the current directory.");
 
-			System.out.println("\n\nThe following files must be present in the current directory.\n"+
+			System.out.println("\n\n--- The following files must be present in the current directory ---\n"+
 					"\nCheckLogs.srch  \tStrings considered errors if found in the log file. e.g. ORA-"+
 					"\nCheckLogs.okay  \tStrings considered okay even when triggered by the CheckLogs.srch file. e.g. ORA-01013. May be empty." +
-					"\nCheckLogs.must  \tStrings mandatory to be found in the log file. May be empty."
+					"\nCheckLogs.must  \tStrings mandatory to be found in the log file. May be empty."+
+					"\n\nErrorlevel is set the number of errors found, else 0."
 					);
 
 			System.exit(4);
 		}
 
-		getProps();
+		if (swJvakt) {
+			if (config == null ) 	configF = new File("Jvakt.properties");
+			else 					configF = new File(config,"Jvakt.properties");
+			System.out.println("---- Jvakt: "+new Date()+"  Version: "+version);
+			System.out.println("-config file: "+configF);
+			getProps();
+		}
 
 		Date today;
 		String pattern = new String("yyyy-MM-dd_HH-mm-ss");
@@ -101,44 +121,66 @@ public class CheckLogs {
 
 		// Importing error strings to search for.
 		BufferedReader inokay;
-		inokay = new BufferedReader(new FileReader("CheckLogs.srch"));
+		if (config != null ) {
+			configF = new File(config);
+			inokay = new BufferedReader(new FileReader(configF.toString()+"/CheckLogs.srch"));
+			s = configF.toString()+"/CheckLogs.srch";
+		}
+		else {
+			inokay = new BufferedReader(new FileReader("CheckLogs.srch"));
+			s = "CheckLogs.srch";
+		}
 		int ecount = 0;
 		String[] etab = new String[1000];
-		System.out.println("--- Searching for the following text ---");
+		System.out.println("--- Searching for the strings found. File: "+s);
 		while((s = inokay.readLine())!= null) {
 			etab[ecount++] = s.toUpperCase();
-			System.out.println( etab[ecount - 1]);
+			//			System.out.println( etab[ecount - 1]);
 		}          
 		inokay.close();
 
 		// Importing strings approved despite hits.
-		inokay = new BufferedReader(new FileReader("CheckLogs.okay"));
+		if (config != null ) {
+			inokay = new BufferedReader(new FileReader(configF.toString()+"/CheckLogs.okay"));
+			s = configF.toString()+"/CheckLogs.okay";
+		}
+		else {
+			inokay = new BufferedReader(new FileReader("CheckLogs.okay"));
+			s = "CheckLogs.okay";
+		}
 		int tcount = 0;
 		String[] tokay = new String[1000];
-		System.out.println("--- Hits contained the following text will be disregarded ---");
+		System.out.println("--- Strings that will be disregarded. File: "+s);
 		while((s = inokay.readLine())!= null) {
 			if ( s.length() > 0 ) {
 				tokay[tcount++] = s.toUpperCase();
-				System.out.println( tokay[tcount - 1]);
+				//				System.out.println( tokay[tcount - 1]);
 			}
 		}          
 		inokay.close();
 
 		// Importing strings mandatory present to make the check to be okay.
-		inokay = new BufferedReader(new FileReader("CheckLogs.must"));
+		if (config != null ) {
+			inokay = new BufferedReader(new FileReader(configF.toString()+"/CheckLogs.must"));
+			s = configF.toString()+"/CheckLogs.must";
+		}
+		else {
+			inokay = new BufferedReader(new FileReader("CheckLogs.must"));
+			s = "CheckLogs.must";
+		}
 		int mcount = 0;
 		String[] tmust = new String[100];
-		System.out.println("--- Strings that are mandatory to be found ---");
+		System.out.println("--- Strings that are mandatory to be found. File: "+s);
 		while((s = inokay.readLine())!= null) {
 			if ( s.length() > 0 ) {
 				tmust[mcount++] = s.toUpperCase();
-				System.out.println( tmust[mcount - 1]);
+				//				System.out.println( tmust[mcount - 1]);
 			}
 		}          
 		inokay.close();
 		if (mcount == 0 ) swMust = true;
 
-		listf = dir.listFiles(df);
+		listf = dir.listFiles(df); 
 		System.out.println(tdat+"-- Number of files to scan: "+ listf.length);
 
 		for (int i = 0; i < listf.length; i++) {
@@ -148,7 +190,8 @@ public class CheckLogs {
 			aFile   = oldnamn.getName();
 
 			if (swPsav) {
-				in = new BufferedReader( new FileReader(oldnamn) );
+		        fis = new FileInputStream(oldnamn);
+//				in = new BufferedReader( new FileReader(oldnamn) );
 
 				try{  // read last position if present.
 					inokay = new BufferedReader(new FileReader(listf[i]+".position"));
@@ -172,22 +215,27 @@ public class CheckLogs {
 				if (!oldnamn.renameTo(newnamn)) {
 					System.out.println(tdat+"-- Rename failed. Tries "+ oldnamn +" instead...");
 					aFile   = oldnamn.getName();
-					in = new BufferedReader(new FileReader(oldnamn));
+			        fis = new FileInputStream(oldnamn);
+//					in = new BufferedReader(new FileReader(oldnamn));
 				}
 				else {
 					aFile   = newnamn.getName();
-					in = new BufferedReader(new FileReader(nyttnamn));
+			        fis = new FileInputStream(nyttnamn);
+//					in = new BufferedReader(new FileReader(nyttnamn));
 				}
 			}
 			else { // open the original file name.
 				aFile   = oldnamn.getName();
-				in = new BufferedReader( new FileReader(oldnamn) );
+		        fis = new FileInputStream(aFile);
+//				in = new BufferedReader( new FileReader(oldnamn) );
 			}
+	        InputStreamReader isr = new InputStreamReader(fis, "UTF8");
+	        in = new BufferedReader(isr);
 
 			position = 0;
 			while ((s = in.readLine()) != null) {
 				position++;
-				if ( position == 1 && !s.equals(strprev)) { posprev = 0; } // If it's a new logfile start from the begining 
+				if ( position == 1 && !s.equals(strprev)) { posprev = 0; } // If it's a new logfile start from the beginning 
 				if ( position == 1 ) { strprev = s; } // Store first row 
 				if ( position <= posprev  ) continue; // read next line if scanned previously. 
 
@@ -195,7 +243,7 @@ public class CheckLogs {
 				for ( int k = 0; k < ecount ; k++) {  // check if any scan string is present in the line.
 					if (s.toUpperCase().indexOf(etab[k]) >= 0) { 
 						swWarn = true;
-						s = s.substring(s.toUpperCase().indexOf(etab[k]));
+//						s = s.substring(s.toUpperCase().indexOf(etab[k]));
 						etab[k] = "-*dummy-entry*-";
 					}
 				}
@@ -210,7 +258,7 @@ public class CheckLogs {
 
 				if (!swWarn) continue;
 
-				c = null;
+				//				c = null;
 				if (s.length() > 256) s = s.substring(0, 255);
 				if (s.compareTo(prev_s) == 0)  continue;
 				prev_s = s;
@@ -229,11 +277,26 @@ public class CheckLogs {
 			}
 		}
 
-		if (!swMust) errors++;
+		if (!swMust && aFile != null ) {
+			errors++;
+			swWarn=true;
+			t_desc = "Missing hits in must file!";
+			sendSTS(swWarn);
+		}
+
 		swSlut = true;
 		if (errors == 0 ) {
 			swWarn=false;
-			t_desc = "No errors found";
+			
+			if (listf.length == 0 ) {
+				if (!swMust) {
+					errors++;
+					swWarn=true;
+					t_desc = " No logfiles found to scan! and Missing hits in must file!";
+				}
+				else t_desc = " No logfiles found to scan!";
+			} else t_desc = "No errors found"; 
+
 			sendSTS(swWarn);
 		}
 		else      {
@@ -241,7 +304,9 @@ public class CheckLogs {
 			t_desc = errors + " errors found";
 			sendSTS(swWarn);
 		}
-		//         System.out.println(tdat + "-- "+c);
+
+//		System.out.println("-- "+ listf.length);
+		
 
 		if (errors == 0) System.exit(0);
 		else             System.exit(errors);
@@ -249,21 +314,45 @@ public class CheckLogs {
 
 	// sends status to the server
 	static protected void sendSTS( boolean STS) throws IOException {
-		System.out.println("--- Connecting to "+jvhost+":"+jvport);
-		Message jmsg = new Message();
-		SendMsg jm = new SendMsg(jvhost, port);
-		System.out.println(jm.open());
-		if (!swSlut) jmsg.setId(id+"-CheckLogs-"+aFile);
-		else		 jmsg.setId(id+"-CheckLogs-"+aFile+"-JV");
-		if (!STS) jmsg.setRptsts("OK");
-		else jmsg.setRptsts("ERR");
-		jmsg.setBody(t_desc);
-		jmsg.setType("R");
-		jmsg.setAgent(agent);
-		jm.sendMsg(jmsg);
-		if (jm.close()) System.out.println("--- Rpt Delivered --");
-		else            System.out.println("--- Rpt Failed --");
+		if (!swSlut) { 
+			t_desc =aFile+": "+t_desc;
+		}
 
+		if (swJvakt) {
+			System.out.println("--- Connecting to "+jvhost+":"+jvport);
+			Message jmsg = new Message();
+			SendMsg jm = new SendMsg(jvhost, port);
+			try {
+			System.out.println(jm.open()); 
+			}
+			catch (java.net.ConnectException e ) {System.out.println("-- Rpt Failed --" + e);    return;}
+			catch (NullPointerException npe2 )   {System.out.println("-- Rpt Failed --" + npe2); return;}
+
+			//		if (!swSlut) jmsg.setId(id+"-CheckLogs-"+aFile);
+			//		else		 jmsg.setId(id+"-CheckLogs-"+aFile+"-JV");
+			// 	    jmsg.setId(id+"-CheckLogs-"+aFile);
+			jmsg.setId(id);
+			if (!STS) jmsg.setRptsts("OK");
+			else jmsg.setRptsts("ERR");
+			if (swSlut) { 
+				jmsg.setType(jvtype);
+			} else {
+				//			t_desc =aFile+": "+t_desc;
+				jmsg.setId(id+"_info");
+				jmsg.setId(id);
+				jmsg.setType("I");
+				jmsg.setRptsts("ERR");
+			}
+			jmsg.setBody(t_desc);
+			jmsg.setAgent(agent);
+			//		jm.sendMsg(jmsg);
+			if (jm.sendMsg(jmsg)) System.out.println("--- Rpt Delivered --  " + id + "  --  " + t_desc);
+			else           		  System.out.println("--- Rpt Failed --");
+			jm.close();
+		}
+		else {
+			System.out.println("--- " + id + "  --  " + t_desc);
+		}
 	}
 
 	static void getProps() {
@@ -271,7 +360,7 @@ public class CheckLogs {
 		Properties prop = new Properties();
 		InputStream input = null;
 		try {
-			input = new FileInputStream("jVakt.properties");
+			input = new FileInputStream(configF);
 			prop.load(input);
 			// get the property value and print it out
 			jvport   = prop.getProperty("jvport");

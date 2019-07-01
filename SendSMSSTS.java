@@ -10,11 +10,11 @@ import java.sql.Statement;
 //import java.sql.Timestamp;
 import java.util.*;
 //import java.time.*;
-import javax.mail.*;
-import javax.mail.Authenticator;
-import javax.mail.PasswordAuthentication;
+//import javax.mail.*;
+//import javax.mail.Authenticator;
+//import javax.mail.PasswordAuthentication;
 
-public class SendMailSTS {
+public class SendSMSSTS {
 
 	static String DBUrl = "jdbc:postgresql://localhost:5433/Jvakt";
 	static Connection conn = null;
@@ -37,26 +37,6 @@ public class SendMailSTS {
 	static String ebody = "";
 	static String wbody = "";
 	static String rbody = "";
-	static Date now;
-
-	static String tblStr = "<TABLE COLS=2 BORDER=4 cellpadding=\"3\" width=\"100%\"  >"; 
-	static String tblEnd = "</TABLE>";
-
-	static String hdrStrG = "<TH BGCOLOR=\"#00FF00\"><FONT SIZE=5>"; // Green
-	static String hdrStrY = "<TH BGCOLOR=\"#FFFF00\"><FONT SIZE=5>"; // Yellow
-	static String hdrStrR = "<TH BGCOLOR=\"#FF6600\"><FONT SIZE=5>"; // Red
-	static String hdrStrM = "<TH BGCOLOR=\"#FF00FF\"><FONT SIZE=5>"; // Magenta 
-	static String hdrEnd = "</TH>";
-
-	static String rowStr = "<TR>"; 
-	static String rowEnd = "</TR>";
-	static String boxStrG = "<TD BGCOLOR=\"#00FF00\">"; // Green
-	static String boxStrY = "<TD BGCOLOR=\"#FFFF00\">"; // Yellow
-	static String boxStrR = "<TD BGCOLOR=\"#FF6600\">"; // Red
-	static String boxStrM = "<TD BGCOLOR=\"#FF00FF\">"; // Magenta
-	static String boxStrB = "<TD BGCOLOR=\"#CCEEFF\">"; // Light blue
-	static String boxStr  = "<TD>"; 
-	static String boxEnd  = "</TD>";
 
 	static String database = "jVakt";
 	static String dbuser   = "jVakt";
@@ -67,34 +47,29 @@ public class SendMailSTS {
 	static String jvport   = "1956";
 	static int    port   = 1956;
 
-	//Declare recipient's & sender's e-mail id.
-	static String PtoEmail;
-	static String PfromEmail = "";	
-	static String Puname = "";
-	static String Ppwd = "";
-	static String Psmtphost = "";
-	static String Psmtpport = "";
-	static int smtpporti;
-	
 	static String config = null;
 	static File configF;
+
+	static String body = "Jvakt: ";
+	static int serrors = 0;
+	static List<String> listTo;
+	static String toSMSSTSW;
+
+	static String toSMS;
+	static String SMShost;
+	static String SMSport;
+	static int SMSporti;
+
+	static   Socket sock = null;
+	static   OutputStreamWriter osw;
+	static   InputStreamReader isr;
+
+	static String value = "";
 
 
 	public static void main(String[] args ) throws IOException, UnknownHostException {
 
-		String version = "SendMailSTS 1.9 (2019-APR-29)";
-
-		String subject = "";
-		String body = "";
-		String value = "";
-
-		//Declare recipient's & sender's e-mail id.
-		final String toEmail;
-		final String fromEmail;	
-//		final String uname;
-		final String pwd;
-		final String smtphost;
-//		final String smtpport;
+		String version = "SendSMSSTS (2019-APR-29)";
 
 		for (int i=0; i<args.length; i++) {
 			if (args[i].equalsIgnoreCase("-config")) config = args[++i];
@@ -106,30 +81,15 @@ public class SendMailSTS {
 		
 		boolean swMail = false;
 		getProps();
-		toEmail = PtoEmail;
-		fromEmail = PfromEmail;	
-//		uname = Puname;
-		pwd = Ppwd;
-		smtphost = Psmtphost;
-//		smtpport = Psmtpport;
-//		System.out.println(s);
 		
-		//create Authenticator object to pass in Session.getInstance argument
-		Authenticator auth = new Authenticator() {
-			//override the getPasswordAuthentication method
-			protected PasswordAuthentication getPasswordAuthentication() {
-				return new PasswordAuthentication(fromEmail, pwd);
-			}
-		};
+		listTo = new ArrayList<String>();  // All SMS numbers.
 
-		//Set properties and their values
-		Properties props = new Properties();
-		props.put("mail.smtp.auth", "true");
-		props.put("mail.smtp.starttls.enable", "true");
-		props.put("mail.smtp.ssl.trust", "*");
-		props.put("mail.smtp.host", smtphost);
-		props.put("mail.smtp.port", smtpporti);
-
+		String[] toAddr = toSMSSTSW.split("\\,");
+		for(int i=0 ; i<toAddr.length;i++) {
+			//			System.out.println(toAddr[i]);
+			listTo.add(toAddr[i]);
+		}
+		
 		Statement stmt = null;
 		String s;
 //		boolean swHits;
@@ -163,56 +123,42 @@ public class SendMailSTS {
 
 
 //			System.out.println(s);
-//			stmt = conn.createStatement(ResultSet.CONCUR_UPDATABLE,ResultSet.TYPE_SCROLL_INSENSITIVE);
-//			stmt = conn.createStatement(ResultSet.CONCUR_UPDATABLE,ResultSet.TYPE_FORWARD_ONLY,ResultSet.CLOSE_CURSORS_AT_COMMIT ); 
 			stmt = conn.createStatement(ResultSet.CONCUR_READ_ONLY,ResultSet.TYPE_FORWARD_ONLY,ResultSet.CLOSE_CURSORS_AT_COMMIT ); 
 			stmt.setFetchSize(1000);
 			ResultSet rs = stmt.executeQuery(s);
 //			swHits = false;  // is there already a record?
-			body = tblStr;
 
 			while (rs.next()) {
 //				swHits = true;  
 				swTiming = false;  
 
 				swFound = true;
-				body = body +rowStr;
 				//--
 				for (int i = 1; i <= 9; i++) {
-					if (i==1) continue;  // not interested in showing count
 					if (i==5) continue;  // not interested in showing condat
 					if (i==9) continue;  // not interested in showing agent
 					value = rs.getString (i);
 
 					if (rs.getInt("prio") < 30 && rs.getString("status").contentEquals("ERR")) {
-						body = body + boxStrM + value + boxEnd;
 						errors++;
 					}
 					else if (rs.getInt("prio") >= 30 && rs.getString("status").contentEquals("ERR")) {
-						body = body + boxStrR + value + boxEnd;
 						warnings++;
 					}
-					else if (rs.getString("status").contentEquals("INFO")) {
-						body = body + boxStrB + value + boxEnd;
+					else if (rs.getString("status").contentEquals("INFO") || rs.getString("status").contentEquals("OK")) {
 						infos++;
 					}
-					else if (rs.getString("status").startsWith("TOut")) {
-						body = body + boxStrY + value + boxEnd;
+					else if (rs.getString("status").startsWith("Tim")) {
 						warnings++;
 					}
 					else if (rs.getString("status").contentEquals("OK"))	{
-						body = body + boxStrG + value + boxEnd;
 						infos++;
 					}
 					else {
-						body = body + boxStrB + value + boxEnd;
 						infos++;
 					}
 
 				}
-				body = body + rowEnd; 
-
-				//--
 			}
 			swMail = true;
 			rs.close(); 
@@ -230,58 +176,40 @@ public class SendMailSTS {
 			System.err.println(e);
 			System.err.println(e.getMessage());
 		}
-//		finally { 
-//			subject = "Status: ";
-//			subject = "";
-//		}
-		
-		subject = "* STATUS * ";
 		
 			if (errors > 0) {
-				errors = errors / 6;
-				subject = subject + "Errors: " + errors + "  ";
+				errors = errors / 7;
+				body = body + "Errors: " + errors + "  ";
 			}
 			if (warnings > 0) {
-				warnings = warnings / 6;
-				subject = subject + "Warnings: " + warnings + "  ";
+				warnings = warnings / 7;
+				body = body + "Warnings: " + warnings + "  ";
 			}
 			if (errors == 0 && warnings == 0) {
-				subject = subject + "Jvakt: all is OKAY!  ";
+				body = body + "all is OKAY!  ";
 			}
 			if (infos > 0) {
-				infos = infos / 6;
-				subject = subject + "Infos: " + infos + "  ";
+				infos = infos / 7;
+				body = body + "Infos: " + infos + "  ";
 			}
 			
-			body = body + tblEnd;
 
 			if (!swDB) {
-				subject = "\n - Jvakt Database not accessible ! -\n"; 
-				body = "<br><p> - Jvakt Database not accessible ! -</p>"; 
+				body = "\n - Jvakt Database not accessible ! -\n"; 
 				swMail = true;
 			}
 			if (!swServer) {
 				if (swDB) {
-					subject = "";
 					body = "";
 				}
-				subject = subject + "\n - Jvakt Server not accessible ! - \n"; 
-				body = body + "<br><p> - Jvakt Server not accessible ! -</p>"; 
+				body = body + "- Jvakt Server not accessible ! "; 
 				swMail = true;
 			}
-			 
-			if (errors == 0 && warnings == 0 && infos == 0 ) body = body + "<br><p> All is OKAY! There is nothing to report!</p>";
-			else body = body + "<br><p> - On-call Duty -<br>Only rows with Prio less than 30 is to be handeled out of office hours !</p>"; 
-			
-			now = new Date();
-			subject = subject + " -- " + now;
-			System.out.println("-> Mail receivers: " + toEmail );
-			System.out.println("-> Mail subject  : " + subject );
-			System.out.println("-> Mail body     : " + body );
+
+//			System.out.println("\n" + body );
 			
 			if (swMail && !swDormant) {
-				Session session = Session.getInstance(props, auth);
-				if (EmailUtil.sendEmail(session, toEmail,subject, body, fromEmail)) {};
+				sendSMS();
 			}
 
 	}        
@@ -300,14 +228,12 @@ public class SendMailSTS {
 		dbhost   = prop.getProperty("dbhost");
 		dbport   = prop.getProperty("dbport");
 		jvport   = prop.getProperty("jvport");
+//		int jvporti = Integer.parseInt(jvport);
 		jvhost   = prop.getProperty("jvhost");
-		PtoEmail  = prop.getProperty("toSts");
-		PfromEmail= prop.getProperty("fromEmail");
-		Puname    = prop.getProperty("smtpuser");
-		Ppwd      = prop.getProperty("smtppwd");
-		Psmtphost = prop.getProperty("smtphost");
-		Psmtpport = prop.getProperty("smtpport");
-		smtpporti = Integer.parseInt(Psmtpport);
+		toSMSSTSW  = prop.getProperty("toSMSSTS");
+		SMShost = prop.getProperty("SMShost");
+		SMSport = prop.getProperty("SMSport");
+		SMSporti = Integer.parseInt(SMSport);
 		String	mode 	 =  prop.getProperty("mode");
 		if (!mode.equalsIgnoreCase("active"))  swDormant = true;
 		input.close();
@@ -315,5 +241,120 @@ public class SendMailSTS {
     		// ex.printStackTrace();
     	}  
 	}
+	
+	// Connects to the SMS terminal and sends the text
+	static boolean sendSMS() {
+
+		boolean swOK = false;
+		System.out.println("--- Sending Jvakt Status SMS ---\n");
+
+		// Loop on all phone numbers
+		for(Object object : listTo) { 
+//			String element = (String) object;
+			toSMS = (String) object;
+			System.out.println("--- SMS to:"+toSMS +"      Body: " + body );
+
+			// Connect to Com-Server
+			try {
+				System.out.println("Connecting to: "+SMShost +":" + SMSporti );
+				sock = new Socket( SMShost, SMSporti );
+				sock.setSoTimeout( 2000 );  // receive timeout
+				osw = new OutputStreamWriter( sock.getOutputStream() );
+				isr = new InputStreamReader( sock.getInputStream() );
+			} catch( IOException e ) {
+				System.out.println("IOExeption while connecting " + e);
+				swOK = false;
+				break;
+			}
+			// Sending 
+			try {
+				System.out.println("Sending \"AT+CMGF=1\\r\\n\"" );
+				osw.write( "AT+CMGF=1\r\n" );
+				osw.flush();
+				ReceiveText();
+//				osw.write( "AT+CMGS="+ toSMS + "\r\n" );
+				System.out.println("Sending AT+CMGS="+toSMS +"\\r" );
+				osw.write( "AT+CMGS="+ toSMS + "\r" );
+				osw.flush();
+				ReceiveText();
+				if (body.length() > 156 ) body = body.substring(0, 155);
+				body = body.replace('_', '-'); // replace _ with - because SMS creates a §
+				body = body.replace('Å', 'A'); 
+				body = body.replace('Å', 'A'); 
+				body = body.replace('Ö', 'O'); 
+				body = body.replace('å', 'a'); 
+				body = body.replace('ä', 'a'); 
+				body = body.replace('ö', 'o'); 
+				body = body.replaceAll("[^a-zA-Z0-9.:-]" , " ");
+//				System.out.println("Sending body: "+body +"\\r\\n" );
+				System.out.println("Sending body: "+body );
+//				osw.write( body + "\r\n" + "\u001A" );
+		        osw.write( body +"\u001A" );
+				osw.flush();
+				ReceiveText();
+				swOK = true;
+			} catch( IOException e ) {
+				swOK = false;
+				System.out.println("IOExeption while sending " + e);
+				break;
+			}		      
+			// closing and disconnecting 
+			try {
+				osw.close();
+				isr.close();
+				sock.close();
+			} catch( IOException e ) {System.out.println("IOExeption while closing " + e); }
+
+		}
+
+		if (swOK) {
+			System.out.println("RETURN true");
+			return true;
+		}
+		else {
+			System.out.println("RETURN false");
+			return false;
+		}
+
+	}
+
+
+	static public void ReceiveText() {
+		try { Thread.sleep(500); } catch (InterruptedException e) { e.printStackTrace();}
+//		try { Thread.currentThread().sleep(500); } catch (InterruptedException e) { e.printStackTrace();}
+		String s;
+		int i, len, timeouts;
+		char c[] = new char[ 100 ];
+		
+		timeouts = 0;
+		for( ;; ) {
+			s = "";
+			try {
+				len = isr.read( c, 0, 100 );
+				if( len < 0 ) {
+					return;
+				}
+				for( i = 0; i < len; i++ ) {
+					if( c[ i ] != 0 ) s += c[ i ];
+				}
+			} catch (InterruptedIOException e) {
+				timeouts++;
+				if (timeouts>999) {
+					// timeout in input stream
+					System.out.println("ReceiverText timeout in input stream: " + e);
+					break;
+				}
+			} catch (IOException e) {
+				System.out.println("ReceiverText IOException: " + e);
+				break;
+			}
+
+			if( s.length() > 0 ) {
+				System.out.println(s);  
+				return;
+			}	      
+		}
+	}
+
 
 }

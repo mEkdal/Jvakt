@@ -1,4 +1,5 @@
 package Jvakt;
+import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -35,11 +36,24 @@ public class console2html {
 	static String jvport   = "1956";
 	static int port ;
 	static String agent = null;
+    static String config = null;
+	static File configF;
 
-    public static void main (String[] parameters) throws IOException, UnknownHostException
+    public static void main (String[] args) throws IOException, UnknownHostException
     {
 
     now = new Date();
+
+
+	for (int i=0; i<args.length; i++) {
+		if (args[i].equalsIgnoreCase("-config")) config = args[++i];
+	}
+
+	if (config == null ) 	configF = new File("console.properties");
+	else 					configF = new File(config,"console.properties");
+//	System.out.println("----- Jvakt: "+now+"   version: "+version);
+//	System.out.println("-config file: "+configF);
+
     getProps();
     DBUrl = "jdbc:postgresql://"+dbhost+":"+dbport+"/"+database;
     
@@ -162,7 +176,7 @@ public class console2html {
     	Properties prop = new Properties();
     	InputStream input = null;
     	try {
-    	input = new FileInputStream("console.properties");
+    	input = new FileInputStream(configF);
     	prop.load(input);
     	// get the property value and print it out
     	database = prop.getProperty("database");
