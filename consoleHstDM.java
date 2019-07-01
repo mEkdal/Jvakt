@@ -1,16 +1,9 @@
 package Jvakt;
 
-<<<<<<< HEAD
 //import java.awt.*;
 //import java.awt.event.*;
 //import javax.swing.event.*;
 //import javax.swing.*;
-=======
-import java.awt.*;
-import java.awt.event.*;
-import javax.swing.event.*;
-import javax.swing.*;
->>>>>>> 36f55cebd265b234fca790644580636fd16c20ee
 import javax.swing.table.*;
 import java.io.*;
 import java.sql.Connection;
@@ -89,12 +82,9 @@ class consoleHstDM extends AbstractTableModel {
 		} else if (col == 6) {
 			return rad.getStatus();
 		} else if (col == 7) {
-<<<<<<< HEAD
 //			if (rad.getStatus().startsWith("T")) return "The Jvakt agent did not report in set time";
 			return rad.getBody();
 		} else if (col == 77) {
-=======
->>>>>>> 36f55cebd265b234fca790644580636fd16c20ee
 			return rad.getBody();
 		} else if (col == 8) {
 			return rad.getAgent();

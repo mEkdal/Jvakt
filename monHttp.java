@@ -22,11 +22,7 @@ public class monHttp {
 	static boolean swShow = false;
 	static String host;
 	static InetAddress inet;
-<<<<<<< HEAD
 	static String version = "monHttp 1.4 # 2019-06-17";
-=======
-	static String version = "monHttp 1.4 # 2018-05-03";
->>>>>>> 36f55cebd265b234fca790644580636fd16c20ee
 	static String database = "jVakt";
 	static String dbuser   = "jVakt";
 	static String dbpassword = "xz";

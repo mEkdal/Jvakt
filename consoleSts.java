@@ -15,11 +15,7 @@ import javax.swing.event.*;
 import javax.swing.*;
 import javax.swing.table.*;
 import java.io.*;
-<<<<<<< HEAD
 //import java.sql.SQLException;
-=======
-import java.sql.SQLException;
->>>>>>> 36f55cebd265b234fca790644580636fd16c20ee
 import java.util.*;
 
 import javax.swing.event.ListSelectionEvent;
@@ -37,11 +33,7 @@ public class consoleSts extends JFrame implements TableModelListener, WindowList
 	// Skapar diverse variabler
 	private JPanel topPanel;
 	private JPanel usrPanel;
-<<<<<<< HEAD
 //	private JPanel logPanel;
-=======
-	private JPanel logPanel;
->>>>>>> 36f55cebd265b234fca790644580636fd16c20ee
 	private JTable table;
 	private JScrollPane scrollPane;
 	private JButton bu1;
@@ -88,11 +80,7 @@ public class consoleSts extends JFrame implements TableModelListener, WindowList
 		port = Integer.parseInt(jvport);
 
 		// funktion från Jframe att sätta rubrik
-<<<<<<< HEAD
 		setTitle("Jvakt consoleSts 2.15  -  F1 = Help");
-=======
-		setTitle("Jvakt consoleSts 2.10  -  F1 = Help");
->>>>>>> 36f55cebd265b234fca790644580636fd16c20ee
 		//	        setSize(5000, 5000);
 
 		// get the screen size as a java dimension
@@ -166,11 +154,7 @@ public class consoleSts extends JFrame implements TableModelListener, WindowList
 		}
 		catch (NullPointerException npe2 )   {
 			swServer = false;
-<<<<<<< HEAD
 //			System.out.println("-- Rpt Failed --" + npe2);
-=======
-			System.out.println("-- Rpt Failed --" + npe2);
->>>>>>> 36f55cebd265b234fca790644580636fd16c20ee
 		}
 		//		System.out.println("swServer :" + swServer);
 		wD.setEditable(!swAuto);
@@ -205,17 +189,10 @@ public class consoleSts extends JFrame implements TableModelListener, WindowList
 
 				ListSelectionModel lsm = (ListSelectionModel) e.getSource();
 				if (lsm.isSelectionEmpty()) {
-<<<<<<< HEAD
 //					System.out.println("No rows are selected.");
 				} else {
 //					int selectedRow = lsm.getMinSelectionIndex();
 //					System.out.println("Row " + selectedRow + " is now selected.");
-=======
-					System.out.println("No rows are selected.");
-				} else {
-					int selectedRow = lsm.getMinSelectionIndex();
-					System.out.println("Row " + selectedRow + " is now selected.");
->>>>>>> 36f55cebd265b234fca790644580636fd16c20ee
 					deselectCount = 0;
 				}
 			}
@@ -363,11 +340,7 @@ public class consoleSts extends JFrame implements TableModelListener, WindowList
 						}
 						catch (NullPointerException npe2 )   {
 							swServer = false;
-<<<<<<< HEAD
 //							System.out.println("-- Rpt Failed --" + npe2);
-=======
-							System.out.println("-- Rpt Failed --" + npe2);
->>>>>>> 36f55cebd265b234fca790644580636fd16c20ee
 						}
 						//					System.out.println("swServer 2 : " + swServer);
 					}
@@ -415,19 +388,11 @@ public class consoleSts extends JFrame implements TableModelListener, WindowList
 		String ls ;
 		TableModel model = (TableModel)e.getSource();
 		if (column==2 || column==9 ||column==10  ) {
-<<<<<<< HEAD
 //			String columnName = model.getColumnName(column);
 			int datai = (Integer)model.getValueAt(row, column);
 			ls = "Workout tableChanged " + row + " " + column + " " +  datai;		} 
 		else {
 //			String columnName = model.getColumnName(column);
-=======
-			String columnName = model.getColumnName(column);
-			int datai = (Integer)model.getValueAt(row, column);
-			ls = "Workout tableChanged " + row + " " + column + " " +  datai;		} 
-		else {
-			String columnName = model.getColumnName(column);
->>>>>>> 36f55cebd265b234fca790644580636fd16c20ee
 			String data = (String)model.getValueAt(row, column);
 			ls = "Workout tableChanged " + row + " " + column + " " +  data;
 		}
@@ -472,10 +437,7 @@ public class consoleSts extends JFrame implements TableModelListener, WindowList
 		table.getActionMap().put("decreaseH", decreaseH());
 		table.getActionMap().put("showHelp", showHelp());
 		table.getActionMap().put("delRow", delRow());
-<<<<<<< HEAD
 		table.getActionMap().put("cpyRow", cpyRow());
-=======
->>>>>>> 36f55cebd265b234fca790644580636fd16c20ee
 
 		KeyStroke keyStroke = KeyStroke.getKeyStroke(KeyEvent.VK_ESCAPE , 0);
 		table.getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(keyStroke, "clearSel");
@@ -493,12 +455,9 @@ public class consoleSts extends JFrame implements TableModelListener, WindowList
 		keyStroke = KeyStroke.getKeyStroke(KeyEvent.VK_DELETE, 0);  		// delete key in Win  Linux
 		table.getInputMap(JComponent.WHEN_FOCUSED).put(keyStroke, "delRow");
 
-<<<<<<< HEAD
 		keyStroke = KeyStroke.getKeyStroke(KeyEvent.VK_F9, 0);  		// copyRow
 		table.getInputMap(JComponent.WHEN_FOCUSED).put(keyStroke, "cpyRow");
 
-=======
->>>>>>> 36f55cebd265b234fca790644580636fd16c20ee
 	}  
 
 	private AbstractAction showHelp()  {
@@ -507,22 +466,14 @@ public class consoleSts extends JFrame implements TableModelListener, WindowList
 			@Override
 			public void actionPerformed(ActionEvent e)  {
 				//					                 JOptionPane.showMessageDialog(TestTableKeyBinding.this.table, "Action Triggered.");
-<<<<<<< HEAD
 //				System.out.println("ShowHelp");
 				JOptionPane pane = new JOptionPane("Jvakt help");
 				pane.showMessageDialog(getContentPane(),
 						"F1 : Help \nF3 : Increase font size \nF4 : Decrease font size \nF9 : Copy row \nDEL : Mark for deletion \n\nESC : Unselect"+
-=======
-				System.out.println("ShowHelp");
-				JOptionPane pane = new JOptionPane("Jvakt help");
-				pane.showMessageDialog(getContentPane(),
-						"F1 : Help \nF3 : Increase font size \nF4 : Decrease font size \nDEL : Mark for deletion \n\nESC : Unselect"+
->>>>>>> 36f55cebd265b234fca790644580636fd16c20ee
 								"\n\nThe SEARCH field (where statement) is active when an ending space is present"+
 								"\n\nSome fields are updatable when the 'Auto Update' is off!\n Please heed the rules for the fields!" +
 								"\n\nstate  - Must be A (active), I (inactive) or D (dormant)" + 
 								"\nprio   - Below 30   may trigger SMS or Mail depending on chkday/chktim " + 
-<<<<<<< HEAD
 								"\nprio   - 10 or less may trigger SMS or Mail 24/7. " +
 								"\ntype   - R = rptdat must be updated at least every 20 minutes or a time out warning is issued. " +
 								"\ntype   - S = rptday must be updated 'today' or a time out warning is issued. " +
@@ -532,16 +483,6 @@ public class consoleSts extends JFrame implements TableModelListener, WindowList
 								"\nchkday - Must be *ALL or a mix of MON TUE WED THU FRI SAT SUN"+ 
 								"\nchktim - The time of day when the check starts. The format is HH:MM:TT"+ 
 								"\naccerr - The number of acceptable errors before a warning is issued." 
-=======
-								"\nprio   - 10 or less may trigger SMS or Mail 00:00-2400. " +
-								"\ntype   - S = a check that rptday is updated 'today' is made at chkday/chktim. " +
-								"\ntype   - R = a check that rptdat is updated at least every 20 minute is made from chkday/chktim. " +
-								"\ntype   - I = a temporary type used for impromptu messages. " +
-								"\ntype   - D = delete mark. the row will be purged by the nightly housekeeping routine. " +
-								"\nchkday - Must be *ALL or a mix of MON TUE WED THU FRI SAT SUN"+ 
-								"\nchktim - Must adhere to the format HH:MM:TT"+ 
-								"\naccerr - A number indicating the number of acceptable errors." 
->>>>>>> 36f55cebd265b234fca790644580636fd16c20ee
 								,"Jvakt Help",
 								JOptionPane.INFORMATION_MESSAGE);
 
@@ -618,16 +559,11 @@ public class consoleSts extends JFrame implements TableModelListener, WindowList
 
 				try {
 					for (int i = 0; i <  selectedRow.length; i++) {
-<<<<<<< HEAD
 //						System.out.println("*** Row do delete :" + selectedRow[i]);
-=======
-						System.out.println("*** Row do delete :" + selectedRow[i]);
->>>>>>> 36f55cebd265b234fca790644580636fd16c20ee
 						wD.setValueAt("D", selectedRow[i], 3);   // Set the type field to D to mark it as deletable by housekeeping 
 					}
 				} 
 				catch (Exception e2) {
-<<<<<<< HEAD
 //					System.out.println("-- Exeption delRow 1 --");
 					System.err.println(e2);
 					System.err.println(e2.getMessage());
@@ -656,9 +592,6 @@ public class consoleSts extends JFrame implements TableModelListener, WindowList
 				} 
 				catch (Exception e2) {
 //					System.out.println("-- Exeption cpyRow 1 --");
-=======
-					System.out.println("-- Exeption delRow 1 --");
->>>>>>> 36f55cebd265b234fca790644580636fd16c20ee
 					System.err.println(e2);
 					System.err.println(e2.getMessage());
 				}

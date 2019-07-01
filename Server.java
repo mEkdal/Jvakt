@@ -18,11 +18,7 @@ public class Server {
 	 */
 	public static void main(String[] args ) throws Exception  {
 
-<<<<<<< HEAD
 		String version = "Server 1.3 # 2019-04-29";
-=======
-		String version = "Server 1.2 # 2017-12-07";
->>>>>>> 36f55cebd265b234fca790644580636fd16c20ee
 		String jvport   = "1956";
 
 		String config = null;
@@ -52,11 +48,7 @@ public class Server {
 		
 		// Main loop
 		int port = Integer.parseInt(jvport);
-<<<<<<< HEAD
 		ss = new ServerSocket(port);
-=======
-		ServerSocket ss = new ServerSocket(port);
->>>>>>> 36f55cebd265b234fca790644580636fd16c20ee
 		DBupdate dt = new DBupdate( args );
 		while( true ) {
 			try {

@@ -22,11 +22,7 @@ public class monIPAddr {
 	static String host;
 	static String host2;
 	static InetAddress inet;
-<<<<<<< HEAD
 	static String version = "monIPAddr 1.5 # 2019-05-07";
-=======
-	static String version = "monIPAddr 1.5 # 2019-01-09";
->>>>>>> 36f55cebd265b234fca790644580636fd16c20ee
 	static String database = "jVakt";
 	static String dbuser   = "jVakt";
 	static String dbpassword = "xz";
@@ -149,12 +145,8 @@ public class monIPAddr {
 					in.close();
 				}
 			}
-<<<<<<< HEAD
 //			if (swLoop) try {Thread.currentThread().sleep(1000);} catch (InterruptedException e) {e.printStackTrace();} // sleep 1 second
 			if (swLoop) try {Thread.sleep(1000);} catch (InterruptedException e) {e.printStackTrace();} // sleep 1 second
-=======
-			if (swLoop) try {Thread.currentThread().sleep(1000);} catch (InterruptedException e) {e.printStackTrace();} // sleep 1 second
->>>>>>> 36f55cebd265b234fca790644580636fd16c20ee
 		} while(swLoop);
 
 	}

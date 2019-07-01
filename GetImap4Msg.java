@@ -17,11 +17,8 @@ public class GetImap4Msg {
 	static String msgId;
 	static boolean swSunet = false;
 
-<<<<<<< HEAD
 	static boolean swSerious = false;
 
-=======
->>>>>>> 36f55cebd265b234fca790644580636fd16c20ee
 	static boolean swSmq1PXP = false;
 	static boolean swSmq2PCP = false;
 	static int Sm58PCPerr = 0;
@@ -49,11 +46,7 @@ public class GetImap4Msg {
 
 	public static void main(String[] args) throws IOException, FileNotFoundException {
 
-<<<<<<< HEAD
 		String version = "GetImap4Msg # ( 2019-05-09 )";
-=======
-		String version = "GetImap4Msg # 2019-01-03";
->>>>>>> 36f55cebd265b234fca790644580636fd16c20ee
 
 		for (int i=0; i<args.length; i++) {
 			if (args[i].equalsIgnoreCase("-config")) config = args[++i];
@@ -144,7 +137,6 @@ public class GetImap4Msg {
 				if (subject == null) subject = "null.";
 				adr = messages[i].getFrom(); 
 				from = null;
-<<<<<<< HEAD
 				if (adr != null) {
 					System.out.println("adr null ");
 					for (int j = 0; j < adr.length; j++) {
@@ -154,12 +146,6 @@ public class GetImap4Msg {
 					from = "unknown";
 				}
 				System.out.println("From: " + from );
-=======
-				for (int j = 0; j < adr.length; j++) {
-					from = adr[j].toString();
-					System.out.println("From: " + from );
-				}
->>>>>>> 36f55cebd265b234fca790644580636fd16c20ee
 				//	        if (from == null) subject = "null.";  2013-05-23
 				if (from == null) from = "null.";
 				System.out.println("MimeType> " + messages[i].getContentType());
@@ -170,13 +156,8 @@ public class GetImap4Msg {
 				Object o = null;
 				if (messages[i].isMimeType("text/plain") || messages[i].isMimeType("text/html")  ) {
 					try {
-<<<<<<< HEAD
 						o = messages[i].getContent();
 						body = (String)o;
-=======
-					 o = messages[i].getContent();
-					 body = (String)o;
->>>>>>> 36f55cebd265b234fca790644580636fd16c20ee
 					} catch (IOException e) {
 						body = "";
 					}
@@ -207,7 +188,6 @@ public class GetImap4Msg {
 
 				// Msg från Diesel Backup Generator  
 				if (from.indexOf("UPS_Notification") >= 0) {
-<<<<<<< HEAD
 					if (subject.indexOf("DO6 Generator running") >= 0 || 
 							subject.indexOf("GCB Closed") >= 0 ||
 							subject.indexOf("Engine Speed (rpm) Over") >= 0 ||
@@ -243,9 +223,6 @@ public class GetImap4Msg {
 						sendJv("MAIL_From_UPS-BY892" , "OK" , "T",  subject );
 					}
 					else sendJv("MAIL_From_UPS-BY892" , "INFO" , "I",  subject );
-=======
-					sendJv("MAIL_From_Diesel_Generator" , "INFO" , "I",  subject + " " + body);
->>>>>>> 36f55cebd265b234fca790644580636fd16c20ee
 					msgFixat = true;
 				}
 
@@ -323,10 +300,7 @@ public class GetImap4Msg {
 						}
 					}
 				}
-<<<<<<< HEAD
 
-=======
->>>>>>> 36f55cebd265b234fca790644580636fd16c20ee
 				if (from.indexOf("echo-reply@sunet.se") >= 0) {
 					System.out.println("New mail from Sunet echo found");
 					swSunet = true;
@@ -376,11 +350,7 @@ public class GetImap4Msg {
 						for (int j=0, n=mp.getCount(); j<n; j++) {
 							Part part = mp.getBodyPart(j);
 
-<<<<<<< HEAD
 //							String disposition = part.getDisposition();
-=======
-							String disposition = part.getDisposition();
->>>>>>> 36f55cebd265b234fca790644580636fd16c20ee
 							//System.out.println("***Disp> " + disposition);
 
 							//        	        		  if ( (disposition != null) && 
@@ -398,17 +368,10 @@ public class GetImap4Msg {
 
 				if (subject.startsWith("Job PTP CHECK SMQ2")) {  // Mail från övervakning av SMQ2 i PCP
 					msgFixat = true;  
-<<<<<<< HEAD
 					if (imaprw.startsWith("Y")) {
 						messages[i].setFlag(Flags.Flag.DELETED, true); // markera mailet för deletion
 						System.out.println("* Mark as DELETED ");
 					}
-=======
-										if (imaprw.startsWith("Y")) {
-											messages[i].setFlag(Flags.Flag.DELETED, true); // markera mailet för deletion
-											System.out.println("* Mark as DELETED ");
-										}
->>>>>>> 36f55cebd265b234fca790644580636fd16c20ee
 					System.out.println("*** PCP check> " + body);
 					System.out.println("*** SAP Monitor SMQ2  ");
 					if (messages[i].getContentType().startsWith("multipart")) {
@@ -419,11 +382,7 @@ public class GetImap4Msg {
 						for (int j=0, n=mp.getCount(); j<n; j++) {
 							Part part = mp.getBodyPart(j);
 
-<<<<<<< HEAD
 //							String disposition = part.getDisposition();
-=======
-							String disposition = part.getDisposition();
->>>>>>> 36f55cebd265b234fca790644580636fd16c20ee
 							//System.out.println("***Disp> " + disposition);
 
 							//        	        		  if ( (disposition != null) && 
@@ -459,11 +418,7 @@ public class GetImap4Msg {
 						for (int j=0, n=mp.getCount(); j<n; j++) {
 							Part part = mp.getBodyPart(j);
 
-<<<<<<< HEAD
 //							String disposition = part.getDisposition();
-=======
-							String disposition = part.getDisposition();
->>>>>>> 36f55cebd265b234fca790644580636fd16c20ee
 							//System.out.println("***Disp> " + disposition);
 
 							//        	        		  if ( (disposition != null) && 
@@ -508,11 +463,7 @@ public class GetImap4Msg {
 		}
 
 		// Stängrutiner
-<<<<<<< HEAD
 		// Sunet echo expected only to be found in the INBOX folder
-=======
-		// Sunet echo ecpected only to be fount in the INBOX folder
->>>>>>> 36f55cebd265b234fca790644580636fd16c20ee
 		if (imapFolder.endsWith("INBOX")) {
 			if (!swSunet) {
 				System.out.println("No mail from Sunet echo found.");
@@ -535,15 +486,11 @@ public class GetImap4Msg {
 		jmsg.setBody(msg);
 		jmsg.setType(type);
 		jmsg.setAgent(agent);
-<<<<<<< HEAD
 		if (swSerious) {
 			jmsg.setPrio(20);
 			swSerious = false;
 		} else jmsg.setPrio(30);
 
-=======
-		//		jm.sendMsg(jmsg);
->>>>>>> 36f55cebd265b234fca790644580636fd16c20ee
 		if (jm.sendMsg(jmsg)) {
 			System.out.println("-- Rpt Delivered --");
 			msgFixat = true;

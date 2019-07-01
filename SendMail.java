@@ -81,11 +81,7 @@ public class SendMail {
 	
 	public static void main(String[] args ) throws IOException, UnknownHostException {
 
-<<<<<<< HEAD
 		String version = "SendMail 1.6 (2019-MAY-07)";
-=======
-		String version = "SendMail 1.5 (2018-JUL-10)";
->>>>>>> 36f55cebd265b234fca790644580636fd16c20ee
 		String database = "jVakt";
 		String dbuser   = "jVakt";
 		String dbpassword = "xz";
@@ -96,12 +92,9 @@ public class SendMail {
 
 		String config = null;
 		File configF;
-<<<<<<< HEAD
 		
 //		java.sql.Time sqlt;
 		Calendar cal = Calendar.getInstance();
-=======
->>>>>>> 36f55cebd265b234fca790644580636fd16c20ee
 
 		for (int i=0; i<args.length; i++) {
 			if (args[i].equalsIgnoreCase("-config")) config = args[++i];
@@ -241,11 +234,7 @@ public class SendMail {
 //			swHits = false;  // is there already a record?
 			while (rs.next()) {
 				System.out.println("- main RS - State:"+rs.getString("state")+" Id:" + rs.getString("id")+" Type:"+rs.getString("type")+" Prio:"+rs.getString("prio")+" Console:"+rs.getString("console")+" Status:"+rs.getString("status")+ " Msg:"+rs.getString("msg"));
-<<<<<<< HEAD
 //				swHits = true;  
-=======
-				swHits = true;  
->>>>>>> 36f55cebd265b234fca790644580636fd16c20ee
 				swTiming = false;  
 
 //				if (rs.getString("id").equalsIgnoreCase("syssts")) {
@@ -312,11 +301,7 @@ public class SendMail {
 						warnings++;
 //						wbody = wbody +rowStr+boxStrY+ rs.getString("id")+boxEnd +boxStrY+ rs.getString("body")+boxEnd+boxStrY+ rs.getString("agent")+boxEnd+rowEnd;
 //						wbody = wbody +rowStr+boxStrB+ rs.getString("id")+boxEnd +boxStrB+ rs.getString("body")+boxEnd+boxStrB+ rs.getString("agent")+boxEnd+rowEnd;
-<<<<<<< HEAD
 						wbody = wbody +rowStr+boxStrB+ rs.getString("id")+boxEnd +boxStrB+ "The Jvakt agent did not report in set time."+boxEnd+rowEnd;
-=======
-						wbody = wbody +rowStr+boxStrB+ rs.getString("id")+boxEnd +boxStrB+ rs.getString("body")+boxEnd+rowEnd;
->>>>>>> 36f55cebd265b234fca790644580636fd16c20ee
 					}
 					swMail = true;
 					if (rs.getString("msg").equalsIgnoreCase("R")) rs.updateString("msg", " ");

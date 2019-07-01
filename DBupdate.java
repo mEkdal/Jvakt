@@ -30,11 +30,8 @@ class DBupdate {
 	boolean swPerm = false;
 	boolean swLoop = true;
 	static boolean swLogg = false;
-<<<<<<< HEAD
     Calendar cal = Calendar.getInstance();
 
-=======
->>>>>>> 36f55cebd265b234fca790644580636fd16c20ee
 
 	String database = "jVakt";
 	String dbuser   = "jVakt";
@@ -104,12 +101,6 @@ class DBupdate {
 			return;
 		}
 
-		// Ignore empty conenctions. Most often from console checking the status.
-		if ( m.getId().isEmpty() ) {
-			//			if (swLogg) System.out.println("dbWrite #A: " + m.getType() + " " + m.getId() + " " +m.getRptsts() + " " + m.getBody() + " " +m.getAgent() + " " +m.getPrio());
-			return;
-		}
-
 		try {
 
 			if(!swDB) {
@@ -136,11 +127,7 @@ class DBupdate {
 					s = new String("select * from status " + 
 							"WHERE id ilike '" + m.getId().toUpperCase() + 
 							"';");
-<<<<<<< HEAD
 //					if (swLogg) System.out.println("s: " + s );
-=======
-					//					if (swLogg) System.out.println("s: " + s );
->>>>>>> 36f55cebd265b234fca790644580636fd16c20ee
 
 					//					stmt = conn.createStatement(ResultSet.CONCUR_UPDATABLE,ResultSet.TYPE_SCROLL_INSENSITIVE);
 					stmt = conn.createStatement(ResultSet.CONCUR_UPDATABLE,ResultSet.TYPE_FORWARD_ONLY,ResultSet.CLOSE_CURSORS_AT_COMMIT ); 
@@ -151,13 +138,9 @@ class DBupdate {
 						swHits = true;  // A record is already in place
 						swPlugin = false;
 						sType = rs.getString("type");
-<<<<<<< HEAD
 						sId = rs.getString("id");
 						sBody = rs.getString("body");
 //						sPrio = rs.getInt("prio");
-=======
-						sPrio = rs.getInt("prio");
->>>>>>> 36f55cebd265b234fca790644580636fd16c20ee
 						if (swLogg) {
 							if (!rs.getString("status").equals(m.getRptsts().toUpperCase()))
 								System.out.println(LocalDateTime.now()+" #1 " + rs.getString("id") + "  "  + sType + " " + rs.getString("status")+"->"+ m.getRptsts().toUpperCase() );
@@ -207,14 +190,9 @@ class DBupdate {
 							rs.updateString("condat", null);					
 						}
 
-<<<<<<< HEAD
 						// If Immediate and not OK, set "console" to C and set "msg" and "sms" to M
 //						if ( rs.getString("type").equalsIgnoreCase("I") && !m.getRptsts().toUpperCase().equals("OK") && errors > accerr) {
 						if ( (rs.getString("type").equalsIgnoreCase("I") || m.getType().equalsIgnoreCase("I")) && !m.getRptsts().toUpperCase().equals("OK") && errors > accerr) {
-=======
-						// If ERR set "console" to C and "msg" to M
-						if ( rs.getString("type").equalsIgnoreCase("I") && !m.getRptsts().toUpperCase().equals("OK") && errors > accerr) {
->>>>>>> 36f55cebd265b234fca790644580636fd16c20ee
 							rs.updateString("console", "C");
 							rs.updateTimestamp("condat", new java.sql.Timestamp((new Date(System.currentTimeMillis())).getTime()));
 							if (rs.getString("msg").startsWith(" ")) {
@@ -259,7 +237,6 @@ class DBupdate {
 						st.setTimestamp(7, new java.sql.Timestamp((new Date(System.currentTimeMillis())).getTime())); // rptdat
 						st.setString(8,"*ALL" ); // chkday
 						//						st.setTime(9, new java.sql.Time((new Date(System.currentTimeMillis())).getTime())); // chktim
-<<<<<<< HEAD
 						if (m.getPrio() <= 10 ) {
 							cal.set(1970, 01, 01, 0, 0, 0); // only HH:MM:SS is used
 							st.setTime(9, new java.sql.Time( cal.getTime().getTime())); // chktim 00:00:00
@@ -276,12 +253,6 @@ class DBupdate {
 								cal.set(1970, 01, 01, 6, 0, 0); // only HH:MM:SS is used
 								st.setTime(9, new java.sql.Time( cal.getTime().getTime())); // chktim 06:00:00
 							}
-=======
-						if (m.getPrio() <= 10 )	st.setTime(9, new java.sql.Time(0,0,0)); // chktim
-						else { 
-							if (sType.toUpperCase().equals("S")) st.setTime(9, new java.sql.Time(8,0,0)); 
-							else st.setTime(9, new java.sql.Time(6,0,0)); 
->>>>>>> 36f55cebd265b234fca790644580636fd16c20ee
 						}
 						if (m.getRptsts().toUpperCase().equals("OK") || m.getRptsts().toUpperCase().equals("INFO")) st.setInt(10,0); // errors 
 						else                                          st.setInt(10,1); 
@@ -302,10 +273,7 @@ class DBupdate {
 						st.setString(18,m.getAgent() ); 
 						st.setString(19," "); // sms 
 						st.setTime(20,null ); // smsdat 
-<<<<<<< HEAD
 						@SuppressWarnings("unused")
-=======
->>>>>>> 36f55cebd265b234fca790644580636fd16c20ee
 						int rowsInserted = st.executeUpdate();
 						st.close();
 					} // €newrecord      
@@ -326,17 +294,10 @@ class DBupdate {
 
 
 					// €console ** Immediate or delete type cause an update to the console table at once.
-<<<<<<< HEAD
 					if ( sType.equalsIgnoreCase("I") || m.getType().equalsIgnoreCase("I") || m.getType().equalsIgnoreCase("D") ) {   
 						if (swLogg) {
 							System.out.println(">>> Con  m.Type  >>>>: " + m.getType().toUpperCase() +" - "+  m.getId()+" - "+ m.getBody());
 							System.out.println(">>> Con rs.sType >>>>: " + sType +" - "+sId+"- -"+ sBody);
-=======
-					if ( sType.equalsIgnoreCase("I") || m.getType().equalsIgnoreCase("D") ) {   
-						if (swLogg) {
-							System.out.println(">>> Con  m.Type  >>>>: " + m.getType().toUpperCase());
-							System.out.println(">>> Con rs.sType >>>>: " + sType);
->>>>>>> 36f55cebd265b234fca790644580636fd16c20ee
 						}
 
 						// read and remove previous line from the console table and save the count field
@@ -348,31 +309,15 @@ class DBupdate {
 									"' and body ilike '" + m.getBody() +
 									"';");
 							if (swLogg)
-<<<<<<< HEAD
 								System.out.println(">> s for update: "+s);
 						} else {  // delete 
-=======
-								System.out.println(s);
-						} else {  // delete
->>>>>>> 36f55cebd265b234fca790644580636fd16c20ee
 							s = new String("select * from console " + 
 									"WHERE id ilike '" + m.getId() + 
 									"' AND body ilike '" + m.getBody() +
 									"' and prio='" + Integer.toString(m.getPrio()) +
 									"';");
-<<<<<<< HEAD
 							if (swLogg)
 								System.out.println(">> s for delete: "+s);
-=======
-							//							s = new String("select * from console " + 
-							//									"WHERE id ilike '" + m.getId() + 
-							//									"' AND body = '" + m.getBody() +
-							//									"' and prio='" + Integer.toString(m.getPrio()) +
-							//									"';");
-
-							if (swLogg)
-								System.out.println(s);
->>>>>>> 36f55cebd265b234fca790644580636fd16c20ee
 						}
 
 						//						stmt = conn.createStatement(ResultSet.CONCUR_UPDATABLE,ResultSet.TYPE_SCROLL_INSENSITIVE);
@@ -388,18 +333,11 @@ class DBupdate {
 							if (m.getType().equalsIgnoreCase("D")) {
 								addHst(rs2);
 								if (swLogg)
-<<<<<<< HEAD
 									System.out.println(">>> delete row in console " + rs2.getString("id")+" - "+rs2.getString("body"));
 								try { rs2.deleteRow(); } catch(NullPointerException npe2) {System.out.println(">>> delete row npe " + npe2 );}
 							}
 							else { 
 								if (swLogg) System.out.println(">>> update row in console" + rs2.getString("id")+" - "+rs2.getString("body"));
-=======
-									System.out.println(">>> deleterow");
-								try { rs2.deleteRow(); } catch(NullPointerException npe2) {System.out.println(">>> deleterow npe " + npe2 );}
-							}
-							else { 
->>>>>>> 36f55cebd265b234fca790644580636fd16c20ee
 								rs2.updateTimestamp("condat", new java.sql.Timestamp((new Date(System.currentTimeMillis())).getTime()));
 								rs2.updateInt("count", count);
 								rs2.updateString("status", m.getRptsts());
@@ -435,11 +373,7 @@ class DBupdate {
 							st.close();
 							//        System.out.println("Closed " + sessnum );
 							//  Sleep one millisecond to be sure next timestamp is unique.
-<<<<<<< HEAD
 							try { Thread.sleep(1); } catch (InterruptedException e) { e.printStackTrace();}
-=======
-							try { Thread.currentThread().sleep(1); } catch (InterruptedException e) { e.printStackTrace();}
->>>>>>> 36f55cebd265b234fca790644580636fd16c20ee
 						}
 					} //€console    
 
@@ -454,11 +388,7 @@ class DBupdate {
 			swDB = false;
 		}
 		catch (Exception e) {
-<<<<<<< HEAD
 			System.out.println(LocalDateTime.now()+" #E2 DT exeption error session " );
-=======
-			System.out.println("DT exeptionerror session " );
->>>>>>> 36f55cebd265b234fca790644580636fd16c20ee
 			System.err.println(e);
 			System.err.println(e.getMessage());
 		}

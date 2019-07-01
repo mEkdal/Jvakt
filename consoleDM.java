@@ -12,22 +12,14 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.*;
-<<<<<<< HEAD
 //import java.net.*;
-=======
-import java.net.*;
->>>>>>> 36f55cebd265b234fca790644580636fd16c20ee
 
 class consoleDM extends AbstractTableModel {
 
 	String afn;
 //	String columnNames[] = {"Count", "Id", "Prio", "Type", "CreDate", "ConDate", "Status", "Body", "Agent"};
 	String columnNames[] = { "Id", "Prio", "Type", "CreDate", "ConDate", "Status", "Body", "Agent"};
-<<<<<<< HEAD
 	static Vector<consoleROW> map = new Vector<consoleROW>(100,10);
-=======
-	static Vector map = new Vector(100,10);
->>>>>>> 36f55cebd265b234fca790644580636fd16c20ee
 
 	consoleROW rad;
 

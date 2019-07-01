@@ -6,11 +6,7 @@ import java.util.Properties;
 public class RptToJv {
 	public static void main(String[] args ) throws IOException, UnknownHostException {
 
-<<<<<<< HEAD
 		String version = "RptToDW (2019-JAN-22)";
-=======
-		String version = "RptToDW 1.6 (2018-NOV-19)";
->>>>>>> 36f55cebd265b234fca790644580636fd16c20ee
 		String host = "127.0.0.1";
 		int port = 1956; 
 		String id = null;
@@ -91,13 +87,8 @@ public class RptToJv {
 			System.out.println(">>> Failure! The -id switch must contain a value! <<<");
 			System.exit(8);
 		}
-<<<<<<< HEAD
 		if (!type.toUpperCase().equals("T") && !type.toUpperCase().equals("R") && !type.toUpperCase().equals("I") && !type.toUpperCase().equals("S") && !type.toUpperCase().equals("D") && !type.toUpperCase().equals("P") && !type.equalsIgnoreCase("Active") && !type.equalsIgnoreCase("Dormant")  ) {
 			System.out.println(">>> Failure! The type must be R, I, S, T or D <<<");
-=======
-		if (!type.toUpperCase().equals("R") && !type.toUpperCase().equals("I") && !type.toUpperCase().equals("S") && !type.toUpperCase().equals("D") && !type.toUpperCase().equals("P") && !type.equalsIgnoreCase("Active") && !type.equalsIgnoreCase("Dormant")  ) {
-			System.out.println(">>> Failure! The type must be R, I, S or D <<<");
->>>>>>> 36f55cebd265b234fca790644580636fd16c20ee
 			System.exit(8);
 		}
 

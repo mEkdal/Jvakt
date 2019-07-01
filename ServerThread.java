@@ -9,17 +9,13 @@ class ServerThread extends Thread {
 //	List list;
 	Socket client;
 	DBupdate dt;
-<<<<<<< HEAD
 	String version = "ServerThread 1.3 Date 2019-04-29";
-=======
-	String version = "ServerThread 1.2 Date 2018-01-09";
->>>>>>> 36f55cebd265b234fca790644580636fd16c20ee
 	boolean swData;
 	String line;
 	Message jm = new Message();
 
 	ServerThread(Socket client, DBupdate dt) { this.client = client; this.dt = dt; }
- 
+
 	public void run() {
 		try {
 			swData = false;

@@ -82,11 +82,7 @@ public class SendMailSTS {
 
 	public static void main(String[] args ) throws IOException, UnknownHostException {
 
-<<<<<<< HEAD
 		String version = "SendMailSTS 1.9 (2019-APR-29)";
-=======
-		String version = "SendMailSTS 1.9 (2018-DEC-07)";
->>>>>>> 36f55cebd265b234fca790644580636fd16c20ee
 
 		String subject = "";
 		String body = "";

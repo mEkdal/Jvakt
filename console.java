@@ -50,13 +50,8 @@ public class console extends JFrame implements TableModelListener, WindowListene
 	private  String jvhost = "127.0.0.1";
 	private  String jvport = "1956";
 	private  int port = 1956; 
-<<<<<<< HEAD
 	private  String cmdHst = "java -cp console.jar;postgresql.jar Jvakt.consoleHst";
 	private  String cmdSts = "java -cp console.jar;postgresql.jar Jvakt.consoleSts";
-=======
-	private  String cmdHst = "java -cp console.jar;postgresql-42.1.3.jar Jvakt.consoleHst";
-	private  String cmdSts = "java -cp console.jar;postgresql-42.1.3.jar Jvakt.consoleSts";
->>>>>>> 36f55cebd265b234fca790644580636fd16c20ee
 
 	private  int deselectCount = 0; 
 	private  int jvconnectCount = 0; 
@@ -86,11 +81,7 @@ public class console extends JFrame implements TableModelListener, WindowListene
 		port = Integer.parseInt(jvport);
 
 		// funktion från Jframe att sätta rubrik
-<<<<<<< HEAD
 		setTitle("Jvakt console 2.39  -  F1 = Help");
-=======
-		setTitle("Jvakt console 2.37  -  F1 = Help");
->>>>>>> 36f55cebd265b234fca790644580636fd16c20ee
 		//	        setSize(5000, 5000);
 
 		// get the screen size as a java dimension
@@ -156,19 +147,11 @@ public class console extends JFrame implements TableModelListener, WindowListene
 			swServer = false;
 			System.err.println(e1);
 			//			System.err.println(e1.getMessage());
-<<<<<<< HEAD
 		}
 		catch (NullPointerException npe2 )   {
 			swServer = false;
 			System.out.println("-- Rpt Failed 1 --" + npe2);
 		}
-=======
-		}
-		catch (NullPointerException npe2 )   {
-			swServer = false;
-			System.out.println("-- Rpt Failed --" + npe2);
-		}
->>>>>>> 36f55cebd265b234fca790644580636fd16c20ee
 
 		//		System.out.println("swServer :" + swServer);
 
@@ -344,11 +327,7 @@ public class console extends JFrame implements TableModelListener, WindowListene
 						}
 						catch (NullPointerException npe2 )   {
 							swServer = false;
-<<<<<<< HEAD
 							System.out.println("-- Rpt Failed 2 --" + npe2);
-=======
-							System.out.println("-- Rpt Failed --" + npe2);
->>>>>>> 36f55cebd265b234fca790644580636fd16c20ee
 						}
 //						System.out.println("swServer 2 : " + swServer);
 					}
@@ -476,11 +455,7 @@ public class console extends JFrame implements TableModelListener, WindowListene
 			@Override
 			public void actionPerformed(ActionEvent e)  {
 				//					                 JOptionPane.showMessageDialog(TestTableKeyBinding.this.table, "Action Triggered.");
-<<<<<<< HEAD
 //				System.out.println("ShowHelp");
-=======
-				System.out.println("ShowHelp");
->>>>>>> 36f55cebd265b234fca790644580636fd16c20ee
 				JOptionPane.showMessageDialog(getContentPane(),
 								"F1 : Help \nF3 : Increase font size \nF4 : Decrease font size \nF5 : History \nF6 : Status table \nF7 : Show line \nF8 : Toggle dormant  \n\nESC : Unselect\n" +
 								"\nThis app shows the filtered report/messages sent to the Jvakt server. OK messages of types 'R' and 'S' remain in the database." + 
@@ -515,18 +490,13 @@ public class console extends JFrame implements TableModelListener, WindowListene
 
 			@Override
 			public void actionPerformed(ActionEvent e)  {
-<<<<<<< HEAD
 //				System.out.println("ShowLine");
-=======
-				System.out.println("ShowLine");
->>>>>>> 36f55cebd265b234fca790644580636fd16c20ee
 				table.editingCanceled(null);
 				table.editingStopped(null);
 				int[] selectedRow = table.getSelectedRows();
 
 				try {
 					for (int i = 0; i <  selectedRow.length; i++) {
-<<<<<<< HEAD
 //						System.out.println("*** Row to show :" + selectedRow[i]);
 						Object ValueId   = table.getValueAt(selectedRow[i],table.getColumnModel().getColumnIndex("Id"));
 //						System.out.println(ValueId);
@@ -552,33 +522,6 @@ public class console extends JFrame implements TableModelListener, WindowListene
 						String body = (String) ValueId;
 						ValueId   = table.getValueAt(selectedRow[i],table.getColumnModel().getColumnIndex("Agent"));
 //						System.out.println(ValueId);
-=======
-						System.out.println("*** Row to show :" + selectedRow[i]);
-						Object ValueId   = table.getValueAt(selectedRow[i],table.getColumnModel().getColumnIndex("Id"));
-						System.out.println(ValueId);
-						String id = (String) ValueId;
-						if (id == null) continue;
-						ValueId   = table.getValueAt(selectedRow[i],table.getColumnModel().getColumnIndex("Prio"));
-						System.out.println(ValueId);
-						int prio = (Integer) ValueId;
-						ValueId   = table.getValueAt(selectedRow[i],table.getColumnModel().getColumnIndex("Type"));
-						System.out.println(ValueId);
-						String type = (String) ValueId;
-						ValueId   = table.getValueAt(selectedRow[i],table.getColumnModel().getColumnIndex("CreDate"));
-						System.out.println(ValueId);
-						String credate = (String) ValueId;
-						ValueId   = table.getValueAt(selectedRow[i],table.getColumnModel().getColumnIndex("ConDate"));
-						System.out.println(ValueId);
-						String condate = (String) ValueId;
-						ValueId   = table.getValueAt(selectedRow[i],table.getColumnModel().getColumnIndex("Status"));
-						System.out.println(ValueId);
-						String status = (String) ValueId;
-						ValueId   = table.getValueAt(selectedRow[i],table.getColumnModel().getColumnIndex("Body"));
-						System.out.println(ValueId);
-						String body = (String) ValueId;
-						ValueId   = table.getValueAt(selectedRow[i],table.getColumnModel().getColumnIndex("Agent"));
-						System.out.println(ValueId);
->>>>>>> 36f55cebd265b234fca790644580636fd16c20ee
 						String agent = (String) ValueId;
 						JOptionPane.showMessageDialog(getContentPane(),
 								"- ID (the unique id if the message) -\n"+id+" \n\n" +
@@ -689,13 +632,8 @@ public class console extends JFrame implements TableModelListener, WindowListene
 						jmsg.setType("D");
 						jmsg.setAgent("GUI");
 						//						jm.sendMsg(jmsg);
-<<<<<<< HEAD
 						if (jm.sendMsg(jmsg)) System.out.println("-- Rpt Delivered 3 --");
 						else            	  System.out.println("-- Rpt Failed 3 --");
-=======
-						if (jm.sendMsg(jmsg)) System.out.println("-- Rpt Delivered --");
-						else            	  System.out.println("-- Rpt Failed --");
->>>>>>> 36f55cebd265b234fca790644580636fd16c20ee
 						jm.close();
 					}
 				} 
@@ -728,11 +666,7 @@ public class console extends JFrame implements TableModelListener, WindowListene
 						else jmsg.setType("Dormant");
 						jmsg.setAgent("GUI");
 						if (jm.sendMsg(jmsg)) System.out.println("-- Rpt Delivered --");
-<<<<<<< HEAD
 						else            	  System.out.println("-- Rpt Failed 4 --");
-=======
-						else            	  System.out.println("-- Rpt Failed --");
->>>>>>> 36f55cebd265b234fca790644580636fd16c20ee
 						jm.close();
 				} 
 				catch (IOException e1) {
@@ -754,11 +688,7 @@ public class console extends JFrame implements TableModelListener, WindowListene
 
 			@Override
 			public void actionPerformed(ActionEvent e)  {
-<<<<<<< HEAD
 //				System.out.println("-- Start consoleHst: " + cmdHst);
-=======
-				System.out.println("-- Start consoleHst: " + cmdHst);
->>>>>>> 36f55cebd265b234fca790644580636fd16c20ee
 
 				try {
 					//			       Runtime.getRuntime().exec("java -cp \"/Users/septpadm/OneDrive - Perstorp Group/JavaSrc;/Users/septpadm/OneDrive - Perstorp Group/JavaSrc/postgresql-42.1.3.jar\" Jvakt.consoleHst");
@@ -800,11 +730,7 @@ public class console extends JFrame implements TableModelListener, WindowListene
 
 			@Override
 			public void actionPerformed(ActionEvent e)  {
-<<<<<<< HEAD
 //				System.out.println("-- Start consoleSts: " + cmdSts);
-=======
-				System.out.println("-- Start consoleSts: " + cmdSts);
->>>>>>> 36f55cebd265b234fca790644580636fd16c20ee
 
 				try {
 					//			       Runtime.getRuntime().exec("java -cp \"/Users/septpadm/OneDrive - Perstorp Group/JavaSrc;/Users/septpadm/OneDrive - Perstorp Group/JavaSrc/postgresql-42.1.3.jar\" Jvakt.consoleHst");

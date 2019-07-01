@@ -3,19 +3,11 @@ import java.io.*;
 import java.net.*;
 import java.sql.Connection;
 import java.sql.DriverManager;
-<<<<<<< HEAD
 //import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 //import java.sql.Timestamp;
-=======
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.sql.Statement;
-import java.sql.Timestamp;
->>>>>>> 36f55cebd265b234fca790644580636fd16c20ee
 import java.util.*;
 import java.time.*;
 import javax.mail.*;
@@ -93,11 +85,7 @@ public class SendMail30 {
 
 	public static void main(String[] args ) throws IOException, UnknownHostException {
 
-<<<<<<< HEAD
 		String version = "SendMail30 (2019-MAY-07)";
-=======
-		String version = "SendMail30 1.4 (2018-JUL-11)";
->>>>>>> 36f55cebd265b234fca790644580636fd16c20ee
 		String database = "jVakt";
 		String dbuser   = "jVakt";
 		String dbpassword = "xz";
@@ -106,11 +94,8 @@ public class SendMail30 {
 		String jvhost   = "localhost";
 		String jvport   = "1956";
 
-<<<<<<< HEAD
 		Calendar cal = Calendar.getInstance();
 		
-=======
->>>>>>> 36f55cebd265b234fca790644580636fd16c20ee
 		for (int i=0; i<args.length; i++) {
 			if (args[i].equalsIgnoreCase("-config")) config = args[++i];
 		}
@@ -195,7 +180,6 @@ public class SendMail30 {
 		props.put("mail.smtp.port", smtpporti);
 
 		LocalDateTime nu = LocalDateTime.now(); // The current date and time
-<<<<<<< HEAD
 //		LocalDateTime midnatt = LocalDateTime.of(nu.getYear(), nu.getMonthValue(), nu.getDayOfMonth() , 0, 0, 0, 0);
 //		Timestamp mi = Timestamp.valueOf(midnatt);
 		DayOfWeek DOW = nu.getDayOfWeek(); 
@@ -203,15 +187,6 @@ public class SendMail30 {
 		String s;
 //		boolean swHits;
 //		String cause = "";
-=======
-		LocalDateTime midnatt = LocalDateTime.of(nu.getYear(), nu.getMonthValue(), nu.getDayOfMonth() , 0, 0, 0, 0);
-		Timestamp mi = Timestamp.valueOf(midnatt);
-		DayOfWeek DOW = nu.getDayOfWeek(); 
-		Statement stmt = null;
-		String s;
-		boolean swHits;
-		String cause = "";
->>>>>>> 36f55cebd265b234fca790644580636fd16c20ee
 		zDate = new java.sql.Date((new Date(System.currentTimeMillis())).getTime());
 		zTs = new java.sql.Timestamp((new Date(System.currentTimeMillis())).getTime()); 
 
@@ -237,19 +212,11 @@ public class SendMail30 {
 			stmt = conn.createStatement(ResultSet.CONCUR_UPDATABLE,ResultSet.TYPE_FORWARD_ONLY,ResultSet.CLOSE_CURSORS_AT_COMMIT ); 
 			stmt.setFetchSize(1000);
 			ResultSet rs = stmt.executeQuery(s);
-<<<<<<< HEAD
 //			swHits = false;  // is there already a record?
 			while (rs.next()) {
 //				System.out.println("---- main RS: "+rs.getString("state")+" " + rs.getString("id")+" "+rs.getString("type")+" "+rs.getString("prio")+" "+rs.getString("console")+" "+rs.getString("status")+ " "+rs.getString("msg"));
 				System.out.println("- main RS - State:"+rs.getString("state")+" Id:" + rs.getString("id")+" Type:"+rs.getString("type")+" Prio:"+rs.getString("prio")+" Console:"+rs.getString("console")+" Status:"+rs.getString("status")+ " Msg:"+rs.getString("msg"));
 //				swHits = true;  
-=======
-			swHits = false;  // is there already a record?
-			while (rs.next()) {
-//				System.out.println("---- main RS: "+rs.getString("state")+" " + rs.getString("id")+" "+rs.getString("type")+" "+rs.getString("prio")+" "+rs.getString("console")+" "+rs.getString("status")+ " "+rs.getString("msg"));
-				System.out.println("- main RS - State:"+rs.getString("state")+" Id:" + rs.getString("id")+" Type:"+rs.getString("type")+" Prio:"+rs.getString("prio")+" Console:"+rs.getString("console")+" Status:"+rs.getString("status")+ " Msg:"+rs.getString("msg"));
-				swHits = true;  
->>>>>>> 36f55cebd265b234fca790644580636fd16c20ee
 				swTiming = false;  
 
 				//				if (rs.getString("id").equalsIgnoreCase("syssts")) {
@@ -269,7 +236,6 @@ public class SendMail30 {
 
 				swShDay = false;
 				if (rs.getString("chkday").startsWith("*ALL") || rs.getString("chkday").startsWith(DOW.name().substring(0, 2) )) {
-<<<<<<< HEAD
 					cal.setTime(rs.getTime("chktim"));
 //					if (nu.getHour() > rs.getTime("chktim").getHours() ) {
 					if (nu.getHour() > cal.get(Calendar.HOUR_OF_DAY) ) {
@@ -281,15 +247,6 @@ public class SendMail30 {
 					}
 //					else if (nu.getHour() == rs.getTime("chktim").getHours() && nu.getMinute() == rs.getTime("chktim").getMinutes() && nu.getSecond() > rs.getTime("chktim").getSeconds() ) {
 					else if (nu.getHour() == cal.get(Calendar.HOUR_OF_DAY) && nu.getMinute() == cal.get(Calendar.MINUTE) && nu.getSecond() > cal.get(Calendar.SECOND) ) {
-=======
-					if (nu.getHour() > rs.getTime("chktim").getHours() ) {
-						swShDay = true; System.out.println("Timmen swShDay: "+swShDay);
-					}
-					else if (nu.getHour() == rs.getTime("chktim").getHours() && nu.getMinute() > rs.getTime("chktim").getMinutes() ) {
-						swShDay = true;	System.out.println("Minuten swShDay: "+swShDay);
-					}
-					else if (nu.getHour() == rs.getTime("chktim").getHours() && nu.getMinute() == rs.getTime("chktim").getMinutes() && nu.getSecond() > rs.getTime("chktim").getSeconds() ) {
->>>>>>> 36f55cebd265b234fca790644580636fd16c20ee
 						swShDay = true;	System.out.println("Sekunden swShDay: "+swShDay);
 					}
 				} 
@@ -303,52 +260,32 @@ public class SendMail30 {
 					if (checkInterest(rs.getString("id"))) {
 
 						if (rs.getString("msg").equalsIgnoreCase("M") && rs.getInt("prio") < 30 ) { 
-<<<<<<< HEAD
 //							cause = "Problem :\t";
-=======
-							cause = "Problem :\t";
->>>>>>> 36f55cebd265b234fca790644580636fd16c20ee
 							serrors++;
 							//						sbody = sbody +rowStr+boxStrM+ rs.getString("id")+boxEnd +boxStrM+ rs.getString("body")+boxEnd +boxStrM+ rs.getString("agent")+boxEnd+rowEnd;
 //							sbody = sbody +rowStr+boxStrB+ rs.getString("id")+boxEnd +boxStrB+ rs.getString("body")+boxEnd +boxStrB+ rs.getString("agent")+boxEnd+rowEnd;
 							sbody = sbody +rowStr+boxStrB+ rs.getString("id")+boxEnd +boxStrB+ rs.getString("body")+boxEnd +rowEnd;
 						}
 						else if (rs.getString("msg").equalsIgnoreCase("M") && rs.getInt("prio") >= 30 ) { 
-<<<<<<< HEAD
 //							cause = "Problem :\t";
-=======
-							cause = "Problem :\t";
->>>>>>> 36f55cebd265b234fca790644580636fd16c20ee
 							errors++;
 							//						ebody = ebody +rowStr+boxStrR+ rs.getString("id")+boxEnd +boxStrR+ rs.getString("body")+boxEnd+boxStrR+ rs.getString("agent")+boxEnd+rowEnd;
 //							ebody = ebody +rowStr+boxStrB+ rs.getString("id")+boxEnd +boxStrB+ rs.getString("body")+boxEnd+boxStrB+ rs.getString("agent")+boxEnd+rowEnd;
 							ebody = ebody +rowStr+boxStrB+ rs.getString("id")+boxEnd +boxStrB+ rs.getString("body")+boxEnd+rowEnd;
 						}
 						else if (rs.getString("msg").equalsIgnoreCase("R")) {
-<<<<<<< HEAD
 //							cause = "Resolved:\t";
-=======
-							cause = "Resolved:\t";
->>>>>>> 36f55cebd265b234fca790644580636fd16c20ee
 							resolved++;
 							//						rbody = rbody +rowStr+boxStrG+ rs.getString("id")+boxEnd +boxStrG+ rs.getString("body")+boxEnd+boxStrG+ rs.getString("agent")+boxEnd+rowEnd;
 //							rbody = rbody +rowStr+boxStrB+ rs.getString("id")+boxEnd +boxStrB+ rs.getString("body")+boxEnd+boxStrB+ rs.getString("agent")+boxEnd+rowEnd;
 							rbody = rbody +rowStr+boxStrB+ rs.getString("id")+boxEnd +boxStrB+ rs.getString("body")+boxEnd+rowEnd;
 						}
 						else {
-<<<<<<< HEAD
 //							cause = "Time out:\t";
 							warnings++;
 							//						wbody = wbody +rowStr+boxStrY+ rs.getString("id")+boxEnd +boxStrY+ rs.getString("body")+boxEnd+boxStrY+ rs.getString("agent")+boxEnd+rowEnd;
 //							wbody = wbody +rowStr+boxStrB+ rs.getString("id")+boxEnd +boxStrB+ rs.getString("body")+boxEnd+boxStrB+ rs.getString("agent")+boxEnd+rowEnd;
 							wbody = wbody +rowStr+boxStrB+ rs.getString("id")+boxEnd +boxStrB+ "The Jvakt agent did not report in set time."+boxEnd+rowEnd;
-=======
-							cause = "Time out:\t";
-							warnings++;
-							//						wbody = wbody +rowStr+boxStrY+ rs.getString("id")+boxEnd +boxStrY+ rs.getString("body")+boxEnd+boxStrY+ rs.getString("agent")+boxEnd+rowEnd;
-//							wbody = wbody +rowStr+boxStrB+ rs.getString("id")+boxEnd +boxStrB+ rs.getString("body")+boxEnd+boxStrB+ rs.getString("agent")+boxEnd+rowEnd;
-							wbody = wbody +rowStr+boxStrB+ rs.getString("id")+boxEnd +boxStrB+ rs.getString("body")+boxEnd+rowEnd;
->>>>>>> 36f55cebd265b234fca790644580636fd16c20ee
 						}
 						swMail = true;	
 						if (rs.getString("msg").equalsIgnoreCase("R")) rs.updateString("msg", " ");
@@ -390,11 +327,7 @@ public class SendMail30 {
 		if (config != null ) dir = new File(config);
 
 		
-<<<<<<< HEAD
 		listToS = new ArrayList<String>();  // id:mailadress.
-=======
-		listToS = new ArrayList();  // id:mailadress.
->>>>>>> 36f55cebd265b234fca790644580636fd16c20ee
 
 		df = new DirFilter(suf, pos);
 
@@ -472,11 +405,7 @@ public class SendMail30 {
 			for(Object object : listTo) { 
 				if (n>0) toEmailW = toEmailW + ",";
 				n++;
-<<<<<<< HEAD
 //				String element = (String) object;
-=======
-				String element = (String) object;
->>>>>>> 36f55cebd265b234fca790644580636fd16c20ee
 				System.out.println(object);
 				toEmailW = toEmailW + (String) object;
 			}
