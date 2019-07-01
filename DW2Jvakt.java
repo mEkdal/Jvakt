@@ -19,7 +19,11 @@ public class DW2Jvakt  {
 
 		// Displays help
 		if (args.length == 0) {
+<<<<<<< HEAD
 			System.out.println("\n*** DW2Jvakt 1.2 Date 2019-06-14 ***" +
+=======
+			System.out.println("\n*** DW2Jvakt 1.2 Date 2019-01-14 ***" +
+>>>>>>> 36f55cebd265b234fca790644580636fd16c20ee
 					"\n*** by Michael Ekdal Perstorp Sweden. ***");
 			System.out.println("\n\nThe parameters and their meaning are:\n"+
 					"\n-q \tThe name of the AS400 message queue, like \" /qsys.lib/itoctools.lib/xxx.msgq\" "+
@@ -44,14 +48,22 @@ public class DW2Jvakt  {
 
 		String msg;
 		String[] words;
+<<<<<<< HEAD
 //		String[] allwords;
+=======
+		String[] allwords;
+>>>>>>> 36f55cebd265b234fca790644580636fd16c20ee
 		boolean swLoop = false;
 		boolean swSyslogOK = false;
 		boolean swInteresting = true;
 		boolean swPurge = false;
 		int sev;
 		String sts;
+<<<<<<< HEAD
 		Enumeration<QueuedMessage> q = null;
+=======
+		Enumeration q = null;
+>>>>>>> 36f55cebd265b234fca790644580636fd16c20ee
 		byte [] msgkey = null;
 		now = new Date();
 
@@ -99,7 +111,11 @@ public class DW2Jvakt  {
 				msg = msge.getText();
 				System.out.println(msg + " Msgkey: " + msgkey);
 				words = msg.split(" ",2);
+<<<<<<< HEAD
 //				allwords = msg.split(" ");
+=======
+				allwords = msg.split(" ");
+>>>>>>> 36f55cebd265b234fca790644580636fd16c20ee
 				swInteresting = true;
 				swSyslogOK = true;
 				swPurge = false;
@@ -129,8 +145,12 @@ public class DW2Jvakt  {
 					if (msg.contains("DAX ")|| msg.contains("ITO0206") || msg.contains("CPI0973") || msg.contains("backup OK") || 
 							msg.contains("is mounted") || msg.contains("LOG0010") || msg.contains("SYSSTS:") ||   
 							msg.contains("TBM1205") || msg.contains("ITO9806") || msg.contains("CPF1251") || msg.contains("ITO9906") ||
+<<<<<<< HEAD
 							msg.contains("CPD2706") ||
 							msg.contains("Next tape is") || msg.contains("ITO1206") || msg.contains("EDH30") || msg.contains("CPF1393") ) { 
+=======
+							msg.contains("Next tape is") || msg.contains("ITO1206") || msg.contains("EDH30") ) { 
+>>>>>>> 36f55cebd265b234fca790644580636fd16c20ee
 						sev = 30; sts = "INFO"; } 
 					// OK 30
 					if (msg.contains("CPF1817")  || msg.contains("CPI0973")    ||
@@ -144,7 +164,10 @@ public class DW2Jvakt  {
 							msg.contains("CHKJOBSTS")  || msg.contains("CPF090") || msg.contains("CPA3387") ||  msg.contains("ITO0906") ||
 							msg.contains("MONOUTQ01")  || words[0].contains("CHKWTRS1") || msg.contains("CPI59B2") || msg.contains("CPD27CE") || msg.contains("CPD2643") ||
 							msg.contains("CPA4072")    || msg.contains("CPA0701") || msg.contains("CPF0909") || msg.contains("CPF0908") || msg.contains("CPFAF98") ||
+<<<<<<< HEAD
 							msg.contains("CPA57E9") || msg.contains("CPF2697") || msg.contains("CPA0702") ||
+=======
+>>>>>>> 36f55cebd265b234fca790644580636fd16c20ee
 							msg.contains("CPIEF07") || msg.contains("CPIEF02") || msg.contains("CPP6307") || msg.contains("CPIEF09") ||  
 							 msg.contains("CPIEF03") || msg.contains("TCP8500") || msg.contains("CPFEF") || msg.contains("CPI93B9") ||
 							(msg.contains("ITO0206") & msg.toLowerCase().contains("warning")) ||

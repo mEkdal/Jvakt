@@ -35,7 +35,11 @@ public class consoleHstROW {
 		this.body = " ";
 		this.agent = " ";
 	}
+<<<<<<< HEAD
 
+=======
+ 
+>>>>>>> 36f55cebd265b234fca790644580636fd16c20ee
 	public int getCount() {
 		return count;
 	}

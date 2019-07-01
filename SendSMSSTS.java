@@ -3,6 +3,7 @@ import java.io.*;
 import java.net.*;
 import java.sql.Connection;
 import java.sql.DriverManager;
+<<<<<<< HEAD
 //import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -13,6 +14,18 @@ import java.util.*;
 //import javax.mail.*;
 //import javax.mail.Authenticator;
 //import javax.mail.PasswordAuthentication;
+=======
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Statement;
+import java.sql.Timestamp;
+import java.util.*;
+import java.time.*;
+import javax.mail.*;
+import javax.mail.Authenticator;
+import javax.mail.PasswordAuthentication;
+>>>>>>> 36f55cebd265b234fca790644580636fd16c20ee
 
 public class SendSMSSTS {
 
@@ -52,7 +65,11 @@ public class SendSMSSTS {
 
 	static String body = "Jvakt: ";
 	static int serrors = 0;
+<<<<<<< HEAD
 	static List<String> listTo;
+=======
+	static List listTo;
+>>>>>>> 36f55cebd265b234fca790644580636fd16c20ee
 	static String toSMSSTSW;
 
 	static String toSMS;
@@ -69,7 +86,11 @@ public class SendSMSSTS {
 
 	public static void main(String[] args ) throws IOException, UnknownHostException {
 
+<<<<<<< HEAD
 		String version = "SendSMSSTS (2019-APR-29)";
+=======
+		String version = "SendSMSSTS 1.5 (2018-MAR-09)";
+>>>>>>> 36f55cebd265b234fca790644580636fd16c20ee
 
 		for (int i=0; i<args.length; i++) {
 			if (args[i].equalsIgnoreCase("-config")) config = args[++i];
@@ -82,7 +103,11 @@ public class SendSMSSTS {
 		boolean swMail = false;
 		getProps();
 		
+<<<<<<< HEAD
 		listTo = new ArrayList<String>();  // All SMS numbers.
+=======
+		listTo = new ArrayList();  // All SMS numbers.
+>>>>>>> 36f55cebd265b234fca790644580636fd16c20ee
 
 		String[] toAddr = toSMSSTSW.split("\\,");
 		for(int i=0 ; i<toAddr.length;i++) {
@@ -92,8 +117,13 @@ public class SendSMSSTS {
 		
 		Statement stmt = null;
 		String s;
+<<<<<<< HEAD
 //		boolean swHits;
 //		String cause = "";
+=======
+		boolean swHits;
+		String cause = "";
+>>>>>>> 36f55cebd265b234fca790644580636fd16c20ee
 
 		swServer = true;
 		try {
@@ -126,10 +156,17 @@ public class SendSMSSTS {
 			stmt = conn.createStatement(ResultSet.CONCUR_READ_ONLY,ResultSet.TYPE_FORWARD_ONLY,ResultSet.CLOSE_CURSORS_AT_COMMIT ); 
 			stmt.setFetchSize(1000);
 			ResultSet rs = stmt.executeQuery(s);
+<<<<<<< HEAD
 //			swHits = false;  // is there already a record?
 
 			while (rs.next()) {
 //				swHits = true;  
+=======
+			swHits = false;  // is there already a record?
+
+			while (rs.next()) {
+				swHits = true;  
+>>>>>>> 36f55cebd265b234fca790644580636fd16c20ee
 				swTiming = false;  
 
 				swFound = true;
@@ -228,7 +265,11 @@ public class SendSMSSTS {
 		dbhost   = prop.getProperty("dbhost");
 		dbport   = prop.getProperty("dbport");
 		jvport   = prop.getProperty("jvport");
+<<<<<<< HEAD
 //		int jvporti = Integer.parseInt(jvport);
+=======
+		int jvporti = Integer.parseInt(jvport);
+>>>>>>> 36f55cebd265b234fca790644580636fd16c20ee
 		jvhost   = prop.getProperty("jvhost");
 		toSMSSTSW  = prop.getProperty("toSMSSTS");
 		SMShost = prop.getProperty("SMShost");
@@ -246,6 +287,7 @@ public class SendSMSSTS {
 	static boolean sendSMS() {
 
 		boolean swOK = false;
+<<<<<<< HEAD
 		System.out.println("--- Sending Jvakt Status SMS ---\n");
 
 		// Loop on all phone numbers
@@ -253,21 +295,39 @@ public class SendSMSSTS {
 //			String element = (String) object;
 			toSMS = (String) object;
 			System.out.println("--- SMS to:"+toSMS +"      Body: " + body );
+=======
+		System.out.println("\nSending SMS....");
+
+		// Loop on all phone numbers
+		for(Object object : listTo) { 
+			String element = (String) object;
+			//			System.out.println(object);
+			toSMS = (String) object;
+			System.out.println("SMS to:"+toSMS +"   Body: " + body );
+>>>>>>> 36f55cebd265b234fca790644580636fd16c20ee
 
 			// Connect to Com-Server
 			try {
 				System.out.println("Connecting to: "+SMShost +":" + SMSporti );
 				sock = new Socket( SMShost, SMSporti );
+<<<<<<< HEAD
 				sock.setSoTimeout( 2000 );  // receive timeout
+=======
+				sock.setSoTimeout( 200 );  // receive timeout
+>>>>>>> 36f55cebd265b234fca790644580636fd16c20ee
 				osw = new OutputStreamWriter( sock.getOutputStream() );
 				isr = new InputStreamReader( sock.getInputStream() );
 			} catch( IOException e ) {
 				System.out.println("IOExeption while connecting " + e);
+<<<<<<< HEAD
 				swOK = false;
+=======
+>>>>>>> 36f55cebd265b234fca790644580636fd16c20ee
 				break;
 			}
 			// Sending 
 			try {
+<<<<<<< HEAD
 				System.out.println("Sending \"AT+CMGF=1\\r\\n\"" );
 				osw.write( "AT+CMGF=1\r\n" );
 				osw.flush();
@@ -278,6 +338,17 @@ public class SendSMSSTS {
 				osw.flush();
 				ReceiveText();
 				if (body.length() > 156 ) body = body.substring(0, 155);
+=======
+//				System.out.println("Sending \"AT+CMGF=1\\r\\n\"" );
+				osw.write( "AT+CMGF=1\r\n" );
+				osw.flush();
+				ReceiveText();
+//				System.out.println("Sending AT+CMGS="+toSMS +"\\r\\n" );
+				osw.write( "AT+CMGS="+ toSMS + "\r\n" );
+				osw.flush();
+				ReceiveText();
+				if (body.length() > 152 ) body = body.substring(0, 152);
+>>>>>>> 36f55cebd265b234fca790644580636fd16c20ee
 				body = body.replace('_', '-'); // replace _ with - because SMS creates a §
 				body = body.replace('Å', 'A'); 
 				body = body.replace('Å', 'A'); 
@@ -286,17 +357,26 @@ public class SendSMSSTS {
 				body = body.replace('ä', 'a'); 
 				body = body.replace('ö', 'o'); 
 				body = body.replaceAll("[^a-zA-Z0-9.:-]" , " ");
+<<<<<<< HEAD
 //				System.out.println("Sending body: "+body +"\\r\\n" );
 				System.out.println("Sending body: "+body );
 //				osw.write( body + "\r\n" + "\u001A" );
 		        osw.write( body +"\u001A" );
+=======
+				System.out.println("Sending "+body +"\\r\\n" );
+				osw.write( body + "\r\n" + "\u001A" );
+>>>>>>> 36f55cebd265b234fca790644580636fd16c20ee
 				osw.flush();
 				ReceiveText();
 				swOK = true;
 			} catch( IOException e ) {
+<<<<<<< HEAD
 				swOK = false;
 				System.out.println("IOExeption while sending " + e);
 				break;
+=======
+				System.out.println("IOExeption while sending " + e);
+>>>>>>> 36f55cebd265b234fca790644580636fd16c20ee
 			}		      
 			// closing and disconnecting 
 			try {
@@ -320,8 +400,12 @@ public class SendSMSSTS {
 
 
 	static public void ReceiveText() {
+<<<<<<< HEAD
 		try { Thread.sleep(500); } catch (InterruptedException e) { e.printStackTrace();}
 //		try { Thread.currentThread().sleep(500); } catch (InterruptedException e) { e.printStackTrace();}
+=======
+		try { Thread.currentThread().sleep(200); } catch (InterruptedException e) { e.printStackTrace();}
+>>>>>>> 36f55cebd265b234fca790644580636fd16c20ee
 		String s;
 		int i, len, timeouts;
 		char c[] = new char[ 100 ];
@@ -339,11 +423,17 @@ public class SendSMSSTS {
 				}
 			} catch (InterruptedIOException e) {
 				timeouts++;
+<<<<<<< HEAD
 				if (timeouts>999) {
 					// timeout in input stream
 					System.out.println("ReceiverText timeout in input stream: " + e);
 					break;
 				}
+=======
+				if (timeouts>999) break;
+				// timeout in input stream
+				//	    	  System.out.println("ReceiverText timeout in input stream: " + e);
+>>>>>>> 36f55cebd265b234fca790644580636fd16c20ee
 			} catch (IOException e) {
 				System.out.println("ReceiverText IOException: " + e);
 				break;

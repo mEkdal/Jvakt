@@ -23,7 +23,11 @@ public class monHttps {
 	static boolean swShow = false;
 	static String host;
 	static InetAddress inet;
+<<<<<<< HEAD
 	static String version = "monHttps (2019-06-17)";
+=======
+	static String version = "monHttps 1.0 # 2018-05-03";
+>>>>>>> 36f55cebd265b234fca790644580636fd16c20ee
 	static String database = "jVakt";
 	static String dbuser   = "jVakt";
 	static String dbpassword = "xz";
@@ -44,21 +48,35 @@ public class monHttps {
 	public static void main(String[] args) throws UnknownHostException, IOException, Exception {
 
 		String[] tab = new String [1];
+<<<<<<< HEAD
 //		String tdat;
+=======
+		String tdat;
+>>>>>>> 36f55cebd265b234fca790644580636fd16c20ee
 		String s;
 		File[] listf;
 		DirFilter df;
 		File dir = new File(".");
 		if (config != null ) dir = new File(config);
 		String suf = ".csv";
+<<<<<<< HEAD
 		String pos = "monHttps-";
 		boolean swRun = false;
 		now = new Date();
+=======
+		String pos = "monHttps";
+		boolean swRun = false;
+	    now = new Date();
+>>>>>>> 36f55cebd265b234fca790644580636fd16c20ee
 
 
 		if (args.length < 1) {
 			System.out.println("\n " +version);
+<<<<<<< HEAD
 			System.out.println("File names must contain monHttps- and end with .csv. e.g. monHttps-01.csv ");
+=======
+			System.out.println("File names must contain monHttps and end with .csv. e.g. monHttps-01.csv ");
+>>>>>>> 36f55cebd265b234fca790644580636fd16c20ee
 			System.out.println("Row in the file example: ");
 			System.out.println("wikipedia;sv.wikipedia.org;443;/wiki/Portal:Huvudsida;wikipedia;descriptive text");
 
@@ -69,12 +87,17 @@ public class monHttps {
 					"\n-port   \tDefault is 443." +
 					"\n-web    \tlike /index.html" +
 					"\n-webcontent \tstring in the response to check for." +
+<<<<<<< HEAD
 					"\n-show   \tShow the response from the server."
+=======
+					"\n-show   \tShow the response from teh server."
+>>>>>>> 36f55cebd265b234fca790644580636fd16c20ee
 					);
 
 			System.exit(4);
 		}
 
+<<<<<<< HEAD
 		// Create a trust manager that does not validate certificate chains
 		TrustManager[] trustAllCerts = new TrustManager[] {new X509TrustManager() {
 			public java.security.cert.X509Certificate[] getAcceptedIssuers() {
@@ -105,6 +128,38 @@ public class monHttps {
 		// reads command line arguments
 		for ( int i = 0; i < args.length; i++) {
 			//			if (args[i].equalsIgnoreCase("-dir")) dir = new File(args[++i]);
+=======
+        // Create a trust manager that does not validate certificate chains
+        TrustManager[] trustAllCerts = new TrustManager[] {new X509TrustManager() {
+                public java.security.cert.X509Certificate[] getAcceptedIssuers() {
+                    return null;
+                }
+                public void checkClientTrusted(X509Certificate[] certs, String authType) {
+                }
+                public void checkServerTrusted(X509Certificate[] certs, String authType) {
+                }
+            }
+        };
+ 
+        // Install the all-trusting trust manager
+        SSLContext sc = SSLContext.getInstance("SSL");
+        sc.init(null, trustAllCerts, new java.security.SecureRandom());
+        HttpsURLConnection.setDefaultSSLSocketFactory(sc.getSocketFactory());
+ 
+        // Create all-trusting host name verifier
+        HostnameVerifier allHostsValid = new HostnameVerifier() {
+            public boolean verify(String hostname, SSLSession session) {
+                return true;
+            }
+        };
+ 
+        // Install the all-trusting host verifier
+        HttpsURLConnection.setDefaultHostnameVerifier(allHostsValid);
+		
+		// reads command line arguments
+		for ( int i = 0; i < args.length; i++) {
+//			if (args[i].equalsIgnoreCase("-dir")) dir = new File(args[++i]);
+>>>>>>> 36f55cebd265b234fca790644580636fd16c20ee
 			if (args[i].equalsIgnoreCase("-port")) wport = Integer.parseInt(args[++i]);
 			if (args[i].equalsIgnoreCase("-web")) webfile = args[++i];
 			if (args[i].equalsIgnoreCase("-run")) swRun = true;
@@ -132,11 +187,17 @@ public class monHttps {
 			checkHttp();
 		} else {
 
+<<<<<<< HEAD
 //			if (pos != null) df = new DirFilter(suf, pos);
 //			else             df = new DirFilter(suf);
 
 			df = new DirFilter(suf, pos);
 			
+=======
+			if (pos != null) df = new DirFilter(suf, pos);
+			else             df = new DirFilter(suf);
+
+>>>>>>> 36f55cebd265b234fca790644580636fd16c20ee
 			listf = dir.listFiles(df);
 
 			System.out.println("-- Number of files found:"+ listf.length);
@@ -179,6 +240,7 @@ public class monHttps {
 		try {
 			System.out.println("-- URL    : https://"+host+":"+wport+webfile);
 			System.out.println("-- OK text: " +webcontent);
+<<<<<<< HEAD
 			//			System.setProperty("https.protocols", "SSLv3");
 			URL url = new URL("https://"+host+":"+wport+webfile); 
 			URLConnection con = url.openConnection();  // new
@@ -188,20 +250,36 @@ public class monHttps {
 			//			BufferedReader httpin = new BufferedReader(
 			//					new InputStreamReader(url.openStream()));
 			System.out.println("-- OK get in-stream");
+=======
+			URL url = new URL("https://"+host+":"+wport+webfile); 
+			URLConnection con = url.openConnection();  // new
+			con.setReadTimeout(4000);
+			con.setConnectTimeout(2000);
+//			BufferedReader httpin = new BufferedReader(
+//					new InputStreamReader(url.openStream()));
+>>>>>>> 36f55cebd265b234fca790644580636fd16c20ee
 			BufferedReader httpin = new BufferedReader(
 					new InputStreamReader(con.getInputStream()));
 
 			String inputLine;
+<<<<<<< HEAD
 			System.out.println("-- start read lines");
 			while ((inputLine = httpin.readLine()) != null  && !state) {
 				if (inputLine.indexOf(webcontent) >= 0) {
 					state = true;
 					System.out.println("-- OK text found: "+ webcontent );
+=======
+			while ((inputLine = httpin.readLine()) != null  && !state) {
+				if (inputLine.indexOf(webcontent) >= 0) {
+					state = true;
+					System.out.println("-- OK text: "+ webcontent + " found! ");
+>>>>>>> 36f55cebd265b234fca790644580636fd16c20ee
 				}
 				if (swShow)	System.out.println(inputLine);
 			}
 			httpin.close();
 
+<<<<<<< HEAD
 		} 
 		catch (Exception e) { System.out.println(e); state = false;   }
 //		catch (UnknownHostException e) { System.out.println(e); state = false;   }
@@ -212,6 +290,11 @@ public class monHttps {
 //		}
 
 		//		try { Thread.currentThread(); Thread.sleep(1000); } catch (Exception e) {} ;
+=======
+		} catch (Exception e) { System.out.println(e); state = false;   }
+
+//		try { Thread.currentThread(); Thread.sleep(1000); } catch (Exception e) {} ;
+>>>>>>> 36f55cebd265b234fca790644580636fd16c20ee
 
 		if (state) {System.out.println("Connection succcessful"); return true; }
 		else 	   {System.out.println("Connection failed"); return false; }
@@ -228,7 +311,11 @@ public class monHttps {
 		jmsg.setBody(t_desc);
 		jmsg.setType("R");
 		jmsg.setAgent(agent);
+<<<<<<< HEAD
 		//		jm.sendMsg(jmsg);
+=======
+//		jm.sendMsg(jmsg);
+>>>>>>> 36f55cebd265b234fca790644580636fd16c20ee
 		if (jm.sendMsg(jmsg)) System.out.println("-- Rpt Delivered --");
 		else            	  System.out.println("-- Rpt Failed --");
 		jm.close();

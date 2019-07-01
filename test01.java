@@ -2,6 +2,7 @@ package Jvakt;
 
 import java.io.IOException;
 import java.net.InetAddress;
+<<<<<<< HEAD
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.ResultSet;
@@ -24,21 +25,36 @@ public class test01 {
 	static String DBUrl = "jdbc:postgresql://localhost:5433/Jvakt";
 	static Connection conn = null;
 
+=======
+import java.sql.*;
+
+public class test01 {
+	
+>>>>>>> 36f55cebd265b234fca790644580636fd16c20ee
 	public static void main (String args[]) {
 
 	  
 	   InetAddress inet;
+<<<<<<< HEAD
 	   Statement stmt = null;
 	   
+=======
+>>>>>>> 36f55cebd265b234fca790644580636fd16c20ee
 	   try {
        inet = InetAddress.getLocalHost();
        System.out.println("-- Inet: "+inet);
 
        System.out.println("-- Start consoleHst ");
+<<<<<<< HEAD
        
 //       String[] par = new String[] { "One", "Two", "Three" };
 //       consoleHst.main(par);
 //       
+=======
+       String[] par = new String[] { "One", "Two", "Three" };
+       consoleHst.main(par);
+       
+>>>>>>> 36f55cebd265b234fca790644580636fd16c20ee
        
 //       new Thread() {
 //           public void run(){
@@ -52,6 +68,7 @@ public class test01 {
 // 
 //           }
 //         }.start();
+<<<<<<< HEAD
 
 //       Class.forName("org.postgresql.Driver").newInstance();
 //		DBUrl = "jdbc:postgresql://"+dbhost+":"+dbport+"/"+database;
@@ -104,6 +121,8 @@ public class test01 {
        
 //       Runtime.getRuntime().exec("java -cp \"C:\\Users\\septpadm\\OneDrive - Perstorp Group\\JavaSrc;C:\\Users\\septpadm\\OneDrive - Perstorp Group\\JavaSrc\\postgresql-42.1.3.jar\" Jvakt.consoleHst");
        
+=======
+>>>>>>> 36f55cebd265b234fca790644580636fd16c20ee
        
          System.out.println("-- End console ");
 

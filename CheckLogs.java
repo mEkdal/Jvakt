@@ -5,8 +5,7 @@ import java.util.Properties;
 import java.io.*;
 import java.util.*;
 import java.text.*;
-
-
+ 
 public class CheckLogs {
 
 	static String state = "a";
@@ -24,7 +23,11 @@ public class CheckLogs {
 	static String jvtype = "R";
 	static int port ;
 	static InetAddress inet;
+<<<<<<< HEAD
 	static String version = "CheckLogs (2019-MAR-08)";
+=======
+	static String version = "CheckLogs 1.10 (2018-MAR-22)";
+>>>>>>> 36f55cebd265b234fca790644580636fd16c20ee
 	static String agent = null;
 	static boolean swSlut = false;
 
@@ -79,6 +82,7 @@ public class CheckLogs {
 			System.out.println("\n\n"+version + " by Michael Ekdal Sweden.\n");
 
 			System.out.println("\nThe parameters and their meaning are:\n"+
+<<<<<<< HEAD
 					"\n-dir    \tThe directory to scan, like \"-dir c:\\Temp\". UTF-8 is assumed. "+
 					"\n-suf    \tThe suffix of the files you want to include in the scan, like \"-suf .log\" "+
 					"\n-pos    \tAn optional string that must be contained in the file names." +
@@ -95,6 +99,23 @@ public class CheckLogs {
 					"\nCheckLogs.okay  \tStrings considered okay even when triggered by the CheckLogs.srch file. e.g. ORA-01013. May be empty." +
 					"\nCheckLogs.must  \tStrings mandatory to be found in the log file. May be empty."+
 					"\n\nErrorlevel is set the number of errors found, else 0."
+=======
+					"\n\n-dir    \tThe directory to scan, like \"-dir c:\\Temp\". UTF-8 is assumed. "+
+					"\n\n-suf    \tThe suffix of the files you want to include in the scan, like \"-suf .log\" "+
+					"\n\n-pos    \tAn optional string that must be contained in the file names." +
+					"\n\n-psav   \tA switch that saves the position of the scanned fil until next scan. No rename. Optional." +
+					"\n\n-ren    \tA switch that makes the scanned file be renamed instead of saving position. Optional." +
+					"\n\n--- the following switches is needed if Jvakt is to be used ---" +
+					"\n\n-jvakt  \tA switch to enable report to Jvakt. Default is no connection to Jvakt." +
+					"\n\n-jvtype \tThe type of the Jvakt report. Optional.  The default is \"R\"" +
+					"\n\n-id     \tUsed as identifier in the Jvakt monitoring system." +
+					"\n\n-config \tThe directory where to find the Jvakt.properties file. like \"-config c:\\Temp\". Optional. Default is the current directory.");
+
+			System.out.println("\n\n--- The following files must be present in the current directory ---\n"+
+					"\n\nCheckLogs.srch  \tStrings considered errors if found in the log file. e.g. ORA-"+
+					"\n\nCheckLogs.okay  \tStrings considered okay even when triggered by the CheckLogs.srch file. e.g. ORA-01013. May be empty." +
+					"\n\nCheckLogs.must  \tStrings mandatory to be found in the log file. May be empty."
+>>>>>>> 36f55cebd265b234fca790644580636fd16c20ee
 					);
 
 			System.exit(4);
@@ -289,12 +310,16 @@ public class CheckLogs {
 			swWarn=false;
 			
 			if (listf.length == 0 ) {
+<<<<<<< HEAD
 				if (!swMust) {
 					errors++;
 					swWarn=true;
 					t_desc = " No logfiles found to scan! and Missing hits in must file!";
 				}
 				else t_desc = " No logfiles found to scan!";
+=======
+				t_desc = " No logfiles found to scan!";
+>>>>>>> 36f55cebd265b234fca790644580636fd16c20ee
 			} else t_desc = "No errors found"; 
 
 			sendSTS(swWarn);
@@ -339,9 +364,14 @@ public class CheckLogs {
 			} else {
 				//			t_desc =aFile+": "+t_desc;
 				jmsg.setId(id+"_info");
+<<<<<<< HEAD
 				jmsg.setId(id);
 				jmsg.setType("I");
 				jmsg.setRptsts("ERR");
+=======
+				jmsg.setType("I");
+				jmsg.setRptsts("INFO");
+>>>>>>> 36f55cebd265b234fca790644580636fd16c20ee
 			}
 			jmsg.setBody(t_desc);
 			jmsg.setAgent(agent);

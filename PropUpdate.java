@@ -2,7 +2,11 @@ package Jvakt;
 import java.io.*;
 import java.net.*;
 import java.util.*;
+<<<<<<< HEAD
 //import java.time.*;
+=======
+import java.time.*;
+>>>>>>> 36f55cebd265b234fca790644580636fd16c20ee
 
 public class PropUpdate {
 
@@ -13,7 +17,11 @@ public class PropUpdate {
 
 	public static void main(String[] args ) throws IOException, UnknownHostException {
 
+<<<<<<< HEAD
 		String version = "PropUpdate 1.0 # 2018-05-07";
+=======
+		String version = "PropUpdate 1.0 # 2018-02-16";
+>>>>>>> 36f55cebd265b234fca790644580636fd16c20ee
 
 		for (int i=0; i<args.length; i++) {
 			if (args[i].equalsIgnoreCase("-config")) config = args[++i];

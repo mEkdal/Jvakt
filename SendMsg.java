@@ -10,7 +10,11 @@ public class SendMsg {
 	OutputStream sut;
 	PrintWriter ut;
 	int port;
+<<<<<<< HEAD
 	String version = "SendMsg 1.3 Date 2019-MAY-07";
+=======
+	String version = "SendMsg 1.3 Date 2018-NOV-19";
+>>>>>>> 36f55cebd265b234fca790644580636fd16c20ee
 
 	public SendMsg(String host, int port ) {
 		this.port = port;
@@ -50,8 +54,12 @@ public class SendMsg {
 	}
 
 	public boolean close() throws IOException, UnknownHostException  {
+<<<<<<< HEAD
 //		try { Thread.currentThread().sleep(100); } catch (InterruptedException e) { e.printStackTrace();}
 		try { Thread.sleep(100); } catch (InterruptedException e) { e.printStackTrace();}
+=======
+		try { Thread.currentThread().sleep(100); } catch (InterruptedException e) { e.printStackTrace();}
+>>>>>>> 36f55cebd265b234fca790644580636fd16c20ee
 		ut.close();
 		in.close();
 		cs.close();

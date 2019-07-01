@@ -15,7 +15,11 @@ import javax.swing.event.*;
 import javax.swing.*;
 import javax.swing.table.*;
 import java.io.*;
+<<<<<<< HEAD
 //import java.sql.SQLException;
+=======
+import java.sql.SQLException;
+>>>>>>> 36f55cebd265b234fca790644580636fd16c20ee
 import java.util.*;
 
 import javax.swing.event.ListSelectionEvent;
@@ -33,7 +37,11 @@ public class consoleHst extends JFrame implements TableModelListener, WindowList
 	// Skapar diverse variabler
 	private JPanel topPanel;
 	private JPanel usrPanel;
+<<<<<<< HEAD
 //	private JPanel logPanel;
+=======
+	private JPanel logPanel;
+>>>>>>> 36f55cebd265b234fca790644580636fd16c20ee
 	private JTable table;
 	private JScrollPane scrollPane;
 	private JButton bu1;
@@ -80,7 +88,11 @@ public class consoleHst extends JFrame implements TableModelListener, WindowList
 		port = Integer.parseInt(jvport);
 
 		// funktion från Jframe att sätta rubrik
+<<<<<<< HEAD
 		setTitle("Jvakt consoleHst 2.19  -  F1 = Help");
+=======
+		setTitle("Jvakt consoleHst 2.17  -  F1 = Help");
+>>>>>>> 36f55cebd265b234fca790644580636fd16c20ee
 		//	        setSize(5000, 5000);
 
 		// get the screen size as a java dimension
@@ -188,10 +200,17 @@ public class consoleHst extends JFrame implements TableModelListener, WindowList
 
 				ListSelectionModel lsm = (ListSelectionModel) e.getSource();
 				if (lsm.isSelectionEmpty()) {
+<<<<<<< HEAD
 //					System.out.println("No rows are selected.");
 				} else {
 //					int selectedRow = lsm.getMinSelectionIndex();
 //					System.out.println("Row " + selectedRow + " is now selected.");
+=======
+					System.out.println("No rows are selected.");
+				} else {
+					int selectedRow = lsm.getMinSelectionIndex();
+					System.out.println("Row " + selectedRow + " is now selected.");
+>>>>>>> 36f55cebd265b234fca790644580636fd16c20ee
 					deselectCount = 0;
 				}
 			}
@@ -344,7 +363,11 @@ public class consoleHst extends JFrame implements TableModelListener, WindowList
 		int column = e.getColumn();
 		String ls ;
 		TableModel model = (TableModel)e.getSource();
+<<<<<<< HEAD
 //		String columnName = model.getColumnName(column);
+=======
+		String columnName = model.getColumnName(column);
+>>>>>>> 36f55cebd265b234fca790644580636fd16c20ee
 		String data = (String)model.getValueAt(row, column);
 		ls = "Workout tableChanged " + row + " " + column + " " +  data;
 		System.out.println(ls);
@@ -415,7 +438,11 @@ public class consoleHst extends JFrame implements TableModelListener, WindowList
 			@Override
 			public void actionPerformed(ActionEvent e)  {
 				//					                 JOptionPane.showMessageDialog(TestTableKeyBinding.this.table, "Action Triggered.");
+<<<<<<< HEAD
 //				System.out.println("ShowHelp");
+=======
+				System.out.println("ShowHelp");
+>>>>>>> 36f55cebd265b234fca790644580636fd16c20ee
 				JOptionPane pane = new JOptionPane("Jvakt help");
 				pane.showMessageDialog(getContentPane(),
 						"F1 : Help \nF3 : Increase font size \nF4 : Decrease font size\nF7 : Show line \n\nESC : Unselect "
@@ -437,13 +464,18 @@ public class consoleHst extends JFrame implements TableModelListener, WindowList
 
 			@Override
 			public void actionPerformed(ActionEvent e)  {
+<<<<<<< HEAD
 //				System.out.println("ShowLine");
+=======
+				System.out.println("ShowLine");
+>>>>>>> 36f55cebd265b234fca790644580636fd16c20ee
 				table.editingCanceled(null);
 				table.editingStopped(null);
 				int[] selectedRow = table.getSelectedRows();
 
 				try {
 					for (int i = 0; i <  selectedRow.length; i++) {
+<<<<<<< HEAD
 //						System.out.println("*** Row to show :" + selectedRow[i]);
 						Object ValueId   = table.getValueAt(selectedRow[i],table.getColumnModel().getColumnIndex("Id"));
 //						System.out.println(ValueId);
@@ -472,6 +504,36 @@ public class consoleHst extends JFrame implements TableModelListener, WindowList
 						String body = (String) ValueId;
 						ValueId   = table.getValueAt(selectedRow[i],table.getColumnModel().getColumnIndex("Agent"));
 //						System.out.println(ValueId);
+=======
+						System.out.println("*** Row to show :" + selectedRow[i]);
+						Object ValueId   = table.getValueAt(selectedRow[i],table.getColumnModel().getColumnIndex("Id"));
+						System.out.println(ValueId);
+						String id = (String) ValueId;
+						if (id == null) continue;
+						ValueId   = table.getValueAt(selectedRow[i],table.getColumnModel().getColumnIndex("Prio"));
+						System.out.println(ValueId);
+						int prio = (Integer) ValueId;
+						ValueId   = table.getValueAt(selectedRow[i],table.getColumnModel().getColumnIndex("Count"));
+						System.out.println(ValueId);
+						int count = (Integer) ValueId;
+						ValueId   = table.getValueAt(selectedRow[i],table.getColumnModel().getColumnIndex("Type"));
+						System.out.println(ValueId);
+						String type = (String) ValueId;
+						ValueId   = table.getValueAt(selectedRow[i],table.getColumnModel().getColumnIndex("CreDate"));
+						System.out.println(ValueId);
+						String credate = (String) ValueId;
+						ValueId   = table.getValueAt(selectedRow[i],table.getColumnModel().getColumnIndex("DelDate"));
+						System.out.println(ValueId);
+						String deldate = (String) ValueId;
+						ValueId   = table.getValueAt(selectedRow[i],table.getColumnModel().getColumnIndex("Status"));
+						System.out.println(ValueId);
+						String status = (String) ValueId;
+						ValueId   = table.getValueAt(selectedRow[i],table.getColumnModel().getColumnIndex("Body"));
+						System.out.println(ValueId);
+						String body = (String) ValueId;
+						ValueId   = table.getValueAt(selectedRow[i],table.getColumnModel().getColumnIndex("Agent"));
+						System.out.println(ValueId);
+>>>>>>> 36f55cebd265b234fca790644580636fd16c20ee
 						String agent = (String) ValueId;
 						JOptionPane.showMessageDialog(getContentPane(),
 								"- CreDate (the date it appeared in the console) -\n"+credate +"\n\n" + 

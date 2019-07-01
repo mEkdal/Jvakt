@@ -2,7 +2,11 @@ package Jvakt;
 
 /**
  * @author  Michael Ekdal
+<<<<<<< HEAD
  * @version 2019-MAY-07
+=======
+ * @version 2.1 2017-NOV-21
+>>>>>>> 36f55cebd265b234fca790644580636fd16c20ee
  */
 
 public class Message {
@@ -12,7 +16,11 @@ public class Message {
  private String body = " ";
  private String agent = " ";
  private int prio = 30;
+<<<<<<< HEAD
 // private int len = 0; 
+=======
+ private int len = 0; 
+>>>>>>> 36f55cebd265b234fca790644580636fd16c20ee
  
  public boolean setType( String type )     { 
 	 type = type.replaceAll("[^a-zA-Z]" , "");
@@ -40,8 +48,12 @@ public class Message {
 	 if (body.length() > 255) body = body.substring(0, 255);
 	 body = body.replaceAll("\\\\" , "/");
 //	 body = body.replaceAll("\\xc3\\xa5]" , "a"); // å -> a
+<<<<<<< HEAD
 //	 body = body.replaceAll("[^a-zA-Z0-9:;_#/><åäöÅÄÖ\"\\.\\!\\?\\*\\$\\)\\(\\-\\=\\{\\}\\]\\[]" , " ");
 	 body = body.replaceAll("[^a-zA-Z0-9:;_#/><åäöÅÄÖ\"\\,\\.\\!\\?\\*\\$\\)\\(\\-\\=\\{\\}\\]\\[]" , " ");
+=======
+	 body = body.replaceAll("[^a-zA-Z0-9:;_#/><åäöÅÄÖ\"\\.\\!\\?\\*\\$\\)\\(\\-\\=\\{\\}\\]\\[]" , " ");
+>>>>>>> 36f55cebd265b234fca790644580636fd16c20ee
 	 
 //	 body = body.replaceAll("[^a-zA-Z0-9.:!?;*_$#)(//\"><-=åäöÅÄÖ]" , " ");
 //	 body = body.replaceAll("[^\\S]" , " ");   // A non-whitespace character replaced with space

@@ -7,7 +7,11 @@ import javax.swing.table.*;
 
 class consoleStsCR extends JLabel implements TableCellRenderer
 {
+<<<<<<< HEAD
 //	private String columnName;
+=======
+	private String columnName;
+>>>>>>> 36f55cebd265b234fca790644580636fd16c20ee
 	public consoleStsCR()
 	{
 		setOpaque(true);

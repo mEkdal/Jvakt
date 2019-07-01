@@ -1,10 +1,17 @@
 package Jvakt;
 
+<<<<<<< HEAD
 //import java.io.FileInputStream;
 //import java.io.IOException;
 //import java.io.InputStream;
 import java.net.InetAddress;
 import java.sql.*;
+=======
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.net.InetAddress;
+>>>>>>> 36f55cebd265b234fca790644580636fd16c20ee
 
 //////////////////////////////////////////////////////////////////////////////////
 //
@@ -19,7 +26,12 @@ import java.sql.*;
 //
 //////////////////////////////////////////////////////////////////////////////////
 
+<<<<<<< HEAD
 //import java.util.Properties;
+=======
+import java.sql.*;
+import java.util.Properties;
+>>>>>>> 36f55cebd265b234fca790644580636fd16c20ee
 
 //import com.ibm.as400.access.AS400;
 //import com.ibm.as400.access.AS400Message;
@@ -132,7 +144,11 @@ static boolean swSlut = false;
             connection = DriverManager.getConnection(url);
             System.out.println("Connection OK");
 
+<<<<<<< HEAD
 //            DatabaseMetaData dmd = connection.getMetaData ();
+=======
+            DatabaseMetaData dmd = connection.getMetaData ();
+>>>>>>> 36f55cebd265b234fca790644580636fd16c20ee
 
             // Execute the query.
             Statement select = connection.createStatement ();

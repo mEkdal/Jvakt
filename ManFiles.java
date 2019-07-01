@@ -92,7 +92,11 @@ public class ManFiles {
 
 		if (swHelp) {
 			System.out
+<<<<<<< HEAD
 			.println("\n*** Jvakt.ManFiles (2019-APR-29) ***"
+=======
+			.println("\n*** Jvakt.ManFiles V2.3 2018-DEC-05 ***"
+>>>>>>> 36f55cebd265b234fca790644580636fd16c20ee
 					+ "\n*** by Michael Ekdal, Sweden. ***");
 			System.out
 			.println("\nThe parameters and their meaning are:\n"
@@ -184,8 +188,12 @@ public class ManFiles {
 			if (!swLoop) break;
 			antalT=0;antdeletedT=0;antcopiesT=0;antmovedT=0;anterrorsT=0;antemptyT=0;antdedT=0;
 			try {
+<<<<<<< HEAD
 //				Thread.currentThread().sleep(1000);
 				Thread.sleep(1000);
+=======
+				Thread.currentThread().sleep(1000);
+>>>>>>> 36f55cebd265b234fca790644580636fd16c20ee
 			}
 			catch (InterruptedException e) {
 				e.printStackTrace();
@@ -332,11 +340,19 @@ public class ManFiles {
 				tdir = new File(ssdir);
 				norigdir = tdir.toString();
 			} else if (args[i].equalsIgnoreCase("-suf"))
+<<<<<<< HEAD
 				suf = args[++i].trim();
 			else if (args[i].equalsIgnoreCase("-pos"))
 				pos = args[++i].trim();
 			else if (args[i].equalsIgnoreCase("-pref")) 
 				pref = args[++i].trim();
+=======
+				suf = args[++i];
+			else if (args[i].equalsIgnoreCase("-pos"))
+				pos = args[++i];
+			else if (args[i].equalsIgnoreCase("-pref"))
+				pref = args[++i];
+>>>>>>> 36f55cebd265b234fca790644580636fd16c20ee
 			else if (args[i].equalsIgnoreCase("-hou"))
 				hou = args[++i];
 			else if (args[i].equalsIgnoreCase("-min"))
@@ -388,10 +404,19 @@ public class ManFiles {
 			}
 		}
 
+<<<<<<< HEAD
 		if (tdir == null) {
 			swCopy = false;
 			swMove = false;
 		} // Use copy if both is present.
+=======
+		// if (swCopy && swDelete && !swAppend) { swCopy=false; swDelete=false; 
+		// swMove=true;} //Use move instead of copy and delete.
+		if (tdir == null) {
+			swCopy = false;
+			swMove = false;
+		} // Use move instead of copy and delete.
+>>>>>>> 36f55cebd265b234fca790644580636fd16c20ee
 		if (swCopy && swMove) {
 			swCopy = true;
 			swMove = false;
@@ -421,7 +446,11 @@ public class ManFiles {
 		String pos = parFile;
 		int antal = 0;
 
+<<<<<<< HEAD
 		listToS = new ArrayList<String>();  // id:mailadress.
+=======
+		listToS = new ArrayList();  // id:mailadress.
+>>>>>>> 36f55cebd265b234fca790644580636fd16c20ee
 
 		df = new DirFilter(suf, pos);
 

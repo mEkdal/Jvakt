@@ -20,7 +20,11 @@ public class monIpPorts {
 	static boolean swSingle = false;
 	static String host;
 	static InetAddress inet;
+<<<<<<< HEAD
 	static String version = "monIpPorts 1.4 # 2018-05-07";
+=======
+	static String version = "monIpPorts 1.4 # 2018-01-09";
+>>>>>>> 36f55cebd265b234fca790644580636fd16c20ee
 	static String database = "jVakt";
 	static String dbuser   = "jVakt";
 	static String dbpassword = "xz";

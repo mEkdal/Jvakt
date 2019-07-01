@@ -1,9 +1,16 @@
 package Jvakt;
 
+<<<<<<< HEAD
 //import java.awt.*;
 //import java.awt.event.*;
 //import javax.swing.event.*;
 //import javax.swing.*;
+=======
+import java.awt.*;
+import java.awt.event.*;
+import javax.swing.event.*;
+import javax.swing.*;
+>>>>>>> 36f55cebd265b234fca790644580636fd16c20ee
 import javax.swing.table.*;
 import java.io.*;
 import java.sql.Connection;
@@ -28,7 +35,11 @@ class consoleStsDM extends AbstractTableModel {
 	static Connection conn = null;
 	PreparedStatement prepStmt = null;
 
+<<<<<<< HEAD
 	String version = "jVakt - consoleStsDM 1.2 (2019-MAY-07)";
+=======
+	String version = "jVakt - consoleStsDM 1.2 (2018-DEC-16)";
+>>>>>>> 36f55cebd265b234fca790644580636fd16c20ee
 	String database = "Jvakt";
 	String dbuser   = "console";
 	String dbpassword = "Jvakt";
@@ -44,7 +55,10 @@ class consoleStsDM extends AbstractTableModel {
 	String[] tab = new String [1];
 	boolean editable = false; 
 
+<<<<<<< HEAD
 	Calendar cal = Calendar.getInstance();
+=======
+>>>>>>> 36f55cebd265b234fca790644580636fd16c20ee
 
 	public consoleStsDM() throws IOException {
 
@@ -54,7 +68,11 @@ class consoleStsDM extends AbstractTableModel {
 	}
 
 	public int getColumnCount() {
+<<<<<<< HEAD
 		//		System.out.println("getColumnCount " + columnNames.length);
+=======
+//		System.out.println("getColumnCount " + columnNames.length);
+>>>>>>> 36f55cebd265b234fca790644580636fd16c20ee
 		return columnNames.length;
 	}
 
@@ -122,7 +140,11 @@ class consoleStsDM extends AbstractTableModel {
 
 	public Class getColumnClass(int c) {
 		try {
+<<<<<<< HEAD
 			//		System.out.println("getColumnClass c: " + c + "  "+getValueAt(0, c).getClass());
+=======
+//		System.out.println("getColumnClass c: " + c + "  "+getValueAt(0, c).getClass());
+>>>>>>> 36f55cebd265b234fca790644580636fd16c20ee
 			return getValueAt(0, c).getClass();
 		} catch (NullPointerException e) {
 			return String.class;
@@ -137,7 +159,11 @@ class consoleStsDM extends AbstractTableModel {
 
 	public void setWhere(String where) {
 		this.where = where;
+<<<<<<< HEAD
 		//		System.out.println("This where: " + this.where);
+=======
+//		System.out.println("This where: " + this.where);
+>>>>>>> 36f55cebd265b234fca790644580636fd16c20ee
 	}
 
 	public void setEditable(boolean editable) {
@@ -147,10 +173,17 @@ class consoleStsDM extends AbstractTableModel {
 
 	public void setValueAt(Object value, int row, int col) {
 		// se till att objektet User sparar värdet med rätt set metod ( if (col == 2) .........
+<<<<<<< HEAD
 		System.out.println("wD setValueAt " + value + " " + row + " "+ col);
 
 		consoleStsROW rad;
 
+=======
+		 	System.out.println("wD setValueAt " + value + " " + row + " "+ col);
+		 	
+		consoleStsROW rad;
+		
+>>>>>>> 36f55cebd265b234fca790644580636fd16c20ee
 		if ( row >= map.size()) { 
 			rad = new consoleStsROW(); 
 			map.add(rad); 
@@ -166,9 +199,15 @@ class consoleStsDM extends AbstractTableModel {
 		} else if (col == 1) {
 			rad.setId((String)value); 
 		} else if (col == 2) {
+<<<<<<< HEAD
 			rad.setPrio((Integer)value);
 		} else if (col == 3) {
 			rad.setType((String)value);
+=======
+				rad.setPrio((Integer)value);
+		} else if (col == 3) {
+				rad.setType((String)value);
+>>>>>>> 36f55cebd265b234fca790644580636fd16c20ee
 		} else if (col == 4) {
 			rad.setStatus((String)value);
 		} else if (col == 5) {
@@ -202,6 +241,7 @@ class consoleStsDM extends AbstractTableModel {
 		} else if (col == 19) {
 			rad.setSmsdat((String)value);
 		}
+<<<<<<< HEAD
 
 		fireTableCellUpdated(row, col);
 		//col==0||col==2||col==3||col==4||col==7||col==8||col==10||col==15||col==16		
@@ -284,6 +324,36 @@ class consoleStsDM extends AbstractTableModel {
 			st.close();
 			System.out.println("Rows insterted : "+rowsInserted);
 
+=======
+				
+		fireTableCellUpdated(row, col);
+//col==0||col==2||col==3||col==4||col==7||col==8||col==10||col==15||col==16		
+		String updateTable = "UPDATE status SET state=?, id=?, prio=?, type=?, status=?, chkday=?, chktim=?, accerr=?, info=?, plugin=?  "
+                + " WHERE ID = ? and prio = ? ";
+		try {
+		prepStmt = conn.prepareStatement(updateTable);
+		prepStmt.setString(1, rad.getState());
+		prepStmt.setString(2, rad.getId());
+		prepStmt.setInt(   3, rad.getPrio());
+		prepStmt.setString(4, rad.getType());
+		prepStmt.setString(5, rad.getStatus());
+		prepStmt.setString(6, rad.getChkday());
+		if (rad.getChktim() != null) {
+		tab = rad.getChktim().split(":" , 6);
+		prepStmt.setTime(7, new java.sql.Time(Integer.valueOf(tab[0]),Integer.valueOf(tab[1]),Integer.valueOf(tab[2]))); 
+		}
+		else {
+			prepStmt.setTime(7, new java.sql.Time(6,0,0)); 
+		}
+		prepStmt.setInt(   8, Integer.valueOf(rad.getAccerr())); 
+		prepStmt.setString(9, rad.getInfo());
+		prepStmt.setString(10, rad.getPlugin());
+		
+		prepStmt.setString(11, oId);
+		prepStmt.setInt(   12, oPrio);
+		System.out.println("Rows updated : "+prepStmt.executeUpdate());
+		
+>>>>>>> 36f55cebd265b234fca790644580636fd16c20ee
 		} catch (SQLException e) {
 			System.out.println(e);
 		} 
@@ -303,14 +373,22 @@ class consoleStsDM extends AbstractTableModel {
 			swDBopen = true;
 		}
 		catch (SQLException e) {
+<<<<<<< HEAD
 			//			System.err.println(e);
+=======
+//			System.err.println(e);
+>>>>>>> 36f55cebd265b234fca790644580636fd16c20ee
 			System.err.println(e.getMessage());
 			swDBopen = false;
 			map.clear();
 			createEmptyRow();
 		}
 		catch (Exception e) {
+<<<<<<< HEAD
 			//			System.err.println(e);
+=======
+//			System.err.println(e);
+>>>>>>> 36f55cebd265b234fca790644580636fd16c20ee
 			System.err.println(e.getMessage());
 			swDBopen = false;
 			map.clear();
@@ -335,6 +413,7 @@ class consoleStsDM extends AbstractTableModel {
 				s = new String("select * from status order by id asc;"); 
 			else
 				s = new String("select * from status where "+ where +" order by id asc;");
+<<<<<<< HEAD
 
 			//			System.out.println("refreshData s: " + s);
 
@@ -342,11 +421,21 @@ class consoleStsDM extends AbstractTableModel {
 
 			//			System.out.println(s);
 			//			Statement stmt = conn.createStatement(ResultSet.CONCUR_READ_ONLY,ResultSet.TYPE_SCROLL_INSENSITIVE); 
+=======
+			
+//			System.out.println("refreshData s: " + s);
+			
+			map.clear();
+
+//			System.out.println(s);
+//			Statement stmt = conn.createStatement(ResultSet.CONCUR_READ_ONLY,ResultSet.TYPE_SCROLL_INSENSITIVE); 
+>>>>>>> 36f55cebd265b234fca790644580636fd16c20ee
 			Statement stmt = conn.createStatement(ResultSet.CONCUR_READ_ONLY,ResultSet.TYPE_FORWARD_ONLY,ResultSet.CLOSE_CURSORS_AT_COMMIT ); 
 			stmt.setFetchSize(1000);
 			stmt.setQueryTimeout(5);
 			ResultSet rs = stmt.executeQuery(s);
 
+<<<<<<< HEAD
 			//			if (!rs.first()) {
 			//				System.out.println("createemptyrow");
 			//				createEmptyRow();
@@ -378,6 +467,39 @@ class consoleStsDM extends AbstractTableModel {
 				rad.setSms(rs.getString("sms"));
 				rad.setSmsdat(rs.getString("smsdat"));
 
+=======
+//			if (!rs.first()) {
+//				System.out.println("createemptyrow");
+//				createEmptyRow();
+//			}
+
+			while (rs.next()) {
+				//--
+//				System.out.println("rs.next");
+				rad = new consoleStsROW();
+
+					rad.setState(rs.getString("state"));
+					rad.setId(rs.getString("id"));
+					rad.setPrio(rs.getInt("prio"));
+					rad.setType(rs.getString("type"));
+					rad.setStatus(rs.getString("status"));
+					rad.setBody(rs.getString("body"));
+					rad.setRptdat(rs.getString("rptdat"));
+					rad.setChkday(rs.getString("chkday"));
+					rad.setChktim(rs.getString("chktim"));
+					rad.setErrors(rs.getInt("errors"));
+					rad.setAccerr(rs.getInt("accerr"));
+					rad.setMsg(rs.getString("msg"));
+					rad.setMsgdat(rs.getString("msgdat"));
+					rad.setConsole(rs.getString("console"));
+					rad.setCondat(rs.getString("condat"));
+					rad.setInfo(rs.getString("info"));
+					rad.setPlugin(rs.getString("plugin"));
+					rad.setAgent(rs.getString("agent"));
+					rad.setSms(rs.getString("sms"));
+					rad.setSmsdat(rs.getString("smsdat"));
+					
+>>>>>>> 36f55cebd265b234fca790644580636fd16c20ee
 				map.add(rad);
 			}
 
@@ -426,7 +548,11 @@ class consoleStsDM extends AbstractTableModel {
 		rad.setSms(" ");
 		rad.setSmsdat(" ");
 
+<<<<<<< HEAD
 		//		map.add(rad);
+=======
+//		map.add(rad);
+>>>>>>> 36f55cebd265b234fca790644580636fd16c20ee
 
 		return true;	
 	}
@@ -446,6 +572,7 @@ class consoleStsDM extends AbstractTableModel {
 
 	void getProps() {
 
+<<<<<<< HEAD
 		Properties prop = new Properties();
 		InputStream input = null;
 		try {
@@ -464,6 +591,26 @@ class consoleStsDM extends AbstractTableModel {
 			// ex.printStackTrace();
 		}
 
+=======
+    	Properties prop = new Properties();
+    	InputStream input = null;
+    	try {
+    	input = new FileInputStream("console.properties");
+    	prop.load(input);
+    	// get the property value and print it out
+    	database = prop.getProperty("database");
+    	dbuser   = prop.getProperty("dbuser");
+    	dbpassword = prop.getProperty("dbpassword");
+    	dbhost   = prop.getProperty("dbhost");
+    	dbport   = prop.getProperty("dbport");
+    	jvport   = prop.getProperty("jvport");
+    	jvhost   = prop.getProperty("jvhost");
+    	input.close();
+    	} catch (IOException ex) {
+    		// ex.printStackTrace();
+    	}
+    	
+>>>>>>> 36f55cebd265b234fca790644580636fd16c20ee
 	}
 
 }
