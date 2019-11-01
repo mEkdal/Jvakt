@@ -15,7 +15,8 @@ import java.util.*;
 //import java.net.*;
 
 class consoleDM extends AbstractTableModel {
-
+	
+	static final long serialVersionUID = 50L;
 	String afn;
 //	String columnNames[] = {"Count", "Id", "Prio", "Type", "CreDate", "ConDate", "Status", "Body", "Agent"};
 	String columnNames[] = { "Id", "Prio", "Type", "CreDate", "ConDate", "Status", "Body", "Agent"};
@@ -117,7 +118,7 @@ class consoleDM extends AbstractTableModel {
 //	public Class getColumnClass(int c) {
 //		return getValueAt(0, c).getClass();
 //	}
-	public Class getColumnClass(int c) {
+	public Class<?> getColumnClass(int c) {
 		try {
 			//		return getValueAt(0, c).getClass();
 			return getValueAt(0, c).getClass();

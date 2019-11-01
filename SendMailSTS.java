@@ -82,7 +82,7 @@ public class SendMailSTS {
 
 	public static void main(String[] args ) throws IOException, UnknownHostException {
 
-		String version = "SendMailSTS 1.9 (2019-APR-29)";
+		String version = "SendMailSTS (2019-SEP-10)";
 
 		String subject = "";
 		String body = "";
@@ -138,7 +138,7 @@ public class SendMailSTS {
 		swServer = true;
 		try {
 			port = Integer.parseInt(jvport);
-			SendMsg jm = new SendMsg(jvhost, port);  // kollar om JvaktServer är tillgänglig.
+			SendMsg jm = new SendMsg(jvhost, port);  // kollar om JvaktServer ï¿½r tillgï¿½nglig.
 //			System.out.println(jm.open());
 			if (jm.open().startsWith("DORMANT")) 	swDormant = true;
 			else 									swDormant = false;
@@ -217,7 +217,7 @@ public class SendMailSTS {
 			swMail = true;
 			rs.close(); 
 			stmt.close();
-
+			conn.close();
 		}
 		catch (SQLException e) {
 			System.err.println("*** SQLExeption");

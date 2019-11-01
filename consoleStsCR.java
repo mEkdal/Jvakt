@@ -8,6 +8,7 @@ import javax.swing.table.*;
 class consoleStsCR extends JLabel implements TableCellRenderer
 {
 //	private String columnName;
+	static final long serialVersionUID = 50L;
 	public consoleStsCR()
 	{
 		setOpaque(true);

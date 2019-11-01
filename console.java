@@ -23,13 +23,14 @@ import javax.swing.event.ListSelectionListener;
 import javax.swing.Timer;
 import javax.swing.border.*;
 
-// Extend av jframe fˆr att fÂ tillgÂng till swing metoderna i Jframe. 
-// Jframe ‰r basen i fˆnsterhanteringen.
-//implementerar TableModelListener fˆr att anv‰nda denna class som lyssnare till Jtables datamodellclass via metoden tableChanged.
-//implementerar WindowListener fˆr att anv‰nda denna class som lyssnare till Jframe med metoden windowClosing; och d‰r tˆmma data till filer.
+// Extend av jframe f√∂r att f√• tillg√•ng till swing metoderna i Jframe. 
+// Jframe √§r basen i f√∂nsterhanteringen.
+//implementerar TableModelListener f√∂r att anv√§nda denna class som lyssnare till Jtables datamodellclass via metoden tableChanged.
+//implementerar WindowListener fÔøΩr att anv√§nda denna class som lyssnare till Jframe med metoden windowClosing; och d√§r t√∂mma data till filer.
 public class console extends JFrame implements TableModelListener, WindowListener {
 
 	// Skapar diverse variabler
+	static final long serialVersionUID = 42L;
 	private JPanel topPanel;
 //	private JPanel usrPanel;
 //	private JPanel logPanel;
@@ -61,16 +62,16 @@ public class console extends JFrame implements TableModelListener, WindowListene
 	 */
 	public static void main(String[] args) throws IOException {
 
-		console mainFrame = new console();  // gˆr objekt av innevarande class 
-		mainFrame.pack();                   // kallar pÂ innevarande class metod pack som ‰rvts via Jframe 
-		mainFrame.setVisible(true);  	    // kallar pÂ innevarande class metod setVisible och nu visas fˆnster fˆr anv‰ndaren
+		console mainFrame = new console();  // g√∂r objekt av innevarande class 
+		mainFrame.pack();                   // kallar p√• innevarande class metod pack som √§rvts via Jframe 
+		mainFrame.setVisible(true);  	    // kallar p√• innevarande class metod setVisible och nu visas f√∂nster f√∂r anv√§ndaren
 
-	}   // main stÂr nu och "v‰ntar" vid slutet tills de andra objekten avslutas.
+	}   // main st√•r nu och "v√§ntar" vid slutet tills de andra objekten avslutas.
 
 
 	// construktorn som startas i den statiska main metoden.
 	// skapar alla inblandade objekt och kopplar ihop dom.
-	// kallar ocksÂ pÂ metoder ‰rvda frÂn Jframe att s‰tta vissa v‰rden.
+	// kallar ocks√• p√• metoder √§rvda fr√•n Jframe att s√§tta vissa v√§rden.
 	public console() throws IOException {
 
 		ImageIcon img = new ImageIcon("console.png");
@@ -80,8 +81,8 @@ public class console extends JFrame implements TableModelListener, WindowListene
 		getProps();
 		port = Integer.parseInt(jvport);
 
-		// funktion frÂn Jframe att s‰tta rubrik
-		setTitle("Jvakt console 2.39  -  F1 = Help");
+		// funktion fr√•n Jframe att s√§tta rubrik
+		setTitle("Jvakt console 2.41  -  F1 = Help");
 		//	        setSize(5000, 5000);
 
 		// get the screen size as a java dimension
@@ -95,21 +96,21 @@ public class console extends JFrame implements TableModelListener, WindowListene
 		setPreferredSize(new Dimension(width, height));
 
 
-		// funktion frÂn Jframe att s‰tta f‰rg
+		// funktion fr√•n Jframe att s√§tta f√§rg
 		setBackground(Color.gray);
 		setUndecorated(false);
 		// skapar ny Jpanel och sparar referensen i topPanel
 		topPanel = new JPanel();
-		// ber‰ttar fˆr topPanel vilken layout den ska anv‰nda genom att skapa ett BorderLayout object utan namn.
+		// ber√§ttar f√∂r topPanel vilken layout den ska anv√§nda genom att skapa ett BorderLayout object utan namn.
 		topPanel.setLayout(new BorderLayout());
 		//topPanel.setLayout(new FlowLayout());
-		// H‰mtar Jpanels enkla content hanterare och l‰gger dit topPanel i st‰llet att hantera resten av objekten
+		// H√§mtar Jpanels enkla content hanterare och l√§gger dit topPanel i st√§llet att hantera resten av objekten
 		getContentPane().add(topPanel);
 		//topPanel.setComponentOrientation(ComponentOrientation.RIGHT_TO_LEFT);
 
-		// Skapar datamodel fˆr datahanteringen av userDB i table
+		// Skapar datamodel f√∂r datahanteringen av userDB i table
 		wD = new consoleDM();
-		// skapar en Jtable och l‰gger till referensen till wD via Jtables contructor
+		// skapar en Jtable och l√§gger till referensen till wD via Jtables contructor
 		// table kommer att visa userDB
 		table = new JTable(wD);
 
@@ -135,7 +136,7 @@ public class console extends JFrame implements TableModelListener, WindowListene
 
 		swServer = true;
 		try {
-			SendMsg jm = new SendMsg(jvhost, port);  // kollar om JvaktServer ‰r tillg‰nglig.
+			SendMsg jm = new SendMsg(jvhost, port);  // kollar om JvaktServer √§r tillg√§nglig.
 			String oSts = jm.open();
 			//			System.out.println("#1 "+oSts);
 			if (oSts.startsWith("failed")) 	swServer  = false;
@@ -155,7 +156,7 @@ public class console extends JFrame implements TableModelListener, WindowListene
 
 		//		System.out.println("swServer :" + swServer);
 
-		swDBopen = wD.refreshData(); // kollar om DB ‰r tillg‰nglig
+		swDBopen = wD.refreshData(); // kollar om DB ÔøΩr tillg√§nglig
 		setBu1Color();
 
 		bu1.addActionListener(new ActionListener() {
@@ -166,7 +167,7 @@ public class console extends JFrame implements TableModelListener, WindowListene
 			}
 		});
 
-		// talar om fˆr table att man bara fÂr v‰lja en rad i taget
+		// talar om f√∂r table att man bara f√•r v√§lja en rad i taget
 		//		table.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
 		table.setSelectionMode(ListSelectionModel.MULTIPLE_INTERVAL_SELECTION);
 
@@ -175,7 +176,7 @@ public class console extends JFrame implements TableModelListener, WindowListene
 
 		//
 		// OBS intern class start---
-		// Anv‰nder rowSM metod fˆr att skapa lyssnare till table fˆr att veta vilken rad som v‰ljs.
+		// Anv√§nder rowSM metod f√∂r att skapa lyssnare till table f√∂r att veta vilken rad som v√§ljs.
 		rowSM.addListSelectionListener(new ListSelectionListener()  {
 			// interna classens metod som tar fram vilken rad som valts
 			public void valueChanged(ListSelectionEvent e)   {
@@ -198,12 +199,12 @@ public class console extends JFrame implements TableModelListener, WindowListene
 		//
 
 
-		// s‰tter automatsortering i tabellerna    
+		// sÔøΩtter automatsortering i tabellerna    
 		//	        table.setAutoCreateRowSorter(true);
-		// talar om fˆr tabellernas datamodellobjekt (wD o wD2) att detta objekt lyssnar; metoden tableChanged
+		// talar om f√∂r tabellernas datamodellobjekt (wD o wD2) att detta objekt lyssnar; metoden tableChanged
 		table.getModel().addTableModelListener(this);
 
-		// s‰tter f‰rg pÂ raderna
+		// s√§tter f√§rg p√• raderna
 		consoleCR cr=new consoleCR();
 
 		//		for (int i=0; i <= 8 ; i++ ) {      
@@ -215,7 +216,7 @@ public class console extends JFrame implements TableModelListener, WindowListene
 		}
 
 
-		// skapar nya JScrollPane och l‰gger till tabellerna via construktorn. Fˆr att kunna scrolla tabellerna.
+		// skapar nya JScrollPane och l√§gger till tabellerna via construktorn. F√∂r att kunna scrolla tabellerna.
 
 		scrollPane = new JScrollPane(table);
 		//		table.setAutoResizeMode(JTable.AUTO_RESIZE_ALL_COLUMNS);
@@ -281,20 +282,20 @@ public class console extends JFrame implements TableModelListener, WindowListene
 		scrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
 		//	        scrollPane.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_ALWAYS);
 
-		// skapar tvÂ nya JPanel att anv‰ndas inuti topPanel, som ocksÂ ‰r en JPanel
+		// skapar tv√• nya JPanel att anv√§ndas inuti topPanel, som ocks√• √§r en JPanel
 		//	        usrPanel = new JPanel();
 		//	        usrPanel.setLayout(new BorderLayout());
 		//	        logPanel = new JPanel();
 		//	        logPanel.setLayout(new BorderLayout());
-		// talar om fˆr de nya JPanels vilka scrollPanes dom ska innehÂlla (scrollPanes innehÂller tabellerna).
+		// talar om f√∂r de nya JPanels vilka scrollPanes dom ska inneh√•lla (scrollPanes inneh√•ller tabellerna).
 		//	        usrPanel.add(scrollPane, BorderLayout.CENTER);
 		topPanel.add(scrollPane, BorderLayout.CENTER);
-		// talar om fˆr topPanel att den ska innehÂlla tvÂ JPanelobjekt NORTH och CENTER       
+		// talar om f√∂r topPanel att den ska inneh√•lla tv√• JPanelobjekt NORTH och CENTER       
 		//	        usrPanel.add(bu1, BorderLayout.NORTH);
 		topPanel.add(bu1, BorderLayout.NORTH);
 		//	        topPanel.add(usrPanel, BorderLayout.NORTH);
 		//	        topPanel.add(logPanel, BorderLayout.CENTER);
-		// talar om fˆr innevarande object att den lyssnar pÂ sig sj‰lv. (metoderna fˆr WindowListener)
+		// talar om f√∂r innevarande object att den lyssnar p√• sig sj√§lv. (metoderna f√∂r WindowListener)
 		addWindowListener(this);
 
 		Timer timer = new Timer(2500, new ActionListener() {
@@ -312,7 +313,7 @@ public class console extends JFrame implements TableModelListener, WindowListene
 						jvconnectCount = 0;
 						try {
 							swServer = true;
-							SendMsg jm = new SendMsg(jvhost, port);  // kollar om JvaktServer ‰r tillg‰nglig.
+							SendMsg jm = new SendMsg(jvhost, port);  // kollar om JvaktServer √§r tillg√§nglig.
 							String oSts = jm.open();
 							//						System.out.println("#1 "+oSts);
 							if (oSts.startsWith("failed")) 	swServer  = false;
@@ -359,8 +360,8 @@ public class console extends JFrame implements TableModelListener, WindowListene
 	} // slut construktor
 
 
-	// vi implementerade TableModelListener och addade "this" fˆr att denna metod skulle anropas vid ‰nding av v‰rde i tabellen
-	// detta anv‰ndas bara fˆr loggning
+	// vi implementerade TableModelListener och addade "this" fÔøΩr att denna metod skulle anropas vid √§nding av v√§rde i tabellen
+	// detta anv√§ndas bara f√∂r loggning
 	public void tableChanged(TableModelEvent e)  {
 		int row = e.getFirstRow();
 		int column = e.getColumn();
@@ -451,27 +452,32 @@ public class console extends JFrame implements TableModelListener, WindowListene
 
 	private AbstractAction showHelp()  {
 		AbstractAction save = new AbstractAction() {
-
+			static final long serialVersionUID = 43L;
 			@Override
 			public void actionPerformed(ActionEvent e)  {
 				//					                 JOptionPane.showMessageDialog(TestTableKeyBinding.this.table, "Action Triggered.");
 //				System.out.println("ShowHelp");
 				JOptionPane.showMessageDialog(getContentPane(),
-								"F1 : Help \nF3 : Increase font size \nF4 : Decrease font size \nF5 : History \nF6 : Status table \nF7 : Show line \nF8 : Toggle dormant  \n\nESC : Unselect\n" +
-								"\nThis app shows the filtered report/messages sent to the Jvakt server. OK messages of types 'R' and 'S' remain in the database." + 
-								"\nThe upper bar acts a button to stop/start the automatic update. It will also show the status of the server and database." + 
+								"F1 : Help \nF3 : Increase font size \nF4 : Decrease font size \nF5 : History \nF6 : Status table \nF7 : Show row \nF8 : Toggle dormant \n\nDEL : delete rows \nESC : Unselect\n" +
+								"\nThis app shows the filtered reports/messages sent to the Jvakt server. OK messages of types 'R', 'T' and 'S' remains in the database." + 
+								"\nThe upper bar acts a button to stop/start the automatic update. \nIt will also show the status of the server and database." + 
 								"\n\nFields: " + 
 								"\nId = The Id if the message. " + 
 								"\nPrio = Prio 30 and higher is meant for office hours and messages will remain in the console. No mail or SMS." + 
 								"\n       Below 30 is important and might trigger SMS and/or mail depending on chkday/chktim " + 
 								"\n       Prio 10 or less is very important and will trigger SMS and/or mail 24/7. " +
-								"\ntype = 'S' means a check that rptday is updated 'today'. The check is made once at the time in the chkday and chktim fields. " +
-								"\n           When read and acted upon the line may be selected and removed with the DEL button." +
-								"\n           It will be removed automatically the next time the check sends an OK report. Usually the next day." +
+								"\ntype = 'S' means a check that rptday is updated 'today'. The check is made once a day at the time in the chkday and chktim fields. " +
+								"\n           When read and acted upon, the row may be selected and removed with the DEL button." +
+								"\n           If not manually deleted it will be automatically removed the next time the check sends an OK report. Usually the next day." +
 								"\ntype = 'R' means a check that rptdat is updated at least every 20 minute. The check starts from the time in chkday and chktim fields." +
-								"\n           The message will dissappear automatically when the issue is resolved. " +
+								"\n           The message will disappear automatically when the issue is resolved. " +
+								"\ntype = 'T' means no tome-out checks are made." +
+								"\n           When read and acted upon the line may be selected and removed with the DEL button." +
+								"\n           It will be automatically removed the next time the check sends an OK report." +
+								"\n           When or if this will happen is unknown." +
 								"\ntype = 'I' means impromptu messages. " +
-								"\n           When read and acted upon the line must be selected and removed with the DEL button. " +
+								"\n           The 'I' type will not remain in the status table and can not be prepared in advance." +
+								"\n           When read and acted upon the row must be selected and removed with the DEL button." +
 								"\nCreDate = The inital time the message arrived the the console."+ 
 								"\nConDate = The latest time the message was updated. "+ 
 								"\nStatus  = ERR, INFO, OK or TOut."+ 
@@ -487,6 +493,7 @@ public class console extends JFrame implements TableModelListener, WindowListene
 
 	private AbstractAction showLine()  {
 		AbstractAction save = new AbstractAction() {
+			static final long serialVersionUID = 44L;
 
 			@Override
 			public void actionPerformed(ActionEvent e)  {
@@ -524,9 +531,9 @@ public class console extends JFrame implements TableModelListener, WindowListene
 //						System.out.println(ValueId);
 						String agent = (String) ValueId;
 						JOptionPane.showMessageDialog(getContentPane(),
-								"- ID (the unique id if the message) -\n"+id+" \n\n" +
-										"- Prio (the priority. Below 30 trigger email and SMS text) -\n"+prio +"\n\n" + 
-										"- Type (R=repeated, S= scheduled and I=immediate/impromptu) -\n"+type +"\n\n" + 
+								"- ID (the id of the message. Together with prio it makes an unique id) -\n"+id+" \n\n" +
+										"- Prio (the priority, part of the unique id. Below 30 trigger email and SMS text) -\n"+prio +"\n\n" + 
+										"- Type (R=repeated, S=scheduled, I=immediate/impromptu, T=permanent with no time-out checks) -\n"+type +"\n\n" + 
 										"- CreDate (the date it appeared in the console) -\n"+credate +"\n\n" + 
 										"- ConDate (the date it updated in the console) -\n"+condate +"\n\n" + 
 										"- Status (OK, INFO, TOut or ERR) -\n"+status +"\n\n" + 
@@ -550,7 +557,8 @@ public class console extends JFrame implements TableModelListener, WindowListene
 
 	private AbstractAction clearSel()  {
 		AbstractAction save = new AbstractAction() {
-
+			static final long serialVersionUID = 45L;
+			
 			@Override
 			public void actionPerformed(ActionEvent e)  {
 				//					                 JOptionPane.showMessageDialog(TestTableKeyBinding.this.table, "Action Triggered.");
@@ -562,6 +570,7 @@ public class console extends JFrame implements TableModelListener, WindowListene
 
 	private AbstractAction increaseH()  {
 		AbstractAction save = new AbstractAction() {
+			static final long serialVersionUID = 52L;
 
 			@Override
 			public void actionPerformed(ActionEvent e)  {
@@ -577,7 +586,8 @@ public class console extends JFrame implements TableModelListener, WindowListene
 
 	private AbstractAction decreaseH()  {
 		AbstractAction save = new AbstractAction() {
-
+			static final long serialVersionUID = 46L;
+			
 			@Override
 			public void actionPerformed(ActionEvent e)  {
 				//				System.out.println("getRowHeight :" + table.getRowHeight());
@@ -594,6 +604,7 @@ public class console extends JFrame implements TableModelListener, WindowListene
 
 	private AbstractAction delRow()  {
 		AbstractAction save = new AbstractAction() {
+			static final long serialVersionUID = 47L;
 
 			@Override
 			public void actionPerformed(ActionEvent e)  {
@@ -653,7 +664,8 @@ public class console extends JFrame implements TableModelListener, WindowListene
 	
 	private AbstractAction toggleDormant()  {
 		AbstractAction save = new AbstractAction() {
-
+			static final long serialVersionUID = 48L;
+			
 			@Override
 			public void actionPerformed(ActionEvent e)  {
 
@@ -685,7 +697,8 @@ public class console extends JFrame implements TableModelListener, WindowListene
 	//************
 	private AbstractAction strHst()  {
 		AbstractAction save = new AbstractAction() {
-
+			static final long serialVersionUID = 49L;
+			
 			@Override
 			public void actionPerformed(ActionEvent e)  {
 //				System.out.println("-- Start consoleHst: " + cmdHst);
@@ -727,6 +740,7 @@ public class console extends JFrame implements TableModelListener, WindowListene
 	//************
 	private AbstractAction strSts()  {
 		AbstractAction save = new AbstractAction() {
+			static final long serialVersionUID = 50L;
 
 			@Override
 			public void actionPerformed(ActionEvent e)  {
@@ -748,12 +762,12 @@ public class console extends JFrame implements TableModelListener, WindowListene
 
 
 	// windows listeners
-	// vi implementerade WindowListener och addade "this" fˆr att denna metod skulle anropas vid normalt avslut av Jframe 
+	// vi implementerade WindowListener och addade "this" f√∂r att denna metod skulle anropas vid normalt avslut av Jframe 
 	public void windowClosing(WindowEvent e) {
 		//skriv userDB
 		wD.closeDB();
 		System.exit(0);
-		// ...och h‰r ‰r det slut i rutan..!!!... 
+		// ...och hÔøΩr ÔøΩr det slut i rutan..!!!... 
 	}
 
 	void getProps() {
@@ -775,7 +789,7 @@ public class console extends JFrame implements TableModelListener, WindowListene
 	}
 
 
-	// vi implementerade WindowListener men fˆljande metoder av‰nds inte 
+	// vi implementerade WindowListener men f√∂ljande metoder av√§nds inte 
 	public void windowClosed(WindowEvent e) {    }
 	public void windowOpened(WindowEvent e) {    }
 	public void windowIconified(WindowEvent e) {    }

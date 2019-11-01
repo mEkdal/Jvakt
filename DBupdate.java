@@ -11,7 +11,7 @@ import java.time.LocalDateTime;
 
 
 class DBupdate {
-/* DBupdate ( 2019-MAY-02 ) */
+/* DBupdate ( 2019-JUL-25 ) */
 	static Connection conn = null;
 	Statement stmt = null;
 	PreparedStatement pStmt = null;
@@ -97,7 +97,7 @@ class DBupdate {
 
 		// Ignore empty conenctions. Most often from console checking the status.
 		if ( m.getId().isEmpty() ) {
-			if (swLogg) System.out.println("dbWrite #A: " + m.getType() + " " + m.getId() + " " +m.getRptsts() + " " + m.getBody() + " " +m.getAgent() + " " +m.getPrio());
+			if (swLogg) System.out.println(LocalDateTime.now()+"dbWrite #A: " + m.getType() + " " + m.getId() + " " +m.getRptsts() + " " + m.getBody() + " " +m.getAgent() + " " +m.getPrio());
 			return;
 		}
 
@@ -112,13 +112,13 @@ class DBupdate {
 
 			if ( m.getType().equalsIgnoreCase("Dormant")) {
 				if (!swPerm) {
-					swDormant = true; System.out.println("Dormant");
+					swDormant = true; System.out.println(LocalDateTime.now()+" -> Dormant");
 				}
 			}
 			else 
 				if ( m.getType().equalsIgnoreCase("Active")) { 
 					if (!swPerm) {
-						swDormant = false; System.out.println("Active");
+						swDormant = false; System.out.println(LocalDateTime.now()+" -> Active");
 					}
 					swPerm = false;    // swPerm denies change to Active only once. 
 				}
@@ -221,7 +221,7 @@ class DBupdate {
 					rs.close(); 
 					stmt.close(); 
 
-					//€newrecord. Not found before, thus create a new record in the status table
+					// newrecord. Not found before, thus create a new record in the status table
 					if ( !swHits ) {   
 
 						PreparedStatement st = conn.prepareStatement("INSERT INTO status (state,id,prio,type,status,body,rptdat,chkday,chktim,errors,accerr,msg,msgdat,console,condat,info,plugin,agent,sms,smsdat) "
@@ -276,7 +276,7 @@ class DBupdate {
 						@SuppressWarnings("unused")
 						int rowsInserted = st.executeUpdate();
 						st.close();
-					} // €newrecord      
+					} // ï¿½newrecord      
 
 
 					// remove process used for plugin from list
@@ -293,11 +293,11 @@ class DBupdate {
 					}
 
 
-					// €console ** Immediate or delete type cause an update to the console table at once.
+					// console ** Immediate or delete type cause an update to the console table at once.
 					if ( sType.equalsIgnoreCase("I") || m.getType().equalsIgnoreCase("I") || m.getType().equalsIgnoreCase("D") ) {   
 						if (swLogg) {
-							System.out.println(">>> Con  m.Type  >>>>: " + m.getType().toUpperCase() +" - "+  m.getId()+" - "+ m.getBody());
-							System.out.println(">>> Con rs.sType >>>>: " + sType +" - "+sId+"- -"+ sBody);
+							System.out.println(LocalDateTime.now()+" #6 Con  m.Type  : " + m.getType().toUpperCase() +" - "+  m.getId()+" - "+ m.getBody());
+							System.out.println(LocalDateTime.now()+" #7 Con rs.sType : " + sType +" - "+sId+"- -"+ sBody);
 						}
 
 						// read and remove previous line from the console table and save the count field
@@ -309,7 +309,7 @@ class DBupdate {
 									"' and body ilike '" + m.getBody() +
 									"';");
 							if (swLogg)
-								System.out.println(">> s for update: "+s);
+								System.out.println(LocalDateTime.now()+" #8 s for update: "+s);
 						} else {  // delete 
 							s = new String("select * from console " + 
 									"WHERE id ilike '" + m.getId() + 
@@ -317,7 +317,7 @@ class DBupdate {
 									"' and prio='" + Integer.toString(m.getPrio()) +
 									"';");
 							if (swLogg)
-								System.out.println(">> s for delete: "+s);
+								System.out.println(LocalDateTime.now()+" #9 s for delete: "+s);
 						}
 
 						//						stmt = conn.createStatement(ResultSet.CONCUR_UPDATABLE,ResultSet.TYPE_SCROLL_INSENSITIVE);
@@ -328,20 +328,20 @@ class DBupdate {
 						//						System.out.println(">>> innan rs2.update");
 						while (rs2.next()) {
 							count = count + rs2.getInt(1);
-							if (swLogg)	System.out.println(">>> inuti rs2.update  " + count);
+							if (swLogg)	System.out.println(LocalDateTime.now()+" #10 Console update. rs2.Count=" + count);
 
 							if (m.getType().equalsIgnoreCase("D")) {
 								addHst(rs2);
 								if (swLogg)
-									System.out.println(">>> delete row in console " + rs2.getString("id")+" - "+rs2.getString("body"));
-								try { rs2.deleteRow(); } catch(NullPointerException npe2) {System.out.println(">>> delete row npe " + npe2 );}
+									System.out.println(LocalDateTime.now()+" #11 delete row in console " + rs2.getString("id")+" - "+rs2.getString("body"));
+								try { rs2.deleteRow(); } catch(NullPointerException npe2) {System.out.println(LocalDateTime.now()+" #12 delete row npe " + npe2 );}
 							}
 							else { 
-								if (swLogg) System.out.println(">>> update row in console" + rs2.getString("id")+" - "+rs2.getString("body"));
+								if (swLogg) System.out.println(LocalDateTime.now()+" #13  update row in console" + rs2.getString("id")+" - "+rs2.getString("body"));
 								rs2.updateTimestamp("condat", new java.sql.Timestamp((new Date(System.currentTimeMillis())).getTime()));
 								rs2.updateInt("count", count);
 								rs2.updateString("status", m.getRptsts());
-								try { rs2.updateRow(); } catch(NullPointerException npe2) {System.out.println(">>> updaterow npe " + npe2 );}
+								try { rs2.updateRow(); } catch(NullPointerException npe2) {System.out.println(LocalDateTime.now()+" #14  updaterow npe " + npe2 );}
 							}
 						}
 						//						System.out.println(">>> innan rs2.close");
@@ -352,11 +352,10 @@ class DBupdate {
 
 						if ( count == 1 && (sType.equalsIgnoreCase("I") || m.getType().equalsIgnoreCase("I")) && !m.getType().equalsIgnoreCase("D")) {
 							// insert new line with new timestamp and counter
-							if (swLogg)
-								System.out.println(">>> Insert new line in console");
 							PreparedStatement st = conn.prepareStatement("INSERT INTO Console (count,id,prio,type,condat,credat,status,body,agent) "
 									+ "values (?,?,?,?,?,?,?,?,?)");
-							//        System.out.println("Prepared insert:");
+							if (swLogg)
+								System.out.println(LocalDateTime.now()+" #15 Insert new line in console " + st );
 							st.setInt(1,count); // count
 							st.setString(2,m.getId() ); 
 							st.setInt(3,m.getPrio()); // prio
@@ -375,7 +374,7 @@ class DBupdate {
 							//  Sleep one millisecond to be sure next timestamp is unique.
 							try { Thread.sleep(1); } catch (InterruptedException e) { e.printStackTrace();}
 						}
-					} //€console    
+					} //ï¿½console    
 
 				}
 		}
@@ -403,13 +402,13 @@ class DBupdate {
 
 		try {
 			if (swLogg)
-				System.out.println("addHst RS: " + rs.getString("id")+" Type: " + rs.getString("type").toUpperCase()+" Body: " + rs.getString("body"));
+				System.out.println(LocalDateTime.now()+" #15 addHst RS: " + rs.getString("id")+" Type: " + rs.getString("type").toUpperCase()+" Body: " + rs.getString("body"));
 
 			// insert new line with new timestamp and counter
 			PreparedStatement st = conn.prepareStatement("INSERT INTO ConsoleHst (credat,deldat,count,id,prio,type,status,body,agent) "
 					+ "values (?,?,?,?,?,?,?,?,?)");
 			if (swLogg)
-				System.out.println("Prepared insert:" + st);
+				System.out.println(LocalDateTime.now()+" #19 Prepared insert:" + st);
 			st.setTimestamp(1, rs.getTimestamp("credat")); // credat
 			st.setTimestamp(2, new java.sql.Timestamp((new Date(System.currentTimeMillis())).getTime())); // deldat
 			st.setInt(3,rs.getInt("count")); // count
@@ -421,10 +420,10 @@ class DBupdate {
 			st.setString(9,rs.getString("agent") ); // 
 			int rowsInserted = st.executeUpdate();
 			if (swLogg)
-				System.out.println("Executed insert addHst " +rowsInserted);
+				System.out.println(LocalDateTime.now()+" #16 Executed insert addHst " +rowsInserted);
 			st.close();
 			if (swLogg)
-				System.out.println("Closed addHst");
+				System.out.println(LocalDateTime.now()+" #17 Closed addHst");
 		}
 		catch (SQLException e) {
 			System.out.println(LocalDateTime.now()+" #E3 SQL exeption error session " );
@@ -436,7 +435,7 @@ class DBupdate {
 			System.err.println(e);
 			System.err.println(e.getMessage());
 		}
-		finally { if (swLogg) System.out.println("CheckStatus addHst finally routine" ); }
+		finally { if (swLogg) System.out.println(LocalDateTime.now()+" #18 CheckStatus addHst finally routine" ); }
 	} 
 
 

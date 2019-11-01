@@ -16,9 +16,11 @@ import java.util.*;
 
 class consoleStsDM extends AbstractTableModel {
 
+	static final long serialVersionUID = 50L;
 	String afn;
 	String columnNames[] = {"state", "id","prio", "type", "status", "body",  "rptdat", "chkday", "chktim", "errors", "accerr", "msg", "msgdat", "console", "condat", "info", "plugin", "agent", "sms", "smsdat"};
-	static Vector map = new Vector(1000,100);
+//	static Vector map = new Vector(1000,100);
+	static Vector<consoleStsROW> map = new Vector<consoleStsROW>(100,100);
 
 	consoleStsROW rad;
 
@@ -28,7 +30,7 @@ class consoleStsDM extends AbstractTableModel {
 	static Connection conn = null;
 	PreparedStatement prepStmt = null;
 
-	String version = "jVakt - consoleStsDM 1.2 (2019-MAY-07)";
+	String version = "jVakt - consoleStsDM (2019-AUG-30)";
 	String database = "Jvakt";
 	String dbuser   = "console";
 	String dbpassword = "Jvakt";
@@ -67,7 +69,7 @@ class consoleStsDM extends AbstractTableModel {
 	}
 
 	public Object getValueAt(int row, int col) {
-		// se till att objektet User hämtar värdet med rätt get metod ( if (col == 2) .........
+		// se till att objektet User hï¿½mtar vï¿½rdet med rï¿½tt get metod ( if (col == 2) .........
 
 		if ( row >= map.size()) return null;
 
@@ -120,7 +122,7 @@ class consoleStsDM extends AbstractTableModel {
 
 	}
 
-	public Class getColumnClass(int c) {
+	public Class<?> getColumnClass(int c) {
 		try {
 			//		System.out.println("getColumnClass c: " + c + "  "+getValueAt(0, c).getClass());
 			return getValueAt(0, c).getClass();
@@ -146,7 +148,7 @@ class consoleStsDM extends AbstractTableModel {
 	}
 
 	public void setValueAt(Object value, int row, int col) {
-		// se till att objektet User sparar värdet med rätt set metod ( if (col == 2) .........
+		// se till att objektet User sparar vÃ¤rdet med rÃ¤tt set metod ( if (col == 2) .........
 		System.out.println("wD setValueAt " + value + " " + row + " "+ col);
 
 		consoleStsROW rad;
@@ -242,7 +244,7 @@ class consoleStsDM extends AbstractTableModel {
 	}
 
 	public void cpyRow(int row) {
-		// se till att objektet User sparar värdet med rätt set metod ( if (col == 2) .........
+		// se till att objektet User sparar vï¿½rdet med rï¿½tt set metod ( if (col == 2) .........
 		System.out.println("wD cpyRow " + row);
 
 		consoleStsROW rad;
@@ -262,7 +264,9 @@ class consoleStsDM extends AbstractTableModel {
 			st.setString(4,rad.getType().toUpperCase() ); // type
 			st.setString(5,rad.getStatus().toUpperCase() ); // status 
 			st.setString(6,rad.getBody() ); // 
-			st.setTimestamp(7,null); // rptdat
+//			st.setTimestamp(7,null); // rptdat
+			cal.set(1970, 01, 01, 0, 0, 0); // set an old date to avoid null
+			st.setTimestamp(7,new java.sql.Timestamp( cal.getTime().getTime())); // rptdat
 			st.setString(8,rad.getChkday() ); // chkday
 
 //						st.setTime(9, new java.sql.Time(6,0,0)); // chktim

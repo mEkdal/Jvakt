@@ -6,7 +6,7 @@ import java.util.Properties;
 public class RptToJv {
 	public static void main(String[] args ) throws IOException, UnknownHostException {
 
-		String version = "RptToDW (2019-JAN-22)";
+		String version = "RptToDW (2019-SEP-11)";
 		String host = "127.0.0.1";
 		int port = 1956; 
 		String id = null;
@@ -79,7 +79,8 @@ public class RptToJv {
 			System.out.println("-info \t -> sts=INFO");
 			System.out.println("-sts  \t - default is OK");
 			System.out.println("-body \t - Any descriptive text");
-			System.out.println("-type \t - R=repetetive S=scheduled T=regular(no timeout) I=immediate D=delete");
+			System.out.println("-prio \t - default is 30");
+			System.out.println("-type \t - R, S, T, I, D");
 			System.exit(4);
 		}
 

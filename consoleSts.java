@@ -23,14 +23,15 @@ import javax.swing.event.ListSelectionListener;
 import javax.swing.Timer;
 import javax.swing.border.*;
 
-// Extend av jframe för att få tillgång till swing metoderna i Jframe. 
-// Jframe är basen i fönsterhanteringen.  
+// Extend av jframe fÃ¶r att fÃ¥ tillgÃ¥ng till swing metoderna i Jframe. 
+// Jframe Ã¤r basen i fÃ¶nsterhanteringen.  
 
-//implementerar TableModelListener för att använda denna class som lyssnare till Jtables datamodellclass via metoden tableChanged.
-//implementerar WindowListener för att använda denna class som lyssnare till Jframe med metoden windowClosing; och där tömma data till filer.
+//implementerar TableModelListener fÃ¶r att anvÃ¤nda denna class som lyssnare till Jtables datamodellclass via metoden tableChanged.
+//implementerar WindowListener fÃ¶r att anvÃ¤nda denna class som lyssnare till Jframe med metoden windowClosing; och dÃ¤r tÃ¶mma data till filer.
 public class consoleSts extends JFrame implements TableModelListener, WindowListener {
 
 	// Skapar diverse variabler
+	static final long serialVersionUID = 42L;
 	private JPanel topPanel;
 	private JPanel usrPanel;
 //	private JPanel logPanel;
@@ -60,16 +61,16 @@ public class consoleSts extends JFrame implements TableModelListener, WindowList
 	 * @param args the command line arguments
 	 */
 	public static void main(String[] args) throws IOException {
-		consoleSts mainFrame = new consoleSts();  // gör objekt av innevarande class 
-		mainFrame.pack();                   // kallar på innevarande class metod pack som ärvts via Jframe 
-		mainFrame.setVisible(true);  	    // kallar på innevarande class metod setVisible och nu visas fönster för användaren
+		consoleSts mainFrame = new consoleSts();  // gÃ¶r objekt av innevarande class 
+		mainFrame.pack();                   // kallar pÃ¥ innevarande class metod pack som Ã¤rvts via Jframe 
+		mainFrame.setVisible(true);  	    // kallar pÃ¥ innevarande class metod setVisible och nu visas fÃ¶nster fÃ¶r anvÃ¤ndaren
 
-	}   // main står nu och "väntar" vid slutet tills de andra objekten avslutas.
+	}   // main stï¿½r nu och "vï¿½ntar" vid slutet tills de andra objekten avslutas.
 
 
 	// construktorn som startas i den statiska main metoden.
 	// skapar alla inblandade objekt och kopplar ihop dom.
-	// kallar också på metoder ärvda från Jframe att sätta vissa värden.
+	// kallar ocksÃ¥ pÃ¥ metoder Ã¤rvda frÃ¥n Jframe att sÃ¤tta vissa vÃ¤rden.
 	public consoleSts() throws IOException {
 
 		ImageIcon img = new ImageIcon("console.png");
@@ -79,8 +80,8 @@ public class consoleSts extends JFrame implements TableModelListener, WindowList
 		getProps();
 		port = Integer.parseInt(jvport);
 
-		// funktion från Jframe att sätta rubrik
-		setTitle("Jvakt consoleSts 2.15  -  F1 = Help");
+		// funktion frï¿½n Jframe att sï¿½tta rubrik
+		setTitle("Jvakt consoleSts 2.17  -  F1 = Help");
 		//	        setSize(5000, 5000);
 
 		// get the screen size as a java dimension
@@ -94,21 +95,21 @@ public class consoleSts extends JFrame implements TableModelListener, WindowList
 		setPreferredSize(new Dimension(width, height));
 
 
-		// funktion från Jframe att sätta färg
+		// funktion frÃ¥n Jframe att sÃ¤tta fÃ¤rg
 		setBackground(Color.gray);
 		setUndecorated(false);
 		// skapar ny Jpanel och sparar referensen i topPanel
 		topPanel = new JPanel();
-		// berättar för topPanel vilken layout den ska använda genom att skapa ett BorderLayout object utan namn.
+		// berÃ¤ttar fÃ¶r topPanel vilken layout den ska anvÃ¤nda genom att skapa ett BorderLayout object utan namn.
 		topPanel.setLayout(new BorderLayout());
 		//topPanel.setLayout(new FlowLayout());
-		// Hämtar Jpanels enkla content hanterare och lägger dit topPanel i stället att hantera resten av objekten
+		// HÃ¤mtar Jpanels enkla content hanterare och lÃ¤gger dit topPanel i stÃ¤llet att hantera resten av objekten
 		getContentPane().add(topPanel);
 		//topPanel.setComponentOrientation(ComponentOrientation.RIGHT_TO_LEFT);
 
-		// Skapar datamodel för datahanteringen av userDB i table
+		// Skapar datamodel fÃ¶r datahanteringen av userDB i table
 		wD = new consoleStsDM();
-		// skapar en Jtable och lägger till referensen till wD via Jtables contructor
+		// skapar en Jtable och lÃ¤gger till referensen till wD via Jtables contructor
 		// table kommer att visa userDB
 		table = new JTable(wD);
 
@@ -139,7 +140,7 @@ public class consoleSts extends JFrame implements TableModelListener, WindowList
 
 		swServer = true;
 		try {
-			SendMsg jm = new SendMsg(jvhost, port);  // kollar om JvaktServer är tillgänglig.
+			SendMsg jm = new SendMsg(jvhost, port);  // kollar om JvaktServer ï¿½r tillgÃ¤nglig.
 			String oSts = jm.open();
 			//			System.out.println("#1 "+oSts);
 			if (oSts.startsWith("failed")) 	swServer  = false;
@@ -158,7 +159,7 @@ public class consoleSts extends JFrame implements TableModelListener, WindowList
 		}
 		//		System.out.println("swServer :" + swServer);
 		wD.setEditable(!swAuto);
-		swDBopen = wD.refreshData(); // kollar om DB är tillgänglig
+		swDBopen = wD.refreshData(); // kollar om DB ï¿½r tillgÃ¤nglig
 		setBu1Color();
 
 		bu1.addActionListener(new ActionListener() {
@@ -170,7 +171,7 @@ public class consoleSts extends JFrame implements TableModelListener, WindowList
 			}
 		});
 
-		// talar om för table att man bara får välja en rad i taget
+		// talar om fÃ¶r table att man bara fÃ¥r vÃ¤lja en rad i taget
 		table.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
 		//		table.setSelectionMode(ListSelectionModel.MULTIPLE_INTERVAL_SELECTION);
 
@@ -179,7 +180,7 @@ public class consoleSts extends JFrame implements TableModelListener, WindowList
 
 		//
 		// OBS intern class start---
-		// Använder rowSM metod för att skapa lyssnare till table för att veta vilken rad som väljs.
+		// AnvÃ¤nder rowSM metod fÃ¶r att skapa lyssnare till table fÃ¶r att veta vilken rad som vÃ¤ljs.
 		rowSM.addListSelectionListener(new ListSelectionListener()  {
 			// interna classens metod som tar fram vilken rad som valts
 			public void valueChanged(ListSelectionEvent e)   {
@@ -202,19 +203,19 @@ public class consoleSts extends JFrame implements TableModelListener, WindowList
 		//
 
 
-		// sätter automatsortering i tabellerna    
+		// sï¿½tter automatsortering i tabellerna    
 		//	        table.setAutoCreateRowSorter(true);
-		// talar om för tabellernas datamodellobjekt (wD o wD2) att detta objekt lyssnar; metoden tableChanged
+		// talar om fï¿½r tabellernas datamodellobjekt (wD o wD2) att detta objekt lyssnar; metoden tableChanged
 		table.getModel().addTableModelListener(this);
 
-		// sätter färg på raderna
+		// sï¿½tter fï¿½rg pï¿½ raderna
 		consoleStsCR cr=new consoleStsCR();
 
 		for (int i=0; i <= 19; i++ ) {      
 			table.getColumn(table.getColumnName(i)).setCellRenderer(cr);
 		}
 
-		// skapar nya JScrollPane och lägger till tabellerna via construktorn. För att kunna scrolla tabellerna.
+		// skapar nya JScrollPane och lï¿½gger till tabellerna via construktorn. Fï¿½r att kunna scrolla tabellerna.
 
 		scrollPane = new JScrollPane(table);
 		//		table.setAutoResizeMode(JTable.AUTO_RESIZE_ALL_COLUMNS);
@@ -288,15 +289,15 @@ public class consoleSts extends JFrame implements TableModelListener, WindowList
 		scrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
 		//	        scrollPane.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_ALWAYS);
 
-		// skapar två nya JPanel att användas inuti topPanel, som också är en JPanel
+		// skapar tvï¿½ nya JPanel att anvï¿½ndas inuti topPanel, som ocksï¿½ ï¿½r en JPanel
 		usrPanel = new JPanel();
 		usrPanel.setLayout(new BorderLayout());
 		//	        logPanel = new JPanel();
 		//	        logPanel.setLayout(new BorderLayout());
-		// talar om för de nya JPanels vilka scrollPanes dom ska innehålla (scrollPanes innehåller tabellerna).
+		// talar om fï¿½r de nya JPanels vilka scrollPanes dom ska innehï¿½lla (scrollPanes innehï¿½ller tabellerna).
 		//	        usrPanel.add(scrollPane, BorderLayout.CENTER);
 		//		topPanel.add(scrollPane, BorderLayout.CENTER);
-		// talar om för topPanel att den ska innehålla två JPanelobjekt NORTH och CENTER       
+		// talar om fï¿½r topPanel att den ska innehï¿½lla tvï¿½ JPanelobjekt NORTH och CENTER       
 		//	        usrPanel.add(bu1, BorderLayout.NORTH);
 		//		topPanel.add(bu1, BorderLayout.NORTH);
 
@@ -307,7 +308,7 @@ public class consoleSts extends JFrame implements TableModelListener, WindowList
 
 		//	        topPanel.add(usrPanel, BorderLayout.NORTH);
 		//	        topPanel.add(logPanel, BorderLayout.CENTER);
-		// talar om för innevarande object att den lyssnar på sig själv. (metoderna för WindowListener)
+		// talar om fï¿½r innevarande object att den lyssnar pï¿½ sig sjï¿½lv. (metoderna fï¿½r WindowListener)
 		addWindowListener(this);
 
 		Timer timer = new Timer(2500, new ActionListener() {
@@ -325,7 +326,7 @@ public class consoleSts extends JFrame implements TableModelListener, WindowList
 						jvconnectCount = 0;
 						try {
 							swServer = true;
-							SendMsg jm = new SendMsg(jvhost, port);  // kollar om JvaktServer är tillgänglig.
+							SendMsg jm = new SendMsg(jvhost, port);  // kollar om JvaktServer ï¿½r tillgï¿½nglig.
 							String oSts = jm.open();
 							//						System.out.println("#1 "+oSts);
 							if (oSts.startsWith("failed")) 	swServer  = false;
@@ -380,8 +381,8 @@ public class consoleSts extends JFrame implements TableModelListener, WindowList
 	} // slut construktor
 
 
-	// vi implementerade TableModelListener och addade "this" för att denna metod skulle anropas vid änding av värde i tabellen
-	// detta användas bara för loggning
+	// vi implementerade TableModelListener och addade "this" fÃ¶r att denna metod skulle anropas vidÃ¤ï¿½nding av vÃ¤rde i tabellen
+	// detta anvÃ¤ndas bara fÃ¶r loggning
 	public void tableChanged(TableModelEvent e)  {
 		int row = e.getFirstRow();
 		int column = e.getColumn();
@@ -462,15 +463,17 @@ public class consoleSts extends JFrame implements TableModelListener, WindowList
 
 	private AbstractAction showHelp()  {
 		AbstractAction save = new AbstractAction() {
+			static final long serialVersionUID = 43L;
 
 			@Override
 			public void actionPerformed(ActionEvent e)  {
 				//					                 JOptionPane.showMessageDialog(TestTableKeyBinding.this.table, "Action Triggered.");
 //				System.out.println("ShowHelp");
-				JOptionPane pane = new JOptionPane("Jvakt help");
-				pane.showMessageDialog(getContentPane(),
+//				JOptionPane pane = new JOptionPane("Jvakt help");
+//				pane.showMessageDialog(getContentPane(),
+				JOptionPane.showMessageDialog(getContentPane(),
 						"F1 : Help \nF3 : Increase font size \nF4 : Decrease font size \nF9 : Copy row \nDEL : Mark for deletion \n\nESC : Unselect"+
-								"\n\nThe SEARCH field (where statement) is active when an ending space is present"+
+								"\n\nThe SEARCH field (a where statement) is active when an ending space is present"+
 								"\n\nSome fields are updatable when the 'Auto Update' is off!\n Please heed the rules for the fields!" +
 								"\n\nstate  - Must be A (active), I (inactive) or D (dormant)" + 
 								"\nprio   - Below 30   may trigger SMS or Mail depending on chkday/chktim " + 
@@ -497,6 +500,7 @@ public class consoleSts extends JFrame implements TableModelListener, WindowList
 
 	private AbstractAction clearSel()  {
 		AbstractAction save = new AbstractAction() {
+			static final long serialVersionUID = 44L;
 
 			@Override
 			public void actionPerformed(ActionEvent e)  {
@@ -509,6 +513,7 @@ public class consoleSts extends JFrame implements TableModelListener, WindowList
 
 	private AbstractAction increaseH()  {
 		AbstractAction save = new AbstractAction() {
+			static final long serialVersionUID = 45L;
 
 			@Override
 			public void actionPerformed(ActionEvent e)  {
@@ -529,6 +534,7 @@ public class consoleSts extends JFrame implements TableModelListener, WindowList
 
 	private AbstractAction decreaseH()  {
 		AbstractAction save = new AbstractAction() {
+			static final long serialVersionUID = 46L;
 
 			@Override
 			public void actionPerformed(ActionEvent e)  {
@@ -550,6 +556,7 @@ public class consoleSts extends JFrame implements TableModelListener, WindowList
 	
 	private AbstractAction delRow()  {
 		AbstractAction save = new AbstractAction() {
+			static final long serialVersionUID = 47L;
 
 			@Override
 			public void actionPerformed(ActionEvent e)  {
@@ -577,6 +584,7 @@ public class consoleSts extends JFrame implements TableModelListener, WindowList
 
 	private AbstractAction cpyRow()  {
 		AbstractAction save = new AbstractAction() {
+			static final long serialVersionUID = 48L;
 
 			@Override
 			public void actionPerformed(ActionEvent e)  {
@@ -604,13 +612,13 @@ public class consoleSts extends JFrame implements TableModelListener, WindowList
 
 
 	// windows listeners
-	// vi implementerade WindowListener och addade "this" för att denna metod skulle anropas vid normalt avslut av Jframe 
-	// värdena i tabellerna skrivt till var sin fil
+	// vi implementerade WindowListener och addade "this" fï¿½r att denna metod skulle anropas vid normalt avslut av Jframe 
+	// vï¿½rdena i tabellerna skrivt till var sin fil
 	public void windowClosing(WindowEvent e) {
 		//skriv userDB
 		wD.closeDB();
 		System.exit(0);
-		// ...och här är det slut i rutan..!!!... 
+		// ...och hï¿½r ï¿½r det slut i rutan..!!!... 
 	}
 
 	void getProps() {
@@ -630,7 +638,7 @@ public class consoleSts extends JFrame implements TableModelListener, WindowList
 	}
 
 
-	// vi implementerade WindowListener men följande metoder avänds inte 
+	// vi implementerade WindowListener men fï¿½ljande metoder avï¿½nds inte 
 	public void windowClosed(WindowEvent e) {    }
 	public void windowOpened(WindowEvent e) {    }
 	public void windowIconified(WindowEvent e) {    }

@@ -9,7 +9,7 @@ class ServerThread extends Thread {
 //	List list;
 	Socket client;
 	DBupdate dt;
-	String version = "ServerThread 1.3 Date 2019-04-29";
+	String version = "ServerThread (2019-08-22)";
 	boolean swData;
 	String line;
 	Message jm = new Message();
@@ -19,9 +19,10 @@ class ServerThread extends Thread {
 	public void run() {
 		try {
 			swData = false;
+			client.setSoTimeout(5000);
 			BufferedReader in = new BufferedReader(new InputStreamReader(client.getInputStream()));
 			PrintWriter    ut = new PrintWriter(new OutputStreamWriter(client.getOutputStream()));
-			dt.getStatus();
+//			dt.getStatus();
 			ut.println(dt.getStatus() + " " +version ); 
 			ut.flush();
 //			String line;

@@ -23,7 +23,7 @@ public class monHttps {
 	static boolean swShow = false;
 	static String host;
 	static InetAddress inet;
-	static String version = "monHttps (2019-06-17)";
+	static String version = "monHttps (2019-10-23)";
 	static String database = "jVakt";
 	static String dbuser   = "jVakt";
 	static String dbpassword = "xz";
@@ -151,7 +151,7 @@ public class monHttps {
 					if (s.length() == 0) continue; 
 					if (s.startsWith("#")) continue; 
 
-					// splittar rad från fil
+					// splittar rad frÃ¥n fil
 					tab = s.split(";" , 6);
 					t_id = tab[0];
 					host = tab[1];
@@ -175,6 +175,9 @@ public class monHttps {
 	}
 
 	public static boolean checkHttp() {
+		// First set the default cookie manager.
+		java.net.CookieManager cm = new java.net.CookieManager(null, CookiePolicy.ACCEPT_ALL);
+		java.net.CookieHandler.setDefault(cm);
 		// connect to port
 		try {
 			System.out.println("-- URL    : https://"+host+":"+wport+webfile);
@@ -194,11 +197,11 @@ public class monHttps {
 			String inputLine;
 			System.out.println("-- start read lines");
 			while ((inputLine = httpin.readLine()) != null  && !state) {
-				if (inputLine.indexOf(webcontent) >= 0) {
+				if (swShow)	System.out.println(inputLine);
+				if (inputLine.toLowerCase().indexOf(webcontent.toLowerCase()) >= 0) {
 					state = true;
 					System.out.println("-- OK text found: "+ webcontent );
 				}
-				if (swShow)	System.out.println(inputLine);
 			}
 			httpin.close();
 

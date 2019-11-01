@@ -46,7 +46,7 @@ public class GetImap4Msg {
 
 	public static void main(String[] args) throws IOException, FileNotFoundException {
 
-		String version = "GetImap4Msg # ( 2019-05-09 )";
+		String version = "GetImap4Msg # ( 2019-07-16 )";
 
 		for (int i=0; i<args.length; i++) {
 			if (args[i].equalsIgnoreCase("-config")) config = args[++i];
@@ -174,7 +174,7 @@ public class GetImap4Msg {
 				//    		System.out.println("Body> " + body);
 				msgFixat = false;
 
-				// Msg från Equallogic  
+				// Msg frÃ¥n Equallogic  
 				if (from.indexOf("PTPGroup") >= 0) {
 					//									System.out.println("From> " + from);
 					//									System.out.println("Subject> " + subject);
@@ -186,7 +186,7 @@ public class GetImap4Msg {
 					msgFixat = true;
 				}
 
-				// Msg från Diesel Backup Generator  
+				// Msg frÃ¥n Diesel Backup Generator  
 				if (from.indexOf("UPS_Notification") >= 0) {
 					if (subject.indexOf("DO6 Generator running") >= 0 || 
 							subject.indexOf("GCB Closed") >= 0 ||
@@ -210,23 +210,55 @@ public class GetImap4Msg {
 					msgFixat = true;
 				}
 
-				// Msg från UPS huvudkontoret  
+				// Msg frÃ¥n UPS huvudkontoret  
 				if (from.indexOf("UPS-BY892") >= 0) {
-					if (subject.indexOf("Powerfail on BY892") >= 0  
+					if (subject.indexOf("Powerfail") >= 0  
 							) {
 						swSerious = true;
 						sendJv("MAIL_From_UPS-BY892" , "ERR" , "T",  subject);
 					}
-					else if (subject.indexOf("Power restored on BY892") >= 0  
+					else if (subject.indexOf("Power restored") >= 0  
 							) {
 						swSerious = true;
 						sendJv("MAIL_From_UPS-BY892" , "OK" , "T",  subject );
 					}
-					else sendJv("MAIL_From_UPS-BY892" , "INFO" , "I",  subject );
+					else if (subject.indexOf("Heartbeat") >= 0  
+							) {
+						sendJv("MAIL_From_UPS-BY892_Heartbeat" , "OK" , "T",  subject );
+						if (imaprw.startsWith("Y")) {
+							messages[i].setFlag(Flags.Flag.DELETED, true); // markera mailet fÃ¶r deletion
+							System.out.println("* Mark as DELETED ");
+						}
+					}
+					else sendJv("MAIL_From_UPS-BY892_Info" , "INFO" , "I",  subject );
 					msgFixat = true;
 				}
 
-				// Msg från IBM bandaren  
+				// Msg frÃ¥n UPS berget  
+				if (from.indexOf("UPS-BGT") >= 0) {
+					if (subject.indexOf("Powerfail") >= 0  
+							) {
+						swSerious = true;
+						sendJv("MAIL_From_UPS-BGT" , "ERR" , "T",  subject);
+					}
+					else if (subject.indexOf("Power restored") >= 0  
+							) {
+						swSerious = true;
+						sendJv("MAIL_From_UPS-BGT" , "OK" , "T",  subject );
+					}
+					else if (subject.indexOf("Heartbeat") >= 0  
+							) {
+						sendJv("MAIL_From_UPS-BGT_Heartbeat" , "OK" , "T",  subject );
+						if (imaprw.startsWith("Y")) {
+							messages[i].setFlag(Flags.Flag.DELETED, true); // markera mailet fÃ¶r deletion
+							System.out.println("* Mark as DELETED ");
+						}
+					}
+					else sendJv("MAIL_From_UPS-BGT_Info" , "INFO" , "I",  subject );
+					msgFixat = true;
+				}
+
+				// Msg frÃ¥n IBM bandaren  
 				if (from.indexOf("TAP01@perscorp.com") >= 0 || from.indexOf("TAP02@perscorp.com") >= 0) {
 					if (body.indexOf("Drive Warn or Crit Tape Alert flag") >= 0) {
 						sendJv("MAIL_From_AS400_Tapestation" , "ERR" , "I",  subject + " " + body);
@@ -234,18 +266,24 @@ public class GetImap4Msg {
 					msgFixat = true;
 				}
 
-				// Msg från Bartender  
+				// Msg frÃ¥n Bartender  
 				if (from.indexOf("BarTender") >= 0 || from.indexOf("Barender") >= 0) {
 					if (body.indexOf("Message Type: Warning") >= 0) {
-						sendJv("MAIL_From_Bartender" , "ERR" , "I",  subject + " " + body);
+						sendJv("MAIL_From_Bartender" , "ERR" , "T",  subject + " " + body);
 					} 
 					if (body.indexOf("Message Type: Error") >= 0) {
-						sendJv("MAIL_From_Bartender" , "ERR" , "I",  subject + " " + body);
+						sendJv("MAIL_From_Bartender" , "ERR" , "T",  subject + " " + body);
+					} 
+					if (body.indexOf("BarTender found the Seagull License Server") >= 0) {
+						sendJv("MAIL_From_Bartender" , "OK" , "T",  subject + " " + body);
+					} 
+					if (body.indexOf("BarTender has successfully connected to Seagull License Server") >= 0) {
+						sendJv("MAIL_From_Bartender" , "OK" , "T",  subject + " " + body);
 					} 
 					msgFixat = true;
 				}
 
-				// Msg från id_prove@perstorp.com  
+				// Msg frÃ¥n id_prove@perstorp.com  
 				if (from.indexOf("id_prove@perstorp.com") >= 0) {
 					if (body.indexOf("ERROR") >= 0) {
 						sendJv("MAIL_From_ID_PROVE" , "ERR" , "I",  subject + " " + body);
@@ -253,37 +291,37 @@ public class GetImap4Msg {
 					msgFixat = true;
 				}
 
-				// Msg från UPS_BGT@perstorp.com  
+				// Msg frÃ¥n UPS_BGT@perstorp.com  
 				if (from.indexOf("UPS_BGT@perstorp.com") >= 0) {
 					sendJv("MAIL_from_UPS_BGT" , "INFO" , "I",  subject + " " + body);
 					msgFixat = true;
 				}
 
-				// Msg från SOCOMEC UPS Mail Service  
+				// Msg frÃ¥n SOCOMEC UPS Mail Service  
 				if (from.indexOf("SOCOMEC UPS Mail Service") >= 0) {
 					sendJv("MAIL_from_UPS_HQ" , "INFO" , "I",  subject + " " + body);
 					msgFixat = true;
 				}
 
-				//diverse på samma avsändare
+				//diverse pÃ¥ samma avsÃ¤ndare
 				if (from.indexOf("itoc@perstorp.com") >= 0) {
 					msgFixat = true;  
 					// Problem from EqualLogic
 					if (subject.indexOf("SAN HQ Notification Alert") >= 0 || subject.indexOf("BGTGROUP0") >= 0) {
 						sendJv("MAIL_From_EqualLogic" , "INFO" , "I", subject + " " + body);
 					}
-					// Mount request från DP
+					// Mount request frÃ¥n DP
 					if (subject.indexOf("Mount Request Report") >= 0) {
 						sendJv("MAIL_from_HP_DP" , "INFO" , "I",  "Data Protector Mount Request!");
 					}
-					// Mount request från DP
+					// Mount request frÃ¥n DP
 					if (subject.indexOf("Device Error Report") >= 0) {
 						sendJv("MAIL_From_HP_DP" , "INFO" , "I",  "Data Protector Device Error Report!");
 					}
-					// Rapport på fulla tabeller osv. från OeBS
-					if (subject.indexOf("Rapport från OeBS på object där antal lediga extents är lågt") >= 0) {
+					// Rapport pÃ¥ fulla tabeller osv. frï¿½n OeBS
+					if (subject.indexOf("Rapport frï¿½n OeBS pï¿½ object dï¿½r antal lediga extents ï¿½r lï¿½gt") >= 0) {
 						if (body.indexOf("no rows selected") < 0) {
-							sendJv("MAIL_From_OeBS" , "ERR" , "I",  "OeBS har lågt antal lediga extents!");
+							sendJv("MAIL_From_OeBS" , "ERR" , "I",  "OeBS har lï¿½gt antal lediga extents!");
 						}
 						if (subject.indexOf("SessionError") >= 0) {
 							if (body.indexOf("has errors: 0.") < 0) {
@@ -306,7 +344,7 @@ public class GetImap4Msg {
 					swSunet = true;
 					msgFixat = true;  
 					if (imaprw.startsWith("Y")) {
-						messages[i].setFlag(Flags.Flag.DELETED, true); // markera mailet för deletion
+						messages[i].setFlag(Flags.Flag.DELETED, true); // markera mailet fÃ¶r deletion
 						System.out.println("* Mark as DELETED ");
 					}
 				}
@@ -324,12 +362,12 @@ public class GetImap4Msg {
 				}
 
 				// Uninteresting
-				// Error från DPM
+				// Error frÃ¥n DPM
 				if (from.indexOf("ptp620") >= 0 || from.indexOf("ptp621") >= 0 || from.indexOf("pcl030") >= 0) {
 					msgFixat = true; 
 				}
 
-				// Error från Qnap
+				// Error frÃ¥n Qnap
 				if (from.indexOf("QNAP") >= 0 || from.indexOf("PTP292") >= 0 || from.indexOf("ptp267") >= 0 || from.indexOf("ptp257") >= 0 || from.indexOf("ptp258") >= 0 || from.indexOf("ptp259") >= 0 ) {
 					sendJv("MAIL_From_Qnap" , "INFO" , "I",  subject + " " + body);
 				}
@@ -338,7 +376,7 @@ public class GetImap4Msg {
 					msgFixat = true;  
 				}
 
-				if (subject.startsWith("PCP")) {  // Mail från PCP 
+				if (subject.startsWith("PCP")) {  // Mail frï¿½n PCP 
 					msgFixat = true;  
 					System.out.println("*** PCP> " + body);
 					System.out.println("*** SAP System PCP  ");
@@ -366,10 +404,10 @@ public class GetImap4Msg {
 					}
 				}
 
-				if (subject.startsWith("Job PTP CHECK SMQ2")) {  // Mail från övervakning av SMQ2 i PCP
+				if (subject.startsWith("Job PTP CHECK SMQ2")) {  // Mail frï¿½n ï¿½vervakning av SMQ2 i PCP
 					msgFixat = true;  
 					if (imaprw.startsWith("Y")) {
-						messages[i].setFlag(Flags.Flag.DELETED, true); // markera mailet för deletion
+						messages[i].setFlag(Flags.Flag.DELETED, true); // markera mailet fï¿½r deletion
 						System.out.println("* Mark as DELETED ");
 					}
 					System.out.println("*** PCP check> " + body);
@@ -402,10 +440,10 @@ public class GetImap4Msg {
 					}
 				}
 
-				if (subject.startsWith("Job PTP CHECK SM58")) {  // Mail från övervakning av SM58 i PCP
+				if (subject.startsWith("Job PTP CHECK SM58")) {  // Mail frï¿½n ï¿½vervakning av SM58 i PCP
 					msgFixat = true;  
 					if (imaprw.startsWith("Y")) {
-						messages[i].setFlag(Flags.Flag.DELETED, true); // markera mailet för deletion
+						messages[i].setFlag(Flags.Flag.DELETED, true); // markera mailet fï¿½r deletion
 						System.out.println("* Mark as DELETED ");
 					}
 					System.out.println("*** PCP check> " + body);
@@ -445,7 +483,7 @@ public class GetImap4Msg {
 
 				if (!msgFixat) {
 					System.out.println("* Mail ignored ");
-					messages[i].setFlag(Flags.Flag.SEEN, false); // markera mailet som oläst
+					messages[i].setFlag(Flags.Flag.SEEN, false); // markera mailet som olÃ¤st
 				}
 
 				//************ analys stopp ******
@@ -462,7 +500,7 @@ public class GetImap4Msg {
 			ex.printStackTrace();
 		}
 
-		// Stängrutiner
+		// Stï¿½ngrutiner
 		// Sunet echo expected only to be found in the INBOX folder
 		if (imapFolder.endsWith("INBOX")) {
 			if (!swSunet) {
@@ -475,7 +513,7 @@ public class GetImap4Msg {
 			}
 		}
 
-	} // slut på pgm
+	} // slut pï¿½ pgm
 
 	static protected void sendJv( String ID, String STS, String type, String msg) throws IOException {
 		Message jmsg = new Message();
@@ -492,7 +530,8 @@ public class GetImap4Msg {
 		} else jmsg.setPrio(30);
 
 		if (jm.sendMsg(jmsg)) {
-			System.out.println("-- Rpt Delivered --");
+//			System.out.println("-- Rpt Delivered -- " + ID +" - "+ STS +" - "+ type +" - "+ msg +" - "+ agent);
+			System.out.println("-- Rpt Delivered -- " + ID +" - "+ STS +" - "+ type +" - "+ agent);
 			msgFixat = true;
 		}
 		else            System.out.println("-- Rpt Failed --");

@@ -1,5 +1,6 @@
 package Jvakt;
 import java.io.*;
+import java.net.InetAddress;
 import java.net.*;
 import java.sql.Connection;
 import java.sql.DriverManager;
@@ -66,22 +67,25 @@ public class SendSMSSTS {
 
 	static String value = "";
 
+	static InetAddress inet;
+	static String agent = null;
 
-	public static void main(String[] args ) throws IOException, UnknownHostException {
+//	public static void main(String[] args ) throws IOException, UnknownHostException {
+	public static void main(String[] args ) {
 
-		String version = "SendSMSSTS (2019-APR-29)";
+		String version = "SendSMSSTS (2019-OCT-17)";
 
 		for (int i=0; i<args.length; i++) {
 			if (args[i].equalsIgnoreCase("-config")) config = args[++i];
 		}
- 
+
 		if (config == null ) 	configF = new File("Jvakt.properties");
 		else 					configF = new File(config,"Jvakt.properties");
 		System.out.println("----- Jvakt: "+new Date()+"  Version: "+version+"  -  config file: "+configF);
-		
+
 		boolean swMail = false;
 		getProps();
-		
+
 		listTo = new ArrayList<String>();  // All SMS numbers.
 
 		String[] toAddr = toSMSSTSW.split("\\,");
@@ -89,17 +93,17 @@ public class SendSMSSTS {
 			//			System.out.println(toAddr[i]);
 			listTo.add(toAddr[i]);
 		}
-		
+
 		Statement stmt = null;
 		String s;
-//		boolean swHits;
-//		String cause = "";
+		//		boolean swHits;
+		//		String cause = "";
 
 		swServer = true;
 		try {
 			port = Integer.parseInt(jvport);
-			SendMsg jm = new SendMsg(jvhost, port);  // kollar om JvaktServer är tillgänglig.
-//			System.out.println(jm.open());
+			SendMsg jm = new SendMsg(jvhost, port);  // kollar om JvaktServer ï¿½r tillgï¿½nglig.
+			//			System.out.println(jm.open());
 			if (jm.open().startsWith("DORMANT")) 	swDormant = true;
 			else 									swDormant = false;
 			jm.close();
@@ -109,27 +113,27 @@ public class SendSMSSTS {
 			System.err.println(e1);
 			System.err.println(e1.getMessage());
 		}
-//		System.out.println("swServer :" + swServer);
-		
+		//		System.out.println("swServer :" + swServer);
+
 		try {
 
 			Class.forName("org.postgresql.Driver").newInstance();
 			DBUrl = "jdbc:postgresql://"+dbhost+":"+dbport+"/"+database;
-//			System.out.println(DBUrl);
+			//			System.out.println(DBUrl);
 			conn = DriverManager.getConnection(DBUrl,dbuser,dbpassword);
 			conn.setAutoCommit(true);
 
 			s = new String("select * from console order by credat desc;"); 
 
 
-//			System.out.println(s);
+			//			System.out.println(s);
 			stmt = conn.createStatement(ResultSet.CONCUR_READ_ONLY,ResultSet.TYPE_FORWARD_ONLY,ResultSet.CLOSE_CURSORS_AT_COMMIT ); 
 			stmt.setFetchSize(1000);
 			ResultSet rs = stmt.executeQuery(s);
-//			swHits = false;  // is there already a record?
+			//			swHits = false;  // is there already a record?
 
 			while (rs.next()) {
-//				swHits = true;  
+				//				swHits = true;  
 				swTiming = false;  
 
 				swFound = true;
@@ -163,7 +167,7 @@ public class SendSMSSTS {
 			swMail = true;
 			rs.close(); 
 			stmt.close();
-
+			conn.close();
 		}
 		catch (SQLException e) {
 			System.err.println("*** SQLExeption");
@@ -176,41 +180,41 @@ public class SendSMSSTS {
 			System.err.println(e);
 			System.err.println(e.getMessage());
 		}
-		
-			if (errors > 0) {
-				errors = errors / 7;
-				body = body + "Errors: " + errors + "  ";
-			}
-			if (warnings > 0) {
-				warnings = warnings / 7;
-				body = body + "Warnings: " + warnings + "  ";
-			}
-			if (errors == 0 && warnings == 0) {
-				body = body + "all is OKAY!  ";
-			}
-			if (infos > 0) {
-				infos = infos / 7;
-				body = body + "Infos: " + infos + "  ";
-			}
-			
 
-			if (!swDB) {
-				body = "\n - Jvakt Database not accessible ! -\n"; 
-				swMail = true;
-			}
-			if (!swServer) {
-				if (swDB) {
-					body = "";
-				}
-				body = body + "- Jvakt Server not accessible ! "; 
-				swMail = true;
-			}
+		if (errors > 0) {
+			errors = errors / 7;
+			body = body + "Errors: " + errors + "  ";
+		}
+		if (warnings > 0) {
+			warnings = warnings / 7;
+			body = body + "Warnings: " + warnings + "  ";
+		}
+		if (errors == 0 && warnings == 0) {
+			body = body + "all is OKAY!  ";
+		}
+		if (infos > 0) {
+			infos = infos / 7;
+			body = body + "Infos: " + infos + "  ";
+		}
 
-//			System.out.println("\n" + body );
-			
-			if (swMail && !swDormant) {
-				sendSMS();
+
+		if (!swDB) {
+			body = "\n - Jvakt Database not accessible ! -\n"; 
+			swMail = true;
+		}
+		if (!swServer) {
+			if (swDB) {
+				body = "";
 			}
+			body = body + "- Jvakt Server not accessible ! "; 
+			swMail = true;
+		}
+
+		//			System.out.println("\n" + body );
+
+		if (swMail && !swDormant) {
+			sendSMS();  // gÃ¶r fÃ¶r nÃ¤rvarande ingen return hit, utan sendSMS avslutar pgm.
+		}
 
 	}        
 
@@ -219,29 +223,29 @@ public class SendSMSSTS {
 		Properties prop = new Properties();
 		InputStream input = null;
 		try {
-		input = new FileInputStream(configF);
-		prop.load(input);
-		// get the property value and print it out
-		database = prop.getProperty("database");
-		dbuser   = prop.getProperty("dbuser");
-		dbpassword = prop.getProperty("dbpassword");
-		dbhost   = prop.getProperty("dbhost");
-		dbport   = prop.getProperty("dbport");
-		jvport   = prop.getProperty("jvport");
-//		int jvporti = Integer.parseInt(jvport);
-		jvhost   = prop.getProperty("jvhost");
-		toSMSSTSW  = prop.getProperty("toSMSSTS");
-		SMShost = prop.getProperty("SMShost");
-		SMSport = prop.getProperty("SMSport");
-		SMSporti = Integer.parseInt(SMSport);
-		String	mode 	 =  prop.getProperty("mode");
-		if (!mode.equalsIgnoreCase("active"))  swDormant = true;
-		input.close();
+			input = new FileInputStream(configF);
+			prop.load(input);
+			// get the property value and print it out
+			database = prop.getProperty("database");
+			dbuser   = prop.getProperty("dbuser");
+			dbpassword = prop.getProperty("dbpassword");
+			dbhost   = prop.getProperty("dbhost");
+			dbport   = prop.getProperty("dbport");
+			jvport   = prop.getProperty("jvport");
+			//		int jvporti = Integer.parseInt(jvport);
+			jvhost   = prop.getProperty("jvhost");
+			toSMSSTSW  = prop.getProperty("toSMSSTS");
+			SMShost = prop.getProperty("SMShost");
+			SMSport = prop.getProperty("SMSport");
+			SMSporti = Integer.parseInt(SMSport);
+			String	mode 	 =  prop.getProperty("mode");
+			if (!mode.equalsIgnoreCase("active"))  swDormant = true;
+			input.close();
 		} catch (IOException ex) {
-    		// ex.printStackTrace();
-    	}  
+			// ex.printStackTrace();
+		}  
 	}
-	
+
 	// Connects to the SMS terminal and sends the text
 	static boolean sendSMS() {
 
@@ -250,14 +254,16 @@ public class SendSMSSTS {
 
 		// Loop on all phone numbers
 		for(Object object : listTo) { 
-//			String element = (String) object;
+			//			String element = (String) object;
 			toSMS = (String) object;
 			System.out.println("--- SMS to:"+toSMS +"      Body: " + body );
 
 			// Connect to Com-Server
 			try {
-				System.out.println("Connecting to: "+SMShost +":" + SMSporti );
-				sock = new Socket( SMShost, SMSporti );
+				System.out.println("Connecting to: "+SMShost +":" + SMSporti +"\n" );
+				//				sock = new Socket( SMShost, SMSporti );
+				sock = new Socket();
+				sock.connect(new InetSocketAddress(SMShost, SMSporti), 2000);
 				sock.setSoTimeout( 2000 );  // receive timeout
 				osw = new OutputStreamWriter( sock.getOutputStream() );
 				isr = new InputStreamReader( sock.getInputStream() );
@@ -272,24 +278,24 @@ public class SendSMSSTS {
 				osw.write( "AT+CMGF=1\r\n" );
 				osw.flush();
 				ReceiveText();
-//				osw.write( "AT+CMGS="+ toSMS + "\r\n" );
+				//				osw.write( "AT+CMGS="+ toSMS + "\r\n" );
 				System.out.println("Sending AT+CMGS="+toSMS +"\\r" );
 				osw.write( "AT+CMGS="+ toSMS + "\r" );
 				osw.flush();
 				ReceiveText();
-				if (body.length() > 156 ) body = body.substring(0, 155);
-				body = body.replace('_', '-'); // replace _ with - because SMS creates a §
-				body = body.replace('Å', 'A'); 
-				body = body.replace('Å', 'A'); 
-				body = body.replace('Ö', 'O'); 
-				body = body.replace('å', 'a'); 
-				body = body.replace('ä', 'a'); 
-				body = body.replace('ö', 'o'); 
+				if (body.length() > 140 ) body = body.substring(0, 139);
+				body = body.replace('_', '-'); // replace _ with - because SMS creates a ï¿½
+				body = body.replace('Ã…', 'A'); 
+				body = body.replace('Ã„', 'A'); 
+				body = body.replace('Ã–', 'O'); 
+				body = body.replace('Ã¥', 'a'); 
+				body = body.replace('Ã¤', 'a'); 
+				body = body.replace('Ã¶', 'o'); 
 				body = body.replaceAll("[^a-zA-Z0-9.:-]" , " ");
-//				System.out.println("Sending body: "+body +"\\r\\n" );
+				//				System.out.println("Sending body: "+body +"\\r\\n" );
 				System.out.println("Sending body: "+body );
-//				osw.write( body + "\r\n" + "\u001A" );
-		        osw.write( body +"\u001A" );
+				//				osw.write( body + "\r\n" + "\u001A" );
+				osw.write( body +"\u001A" );
 				osw.flush();
 				ReceiveText();
 				swOK = true;
@@ -309,10 +315,13 @@ public class SendSMSSTS {
 
 		if (swOK) {
 			System.out.println("RETURN true");
+			try {sendSTS(true);} catch (IOException e) { e.printStackTrace();}
+			System.exit(0);
 			return true;
 		}
 		else {
 			System.out.println("RETURN false");
+			System.exit(12);
 			return false;
 		}
 
@@ -320,17 +329,30 @@ public class SendSMSSTS {
 
 
 	static public void ReceiveText() {
-		try { Thread.sleep(500); } catch (InterruptedException e) { e.printStackTrace();}
-//		try { Thread.currentThread().sleep(500); } catch (InterruptedException e) { e.printStackTrace();}
+		try { Thread.sleep(100); } catch (InterruptedException e) { e.printStackTrace();}
+		//		try { Thread.currentThread().sleep(500); } catch (InterruptedException e) { e.printStackTrace();}
 		String s;
 		int i, len, timeouts;
 		char c[] = new char[ 100 ];
-		
+
 		timeouts = 0;
 		for( ;; ) {
 			s = "";
+			if (timeouts>60) {
+				// timeout in input stream
+				System.out.println("Aborting because of timeout in isr!");
+				try {sendSTS(false);} catch (IOException e) { e.printStackTrace();}
+				System.exit(12);
+				//				break;
+			}
 			try {
-				len = isr.read( c, 0, 100 );
+				if (isr.ready()) len = isr.read( c, 0, 100 );
+				else {
+					timeouts++;
+					System.out.println("isr is not ready, waiting...");
+					try { Thread.sleep(1000); } catch (InterruptedException e) { e.printStackTrace();}
+					continue;
+				}
 				if( len < 0 ) {
 					return;
 				}
@@ -339,21 +361,47 @@ public class SendSMSSTS {
 				}
 			} catch (InterruptedIOException e) {
 				timeouts++;
-				if (timeouts>999) {
-					// timeout in input stream
-					System.out.println("ReceiverText timeout in input stream: " + e);
-					break;
-				}
+				System.out.println("ReceiverText InterruptedIOException in input stream: " + e);
 			} catch (IOException e) {
+				timeouts++;
 				System.out.println("ReceiverText IOException: " + e);
-				break;
+				//				break;
 			}
 
 			if( s.length() > 0 ) {
 				System.out.println(s);  
+				System.out.flush();
+				try { Thread.sleep(100); } catch (InterruptedException e) { e.printStackTrace();}
 				return;
 			}	      
 		}
+	}
+
+	// sends status to the Jvakt server
+	static protected void sendSTS( boolean STS) throws IOException {
+//			System.out.println("--- Connecting to "+jvhost+":"+jvport);
+			Message jmsg = new Message();
+			SendMsg jm = new SendMsg(jvhost, port);
+//			System.out.println(jm.open()); 
+			jm.open(); 
+			jmsg.setId("Jvakt-SendSMSSTS");
+			if (STS) {
+				jmsg.setBody("The SendSMSSTS program is working.");
+				jmsg.setRptsts("OK");
+			}
+			else {
+				jmsg.setBody("The SendSMSSTS program is not working!");
+				jmsg.setRptsts("ERR");
+			}
+			jmsg.setType("T");
+
+			inet = InetAddress.getLocalHost();
+//			System.out.println("-- Inet: "+inet);
+			agent = inet.toString();
+
+			jmsg.setAgent(agent);
+			if (!jm.sendMsg(jmsg)) System.out.println("--- Rpt to Jvakt Failed for Jvakt-SendSMSSTS ---");
+			jm.close();
 	}
 
 

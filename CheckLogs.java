@@ -24,7 +24,7 @@ public class CheckLogs {
 	static String jvtype = "R";
 	static int port ;
 	static InetAddress inet;
-	static String version = "CheckLogs (2019-MAR-08)";
+	static String version = "CheckLogs (2019-JUL-25)";
 	static String agent = null;
 	static boolean swSlut = false;
 
@@ -280,7 +280,7 @@ public class CheckLogs {
 		if (!swMust && aFile != null ) {
 			errors++;
 			swWarn=true;
-			t_desc = "Missing hits in must file!";
+			t_desc = "Mandatory hits in log file is missing!";
 			sendSTS(swWarn);
 		}
 
@@ -301,12 +301,11 @@ public class CheckLogs {
 		}
 		else      {
 			swWarn=true;
-			t_desc = errors + " errors found";
+			t_desc = errors + " errors found in log file.";
 			sendSTS(swWarn);
 		}
 
-//		System.out.println("-- "+ listf.length);
-		
+		System.out.println("-- Number of errors found: "+ errors);
 
 		if (errors == 0) System.exit(0);
 		else             System.exit(errors);
@@ -319,14 +318,15 @@ public class CheckLogs {
 		}
 
 		if (swJvakt) {
+			System.out.println("--- " + id + "  --  " + t_desc);
 			System.out.println("--- Connecting to "+jvhost+":"+jvport);
 			Message jmsg = new Message();
 			SendMsg jm = new SendMsg(jvhost, port);
-			try {
+//			try {
 			System.out.println(jm.open()); 
-			}
-			catch (java.net.ConnectException e ) {System.out.println("-- Rpt Failed --" + e);    return;}
-			catch (NullPointerException npe2 )   {System.out.println("-- Rpt Failed --" + npe2); return;}
+//			}
+//			catch (java.net.ConnectException e ) {System.out.println("-- Rpt Failed -" + e);    return;}
+//			catch (NullPointerException npe2 )   {System.out.println("-- Rpt Failed --" + npe2); return;}
 
 			//		if (!swSlut) jmsg.setId(id+"-CheckLogs-"+aFile);
 			//		else		 jmsg.setId(id+"-CheckLogs-"+aFile+"-JV");
@@ -347,7 +347,7 @@ public class CheckLogs {
 			jmsg.setAgent(agent);
 			//		jm.sendMsg(jmsg);
 			if (jm.sendMsg(jmsg)) System.out.println("--- Rpt Delivered --  " + id + "  --  " + t_desc);
-			else           		  System.out.println("--- Rpt Failed --");
+			else           		  System.out.println("--- Rpt Failed ---");
 			jm.close();
 		}
 		else {

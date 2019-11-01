@@ -26,7 +26,7 @@ public class console2html {
 	static int errors = 0;
 	static int warnings = 0;
 	static int infos = 0;
-	static String version = "CheckStatus 2.0 Date 2017-02-05_01";
+	static String version = "CheckStatus Date 2019-11-01";
 	static String database = "Jvakt";
 	static String dbuser   = "console";
 	static String dbpassword = "Jvakt";
@@ -108,7 +108,7 @@ public class console2html {
 		    if (rs.getInt("prio") < 30 && rs.getString("status").contentEquals("ERR")) System.out.println (boxStrM);
 		    else if (rs.getInt("prio") >= 30 && rs.getString("status").contentEquals("ERR")) System.out.println (boxStrR);
 		    else if (rs.getString("status").contentEquals("INFO")) System.out.println (boxStrB);
-		    else if (rs.getString("status").startsWith("Tim")) System.out.println (boxStrY);
+		    else if (rs.getString("status").startsWith("TOut")) System.out.println (boxStrY);
 		    else if (rs.getString("status").contentEquals("OK"))		System.out.println (boxStrG); 
 		    else System.out.println (boxStrB);
 		    	 

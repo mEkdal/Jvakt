@@ -112,7 +112,7 @@ public class monIPAddr {
 						if (s.length() == 0) continue; 
 						if (s.startsWith("#")) continue; 
 
-						// splittar rad från fil
+						// splittar rad frÃ¥n fil
 						host2 = null;
 						tab = s.split(";" , 4);
 						t_id   = tab[0];
@@ -159,6 +159,7 @@ public class monIPAddr {
 			inet = InetAddress.getByName(host);
 //			if (!swLoop) System.out.println("\n-- Inet: "+inet);
 			//System.out.println("-- Inet bool: "+inet.isReachable(5000));
+			//  TCP connection on port 7 (Echo) 
 			if (!inet.isReachable(5000)) { state = "FAILED"; }
 			else 						 { state = "OKAY";   }
 //			System.out.println("-- isreachable: "+state);

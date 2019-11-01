@@ -3,12 +3,6 @@ import java.io.*;
 import java.util.*;
 import java.net.*;
 
-//import org.icmp4j.IcmpPingRequest;
-//import org.icmp4j.IcmpPingResponse;
-//import org.icmp4j.IcmpPingUtil;
-
-//import java.net.*;
-
 public class monHttp {
 
 	static boolean state = false;
@@ -22,7 +16,7 @@ public class monHttp {
 	static boolean swShow = false;
 	static String host;
 	static InetAddress inet;
-	static String version = "monHttp 1.4 # 2019-06-17";
+	static String version = "monHttp (2019-10-23)";
 	static String database = "jVakt";
 	static String dbuser   = "jVakt";
 	static String dbpassword = "xz";
@@ -124,7 +118,7 @@ public class monHttp {
 					if (s.length() == 0) continue; 
 					if (s.startsWith("#")) continue; 
 
-					// splittar rad från fil
+					// splittar rad frÃ¥n fil
 					tab = s.split(";" , 6);
 					t_id = tab[0];
 					host = tab[1];
@@ -148,6 +142,9 @@ public class monHttp {
 	}
 
 	public static boolean checkHttp() {
+		// First set the default cookie manager.
+		java.net.CookieManager cm = new java.net.CookieManager(null, CookiePolicy.ACCEPT_ALL);
+		java.net.CookieHandler.setDefault(cm);
 		// connect to port
 		try {
 			System.out.println("-- URL    : http://"+host+":"+wport+webfile);
@@ -161,15 +158,17 @@ public class monHttp {
 			BufferedReader httpin = new BufferedReader(
 					new InputStreamReader(con.getInputStream()));
 
-			String inputLine;
+			String inputLine; 
+			
 			while ((inputLine = httpin.readLine()) != null  && !state) {
-				if (inputLine.indexOf(webcontent) >= 0) {
+				if (swShow)	System.out.println(inputLine);
+				if (inputLine.toLowerCase().indexOf(webcontent.toLowerCase()) >= 0) {
 					state = true;
 					System.out.println("-- OK text: "+ webcontent + " found! ");
 				}
-				if (swShow)	System.out.println(inputLine);
 			}
 			httpin.close();
+			if (!state) System.out.println("-- OK text: "+ webcontent + " NOT found! ");
 
 		} catch (Exception e) { System.out.println(e); state = false;   }
 

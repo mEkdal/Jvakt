@@ -13,31 +13,31 @@ public class ManFiles {
 			swSub = true, swFirst = true, swCopy = false, swRun = false,
 			swMove = false, swSettings = false, swSN = false, swDed = false,
 			swRepl = true, swAppend = false, swUnique = false, swCountC = false;
-	static boolean swExists = false, swFlat = false, swNew = false,
+	static boolean swExists = false, swFlat = false, swNew = false, swCmd = false,
 			swNrunq = false, swLogg = false, swNfile = false, swLoop = false, swArgs = true;
 
 	static boolean moved = false;
 	static File sdir, tdir, newfile;
 	static String origdir, norigdir, suf, pos, pref, hou, min, sec, nfile,
-	exfile, expath, inpath, unique, infTxt, parFile, scanstr;
+	exfile, expath, inpath, unique, infTxt, parFile, scanstr, cmd1, cmd2;
 	static String fdat = "00000000000000";
 	static String tdat = "99999999999999";
 	static Date now;
 	static FileFilter ff;
 	static Long lhou, lmin, Lsec;
-	static int antal, antcopies, anterrors, antdeleted, antmoved, antded, antempty, p;
-	static int antalT, antcopiesT, anterrorsT, antdeletedT, antmovedT, antdedT, antemptyT;
+	static int antal, antcopies, anterrors, antdeleted, antmoved, antded, antempty,antalCMD, p;
+	static int antalT, antcopiesT, anterrorsT, antdeletedT, antmovedT, antdedT, antemptyT, antalTCMD;
 	static BufferedWriter logg;
 	static List<String> listToS;
 	static FileOutputStream fis;
 	static OutputStreamWriter osw;
 	static String element;
+	String[] args2 = new String[3];
 	//	static ManFiles x;
 	static ManFiles x = new ManFiles();
 
 	public static void main(String[] args) throws IOException,
 	FileNotFoundException {
-		//		ManFiles x = new ManFiles();
 		suf = "*";
 		pref = "*";
 		pos = "*";
@@ -92,7 +92,7 @@ public class ManFiles {
 
 		if (swHelp) {
 			System.out
-			.println("\n*** Jvakt.ManFiles (2019-APR-29) ***"
+			.println("\n*** Jvakt.ManFiles (2019-SEP-25) ***"
 					+ "\n*** by Michael Ekdal, Sweden. ***");
 			System.out
 			.println("\nThe parameters and their meaning are:\n"
@@ -142,7 +142,10 @@ public class ManFiles {
 					+ "\n-?       \tThis help text are shown."
 					+ "\n-help    \tThis help text are shown."
 					+ "\n-set     \tShows the program settings."
-            		+ "\n-scan    \tThe string that is searched for inside the files. It must be a single string with no blanks."
+					+ "\n-scan    \tThe string that is searched for inside the files. It must be a single string with no blanks."
+					+ "\n-cmd1    \tThe command part1 to use on files."
+					+ "\n         \t i.e. \"print /d:\\\\ptp165\\PBEdicom\\\" (The selected filename is used as a parameter to the command)"
+					+ "\n-cmd2    \tThe command part2 to use on files."
 					+ "\n-countc  \tShows the number of children in each traversed directory." 
 					+ "\n-loop    \tExecutes every second in a never ending loop. No loop is the default value." 
 					+ "\n\nComments:"
@@ -151,6 +154,7 @@ public class ManFiles {
 			System.exit(12);
 		}
 		for (;;) {
+			now = new Date();
 			if (swParfile) {
 				//			System.out.println("--> innan readParFile");
 				readParFile();  // reads the parameter files.
@@ -169,22 +173,22 @@ public class ManFiles {
 
 			System.out.println("\nTotal  - Files found:" + antalT + "  deleted:" + antdeletedT
 					+ "  copied:" + antcopiesT + "  moved:" + antmovedT + "  errors:"
-					+ anterrorsT + "  empty:" + antemptyT + "  del dir:" + antdedT);
+					+ anterrorsT + "  empty:" + antemptyT + "  del dir:" + antdedT+ "  cmd:"+antalTCMD);
 			//		if (antal>0) sLog=true;   // Hittades filer vill vi ha avslutande logg
 			if (swLogg && antalT>0) {
 				logg.newLine();
 				logg.write("Total  - Files found:" + antalT + "  deleted:" + antdeletedT
 						+ "  copied:" + antcopiesT + "  moved:" + antmovedT
 						+ "  errors:" + anterrorsT + "  empty:" + antemptyT
-						+ "  del dir:" + antdedT);
+						+ "  del dir:" + antdedT+ "  cmd:"+antalTCMD);
 				logg.newLine();
 			}
 
 			// sleep for one second and then to it all over again.
 			if (!swLoop) break;
-			antalT=0;antdeletedT=0;antcopiesT=0;antmovedT=0;anterrorsT=0;antemptyT=0;antdedT=0;
+			antalT=0;antdeletedT=0;antcopiesT=0;antmovedT=0;anterrorsT=0;antemptyT=0;antdedT=0;antalTCMD=0;
 			try {
-//				Thread.currentThread().sleep(1000);
+				//				Thread.currentThread().sleep(1000);
 				Thread.sleep(1000);
 			}
 			catch (InterruptedException e) {
@@ -208,7 +212,7 @@ public class ManFiles {
 
 	static void execOneParSet() throws IOException,	FileNotFoundException  {
 		//		System.out.println("\n---> Execute  Parameter set " + ); 
-		antal=0; antcopies=0; anterrors=0; antdeleted=0; antmoved=0; antded=0; antempty=0; p=0;
+		antal=0; antcopies=0; anterrors=0; antdeleted=0; antmoved=0; antded=0; antempty=0; antalCMD=0; p=0;
 		swFirst = true;
 		String dat = new String("yyyyMMdd");
 		String tim = new String("HHmmss");
@@ -230,13 +234,13 @@ public class ManFiles {
 		if (swParfile) {
 			System.out.println("*** ParRow - Files found:" + antal + "  deleted:" + antdeleted
 					+ "  copied:" + antcopies + "  moved:" + antmoved + "  errors:"
-					+ anterrors + "  empty:" + antempty + "  del dir:" + antded);
+					+ anterrors + "  empty:" + antempty + "  del dir:" + antded+ "  cmd:"+antalCMD);
 			//		if (antal>0) sLog=true;   // Hittades filer vill vi ha avslutande logg
 			if (swLogg && antal>0) {
 				logg.write("*** ParRow - Files found:" + antal + "  deleted:" + antdeleted
 						+ "  copied:" + antcopies + "  moved:" + antmoved
 						+ "  errors:" + anterrors + "  empty:" + antempty
-						+ "  del dir:" + antded);
+						+ "  del dir:" + antded+ "  cmd:"+antalCMD);
 				logg.newLine();
 				logg.flush();
 			}
@@ -267,6 +271,8 @@ public class ManFiles {
 		min = "0";
 		sec = "0";
 		scanstr = null;
+		cmd1 = "";
+		cmd2 = "";
 		fdat = "00000000000000";
 		tdat = "99999999999999";
 
@@ -372,6 +378,20 @@ public class ManFiles {
 				swCountC = true;
 			else if (args[i].equalsIgnoreCase("-scan"))
 				scanstr = args[++i];
+			else if (args[i].equalsIgnoreCase("-cmd1")) {
+				cmd1 = args[++i];  swCmd = true;
+				while( args.length > i+1 ) {
+					if ( args[i+1].length() > 2 && args[i+1].startsWith("-")) break;
+					cmd1 = cmd1+" "+args[++i];
+				}
+			}
+			else if (args[i].equalsIgnoreCase("-cmd2")) {
+				cmd2 = args[++i];  swCmd = true;
+				while( args.length > i+1 ) {
+					if ( args[i+1].length() > 2 && args[i+1].startsWith("-")) break;
+					cmd2 = cmd2+" "+args[++i];
+				}
+			}
 			else if (args[i].equalsIgnoreCase("-fdat"))
 				fdat = args[++i];
 			else if (args[i].equalsIgnoreCase("-tdat"))
@@ -473,6 +493,8 @@ public class ManFiles {
 		antcopies++; antcopiesT++;
 	}
 
+	// ** start internal classes **
+
 	// Process only files under sdir
 	protected class VisitAllFiles {
 
@@ -526,6 +548,38 @@ public class ManFiles {
 					moveerror = false;
 					swExists = false;
 					moved = false;
+
+					if (swCmd) {
+						args2[0] = cmd1;
+						args2[1] = sdir.getAbsolutePath();
+						args2[2] = cmd2;
+
+						if (swList) System.out.println("-cmd: "+args2[0]+" \""+args2[1]+"\" "+args2[2]);
+
+						if (swRun) { 
+							runCMD pp = new runCMD(args2);
+							if (pp.runCMDfile()) {
+								antalCMD++; antalTCMD++;
+								if (swList) {
+									System.out.println(" -successfull cmd: "+args2[0]+" \""+args2[1]+"\" "+args2[2]);
+									if (swLogg) {
+										logg.write(" -successfull cmd: "+args2[0]+" \""+args2[1]+"\" "+args2[2]);
+										logg.newLine();
+									}
+								}
+							}
+							else {
+								if (swList) {
+									System.out.println(" -failed cmd: "+args2[0]+" \""+args2[1]+"\" "+args2[2]);
+									if (swLogg) {
+										logg.write(" -failed cmd: "+args2[0]+" \""+args2[1]+"\" "+args2[2]);
+										logg.newLine();
+									}
+								}
+							}
+						}
+					}
+
 					if (swList) {
 						if (swSN) {
 							if (swMove || swCopy || swDelete) System.out.print("-File: "+sdir.getName());
@@ -551,6 +605,7 @@ public class ManFiles {
 							}
 						}
 					}
+
 					if (swMove || swCopy) {
 						if (!swFlat) {
 							newDir2 = norigdir+sdir.getPath().substring(origdir.length(),(sdir.getPath().length()-sdir.getName().length()-1));
@@ -736,27 +791,27 @@ public class ManFiles {
 			String chdat = new String("yyyyMMddHHmmss");
 			String changed;
 			SimpleDateFormat dat_form;			
-//			
+			//			
 			fi = new File(dir + "\\" + name);
 			String f = fi.getName();
 			long lm = fi.lastModified();
-//
+			//
 			dat_form = new SimpleDateFormat(chdat);
 			changed = dat_form.format(lm);
-//			System.out.println(">>> "+fi+"   Changed : " +" "+ changed + "  Fdat:" +fdat + "  Tdat:" +tdat); 
-//
+			//			System.out.println(">>> "+fi+"   Changed : " +" "+ changed + "  Fdat:" +fdat + "  Tdat:" +tdat); 
+			//
 			if (changed.compareTo(fdat) <= 0 ) okay = false;
 			if (changed.compareTo(tdat) >= 0 ) okay = false;
-			
+
 			if (fi.isDirectory())
 				return true;
 			// System.out.println("inhou, inmin, insec: " +" "+ inhours +" "+
 			// inmin +" "+ insec);
 
 			long min = inmin + (inhours * 60);
-			// System.out.println("min (minutes): " + min);
+//			 System.out.println("min (minutes): " + min);
 			long sec = insec + (min * 60);
-			// System.out.println("sec (seconds): " + sec);
+//			 System.out.println("sec (seconds): " + sec);
 
 			f = f.toLowerCase();
 			afn = afn.toLowerCase();
@@ -776,7 +831,7 @@ public class ManFiles {
 			// System.out.println("Lm: " + lm);
 
 
-			// System.out.println("nu " + nu + "   inhours " + inhours);
+//			 System.out.println("nu " + nu + "   inhours " + inhours);
 			if (swNew) { // if files newer or equal than hours is wished for
 				// if ( nu >= inhours ) okay = false ;
 				// if ( nu >= min ) okay = false ;
@@ -838,4 +893,138 @@ public class ManFiles {
 
 	}
 
+	//xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+	public class runCMD {
+
+		Date	now;
+
+		String cmd;
+
+		String c1 = null; // command part1
+		String c2 = null; // filename
+		String c3 = null; // command part2
+
+		boolean swSettings = false;
+		boolean swError = false;
+		boolean swDestroy = false;
+		boolean swGoon = false;
+		int nuWait = 0;
+		int exitVal;
+
+		public runCMD(String[] args) {
+
+			now = new Date();
+
+			// reads command line arguments
+			c1 = args[0];
+			c2 = args[1];
+			c3 = args[2];
+		}
+
+		public boolean runCMDfile() {
+
+			now = new Date();
+
+			Process p;
+
+			// execute the command if there is one.
+			// default command handling
+			swError = false;
+			swDestroy = false;
+			cmd =  c1 + " \"" + c2 + "\" " + c3 ;
+			//			System.out.println("* runCMD "+ now + " -> " + cmd );
+			try {
+				exitVal = 0;
+				p = Runtime.getRuntime().exec(cmd);
+
+				// any error message?
+				StreamGobbler errorGobbler = new StreamGobbler(p.getErrorStream(), "ERROR");            
+				// any output?
+				StreamGobbler outputGobbler = new StreamGobbler(p.getInputStream(), "OUTPUT");
+				// kick them off
+				errorGobbler.start();
+				outputGobbler.start();
+				// p.waitFor();
+
+				nuWait = 0;
+				// waits 120 seconds for print to end.
+				swGoon = true;
+				while (nuWait < 360 && swGoon && !swError) {
+					swGoon = false;
+					try { exitVal = p.exitValue(); } catch (Exception e) {swGoon = true;} ;
+					if (swGoon) {
+						Thread.currentThread();
+						Thread.sleep(1000);
+						exitVal = 0;
+						nuWait++;
+					}
+					else {
+						//						System.out.println("-  Got exitval: " + exitVal);
+					}
+				}
+				//				System.out.println("-  Looped -- " + nuWait);
+				if (nuWait >= 120) {
+					System.out.println("** Timeout --: " + nuWait);
+					swError = true;
+					swDestroy = true;
+				}
+
+				if (swDestroy) {
+					p.destroy(); System.out.println("**Destroy**:");
+				}
+
+				if (exitVal != 0) { 
+					swError = true;
+					System.out.println("** exitVal: " + exitVal);
+				}
+			}
+			catch (Exception e) {
+				swError = true;
+				e.printStackTrace();
+				System.out.println("** exeption (p)  ");
+			}
+
+			if (swError) {
+				System.out.println("-Unsuccessfull cmd: "+ cmd);  
+				return false;
+			}
+			else {
+//				if (swList)
+//				System.out.println("-Successfull cmd: "+ cmd);
+				return true;
+			}
+
+		}
+	}	
+
+	class StreamGobbler extends Thread
+	{
+		InputStream is;
+		String type;
+
+		StreamGobbler(InputStream is, String type)
+		{
+			this.is = is;
+			this.type = type;
+		}
+
+		public void run()
+		{
+			try
+			{
+				InputStreamReader isr = new InputStreamReader(is);
+				BufferedReader br = new BufferedReader(isr);
+				String line=null;
+				while ( (line = br.readLine()) != null)
+					if (swList)
+					System.out.println(type + "> " + line);    
+			} catch (IOException ioe)
+			{
+				ioe.printStackTrace();  
+			}
+		}
+	}
+
+
+	//xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
 }

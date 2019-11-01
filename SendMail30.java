@@ -85,7 +85,7 @@ public class SendMail30 {
 
 	public static void main(String[] args ) throws IOException, UnknownHostException {
 
-		String version = "SendMail30 (2019-MAY-07)";
+		String version = "SendMail30 (2019-SEP-12)";
 		String database = "jVakt";
 		String dbuser   = "jVakt";
 		String dbpassword = "xz";
@@ -95,15 +95,15 @@ public class SendMail30 {
 		String jvport   = "1956";
 
 		Calendar cal = Calendar.getInstance();
-		
+
 		for (int i=0; i<args.length; i++) {
 			if (args[i].equalsIgnoreCase("-config")) config = args[++i];
 		}
- 
+
 		if (config == null ) 	configF = new File("Jvakt.properties");
 		else 					configF = new File(config,"Jvakt.properties");
 		System.out.println("----- Jvakt: "+new Date()+"  Version: "+version+"  -  config file: "+configF);
-		
+
 		//Declare recipient's & sender's e-mail id.
 		Properties prop = new Properties();
 		InputStream input = null;
@@ -144,7 +144,7 @@ public class SendMail30 {
 		//		}
 
 		try {
-			SendMsg jm = new SendMsg(jvhost, jvporti);  // kollar om JvaktServer är tillgänglig.
+			SendMsg jm = new SendMsg(jvhost, jvporti);  // kollar om JvaktServer ï¿½r tillgÃ¤nglig.
 			//			System.out.println(jm.open());
 			if (jm.open().startsWith("DORMANT")) {
 				swDormant = true;
@@ -180,17 +180,17 @@ public class SendMail30 {
 		props.put("mail.smtp.port", smtpporti);
 
 		LocalDateTime nu = LocalDateTime.now(); // The current date and time
-//		LocalDateTime midnatt = LocalDateTime.of(nu.getYear(), nu.getMonthValue(), nu.getDayOfMonth() , 0, 0, 0, 0);
-//		Timestamp mi = Timestamp.valueOf(midnatt);
+		//		LocalDateTime midnatt = LocalDateTime.of(nu.getYear(), nu.getMonthValue(), nu.getDayOfMonth() , 0, 0, 0, 0);
+		//		Timestamp mi = Timestamp.valueOf(midnatt);
 		DayOfWeek DOW = nu.getDayOfWeek(); 
 		Statement stmt = null;
 		String s;
-//		boolean swHits;
-//		String cause = "";
+		//		boolean swHits;
+		//		String cause = "";
 		zDate = new java.sql.Date((new Date(System.currentTimeMillis())).getTime());
 		zTs = new java.sql.Timestamp((new Date(System.currentTimeMillis())).getTime()); 
 
-//		System.out.println("**********SendMail30 ********   " + LocalDateTime.now());
+		//		System.out.println("**********SendMail30 ********   " + LocalDateTime.now());
 		try {
 
 			Class.forName("org.postgresql.Driver").newInstance();
@@ -198,9 +198,14 @@ public class SendMail30 {
 			//			System.out.println(DBUrl);
 			//			System.out.println("dbuser= " + dbuser +"  dbpassword "+ dbpassword);
 			conn = DriverManager.getConnection(DBUrl,dbuser,dbpassword);
-//			conn.setAutoCommit(true);
+			//			conn.setAutoCommit(true);
 			conn.setAutoCommit(false);
 
+			//			s = new String("select * from status " + 
+			//					"WHERE state='A' " +
+			//					" and (msg='M' or msg='T' or msg='R')" +
+			//					" and prio >= 30" +
+			//					";"); 
 			s = new String("select * from status " + 
 					"WHERE state='A' " +
 					" and (msg='M' or msg='T' or msg='R')" +
@@ -212,18 +217,18 @@ public class SendMail30 {
 			stmt = conn.createStatement(ResultSet.CONCUR_UPDATABLE,ResultSet.TYPE_FORWARD_ONLY,ResultSet.CLOSE_CURSORS_AT_COMMIT ); 
 			stmt.setFetchSize(1000);
 			ResultSet rs = stmt.executeQuery(s);
-//			swHits = false;  // is there already a record?
+			//			swHits = false;  // is there already a record?
 			while (rs.next()) {
-//				System.out.println("---- main RS: "+rs.getString("state")+" " + rs.getString("id")+" "+rs.getString("type")+" "+rs.getString("prio")+" "+rs.getString("console")+" "+rs.getString("status")+ " "+rs.getString("msg"));
+				//				System.out.println("---- main RS: "+rs.getString("state")+" " + rs.getString("id")+" "+rs.getString("type")+" "+rs.getString("prio")+" "+rs.getString("console")+" "+rs.getString("status")+ " "+rs.getString("msg"));
 				System.out.println("- main RS - State:"+rs.getString("state")+" Id:" + rs.getString("id")+" Type:"+rs.getString("type")+" Prio:"+rs.getString("prio")+" Console:"+rs.getString("console")+" Status:"+rs.getString("status")+ " Msg:"+rs.getString("msg"));
-//				swHits = true;  
+				//				swHits = true;  
 				swTiming = false;  
 
 				//				if (rs.getString("id").equalsIgnoreCase("syssts")) {
 				//					continue;
 				//				}
 
-//				if (!rs.getString("type").equalsIgnoreCase("R") && !rs.getString("type").equalsIgnoreCase("S") && !rs.getString("type").equalsIgnoreCase("I")) continue;
+				//				if (!rs.getString("type").equalsIgnoreCase("R") && !rs.getString("type").equalsIgnoreCase("S") && !rs.getString("type").equalsIgnoreCase("I")) continue;
 
 				zD = rs.getTimestamp("rptdat");
 				Lsec = (zTs.getTime() / 1000 - zD.getTime() / 1000); 
@@ -237,71 +242,63 @@ public class SendMail30 {
 				swShDay = false;
 				if (rs.getString("chkday").startsWith("*ALL") || rs.getString("chkday").startsWith(DOW.name().substring(0, 2) )) {
 					cal.setTime(rs.getTime("chktim"));
-//					if (nu.getHour() > rs.getTime("chktim").getHours() ) {
+					//					if (nu.getHour() > rs.getTime("chktim").getHours() ) {
 					if (nu.getHour() > cal.get(Calendar.HOUR_OF_DAY) ) {
-						swShDay = true; System.out.println("Timmen swShDay: "+swShDay);
+						swShDay = true; // System.out.println("Timmen swShDay: "+swShDay);
 					}
-//					else if (nu.getHour() == rs.getTime("chktim").getHours() && nu.getMinute() > rs.getTime("chktim").getMinutes() ) {
+					//					else if (nu.getHour() == rs.getTime("chktim").getHours() && nu.getMinute() > rs.getTime("chktim").getMinutes() ) {
 					else if (nu.getHour() == cal.get(Calendar.HOUR_OF_DAY) && nu.getMinute() > cal.get(Calendar.MINUTE) ) {
-						swShDay = true;	System.out.println("Minuten swShDay: "+swShDay);
+						swShDay = true;	// System.out.println("Minuten swShDay: "+swShDay);
 					}
-//					else if (nu.getHour() == rs.getTime("chktim").getHours() && nu.getMinute() == rs.getTime("chktim").getMinutes() && nu.getSecond() > rs.getTime("chktim").getSeconds() ) {
+					//					else if (nu.getHour() == rs.getTime("chktim").getHours() && nu.getMinute() == rs.getTime("chktim").getMinutes() && nu.getSecond() > rs.getTime("chktim").getSeconds() ) {
 					else if (nu.getHour() == cal.get(Calendar.HOUR_OF_DAY) && nu.getMinute() == cal.get(Calendar.MINUTE) && nu.getSecond() > cal.get(Calendar.SECOND) ) {
-						swShDay = true;	System.out.println("Sekunden swShDay: "+swShDay);
+						swShDay = true;	// System.out.println("Sekunden swShDay: "+swShDay);
 					}
 				} 
 				if (rs.getInt("prio") <= 10) swShDay = true; // always handle prio 10 and below.
-				System.out.println("swShDay: "+swShDay);
+//				System.out.println("swShDay: "+swShDay);
 
 				//				swDelete = false;
 
 				if (swShDay) {
 
-					if (checkInterest(rs.getString("id"))) {
+					if (   checkInterest(rs.getString("id"),rs.getInt("prio"))   ) {
 
 						if (rs.getString("msg").equalsIgnoreCase("M") && rs.getInt("prio") < 30 ) { 
-//							cause = "Problem :\t";
 							serrors++;
-							//						sbody = sbody +rowStr+boxStrM+ rs.getString("id")+boxEnd +boxStrM+ rs.getString("body")+boxEnd +boxStrM+ rs.getString("agent")+boxEnd+rowEnd;
-//							sbody = sbody +rowStr+boxStrB+ rs.getString("id")+boxEnd +boxStrB+ rs.getString("body")+boxEnd +boxStrB+ rs.getString("agent")+boxEnd+rowEnd;
 							sbody = sbody +rowStr+boxStrB+ rs.getString("id")+boxEnd +boxStrB+ rs.getString("body")+boxEnd +rowEnd;
 						}
 						else if (rs.getString("msg").equalsIgnoreCase("M") && rs.getInt("prio") >= 30 ) { 
-//							cause = "Problem :\t";
 							errors++;
-							//						ebody = ebody +rowStr+boxStrR+ rs.getString("id")+boxEnd +boxStrR+ rs.getString("body")+boxEnd+boxStrR+ rs.getString("agent")+boxEnd+rowEnd;
-//							ebody = ebody +rowStr+boxStrB+ rs.getString("id")+boxEnd +boxStrB+ rs.getString("body")+boxEnd+boxStrB+ rs.getString("agent")+boxEnd+rowEnd;
 							ebody = ebody +rowStr+boxStrB+ rs.getString("id")+boxEnd +boxStrB+ rs.getString("body")+boxEnd+rowEnd;
 						}
 						else if (rs.getString("msg").equalsIgnoreCase("R")) {
-//							cause = "Resolved:\t";
 							resolved++;
-							//						rbody = rbody +rowStr+boxStrG+ rs.getString("id")+boxEnd +boxStrG+ rs.getString("body")+boxEnd+boxStrG+ rs.getString("agent")+boxEnd+rowEnd;
-//							rbody = rbody +rowStr+boxStrB+ rs.getString("id")+boxEnd +boxStrB+ rs.getString("body")+boxEnd+boxStrB+ rs.getString("agent")+boxEnd+rowEnd;
 							rbody = rbody +rowStr+boxStrB+ rs.getString("id")+boxEnd +boxStrB+ rs.getString("body")+boxEnd+rowEnd;
 						}
 						else {
-//							cause = "Time out:\t";
 							warnings++;
-							//						wbody = wbody +rowStr+boxStrY+ rs.getString("id")+boxEnd +boxStrY+ rs.getString("body")+boxEnd+boxStrY+ rs.getString("agent")+boxEnd+rowEnd;
-//							wbody = wbody +rowStr+boxStrB+ rs.getString("id")+boxEnd +boxStrB+ rs.getString("body")+boxEnd+boxStrB+ rs.getString("agent")+boxEnd+rowEnd;
 							wbody = wbody +rowStr+boxStrB+ rs.getString("id")+boxEnd +boxStrB+ "The Jvakt agent did not report in set time."+boxEnd+rowEnd;
 						}
 						swMail = true;	
-						if (rs.getString("msg").equalsIgnoreCase("R")) rs.updateString("msg", " ");
-						else rs.updateString("msg", "S");
-						rs.updateTimestamp("msgdat", new java.sql.Timestamp((new Date(System.currentTimeMillis())).getTime()));
-						try { rs.updateRow(); } catch(NullPointerException npe2) {}
+						if (rs.getInt("prio")>=30) {
+							if (rs.getString("msg").equalsIgnoreCase("R")) rs.updateString("msg", " ");
+							else rs.updateString("msg", "S");
+							rs.updateTimestamp("msgdat", new java.sql.Timestamp((new Date(System.currentTimeMillis())).getTime()));
+							try { rs.updateRow(); } catch(NullPointerException npe2) {}
+						}
 					}
 
 				}
 			}
-			
+
 			if (sendMail()) conn.commit();
 			else			conn.rollback();
-			
+
 			rs.close(); 
 			stmt.close();
+			conn.commit();
+			conn.close();
 
 		}
 		catch (SQLException e) {
@@ -326,7 +323,7 @@ public class SendMail30 {
 
 		if (config != null ) dir = new File(config);
 
-		
+
 		listToS = new ArrayList<String>();  // id:mailadress.
 
 		df = new DirFilter(suf, pos);
@@ -339,7 +336,7 @@ public class SendMail30 {
 
 			for (int i = 0; i < listf.length; i++) {
 
-				System.out.println("-- Importing: "+listf[i]);
+//				System.out.println("-- Importing: "+listf[i]);
 				in = new BufferedReader(new FileReader(listf[i]));
 
 				while ((s = in.readLine()) != null) {
@@ -354,16 +351,22 @@ public class SendMail30 {
 		} catch (Exception e) { System.out.println(e);  }
 	}
 
-	static boolean checkInterest(String id) {
+	static boolean checkInterest(String id, int prioi) {
 		String[] tab = new String [1];
 		boolean ok = false;
+		String prio;
+		String prioCsv;
 		//		int n = 0;
 		System.out.println("-- checking interest of: "+id);
 		for(Object object : listToS) { 
 			String element = (String) object;
-			tab = element.toLowerCase().split(";" , 2 );
-			System.out.println(tab[0] + " <<<>>> "+ id);
+			tab = element.toLowerCase().split(";" , 3 );
+			if (tab.length<3) prioCsv = "30";
+			else prioCsv = tab[2];
+			prio=String.valueOf(prioi);
+			//			System.out.println(tab[0] + " <<<>>> "+ id+ " <<<>>> "+ prio +" " + prioCsv);
 			//			if (element.toLowerCase().indexOf(id.toLowerCase()) >= 0 ) {
+			if ( prio.compareTo(prioCsv) < 0  )	continue; 
 			if (id.toLowerCase().indexOf(tab[0].toLowerCase()) >= 0 ) {
 				listTo.add(tab[1]);
 				System.out.println("** YES. Added: "+ tab[1]);
@@ -405,19 +408,19 @@ public class SendMail30 {
 			for(Object object : listTo) { 
 				if (n>0) toEmailW = toEmailW + ",";
 				n++;
-//				String element = (String) object;
+				//				String element = (String) object;
 				System.out.println(object);
 				toEmailW = toEmailW + (String) object;
 			}
 
 			toEmail = toEmailW;
-//		    final String LtoEmail = toEmail;
-//		    final String LtoEmail="";
-//			final String LfromEmail = fromEmail;	
-//			final String Luname = uname;
-//			final String Lpwd = pwd;
-//			final String Lsmtphost = smtphost;
-//			final String Lsmtpport = smtpport;
+			//		    final String LtoEmail = toEmail;
+			//		    final String LtoEmail="";
+			//			final String LfromEmail = fromEmail;	
+			//			final String Luname = uname;
+			//			final String Lpwd = pwd;
+			//			final String Lsmtphost = smtphost;
+			//			final String Lsmtpport = smtpport;
 			//				System.out.println("To:"+toEmailW+"   Subject: " + subject );
 			now = new Date();
 			subject = subject + " -- " + now;
@@ -428,9 +431,9 @@ public class SendMail30 {
 			if (EmailUtil.sendEmail(session, toEmail,subject, body, fromEmail)) {
 				System.out.println("return true"); return true; } 
 			else { System.out.println("RETURN FALSE"); return false; }
-			
+
 		}
-//		System.out.println("RETURN true");
+		//		System.out.println("RETURN true");
 		return true;
 	}
 

@@ -107,7 +107,7 @@ public class DW2Jvakt  {
 				if (words[0].startsWith("DWPURGE")) {
 					swPurge = true;
 					msg = words[1];
-//					msg = msg.substring(0, msg.length()-1); // ta bort sista tecknet som är en punkt.
+//					msg = msg.substring(0, msg.length()-1); // ta bort sista tecknet som Ã¤r en punkt.
 					words = msg.split(" ",2);
 				}
 				// not interesting
@@ -153,7 +153,8 @@ public class DW2Jvakt  {
 						sev = 30; sts = "ERR"; }
 					// ERR 20
 					if (msg.contains("ITO0102") || msg.contains("ITO0202")  || msg.contains("SAP0902") ||  msg.contains("ITO0902") || 
-							msg.contains("CPI0964") || msg.contains("CPF1816") || msg.contains("CPF1338")
+							msg.contains("CPI0964") || msg.contains("CPF1816") || msg.contains("CPF1338") || 
+							msg.contains("ITO9806 PPSE08 MSGW")
 							)	{ 
 						sev = 20; sts = "ERR"; } 
 					// ERR 10

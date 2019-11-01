@@ -81,7 +81,7 @@ public class SendMail {
 	
 	public static void main(String[] args ) throws IOException, UnknownHostException {
 
-		String version = "SendMail 1.6 (2019-MAY-07)";
+		String version = "SendMail 1.6 (2019-SEP-09)";
 		String database = "jVakt";
 		String dbuser   = "jVakt";
 		String dbpassword = "xz";
@@ -159,7 +159,7 @@ public class SendMail {
 //		}
 		
 		try {
-			SendMsg jm = new SendMsg(jvhost, jvporti);  // kollar om JvaktServer är tillgänglig.
+			SendMsg jm = new SendMsg(jvhost, jvporti);  // kollar om JvaktServer ï¿½r tillgï¿½nglig.
 //			System.out.println(jm.open());
 			if (jm.open().startsWith("DORMANT")) {
 				swDormant = true;
@@ -316,6 +316,8 @@ public class SendMail {
 
 			rs.close(); 
 			stmt.close();
+			conn.commit();
+			conn.close();
 
 		}
 		catch (SQLException e) {

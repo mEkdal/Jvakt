@@ -15,10 +15,12 @@ import java.util.*;
 
 class consoleHstDM extends AbstractTableModel {
 
+	static final long serialVersionUID = 50L;
 	String afn;
 	String columnNames[] = {"CreDate", "DelDate","Count", "Id", "Prio", "Type",  "Status", "Body", "Agent"};
-	static Vector map = new Vector(1000,100);
-
+//	static Vector map = new Vector(1000,100);
+	static Vector<consoleHstROW> map = new Vector<consoleHstROW>(100,100);
+	
 	consoleHstROW rad;
 
 	int i = 0;
@@ -94,7 +96,7 @@ class consoleHstDM extends AbstractTableModel {
 
 	}
 
-	public Class getColumnClass(int c) {
+	public Class<?> getColumnClass(int c) {
 		try {
 			//		return getValueAt(0, c).getClass();
 			return getValueAt(0, c).getClass();

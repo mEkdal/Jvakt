@@ -10,6 +10,7 @@ import java.sql.Statement;
 import java.sql.Timestamp;
 import java.util.*;
 import java.time.*;
+import java.time.LocalDateTime;
 
 public class CheckStatus {
 
@@ -30,7 +31,7 @@ public class CheckStatus {
 	static int errors = 0;
 	static int warnings = 0;
 	static int infos = 0;
-	static String version = "CheckStatus (2019-APR-29)";
+	static String version = "CheckStatus (2019-OCT-15)";
 	static String database = "jVakt";
 	static String dbuser   = "jVakt";
 	static String dbpassword = "xz";
@@ -41,6 +42,7 @@ public class CheckStatus {
 	static int port ;
 	static String agent = null;
 	static Calendar cal = Calendar.getInstance();
+	static String currentID;
 
 	public static void main(String[] args ) throws IOException, UnknownHostException {
 
@@ -53,7 +55,7 @@ public class CheckStatus {
 
 		if (config == null ) 	configF = new File("Jvakt.properties");
 		else 					configF = new File(config,"Jvakt.properties");
-		System.out.println("----- Jvakt: "+new Date()+"  Version: "+version +"  -  config file: "+configF);
+		System.out.println("----------- Jvakt: "+new Date()+"  Version: "+version +"  -  config file: "+configF);
 
 		Properties prop = new Properties();
 		InputStream input = null;
@@ -80,7 +82,7 @@ public class CheckStatus {
 		DayOfWeek DOW = nu.getDayOfWeek(); 
 		Statement stmt = null;
 		String s;
-//		boolean swHits;
+		//		boolean swHits;
 		int accerr;
 		int err;
 		port = Integer.parseInt(jvport);
@@ -92,7 +94,7 @@ public class CheckStatus {
 			//			System.out.println("-- Inet: "+inet);
 			agent = inet.toString();
 		}
-		catch (Exception e) { System.out.println(e);  }
+		catch (Exception e) { System.out.println(LocalDateTime.now()+"  "+e);  }
 
 		zDate = new java.sql.Date((new Date(System.currentTimeMillis())).getTime());     // YYYY-MM-DD
 		zTs = new java.sql.Timestamp((new Date(System.currentTimeMillis())).getTime());  // YYYY-MM-DD hh:mm.ss.nnn
@@ -109,19 +111,25 @@ public class CheckStatus {
 
 			s = new String("select * from status " + 
 					"WHERE state='A' or state = 'D';"); 
+			
+//						s = new String("select * from status " + 
+//								"WHERE (state='A' or state = 'I') and id ilike '%Mail_from_ups_by892_%';"); 
 
 
-			//			System.out.println(s);
+			//						System.out.println(s);
 			stmt = conn.createStatement(ResultSet.CONCUR_UPDATABLE,ResultSet.TYPE_FORWARD_ONLY,ResultSet.CLOSE_CURSORS_AT_COMMIT ); 
 			stmt.setFetchSize(1000);
-			ResultSet rs = stmt.executeQuery(s);
-//			swHits = false;  // is there already a record?
+			ResultSet rs = stmt.executeQuery(s); 
+			//			swHits = false;  // is there already a record?
 			while (rs.next()) {
-//				swHits = true;  
+				//				System.out.println("## 5 " +rs.getString("id"));
+				currentID = rs.getString("id");
+
+				//				swHits = true;  
 				swTiming = false;  
 				swPlugin = false;  
 				swUpdate = false;
-				
+
 				if (rs.getString("state").equalsIgnoreCase("D")) 	swRowDormant = true;
 				else 												swRowDormant = false;
 
@@ -129,148 +137,158 @@ public class CheckStatus {
 				if (!rs.getString("type").equalsIgnoreCase("R") && !rs.getString("type").equalsIgnoreCase("S") && !rs.getString("type").equalsIgnoreCase("T") && !rs.getString("type").equalsIgnoreCase("I")) continue;
 
 				if (!rs.getString("status").equalsIgnoreCase("OK"))
-					System.out.println("-#1: "+rs.getString("state")+" " + rs.getString("id")+" "+rs.getString("type")+" "+rs.getString("prio")+" "+rs.getString("console")+" "+rs.getString("status")+" "+rs.getString("errors")+" "+rs.getString("accerr"));
+					System.out.println(LocalDateTime.now()+" -#1: "+rs.getString("state")+" " + rs.getString("id")+" "+rs.getString("type")+" "+rs.getString("prio")+" "+rs.getString("console")+" "+rs.getString("status")+" "+rs.getString("errors")+" "+rs.getString("accerr"));
 
 				zD = rs.getTimestamp("rptdat"); 
 				accerr = rs.getInt("accerr");
 				err    = rs.getInt("errors");
+				
+//				if (zD == null) {
+//					cal.set(1970, 01, 01, 0, 0, 0); // only HH:MM:SS is used
+//					zD = new java.sql.Timestamp( cal.getTime().getTime());
+//				}
+				
 				Lsec = (zTs.getTime() / 1000 - zD.getTime() / 1000);  // Aktuella tiden minus tiden rptdat i sekunder  
 
 				Lchktim = rs.getTime("chktim").getTime();
 				Lrptdat = rs.getTime("rptdat").getTime(); 
-				
+
 				// swShDay will be set to true if the chktim time has passed and chkday is *ALL or the name of day like MON, TUE... 
 				swShDay = false;
 				if (rs.getString("chkday").startsWith("*ALL") || rs.getString("chkday").indexOf(DOW.name().substring(0, 2)) >= 0 ) {
-//					System.out.println("Hour:"+rs.getTime("chktim").getHours() +" Min:"+ rs.getTime("chktim").getMinutes()+" Sec:"+rs.getTime("chktim").getSeconds());
+					//					System.out.println("Hour:"+rs.getTime("chktim").getHours() +" Min:"+ rs.getTime("chktim").getMinutes()+" Sec:"+rs.getTime("chktim").getSeconds());
 					cal.setTime(rs.getTime("chktim"));
-//					System.out.println("Timm "+cal.get(Calendar.HOUR_OF_DAY)+" MIn:"+cal.get(Calendar.MINUTE) + " Sek:"+cal.get(Calendar.SECOND));
-//					if (nu.getHour() > rs.getTime("chktim").getHours() ) {
+					//					System.out.println("Timm "+cal.get(Calendar.HOUR_OF_DAY)+" MIn:"+cal.get(Calendar.MINUTE) + " Sek:"+cal.get(Calendar.SECOND));
+					//					if (nu.getHour() > rs.getTime("chktim").getHours() ) {
 					if (nu.getHour() > cal.get(Calendar.HOUR_OF_DAY) ) {
 						swShDay = true; 
 					}
-//					else if (nu.getHour() == rs.getTime("chktim").getHours() && nu.getMinute() > rs.getTime("chktim").getMinutes() ) {
+					//					else if (nu.getHour() == rs.getTime("chktim").getHours() && nu.getMinute() > rs.getTime("chktim").getMinutes() ) {
 					else if (nu.getHour() == cal.get(Calendar.HOUR_OF_DAY)  && nu.getMinute() > cal.get(Calendar.MINUTE) ) {
 						swShDay = true;	
 					}
-//					else if (nu.getHour() == rs.getTime("chktim").getHours() && nu.getMinute() == rs.getTime("chktim").getMinutes() && nu.getSecond() > rs.getTime("chktim").getSeconds() ) {
+					//					else if (nu.getHour() == rs.getTime("chktim").getHours() && nu.getMinute() == rs.getTime("chktim").getMinutes() && nu.getSecond() > rs.getTime("chktim").getSeconds() ) {
 					else if (nu.getHour() == cal.get(Calendar.HOUR_OF_DAY)  && nu.getMinute() == cal.get(Calendar.MINUTE) && nu.getSecond() > cal.get(Calendar.SECOND) ) {
 						swShDay = true;	
 					}
 				} 
 				swDelete = false;
-//				System.out.println("ERR #1,5 swShDay: " + swShDay);
+				//				System.out.println("ERR #1,5 swShDay: " + swShDay);
 
-				// Om status inte är OK för S, I och R varnas till console
-				//				if (!rs.getString("status").equalsIgnoreCase("OK") && err > accerr && swShDay ) { 
+				// Om status Ã¤r ERR eller INFO till console
 				if (( (rs.getString("status").equalsIgnoreCase("ERR") && err > accerr) || rs.getString("status").equalsIgnoreCase("INFO") ) 
 						&& swShDay ) { 
 					//					(rs.getString("type").equalsIgnoreCase("R") || rs.getString("type").equalsIgnoreCase("S") || rs.getString("type").equalsIgnoreCase("I"))) {
-					System.out.println("ERR #2: " + rs.getString("id")+" "+rs.getString("status")+"  MSG:"+rs.getString("msg"));
+					System.out.println(LocalDateTime.now()+" ERR: #2 "+"  MSG:"+rs.getString("msg")+" " + rs.getString("id")+" "+rs.getString("type")+" "+rs.getString("prio")+" "+rs.getString("console")+" "+rs.getString("status")+" "+rs.getString("errors")+" "+rs.getString("accerr"));
 					if (rs.getString("console").startsWith(" ")) {
-						System.out.println("Set console to C in ERR" + " " + rs.getString("id"));
+						System.out.println(LocalDateTime.now()+" ERR: Set console to C" + " " + rs.getString("id"));
 						rs.updateString("console", "C");
 						rs.updateTimestamp("condat", new java.sql.Timestamp((new Date(System.currentTimeMillis())).getTime()));
 						swUpdate=true;
 					}
-					if (rs.getString("msg").startsWith(" ")) {
-						System.out.println("Set msg to M in ERR" + " " + rs.getString("id"));
+					if (rs.getString("msg").startsWith("T") || rs.getString("msg").startsWith(" ")) {
+						System.out.println(LocalDateTime.now()+" ERR: Set msg to M" + " " + rs.getString("id"));
 						rs.updateString("msg", "M");
 						rs.updateTimestamp("msgdat", new java.sql.Timestamp((new Date(System.currentTimeMillis())).getTime()));
 						swPlugin = true;
 						swUpdate=true;
 					}
-					if (rs.getString("sms").startsWith(" ")) {
-						System.out.println("Set sms to M in ERR" + " " + rs.getString("id"));
+					if ( rs.getString("sms").startsWith("T") || rs.getString("sms").startsWith(" ")) {
+						System.out.println(LocalDateTime.now()+" ERR: Set sms to M" + " " + rs.getString("id"));
 						rs.updateString("sms", "M");
 						rs.updateTimestamp("smsdat", new java.sql.Timestamp((new Date(System.currentTimeMillis())).getTime()));
 						swUpdate=true;
 					}
 					if (swUpdate) try { rs.updateRow(); } catch(NullPointerException npe2) {}
-					updC(rs); // add new line to the console table
+					//					System.out.println("## 1");
+					updC(rs); // add or remove line to/from the console table
+					//					System.out.println("## 2");
 					if (swPlugin && !rs.getString("plugin").startsWith(" ") && rs.getString("state").startsWith("A")) {
 						trigPlugin(rs.getString("id"), rs.getString("status"), "P", rs.getString("body")); 
 					}
 				} 
-				// Om timeout inträffat för S och R varnas till console
+				// Om timeout intrÃ¤ffat fÃ¶r S och R varnas till console
 				if ( 
 						(rs.getString("type").equalsIgnoreCase("R") && rs.getString("status").equalsIgnoreCase("OK") && swShDay &&	Lsec > 1200	) 
 						||
 						(rs.getString("type").equalsIgnoreCase("S") && swShDay && 
 								rs.getTimestamp("rptdat").getTime() < mi.getTime() )    // mi is the date and time of midnight
-					)
+						)
 				{
 					if (!rs.getString("console").equalsIgnoreCase("C")) {
 						rs.updateString("console", "C");
 						rs.updateTimestamp("condat", new java.sql.Timestamp((new Date(System.currentTimeMillis())).getTime()));
-						swUpdate=true;					}
+						swUpdate=true;
+					}
 					swTiming = true;
-					System.out.println("timing #3: " + rs.getString("id")+"  MSG:"+rs.getString("msg"));
+					System.out.println(LocalDateTime.now()+" timing #3: " + rs.getString("id")+"  MSG:"+rs.getString("msg"));
 					rs.updateString("status", "TOut");
 					if (rs.getString("msg").startsWith(" ")) {
-						System.out.println("Set msg to T in timeout " + rs.getString("id"));
+						System.out.println(LocalDateTime.now()+" TOut: Set msg to T " + rs.getString("id"));
 						rs.updateString("msg", "T");
 						rs.updateTimestamp("msgdat", new java.sql.Timestamp((new Date(System.currentTimeMillis())).getTime()));
 						swPlugin = true;
 						swUpdate=true;
 					}
 					if (rs.getString("sms").startsWith(" ")) {
-						System.out.println("Set sms to T in timeout " + rs.getString("id"));
+						System.out.println(LocalDateTime.now()+" TOut: Set sms to T " + rs.getString("id"));
 						rs.updateString("sms", "T");
 						rs.updateTimestamp("smsdat", new java.sql.Timestamp((new Date(System.currentTimeMillis())).getTime()));
 					}
-					System.out.println("timing #3.a :  " + rs.getString("id")+"  MSG:"+rs.getString("msg"));
+					System.out.println(LocalDateTime.now()+" timing #3.a :  " + rs.getString("id")+"  MSG:"+rs.getString("msg"));
 					if (swUpdate) try { rs.updateRow(); } catch(NullPointerException npe2) {}
 					updC(rs); // add new line to the console table
 					if (swPlugin && !rs.getString("plugin").startsWith(" ")) {
 						trigPlugin(rs.getString("id"), rs.getString("status"), "P", rs.getString("body")); 
 					}
-				} // Om allt bra tas console bort för S,R och T och om console=C eller msg=C eller msg icke " " eller sms icke " "
+				} // Om status Ã¤r OK tas console bort fÃ¶r S,R och T och om console=C eller msg icke " " eller sms icke " "
 				else	 if ((rs.getString("type").equalsIgnoreCase("R") || rs.getString("type").equalsIgnoreCase("S") || rs.getString("type").equalsIgnoreCase("T")) && 
-						 rs.getString("status").equalsIgnoreCase("OK") &&  
+						rs.getString("status").equalsIgnoreCase("OK") &&  
 						(rs.getString("console").equalsIgnoreCase("C") || !rs.getString("msg").startsWith(" ") || !rs.getString("sms").startsWith(" ") )
 						) {
-					System.out.println("Del #4: " + rs.getString("id")+" "+rs.getString("status")+"  MSG:"+rs.getString("msg")+"  SMS:"+rs.getString("sms"));
+					System.out.println(LocalDateTime.now()+" DEL: #4 " + rs.getString("id")+" "+rs.getString("status")+"  MSG:"+rs.getString("msg")+"  SMS:"+rs.getString("sms"));
 					swDelete = true;   // remove lines from console
 					rs.updateString("console", " ");
 					rs.updateString("condat", null);
+					rs.updateString("status", "OK");
 					swUpdate=true;
 					if (rs.getString("msg").startsWith("M") || rs.getString("msg").startsWith("T")) {
-						System.out.println("Set msg to blank in OK" + " " + rs.getString("id"));
+						System.out.println(LocalDateTime.now()+" OK: Set msg to blank" + " " + rs.getString("id"));
 						rs.updateString("msg", " ");
 						rs.updateTimestamp("msgdat", null);
 					}
 					else if (rs.getString("msg").startsWith("S")) {
-						System.out.println("Set msg to R in OK" + " " + rs.getString("id"));
+						System.out.println(LocalDateTime.now()+" OK: Set msg to R" + " " + rs.getString("id"));
 						rs.updateString("msg", "R");
 						rs.updateTimestamp("msgdat", null);
 					}
 					if (rs.getString("sms").startsWith("M") || rs.getString("sms").startsWith("T")) {
-						System.out.println("Set sms to blank in OK" + " " + rs.getString("id"));
+						System.out.println(LocalDateTime.now()+" OK: Set sms to blank" + " " + rs.getString("id"));
 						rs.updateString("sms", " ");
 						rs.updateTimestamp("smsdat", null);
 					}
 					else if (rs.getString("sms").startsWith("S")) {
-						System.out.println("Set sms to R in OK" + " " + rs.getString("id"));
+						System.out.println(LocalDateTime.now()+" OK: Set sms to R" + " " + rs.getString("id"));
 						rs.updateString("sms", "R");
 						rs.updateTimestamp("smsdat", null);
 					}
 					if (swUpdate) try { rs.updateRow(); } catch(NullPointerException npe2) {}
 					updC(rs); // update or remove line from the console table
 				}
-
 			}
 			rs.close(); 
 			stmt.close();
-
+			conn.close();
 		}
 		catch (SQLException e) {
+			System.out.println(LocalDateTime.now()+" CurrentID = " + currentID);
 			System.err.println(e);
-//			System.err.println(e.getMessage());
+						System.err.println(e.getMessage());
 		}
 		catch (Exception e) {
+			System.out.println(LocalDateTime.now()+" CurrentID = " + currentID);
 			System.err.println(e);
-//			System.err.println(e.getMessage());
+						System.err.println(e.getMessage());
 		}
 		finally { 
 			//			System.out.println("CheckStatus Severe: " + errors + "  Problems: " + warnings + "  Info: " + infos ); 
@@ -281,7 +299,7 @@ public class CheckStatus {
 	// trigger plugin
 	static protected void trigPlugin(String id, String sts, String type, String body) throws IOException {
 		if (swDormant) return;
-		System.out.println("-- trigPlugin --" + id +" "+ sts +" "+ type +" "+ body);
+		System.out.println(LocalDateTime.now()+" -- trigPlugin --" + id +" "+ sts +" "+ type +" "+ body);
 		Message jmsg = new Message();
 		SendMsg jm = new SendMsg(jvhost, port);
 		System.out.println(jm.open());
@@ -291,8 +309,8 @@ public class CheckStatus {
 		jmsg.setType(type);
 		jmsg.setAgent(agent);
 		//		jm.sendMsg(jmsg);
-		if (jm.sendMsg(jmsg)) System.out.println("-- Rpt Delivered --");
-		else           	      System.out.println("-- Rpt Failed --");
+		if (jm.sendMsg(jmsg)) System.out.println(LocalDateTime.now()+" -- Rpt Delivered --");
+		else           	      System.out.println(LocalDateTime.now()+" -- Rpt Failed --");
 		jm.close();
 	}
 
@@ -300,26 +318,26 @@ public class CheckStatus {
 	static protected void sendSTS() throws IOException {
 		Message jmsg = new Message();
 		SendMsg jm = new SendMsg(jvhost, port);
-		System.out.println(jm.open());
+		System.out.println(LocalDateTime.now()+" "+jm.open());
 		jmsg.setId("SYSSTS");
 		jmsg.setRptsts("Info");
 		jmsg.setBody("Severe: " + errors + "  Problems: " + warnings + "  Info: " + infos);
 		jmsg.setType("I");
 		jmsg.setAgent(agent);
 		//		jm.sendMsg(jmsg);
-		if (jm.sendMsg(jmsg)) System.out.println("-- Rpt Delivered --");
-		else           	      System.out.println("-- Rpt Failed --");
+		if (jm.sendMsg(jmsg)) System.out.println(LocalDateTime.now()+" -- Rpt Delivered --");
+		else           	      System.out.println(LocalDateTime.now()+" -- Rpt Failed --");
 		jm.close();
 	}
 
-	//----- add new line to the console table -----
+	//----- add or remove line to/from the console table -----
 	static protected void updC(ResultSet rs) throws IOException {
 
 		Statement stmt = null;
 		int count = 1;
 
 		try {
-			System.out.println(">> updC RS: "+rs.getString("id") +" swDelete:"+swDelete +" Type: "+rs.getString("type").toUpperCase());
+			System.out.println(LocalDateTime.now()+" updC: swDelete:"+swDelete+" ID:"+rs.getString("id") +" Type:"+rs.getString("type").toUpperCase()+" Prio:"+rs.getString("prio").toUpperCase()+" Body:"+rs.getString("body"));
 			// Immediate type cause an update to the console table at once.
 
 			// read and remove previous line from the console table and save the count field
@@ -327,8 +345,8 @@ public class CheckStatus {
 			String prioS;
 			if (swRowDormant)	prioS = "99";
 			else 				prioS =  rs.getString("prio");
-			System.out.println("-- PRIO -- " + prioS);
-			
+			System.out.println(LocalDateTime.now()+" Prios: " + prioS);
+
 			if (swDelete) {
 				s = new String("select * from console " + 
 						"WHERE id ilike '" + rs.getString("id") + 
@@ -353,14 +371,14 @@ public class CheckStatus {
 				count++;
 				if (count<2) count=2;
 				if (swDelete) {
-					System.out.println(">>> deleterow " + rs2.getString("id") + " - " + rs2.getString("body") );
+					System.out.println(LocalDateTime.now()+" delete console: " + rs2.getString("id")+ " - "+rs2.getString("prio")+" - "+rs2.getString("body"));
 					addHst(rs2);
 					try { rs2.deleteRow(); } catch(NullPointerException npe2) {} 
 				}
 				else { 
 					rs2.updateTimestamp("condat", new java.sql.Timestamp((new Date(System.currentTimeMillis())).getTime()));
 					rs2.updateInt("count", count);
-					System.out.println(">>> update row. count:"+count  + " - id:"+ rs2.getString("id") + " - " + rs2.getString("body") );
+					System.out.println(LocalDateTime.now()+" update console: row.count:"+count  + " - id:"+ rs2.getString("id")+ " - "+rs2.getString("prio") + " - " + rs2.getString("body") );
 					if (swTiming) {
 						rs2.updateString("status","TOut");
 						rs2.updateString("body", rs.getString("body"));
@@ -370,7 +388,7 @@ public class CheckStatus {
 						rs2.updateString("body", rs.getString("body"));
 					}
 					// om dormant
-//					if (swRowDormant) rs2.updateInt("prio", 99);
+					//					if (swRowDormant) rs2.updateInt("prio", 99);
 					try { rs2.updateRow(); } catch(NullPointerException npe2) {}
 				}
 			}
@@ -383,7 +401,8 @@ public class CheckStatus {
 				// insert new line with new timestamp and counter
 				PreparedStatement st = conn.prepareStatement("INSERT INTO Console (count,id,prio,type,condat,credat,status,body,agent) "
 						+ "values (?,?,?,?,?,?,?,?,?)");
-				System.out.println("Prepared insert:" + st);
+//				System.out.println(LocalDateTime.now()+" Prepared insert:" + st);
+				System.out.println(LocalDateTime.now()+" Insert console: "+rs.getString("state")+" " + rs.getString("id")+" "+rs.getString("type")+" "+rs.getString("prio")+" "+rs.getString("body")+" "+rs.getString("status")+" "+rs.getString("errors")+" "+rs.getString("accerr"));
 				st.setInt(1,count); // count
 				st.setString(2,rs.getString("id") ); 
 				// om dormant
@@ -392,9 +411,9 @@ public class CheckStatus {
 				st.setString(4,rs.getString("type").toUpperCase() ); // type
 				st.setTimestamp(5, zTs); // condat
 				st.setTimestamp(6, zTs); // credat
-				System.out.println(">>> swTiming >>>>: " + swTiming);
-//				if (swTiming) st.setString(7,"TOut");
-//				else st.setString(7,rs.getString("status").toUpperCase() );// 
+				System.out.println(LocalDateTime.now()+" swTiming: " + swTiming);
+				//				if (swTiming) st.setString(7,"TOut");
+				//				else st.setString(7,rs.getString("status").toUpperCase() );// 
 				if (swTiming) {
 					st.setString(7,"TOut");
 					st.setString(8,rs.getString("body") );
@@ -403,23 +422,23 @@ public class CheckStatus {
 					st.setString(7,rs.getString("status").toUpperCase() );
 					st.setString(8,rs.getString("body") );
 				}
-//				st.setString(8,rs.getString("body") ); // 
+				//				st.setString(8,rs.getString("body") ); // 
 				st.setString(9,rs.getString("agent") ); // 
 				int rowsInserted = st.executeUpdate();
-				System.out.println("Executed insert addC " +rowsInserted);
+				System.out.println(LocalDateTime.now()+" Executed insert addC " +rowsInserted);
 				st.close();
 			}
-			System.out.println("Closed addC");
+			System.out.println(LocalDateTime.now()+" Closed addC");
 		}
 		catch (SQLException e) {
-			System.err.println(e);
+			System.err.println(LocalDateTime.now()+" "+e);
 			System.err.println(e.getMessage());
 		}
 		catch (Exception e) {
-			System.err.println(e);
+			System.err.println(LocalDateTime.now()+" "+e);
 			System.err.println(e.getMessage());
 		}
-		finally { System.out.println("CheckStatus addC finally routine" ); }
+		finally { System.out.println(LocalDateTime.now()+" CheckStatus addC finally routine" ); }
 	} 
 
 	static protected void countErr(ResultSet rs, char c) throws SQLException {
@@ -441,12 +460,13 @@ public class CheckStatus {
 	static protected void addHst(ResultSet rs) throws IOException {
 
 		try {
-			System.out.println("addHst RS: " + rs.getString("id")+" Type: " + rs.getString("type").toUpperCase());
+			System.out.println(LocalDateTime.now()+" addHst: " + rs.getString("id")+" Type: " + rs.getString("type").toUpperCase());
 
 			// insert new line with new timestamp and counter
 			PreparedStatement st = conn.prepareStatement("INSERT INTO ConsoleHst (credat,deldat,count,id,prio,type,status,body,agent) "
 					+ "values (?,?,?,?,?,?,?,?,?)");
-			System.out.println("Prepared insert:" + st);
+//			System.out.println(LocalDateTime.now()+" Prepared insert:" + st);
+			System.out.println(LocalDateTime.now()+" Insert hist: ID:"+rs.getString("id")+" Prio:"+rs.getInt("prio")+" Type:"+rs.getString("type").toUpperCase()+" Body:"+rs.getString("body")   );
 			st.setTimestamp(1, rs.getTimestamp("credat")); // credat
 			st.setTimestamp(2, new java.sql.Timestamp((new Date(System.currentTimeMillis())).getTime())); // deldat
 			st.setInt(3,rs.getInt("count")); // count
@@ -457,19 +477,19 @@ public class CheckStatus {
 			st.setString(8,rs.getString("body") ); // 
 			st.setString(9,rs.getString("agent") ); // 
 			int rowsInserted = st.executeUpdate();
-			System.out.println("Executed insert addHst " +rowsInserted);
+			System.out.println(LocalDateTime.now()+" Executed insert addHst " +rowsInserted);
 			st.close();
-			System.out.println("Closed addHst");
+			System.out.println(LocalDateTime.now()+" Closed addHst");
 		}
 		catch (SQLException e) {
-			System.err.println(e);
+			System.err.println(LocalDateTime.now()+" "+e);
 			System.err.println(e.getMessage());
 		}
 		catch (Exception e) {
-			System.err.println(e);
+			System.err.println(LocalDateTime.now()+" "+e);
 			System.err.println(e.getMessage());
 		}
-		finally { System.out.println("CheckStatus addHst finally routine" ); }
+		finally { System.out.println(LocalDateTime.now()+" CheckStatus addHst finally routine" ); }
 	} 
 
 
