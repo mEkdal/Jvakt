@@ -39,6 +39,8 @@ public class SendSMS {
 	//	static int resolved = 0;
 	static boolean resolved = false;
 
+	static String expected = "";
+	static String reply = "";
 
 	//	static String subject = "";
 	static String body = "";
@@ -71,7 +73,7 @@ public class SendSMS {
 
 	public static void main(String[] args ) throws IOException, UnknownHostException {
 
-		String version = "SendSMS (2019-OCT-17)";
+		String version = "SendSMS (2019-NOV-08)";
 		String database = "jVakt";
 		String dbuser   = "jVakt";
 		String dbpassword = "xz";
@@ -287,6 +289,7 @@ public class SendSMS {
 			//			n++;
 			//			String element = (String) object;
 			toSMSW = (String) object;
+			swOK = false;
 
 			toSMS = toSMSW;
 			//				System.out.println("To:"+toEmailW+"   Subject: " + subject );
@@ -312,12 +315,14 @@ public class SendSMS {
 				osw.write( "AT+CMGF=1\r\n" );   // SMS text mode
 				osw.flush();
 				ReceiveText();
+				if (reply.indexOf("OK") > 0 ) System.out.println("Received OK  "+reply);
 				//  	    	  System.out.println("Sending AT+CMGS="+toSMS +"\\r\\n" );
 				System.out.println("Sending AT+CMGS="+toSMS +"\\r" );
 				//		        osw.write( "AT+CMGS="+ toSMS + "\r\n" );
 				osw.write( "AT+CMGS="+ toSMS + "\r" );
 				osw.flush();
 				ReceiveText();
+				if (reply.indexOf(">") > 0 ) System.out.println("Received >  "+reply);
 				if (body.length() > 140 ) body = body.substring(0, 139);
 				body = body.replaceAll("_", "-"); // replace _ with - because SMS creates a �
 				body = body.replace('Å', 'A'); 
@@ -333,7 +338,15 @@ public class SendSMS {
 				osw.write( body +"\u001A" );
 				osw.flush();
 				ReceiveText();
-				swOK = true;
+				if (reply.indexOf("+CMGS") > 0 ) {
+					System.out.println("Received +CMGS  "+reply);
+					swOK = true;
+				} else {
+					swOK = false;
+					System.out.println("Did not receive +CMGS ! "+reply);
+					break;					
+				}
+
 			} catch( IOException e ) {
 				swOK = false;
 				System.out.println("IOExeption while sending " + e);
@@ -360,8 +373,7 @@ public class SendSMS {
 	}
 
 	static public void ReceiveText() {
-		try { Thread.sleep(100); } catch (InterruptedException e) { e.printStackTrace();}
-		//		try { Thread.currentThread().sleep(500); } catch (InterruptedException e) { e.printStackTrace();}
+		try { Thread.sleep(1000); } catch (InterruptedException e) { e.printStackTrace();}
 		String s;
 		int i, len, timeouts;
 		char c[] = new char[ 100 ];
@@ -369,7 +381,7 @@ public class SendSMS {
 		timeouts = 0;
 		for( ;; ) {
 			s = "";
-			if (timeouts>60) {
+			if (timeouts>10) {
 				// timeout in input stream
 				System.out.println("Aborting because of timeout in isr!");
 				try {sendSTS(false);} catch (IOException e) { e.printStackTrace();}
@@ -385,11 +397,16 @@ public class SendSMS {
 					continue;
 				}
 				if( len < 0 ) {
-					return;
+					timeouts++;
+					System.out.println("no reply, waiting...");
+					try { Thread.sleep(1000); } catch (InterruptedException e) { e.printStackTrace();}
+					continue;
+//					return;
 				}
 				for( i = 0; i < len; i++ ) {
 					if( c[ i ] != 0 ) s += c[ i ];
 				}
+				reply = s;
 			} catch (InterruptedIOException e) {
 				timeouts++;
 				System.out.println("ReceiverText InterruptedIOException in input stream: " + e);

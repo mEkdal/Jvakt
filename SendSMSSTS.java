@@ -39,6 +39,9 @@ public class SendSMSSTS {
 	static String wbody = "";
 	static String rbody = "";
 
+	static String expected = "";
+	static String reply = "";
+
 	static String database = "jVakt";
 	static String dbuser   = "jVakt";
 	static String dbpassword = "xz";
@@ -73,7 +76,7 @@ public class SendSMSSTS {
 //	public static void main(String[] args ) throws IOException, UnknownHostException {
 	public static void main(String[] args ) {
 
-		String version = "SendSMSSTS (2019-OCT-17)";
+		String version = "SendSMSSTS (2019-NOV-08)";
 
 		for (int i=0; i<args.length; i++) {
 			if (args[i].equalsIgnoreCase("-config")) config = args[++i];
@@ -152,7 +155,7 @@ public class SendSMSSTS {
 					else if (rs.getString("status").contentEquals("INFO") || rs.getString("status").contentEquals("OK")) {
 						infos++;
 					}
-					else if (rs.getString("status").startsWith("Tim")) {
+					else if (rs.getString("status").startsWith("TOut")) {
 						warnings++;
 					}
 					else if (rs.getString("status").contentEquals("OK"))	{
@@ -255,6 +258,7 @@ public class SendSMSSTS {
 		// Loop on all phone numbers
 		for(Object object : listTo) { 
 			//			String element = (String) object;
+			swOK = false;
 			toSMS = (String) object;
 			System.out.println("--- SMS to:"+toSMS +"      Body: " + body );
 
@@ -278,11 +282,13 @@ public class SendSMSSTS {
 				osw.write( "AT+CMGF=1\r\n" );
 				osw.flush();
 				ReceiveText();
+				if (reply.indexOf("OK") > 0 ) System.out.println("Received OK  "+reply);
 				//				osw.write( "AT+CMGS="+ toSMS + "\r\n" );
 				System.out.println("Sending AT+CMGS="+toSMS +"\\r" );
 				osw.write( "AT+CMGS="+ toSMS + "\r" );
 				osw.flush();
 				ReceiveText();
+				if (reply.indexOf(">") > 0 ) System.out.println("Received >  "+reply);
 				if (body.length() > 140 ) body = body.substring(0, 139);
 				body = body.replace('_', '-'); // replace _ with - because SMS creates a �
 				body = body.replace('Å', 'A'); 
@@ -298,7 +304,15 @@ public class SendSMSSTS {
 				osw.write( body +"\u001A" );
 				osw.flush();
 				ReceiveText();
-				swOK = true;
+				if (reply.indexOf("+CMGS") > 0 ) {
+					System.out.println("Received +CMGS  "+reply);
+					swOK = true;
+				} else {
+					swOK = false;
+					System.out.println("Did not receive +CMGS ! "+reply);
+//					break;					
+				}
+					
 			} catch( IOException e ) {
 				swOK = false;
 				System.out.println("IOExeption while sending " + e);
@@ -329,16 +343,15 @@ public class SendSMSSTS {
 
 
 	static public void ReceiveText() {
-		try { Thread.sleep(100); } catch (InterruptedException e) { e.printStackTrace();}
-		//		try { Thread.currentThread().sleep(500); } catch (InterruptedException e) { e.printStackTrace();}
+		try { Thread.sleep(1000); } catch (InterruptedException e) { e.printStackTrace();}
 		String s;
 		int i, len, timeouts;
 		char c[] = new char[ 100 ];
 
 		timeouts = 0;
 		for( ;; ) {
-			s = "";
-			if (timeouts>60) {
+			s = ""; reply = "";
+			if (timeouts>10) {
 				// timeout in input stream
 				System.out.println("Aborting because of timeout in isr!");
 				try {sendSTS(false);} catch (IOException e) { e.printStackTrace();}
@@ -354,11 +367,16 @@ public class SendSMSSTS {
 					continue;
 				}
 				if( len < 0 ) {
-					return;
+					timeouts++;
+					System.out.println("no reply, waiting...");
+					try { Thread.sleep(1000); } catch (InterruptedException e) { e.printStackTrace();}
+					continue;
+//					return;
 				}
 				for( i = 0; i < len; i++ ) {
 					if( c[ i ] != 0 ) s += c[ i ];
 				}
+				reply = s;
 			} catch (InterruptedIOException e) {
 				timeouts++;
 				System.out.println("ReceiverText InterruptedIOException in input stream: " + e);

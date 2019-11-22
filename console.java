@@ -32,8 +32,8 @@ public class console extends JFrame implements TableModelListener, WindowListene
 	// Skapar diverse variabler
 	static final long serialVersionUID = 42L;
 	private JPanel topPanel;
-//	private JPanel usrPanel;
-//	private JPanel logPanel;
+	//	private JPanel usrPanel;
+	//	private JPanel logPanel;
 	private JTable table;
 	private JScrollPane scrollPane;
 	private JButton bu1;
@@ -56,6 +56,8 @@ public class console extends JFrame implements TableModelListener, WindowListene
 
 	private  int deselectCount = 0; 
 	private  int jvconnectCount = 0; 
+
+	private String infotxt; 
 
 	/**
 	 * @param args the command line arguments
@@ -82,7 +84,7 @@ public class console extends JFrame implements TableModelListener, WindowListene
 		port = Integer.parseInt(jvport);
 
 		// funktion från Jframe att sätta rubrik
-		setTitle("Jvakt console 2.41  -  F1 = Help");
+		setTitle("Jvakt console 2.43  -  F1 = Help");
 		//	        setSize(5000, 5000);
 
 		// get the screen size as a java dimension
@@ -181,8 +183,7 @@ public class console extends JFrame implements TableModelListener, WindowListene
 			// interna classens metod som tar fram vilken rad som valts
 			public void valueChanged(ListSelectionEvent e)   {
 				// Ignore extra messages.
-				if (e.getValueIsAdjusting())
-					return;
+				if (e.getValueIsAdjusting()) return;
 
 				ListSelectionModel lsm = (ListSelectionModel) e.getSource();
 				if (lsm.isSelectionEmpty()) {
@@ -192,9 +193,11 @@ public class console extends JFrame implements TableModelListener, WindowListene
 //					System.out.println("Row " + selectedRow + " is now selected.");
 					deselectCount = 0;
 				}
+				return;
 			}
 
-		}    );
+		}   
+				);
 		// OBS intern class end---
 		//
 
@@ -330,7 +333,7 @@ public class console extends JFrame implements TableModelListener, WindowListene
 							swServer = false;
 							System.out.println("-- Rpt Failed 2 --" + npe2);
 						}
-//						System.out.println("swServer 2 : " + swServer);
+						//						System.out.println("swServer 2 : " + swServer);
 					}
 
 					swDBopen = wD.refreshData();
@@ -367,7 +370,7 @@ public class console extends JFrame implements TableModelListener, WindowListene
 		int column = e.getColumn();
 		String ls ;
 		TableModel model = (TableModel)e.getSource();
-//		String columnName = model.getColumnName(column);
+		//		String columnName = model.getColumnName(column);
 		String data = (String)model.getValueAt(row, column);
 		ls = "Workout tableChanged " + row + " " + column + " " +  data;
 		System.out.println(ls);
@@ -411,16 +414,18 @@ public class console extends JFrame implements TableModelListener, WindowListene
 		table.getActionMap().put("clearSel", clearSel());
 		table.getActionMap().put("increaseH", increaseH());
 		table.getActionMap().put("decreaseH", decreaseH());
+		table.getActionMap().put("getInfo", getInfo());
 		table.getActionMap().put("showHelp", showHelp());
 		table.getActionMap().put("showLine", showLine());
 		table.getActionMap().put("toggleDormant", toggleDormant());
-		
+
 		KeyStroke keyStroke = KeyStroke.getKeyStroke(KeyEvent.VK_BACK_SPACE, 0);  // delete key in mac
 		table.getInputMap(JComponent.WHEN_FOCUSED).put(keyStroke, "delRow");
 
 		keyStroke = KeyStroke.getKeyStroke(KeyEvent.VK_DELETE, 0);  // delete key in win linux
 		table.getInputMap(JComponent.WHEN_FOCUSED).put(keyStroke, "delRow");
 
+		// Do not use VK_F2 beacuse JTable overides it sometimes
 		keyStroke = KeyStroke.getKeyStroke(KeyEvent.VK_F1, 0); 
 		table.getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(keyStroke, "showHelp");
 		keyStroke = KeyStroke.getKeyStroke(KeyEvent.VK_HELP, 0); 
@@ -439,6 +444,8 @@ public class console extends JFrame implements TableModelListener, WindowListene
 		table.getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(keyStroke, "toggleDormant");
 		keyStroke = KeyStroke.getKeyStroke(KeyEvent.VK_F9, 0);
 		table.getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(keyStroke, "strHst");
+		keyStroke = KeyStroke.getKeyStroke(KeyEvent.VK_F9, 0); 
+		table.getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(keyStroke, "getInfo");
 		keyStroke = KeyStroke.getKeyStroke(KeyEvent.VK_F10, 0);
 		table.getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(keyStroke, "strHst");
 		keyStroke = KeyStroke.getKeyStroke(KeyEvent.VK_F11, 0);
@@ -456,9 +463,9 @@ public class console extends JFrame implements TableModelListener, WindowListene
 			@Override
 			public void actionPerformed(ActionEvent e)  {
 				//					                 JOptionPane.showMessageDialog(TestTableKeyBinding.this.table, "Action Triggered.");
-//				System.out.println("ShowHelp");
+				//				System.out.println("ShowHelp");
 				JOptionPane.showMessageDialog(getContentPane(),
-								"F1 : Help \nF3 : Increase font size \nF4 : Decrease font size \nF5 : History \nF6 : Status table \nF7 : Show row \nF8 : Toggle dormant \n\nDEL : delete rows \nESC : Unselect\n" +
+						"F1 : Help \nF3 : Increase font size \nF4 : Decrease font size \nF5 : History \nF6 : Status table \nF7 : Show row \nF8 : Toggle dormant \nF9 : Enter info text  \n\nDEL : delete rows \nESC : Unselect\n" +
 								"\nThis app shows the filtered reports/messages sent to the Jvakt server. OK messages of types 'R', 'T' and 'S' remains in the database." + 
 								"\nThe upper bar acts a button to stop/start the automatic update. \nIt will also show the status of the server and database." + 
 								"\n\nFields: " + 
@@ -485,11 +492,58 @@ public class console extends JFrame implements TableModelListener, WindowListene
 								"\nbody = Contains the text sent by the agent"+ 
 								"\nagent = Contains the host name and IP address where the agent is executed."
 								,"Jvakt Help",
-						JOptionPane.INFORMATION_MESSAGE);
+								JOptionPane.INFORMATION_MESSAGE);
 			}
 		};
 		return save;
 	}
+
+
+	private AbstractAction getInfo()  {
+		AbstractAction save = new AbstractAction() {
+			static final long serialVersionUID = 53L;
+			@Override
+			public void actionPerformed(ActionEvent e)  {
+
+				table.getSelectionModel().clearSelection();  // clear selected rows.
+
+				infotxt = JOptionPane.showInputDialog(getContentPane(),
+						"Enter information text to be sent to the console\n" 
+						,"Jvakt Info",
+						JOptionPane.QUESTION_MESSAGE);
+				if ((infotxt != null) && (infotxt.length() > 0)) {
+					System.out.println("*** infotxt: " + infotxt);
+
+					try {
+						Message jmsg = new Message();
+						SendMsg jm = new SendMsg(jvhost, port);
+						System.out.println(jm.open());
+						jmsg.setId("INFO-to-console");
+						jmsg.setType("I");
+						jmsg.setRptsts("INFO");
+						jmsg.setBody(infotxt);
+						jmsg.setAgent("GUI");
+						if (jm.sendMsg(jmsg)) System.out.println("-- Rpt Delivered 5 --");
+						else            	  System.out.println("-- Rpt Failed 5 --");
+						jm.close();
+					} 
+					catch (IOException e1) {
+						System.err.println(e1);
+						System.err.println(e1.getMessage());
+					}
+					catch (Exception e2) {
+						System.err.println(e2);
+						System.err.println(e2.getMessage());
+					}
+
+
+
+				}
+			}
+		};
+		return save;
+	}
+
 
 	private AbstractAction showLine()  {
 		AbstractAction save = new AbstractAction() {
@@ -497,38 +551,40 @@ public class console extends JFrame implements TableModelListener, WindowListene
 
 			@Override
 			public void actionPerformed(ActionEvent e)  {
-//				System.out.println("ShowLine");
+				//				System.out.println("ShowLine");
 				table.editingCanceled(null);
 				table.editingStopped(null);
 				int[] selectedRow = table.getSelectedRows();
+				System.out.println("ShowLine: "+selectedRow.length);
 
 				try {
 					for (int i = 0; i <  selectedRow.length; i++) {
-//						System.out.println("*** Row to show :" + selectedRow[i]);
+						//						System.out.println("*** Row to show :" + selectedRow[i]);
 						Object ValueId   = table.getValueAt(selectedRow[i],table.getColumnModel().getColumnIndex("Id"));
-//						System.out.println(ValueId);
+						//						System.out.println(ValueId);
 						String id = (String) ValueId;
 						if (id == null) continue;
+						//						System.out.println("*** " + selectedRow[i]);
 						ValueId   = table.getValueAt(selectedRow[i],table.getColumnModel().getColumnIndex("Prio"));
-//						System.out.println(ValueId);
+						//						System.out.println(ValueId);
 						int prio = (Integer) ValueId;
 						ValueId   = table.getValueAt(selectedRow[i],table.getColumnModel().getColumnIndex("Type"));
-//						System.out.println(ValueId);
+						//						System.out.println(ValueId);
 						String type = (String) ValueId;
 						ValueId   = table.getValueAt(selectedRow[i],table.getColumnModel().getColumnIndex("CreDate"));
-//						System.out.println(ValueId);
+						//						System.out.println(ValueId);
 						String credate = (String) ValueId;
 						ValueId   = table.getValueAt(selectedRow[i],table.getColumnModel().getColumnIndex("ConDate"));
-//						System.out.println(ValueId);
+						//						System.out.println(ValueId);
 						String condate = (String) ValueId;
 						ValueId   = table.getValueAt(selectedRow[i],table.getColumnModel().getColumnIndex("Status"));
-//						System.out.println(ValueId);
+						//						System.out.println(ValueId);
 						String status = (String) ValueId;
 						ValueId   = table.getValueAt(selectedRow[i],table.getColumnModel().getColumnIndex("Body"));
-//						System.out.println(ValueId);
+						//						System.out.println(ValueId);
 						String body = (String) ValueId;
 						ValueId   = table.getValueAt(selectedRow[i],table.getColumnModel().getColumnIndex("Agent"));
-//						System.out.println(ValueId);
+						//						System.out.println(ValueId);
 						String agent = (String) ValueId;
 						JOptionPane.showMessageDialog(getContentPane(),
 								"- ID (the id of the message. Together with prio it makes an unique id) -\n"+id+" \n\n" +
@@ -558,7 +614,7 @@ public class console extends JFrame implements TableModelListener, WindowListene
 	private AbstractAction clearSel()  {
 		AbstractAction save = new AbstractAction() {
 			static final long serialVersionUID = 45L;
-			
+
 			@Override
 			public void actionPerformed(ActionEvent e)  {
 				//					                 JOptionPane.showMessageDialog(TestTableKeyBinding.this.table, "Action Triggered.");
@@ -587,7 +643,7 @@ public class console extends JFrame implements TableModelListener, WindowListene
 	private AbstractAction decreaseH()  {
 		AbstractAction save = new AbstractAction() {
 			static final long serialVersionUID = 46L;
-			
+
 			@Override
 			public void actionPerformed(ActionEvent e)  {
 				//				System.out.println("getRowHeight :" + table.getRowHeight());
@@ -624,21 +680,21 @@ public class console extends JFrame implements TableModelListener, WindowListene
 
 				try {
 					for (int i = 0; i <  selectedRow.length; i++) {
-//						System.out.println("*** Row do delete :" + selectedRow[i]);
+						//						System.out.println("*** Row do delete :" + selectedRow[i]);
 						Message jmsg = new Message();
 						SendMsg jm = new SendMsg(jvhost, port);
 						System.out.println("Response opening connection to Jvakt server: "+ jm.open());
 						Object ValueId   = table.getValueAt(selectedRow[i],table.getColumnModel().getColumnIndex("Id"));
-//						System.out.println(ValueId);
+						//						System.out.println(ValueId);
 						jmsg.setId(ValueId.toString());
 						jmsg.setRptsts("OK");
 						//						jmsg.setBody("Delete of row from GUI");
 						ValueId   = table.getValueAt(selectedRow[i],table.getColumnModel().getColumnIndex("Body"));
-//						System.out.println(ValueId);
+						//						System.out.println(ValueId);
 						jmsg.setBody(ValueId.toString());
 						//						jmsg.setBody("Delete of row from GUI");
 						ValueId   = table.getValueAt(selectedRow[i],table.getColumnModel().getColumnIndex("Prio"));
-//						System.out.println(ValueId);
+						//						System.out.println(ValueId);
 						jmsg.setPrio(Integer.parseInt(ValueId.toString()));
 						jmsg.setType("D");
 						jmsg.setAgent("GUI");
@@ -661,25 +717,25 @@ public class console extends JFrame implements TableModelListener, WindowListene
 		};
 		return save;
 	}
-	
+
 	private AbstractAction toggleDormant()  {
 		AbstractAction save = new AbstractAction() {
 			static final long serialVersionUID = 48L;
-			
+
 			@Override
 			public void actionPerformed(ActionEvent e)  {
 
 				try {
-						Message jmsg = new Message();
-						SendMsg jm = new SendMsg(jvhost, port);
-						System.out.println(jm.open());
-						jmsg.setId("Jvakt");
-						if (swDormant) jmsg.setType("Active");
-						else jmsg.setType("Dormant");
-						jmsg.setAgent("GUI");
-						if (jm.sendMsg(jmsg)) System.out.println("-- Rpt Delivered --");
-						else            	  System.out.println("-- Rpt Failed 4 --");
-						jm.close();
+					Message jmsg = new Message();
+					SendMsg jm = new SendMsg(jvhost, port);
+					System.out.println(jm.open());
+					jmsg.setId("Jvakt");
+					if (swDormant) jmsg.setType("Active");
+					else jmsg.setType("Dormant");
+					jmsg.setAgent("GUI");
+					if (jm.sendMsg(jmsg)) System.out.println("-- Rpt Delivered --");
+					else            	  System.out.println("-- Rpt Failed 4 --");
+					jm.close();
 				} 
 				catch (IOException e1) {
 					System.err.println(e1);
@@ -698,10 +754,10 @@ public class console extends JFrame implements TableModelListener, WindowListene
 	private AbstractAction strHst()  {
 		AbstractAction save = new AbstractAction() {
 			static final long serialVersionUID = 49L;
-			
+
 			@Override
 			public void actionPerformed(ActionEvent e)  {
-//				System.out.println("-- Start consoleHst: " + cmdHst);
+				//				System.out.println("-- Start consoleHst: " + cmdHst);
 
 				try {
 					//			       Runtime.getRuntime().exec("java -cp \"/Users/septpadm/OneDrive - Perstorp Group/JavaSrc;/Users/septpadm/OneDrive - Perstorp Group/JavaSrc/postgresql-42.1.3.jar\" Jvakt.consoleHst");
@@ -744,7 +800,7 @@ public class console extends JFrame implements TableModelListener, WindowListene
 
 			@Override
 			public void actionPerformed(ActionEvent e)  {
-//				System.out.println("-- Start consoleSts: " + cmdSts);
+				//				System.out.println("-- Start consoleSts: " + cmdSts);
 
 				try {
 					//			       Runtime.getRuntime().exec("java -cp \"/Users/septpadm/OneDrive - Perstorp Group/JavaSrc;/Users/septpadm/OneDrive - Perstorp Group/JavaSrc/postgresql-42.1.3.jar\" Jvakt.consoleHst");

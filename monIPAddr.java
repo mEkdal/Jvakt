@@ -19,10 +19,11 @@ public class monIPAddr {
 	static boolean swFound;
 	static boolean swSingle = false;
 	static boolean swLoop = false;
+	static boolean swEcho = false;
 	static String host;
 	static String host2;
 	static InetAddress inet;
-	static String version = "monIPAddr 1.5 # 2019-05-07";
+	static String version = "monIPAddr (2019-11-07)";
 	static String database = "jVakt";
 	static String dbuser   = "jVakt";
 	static String dbpassword = "xz";
@@ -40,7 +41,7 @@ public class monIPAddr {
 	public static void main(String[] args) throws UnknownHostException, IOException {
 
 		String[] tab = new String [1];
-//		String tdat;
+		//		String tdat;
 		String s;
 		File[] listf;
 		DirFilter df;
@@ -74,13 +75,14 @@ public class monIPAddr {
 			if (args[i].equalsIgnoreCase("-config")) config = args[++i];
 			if (args[i].equalsIgnoreCase("-loop")) swLoop = true;
 		}
-		if (config != null ) dir = new File(config);
-		if (config == null ) 	configF = new File("Jvakt.properties");
-		else 					configF = new File(config,"Jvakt.properties");
-		System.out.println("----- Jvakt: "+new Date()+"  Version: "+version);
-		System.out.println("-config file: "+configF);
-
-		getProps();
+		if (swRun) {
+			if (config != null ) dir = new File(config);
+			if (config == null ) 	configF = new File("Jvakt.properties");
+			else 					configF = new File(config,"Jvakt.properties");
+			System.out.println("----- Jvakt: "+new Date()+"  Version: "+version);
+			System.out.println("-config file: "+configF);
+			getProps();
+		}
 
 		System.setProperty("java.net.preferIPv6Addresses", "false");
 
@@ -100,7 +102,7 @@ public class monIPAddr {
 
 				listf = dir.listFiles(df);
 
-//				System.out.println("-- Antal filer:"+ listf.length);
+				//				System.out.println("-- Antal filer:"+ listf.length);
 
 				for (int i = 0; i < listf.length; i++) {
 
@@ -135,7 +137,7 @@ public class monIPAddr {
 
 						// try { Thread.currentThread(); Thread.sleep(1000); } catch (Exception e) {} ;
 
-//						System.out.println("-- State: "+state);
+						//						System.out.println("-- State: "+state);
 						if (swRun)  {
 							if (state.equals("OKAY")) 	sendSTS(true);
 							else 						sendSTS(false);
@@ -145,7 +147,7 @@ public class monIPAddr {
 					in.close();
 				}
 			}
-//			if (swLoop) try {Thread.currentThread().sleep(1000);} catch (InterruptedException e) {e.printStackTrace();} // sleep 1 second
+			//			if (swLoop) try {Thread.currentThread().sleep(1000);} catch (InterruptedException e) {e.printStackTrace();} // sleep 1 second
 			if (swLoop) try {Thread.sleep(1000);} catch (InterruptedException e) {e.printStackTrace();} // sleep 1 second
 		} while(swLoop);
 
@@ -153,44 +155,46 @@ public class monIPAddr {
 
 	public static boolean checkIPAddr() {
 		// connect to host
+		swEcho=false; 
 		try {
 			if (t_id == null) t_id = "";
-//			System.out.println("\n-- Host: "+t_id+" - "+host);
+			//			System.out.println("\n-- Host: "+t_id+" - "+host);
 			inet = InetAddress.getByName(host);
-//			if (!swLoop) System.out.println("\n-- Inet: "+inet);
+			//			if (!swLoop) System.out.println("\n-- Inet: "+inet);
 			//System.out.println("-- Inet bool: "+inet.isReachable(5000));
 			//  TCP connection on port 7 (Echo) 
 			if (!inet.isReachable(5000)) { state = "FAILED"; }
-			else 						 { state = "OKAY";   }
-//			System.out.println("-- isreachable: "+state);
+			else 						 { state = "OKAY"; swEcho=true;  }
 		} catch (Exception e) { state = "FAILED"; /*System.out.println("-- exeption state: "+state);*/  }
 
 		if (state.equals("FAILED")) { // make a second attempt by use of ICMP 
 			try {
 				state = "OKAY";    
 				final IcmpPingRequest request = IcmpPingUtil.createIcmpPingRequest ();
-//				System.out.println ("Pinging... "+host);
+				System.out.print (now+" -- Host: "+host+"     echo failed, trying ping... ");
 				request.setHost (host);
 				request.setPacketSize(8);
 				request.setTimeout(5000);
 				final IcmpPingResponse response = IcmpPingUtil.executePingRequest (request);
 				final String formattedResponse = IcmpPingUtil.formatResponse (response);
-//				System.out.println (formattedResponse);
+				//				System.out.println (formattedResponse);
 				if (formattedResponse.startsWith("Error")) state = "FAILED";
 				if (formattedResponse.startsWith("Reply from null")) state = "FAILED"; 
 			}
 			catch (Exception e) { state = "FAILED"; /*System.out.println("-- exeption state: "+state);*/  }
-
 		}
 		now = new Date();
 		if (state.equals("OKAY")) { 
-			if (!swLoop) System.out.println(now+" -- Host: "+host+"   Connection succcessful");	
+			if (!swLoop) { 
+				if (swEcho) System.out.println(now+" -- Host: "+host+"   Connection succcessful (echo)");
+				else        System.out.println(now+" -- Host: "+host+"   Connection succcessful (ping)");
+			}
 			return true; 
-			}
+		}
 		else { 
-			System.out.println(now+" -- Host: "+host+"   Connection failed");	
+			System.out.println(now+" -- Host: "+host+"   Connection failed (echo and ping)");	
 			return false; 
-			}
+		}
 	}
 
 	// sends status to the server

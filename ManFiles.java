@@ -11,22 +11,22 @@ public class ManFiles {
 	 */
 	static boolean swList = true, swDelete = false, swHelp = false,swParfile=false,
 			swSub = true, swFirst = true, swCopy = false, swRun = false,
-			swMove = false, swSettings = false, swSN = false, swDed = false,
+			swMove = false, swSettings = false, swSN = false, swDed = false, swArch = false, 
 			swRepl = true, swAppend = false, swUnique = false, swCountC = false;
 	static boolean swExists = false, swFlat = false, swNew = false, swCmd = false,
 			swNrunq = false, swLogg = false, swNfile = false, swLoop = false, swArgs = true;
 
 	static boolean moved = false;
-	static File sdir, tdir, newfile;
-	static String origdir, norigdir, suf, pos, pref, hou, min, sec, nfile,
+	static File sdir, tdir, adir, newfile;
+	static String origdir, norigdir, norigdirA, suf, pos, pref, hou, min, sec, nfile,
 	exfile, expath, inpath, unique, infTxt, parFile, scanstr, cmd1, cmd2;
 	static String fdat = "00000000000000";
 	static String tdat = "99999999999999";
 	static Date now;
 	static FileFilter ff;
 	static Long lhou, lmin, Lsec;
-	static int antal, antcopies, anterrors, antdeleted, antmoved, antded, antempty,antalCMD, p;
-	static int antalT, antcopiesT, anterrorsT, antdeletedT, antmovedT, antdedT, antemptyT, antalTCMD;
+	static int antal, antcopies, anterrors, antdeleted, antmoved, antarchived, antded, antempty,antalCMD, p;
+	static int antalT, antcopiesT, anterrorsT, antdeletedT, antmovedT, antarchivedT, antdedT, antemptyT, antalTCMD;
 	static BufferedWriter logg;
 	static List<String> listToS;
 	static FileOutputStream fis;
@@ -62,12 +62,12 @@ public class ManFiles {
 		if (swSettings) {
 			infTxt = "\n swList=" + swList + "\t swDelete=" + swDelete
 					+ "\t swSub=" + swSub + "\t swCopy=" + swCopy
-					+ "\t swMove=" + swMove + "\t swRun=" + swRun
-					+ "\t sdir=" + sdir + "\t tdir=" + tdir
+					+ "\t swMove=" + swMove + "\t swArch=" + swArch + "\t swRun=" + swRun
+					+ "\t sdir=" + sdir + "\t tdir=" + tdir + "\t adir=" + adir
 					+ "\t Suf=" + suf + "\t Prefix=" + pref
 					+ "\t Pos=" + pos + "\t Hours=" + hou
-					+ "\t Minutes=" + min + "\t Seconds=" + sec + "\t swDed="
-					+ "\t FromDate=" + fdat + "\t ToDAte=" + tdat
+					+ "\t Minutes=" + min + "\t Seconds=" + sec 
+					+ "\t FromDate=" + fdat + "\t ToDAte=" + tdat + "\t swDed="
 					+ swDed + "\t swSN=" + swSN + "\t nfile=" + nfile
 					+ "\t exfile=" + exfile + "\t expath=" + expath
 					+ "\t inpath=" + inpath + "\t swRepl=" + swRepl
@@ -92,7 +92,7 @@ public class ManFiles {
 
 		if (swHelp) {
 			System.out
-			.println("\n*** Jvakt.ManFiles (2019-SEP-25) ***"
+			.println("\n*** Jvakt.ManFiles (2019-NOV-22) ***"
 					+ "\n*** by Michael Ekdal, Sweden. ***");
 			System.out
 			.println("\nThe parameters and their meaning are:\n"
@@ -101,8 +101,9 @@ public class ManFiles {
 					+ "\n         \tThe files must reside in the current directory."
 					+ "\n         \tNOTE: -sdir and -tdir can contain maximum one blank in the string."
 					+ "\n         \tNOTE: No single or dubble quotes are allowed anyware in the file."
-					+ "\n-sdir    \tThe name of the source directory, like \"-sdir c:\\Temp\" "
-					+ "\n-tdir    \tThe name of the target directory, like \"-tdir c:\\Temp2\" "
+					+ "\n-sdir    \tThe name of the source  directory, like \"-sdir c:\\Temp\" "
+					+ "\n-tdir    \tThe name of the target  directory, like \"-tdir c:\\Temp2\" "
+					+ "\n-adir    \tThe name of the archive directory, like \"-adir c:\\Temp3\" "
 					+ "\n-sub     \tThe subdirectories are seached.(default) "
 					+ "\n-nosub   \tThe subdirectories are NOT searched. "
 					+ "\n-copy    \tCopy the files "
@@ -154,7 +155,7 @@ public class ManFiles {
 			System.exit(12);
 		}
 		for (;;) {
-			now = new Date();
+			now = new Date();	
 			if (swParfile) {
 				//			System.out.println("--> innan readParFile");
 				readParFile();  // reads the parameter files.
@@ -172,13 +173,13 @@ public class ManFiles {
 			else execOneParSet(); // execute the set of parameters from the command line.   
 
 			System.out.println("\nTotal  - Files found:" + antalT + "  deleted:" + antdeletedT
-					+ "  copied:" + antcopiesT + "  moved:" + antmovedT + "  errors:"
+					+ "  copied:" + antcopiesT + "  moved:" + antmovedT + "  archived:" + antarchivedT + "  errors:"
 					+ anterrorsT + "  empty:" + antemptyT + "  del dir:" + antdedT+ "  cmd:"+antalTCMD);
 			//		if (antal>0) sLog=true;   // Hittades filer vill vi ha avslutande logg
 			if (swLogg && antalT>0) {
 				logg.newLine();
 				logg.write("Total  - Files found:" + antalT + "  deleted:" + antdeletedT
-						+ "  copied:" + antcopiesT + "  moved:" + antmovedT
+						+ "  copied:" + antcopiesT + "  moved:" + antmovedT + "  archived:" + antarchivedT
 						+ "  errors:" + anterrorsT + "  empty:" + antemptyT
 						+ "  del dir:" + antdedT+ "  cmd:"+antalTCMD);
 				logg.newLine();
@@ -186,7 +187,7 @@ public class ManFiles {
 
 			// sleep for one second and then to it all over again.
 			if (!swLoop) break;
-			antalT=0;antdeletedT=0;antcopiesT=0;antmovedT=0;anterrorsT=0;antemptyT=0;antdedT=0;antalTCMD=0;
+			antalT=0;antdeletedT=0;antcopiesT=0;antmovedT=0;antarchivedT=0;anterrorsT=0;antemptyT=0;antdedT=0;antalTCMD=0;
 			try {
 				//				Thread.currentThread().sleep(1000);
 				Thread.sleep(1000);
@@ -212,12 +213,12 @@ public class ManFiles {
 
 	static void execOneParSet() throws IOException,	FileNotFoundException  {
 		//		System.out.println("\n---> Execute  Parameter set " + ); 
-		antal=0; antcopies=0; anterrors=0; antdeleted=0; antmoved=0; antded=0; antempty=0; antalCMD=0; p=0;
+		antal=0; antcopies=0; anterrors=0; antdeleted=0; antmoved=0; antarchived=0; antded=0; antempty=0; antalCMD=0; p=0;
 		swFirst = true;
 		String dat = new String("yyyyMMdd");
 		String tim = new String("HHmmss");
 		SimpleDateFormat dat_form;
-		if (swUnique || swNrunq) {
+		if (swUnique || swNrunq || swArch) {
 			dat_form = new SimpleDateFormat(dat);
 			unique = dat_form.format(now);
 			dat_form = new SimpleDateFormat(tim);
@@ -233,12 +234,12 @@ public class ManFiles {
 		x.new VisitAllFiles(sdir);
 		if (swParfile) {
 			System.out.println("*** ParRow - Files found:" + antal + "  deleted:" + antdeleted
-					+ "  copied:" + antcopies + "  moved:" + antmoved + "  errors:"
+					+ "  copied:" + antcopies + "  moved:" + antmoved + "  archived:" + antarchived + "  errors:"
 					+ anterrors + "  empty:" + antempty + "  del dir:" + antded+ "  cmd:"+antalCMD);
 			//		if (antal>0) sLog=true;   // Hittades filer vill vi ha avslutande logg
 			if (swLogg && antal>0) {
 				logg.write("*** ParRow - Files found:" + antal + "  deleted:" + antdeleted
-						+ "  copied:" + antcopies + "  moved:" + antmoved
+						+ "  copied:" + antcopies + "  moved:" + antmoved + "  archived:" + antarchived
 						+ "  errors:" + anterrors + "  empty:" + antempty
 						+ "  del dir:" + antded+ "  cmd:"+antalCMD);
 				logg.newLine();
@@ -253,13 +254,13 @@ public class ManFiles {
 		String ssdir = null;
 		swList = true; swDelete = false; swHelp = false;
 		swSub = true; swFirst = true; swCopy = false; swRun = false;
-		swMove = false; swSettings = false; swSN = false; swDed = false;
+		swMove = false; swArch = false; swSettings = false; swSN = false; swDed = false;
 		swRepl = true; swAppend = false; swUnique = false; swCountC = false;
 		swExists = false; swFlat = false; swNew = false;
 		swNrunq = false; swLogg = false; swNfile = false;
 		moved = false;
 		sdir=null; tdir=null; newfile=null;
-		origdir=null; norigdir=null; nfile=null;
+		origdir=null; norigdir=null; norigdirA=null; nfile=null;
 		unique=null; infTxt=null; 
 		suf = "*";
 		pref = "*";
@@ -337,6 +338,15 @@ public class ManFiles {
 				}
 				tdir = new File(ssdir);
 				norigdir = tdir.toString();
+			} else if (args[i].equalsIgnoreCase("-adir")) {
+				swArch = true;
+				ssdir = args[++i];
+				while( args.length > i+1 ) {
+					if ( args[i+1].length() > 2 && args[i+1].startsWith("-")) break;
+					ssdir = ssdir+" "+args[++i];
+				}
+				adir = new File(ssdir);
+				norigdirA = adir.toString();
 			} else if (args[i].equalsIgnoreCase("-suf"))
 				suf = args[++i].trim();
 			else if (args[i].equalsIgnoreCase("-pos"))
@@ -490,7 +500,6 @@ public class ManFiles {
 		}
 		in.close();
 		out.close();
-		antcopies++; antcopiesT++;
 	}
 
 	// ** start internal classes **
@@ -502,7 +511,9 @@ public class ManFiles {
 			//						System.out.println("---> class visitAllFiles " + dir); 
 			boolean copyerror;
 			boolean moveerror;
+			boolean archiveerror;
 			String newDir2 = null;
+			String newDirA = null;
 			if (sdir.isDirectory() && swFirst) {
 				swFirst = swSub;
 				String[] children = sdir.list(ff);
@@ -546,6 +557,7 @@ public class ManFiles {
 					antal++; antalT++;
 					copyerror = false;
 					moveerror = false;
+					archiveerror = false;
 					swExists = false;
 					moved = false;
 
@@ -617,6 +629,55 @@ public class ManFiles {
 						if (!tdir.exists() && swRun)
 							tdir.mkdirs();
 					}
+
+					if (swArch) {
+						
+						if (!swFlat) {
+							newDirA = norigdirA+sdir.getPath().substring(origdir.length(),(sdir.getPath().length()-sdir.getName().length()-1));
+							adir = new File(newDirA);
+						} else {
+							newDirA = norigdirA;
+							adir = new File(newDirA);
+						}
+						
+//						newDirA = norigdirA+sdir.getPath().substring(origdir.length(),(sdir.getPath().length()-sdir.getName().length()-1));
+//						adir = new File(newDirA);
+						newfile = new File(newDirA, sdir.getName());
+						
+						if (!adir.exists() && swRun)
+							adir.mkdirs();
+
+						if (newfile.exists()) {
+							p = sdir.getName().lastIndexOf(".");
+							if (p >= 0)
+								newfile = new File(newDirA, sdir.getName().substring(0, p)+ unique+ sdir.getName().substring(p));
+							else
+								newfile = new File(newDirA, sdir.getName()+ unique);
+						}
+
+						if (swList) {
+//							System.out.print(" -archived> " + newfile);
+							if (!swMove && !swCopy) System.out.println(" -archived> " + newfile);
+							else System.out.print(" -archived> " + newfile);
+							if (swLogg) {
+								logg.write(" -archived> " + newfile);
+								if (!swMove && !swCopy) logg.newLine();
+							}
+						}
+						try {
+							if (swRun ) {
+								copy(sdir, newfile);
+								antarchived++; antarchivedT++;
+							}
+						} catch (IOException e) {
+							archiveerror = true;
+							anterrors++;
+							System.out.println(e);
+							if (swList)
+								System.out.println("   *** archive error --> "	+ newfile);
+						}									
+					}
+
 					if (swMove) {
 						// newfile = new File(newDir2,dir.getName());
 						if (swUnique) {
@@ -713,15 +774,17 @@ public class ManFiles {
 							//							System.out.println(" to copy: "+swRun+swRepl+swExists + newfile);
 							if (swRun && (swRepl || !swExists)) {
 								copy(sdir, newfile);
+								antcopies++; antcopiesT++;
 							}
 						} catch (IOException e) {
 							copyerror = true;
+							anterrors++;
 							System.out.println(e);
 							if (swList)
 								System.out.println("   *** copy error --> "	+ newfile);
 						}
 					}
-					if (swDelete && !copyerror && !moveerror && !moved) {
+					if (swDelete && !copyerror && !moveerror && !archiveerror && !moved) {
 						if (swList) {
 							System.out.println(" -deleted: " + sdir);
 							if (swLogg) {
@@ -734,7 +797,7 @@ public class ManFiles {
 								antdeleted++; antdeletedT++;
 							}
 							else {
-								anterrors++; antdeletedT++;
+								anterrors++; 
 							}
 						}
 					}
@@ -809,9 +872,9 @@ public class ManFiles {
 			// inmin +" "+ insec);
 
 			long min = inmin + (inhours * 60);
-//			 System.out.println("min (minutes): " + min);
+			//			 System.out.println("min (minutes): " + min);
 			long sec = insec + (min * 60);
-//			 System.out.println("sec (seconds): " + sec);
+			//			 System.out.println("sec (seconds): " + sec);
 
 			f = f.toLowerCase();
 			afn = afn.toLowerCase();
@@ -831,7 +894,7 @@ public class ManFiles {
 			// System.out.println("Lm: " + lm);
 
 
-//			 System.out.println("nu " + nu + "   inhours " + inhours);
+			//			 System.out.println("nu " + nu + "   inhours " + inhours);
 			if (swNew) { // if files newer or equal than hours is wished for
 				// if ( nu >= inhours ) okay = false ;
 				// if ( nu >= min ) okay = false ;
@@ -989,8 +1052,8 @@ public class ManFiles {
 				return false;
 			}
 			else {
-//				if (swList)
-//				System.out.println("-Successfull cmd: "+ cmd);
+				//				if (swList)
+				//				System.out.println("-Successfull cmd: "+ cmd);
 				return true;
 			}
 
@@ -1017,7 +1080,7 @@ public class ManFiles {
 				String line=null;
 				while ( (line = br.readLine()) != null)
 					if (swList)
-					System.out.println(type + "> " + line);    
+						System.out.println(type + "> " + line);    
 			} catch (IOException ioe)
 			{
 				ioe.printStackTrace();  

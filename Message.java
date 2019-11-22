@@ -2,7 +2,7 @@ package Jvakt;
 
 /**
  * @author  Michael Ekdal
- * @version 2019-MAY-07
+ * @version 2019-NOV-21
  */
 
 public class Message {
@@ -39,11 +39,13 @@ public class Message {
 //	 if (body == null) { body = " "; }
 	 if (body.length() > 255) body = body.substring(0, 255);
 	 body = body.replaceAll("\\\\" , "/");
-//	 body = body.replaceAll("\\xc3\\xa5]" , "a"); // å -> a
-//	 body = body.replaceAll("[^a-zA-Z0-9:;_#/><åäöÅÄÖ\"\\.\\!\\?\\*\\$\\)\\(\\-\\=\\{\\}\\]\\[]" , " ");
-	 body = body.replaceAll("[^a-zA-Z0-9:;_#/><åäöÅÄÖ\"\\,\\.\\!\\?\\*\\$\\)\\(\\-\\=\\{\\}\\]\\[]" , " ");
+//	 body = body.replaceAll("\\xc3\\xa5]" , "a"); // ï¿½ -> a
+//	 body = body.replaceAll("[^a-zA-Z0-9:;_#/><ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½\"\\.\\!\\?\\*\\$\\)\\(\\-\\=\\{\\}\\]\\[]" , " ");
+//	 body = body.replaceAll("[^a-zA-Z0-9:;_#/><ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½\"\\,\\.\\!\\?\\*\\$\\)\\(\\-\\=\\{\\}\\]\\[]" , " ");
+	 body = body.replaceAll("[^a-zA-Z0-9:;_#/><Ã¥Ã¤Ã¶Ã…Ã„Ã–\"\\,\\.\\!\\?\\*\\$\\)\\(\\-\\=\\{\\}\\]\\[]" , " ");
+
 	 
-//	 body = body.replaceAll("[^a-zA-Z0-9.:!?;*_$#)(//\"><-=åäöÅÄÖ]" , " ");
+//	 body = body.replaceAll("[^a-zA-Z0-9.:!?;*_$#)(//\"><-=ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½]" , " ");
 //	 body = body.replaceAll("[^\\S]" , " ");   // A non-whitespace character replaced with space
 	 body = body.replaceAll(" {2,}", " "); // replace multiple spaces with one
 	 String[] tab = body.split("<;>",2);
