@@ -31,7 +31,7 @@ public class CheckStatus {
 	static int errors = 0;
 	static int warnings = 0;
 	static int infos = 0;
-	static String version = "CheckStatus (2019-OCT-15)";
+	static String version = "CheckStatus (2019-NOV-27)";
 	static String database = "jVakt";
 	static String dbuser   = "jVakt";
 	static String dbpassword = "xz";
@@ -203,7 +203,7 @@ public class CheckStatus {
 					//					System.out.println("## 1");
 					updC(rs); // add or remove line to/from the console table
 					//					System.out.println("## 2");
-					if (swPlugin && !rs.getString("plugin").startsWith(" ") && rs.getString("state").startsWith("A")) {
+					if (swPlugin && rs.getString("plugin").length() > 4 && rs.getString("state").startsWith("A")) {
 						trigPlugin(rs.getString("id"), rs.getString("status"), "P", rs.getString("body")); 
 					}
 				} 
@@ -249,28 +249,28 @@ public class CheckStatus {
 					System.out.println(LocalDateTime.now()+" DEL: #4 " + rs.getString("id")+" "+rs.getString("status")+"  MSG:"+rs.getString("msg")+"  SMS:"+rs.getString("sms"));
 					swDelete = true;   // remove lines from console
 					rs.updateString("console", " ");
-					rs.updateString("condat", null);
+//					rs.updateString("condat", null);
 					rs.updateString("status", "OK");
 					swUpdate=true;
 					if (rs.getString("msg").startsWith("M") || rs.getString("msg").startsWith("T")) {
 						System.out.println(LocalDateTime.now()+" OK: Set msg to blank" + " " + rs.getString("id"));
 						rs.updateString("msg", " ");
-						rs.updateTimestamp("msgdat", null);
+//						rs.updateTimestamp("msgdat", null);
 					}
 					else if (rs.getString("msg").startsWith("S")) {
 						System.out.println(LocalDateTime.now()+" OK: Set msg to R" + " " + rs.getString("id"));
 						rs.updateString("msg", "R");
-						rs.updateTimestamp("msgdat", null);
+//						rs.updateTimestamp("msgdat", null);
 					}
 					if (rs.getString("sms").startsWith("M") || rs.getString("sms").startsWith("T")) {
 						System.out.println(LocalDateTime.now()+" OK: Set sms to blank" + " " + rs.getString("id"));
 						rs.updateString("sms", " ");
-						rs.updateTimestamp("smsdat", null);
+//						rs.updateTimestamp("smsdat", null);
 					}
 					else if (rs.getString("sms").startsWith("S")) {
 						System.out.println(LocalDateTime.now()+" OK: Set sms to R" + " " + rs.getString("id"));
 						rs.updateString("sms", "R");
-						rs.updateTimestamp("smsdat", null);
+//						rs.updateTimestamp("smsdat", null);
 					}
 					if (swUpdate) try { rs.updateRow(); } catch(NullPointerException npe2) {}
 					updC(rs); // update or remove line from the console table

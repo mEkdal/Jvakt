@@ -92,7 +92,7 @@ public class ManFiles {
 
 		if (swHelp) {
 			System.out
-			.println("\n*** Jvakt.ManFiles (2019-NOV-22) ***"
+			.println("\n*** Jvakt.ManFiles (2019-NOV-28) ***"
 					+ "\n*** by Michael Ekdal, Sweden. ***");
 			System.out
 			.println("\nThe parameters and their meaning are:\n"
@@ -162,7 +162,7 @@ public class ManFiles {
 				for(Object object : listToS) { 
 					//				String element = (String) object;
 					element = (String) object;
-					System.out.println("\n*** Executing ParRow: " + element);
+					System.out.println("\n*** ParRow * "+ new Date()+" * " + element);
 					String[] tab = null;
 					tab = element.split("\\s+"); // split on one or many white spaces
 					parseParameters(tab);
@@ -170,15 +170,19 @@ public class ManFiles {
 					execOneParSet(); // execute one line set of parameters from the parfile.
 				}
 			}
-			else execOneParSet(); // execute the set of parameters from the command line.   
+			else {
+				element = Arrays.toString(args);
+				System.out.println("\n*** ParRow * "+ new Date()+" * " + element);
+				execOneParSet(); // execute the set of parameters from the command line.   
+			}
 
-			System.out.println("\nTotal  - Files found:" + antalT + "  deleted:" + antdeletedT
+			System.out.println("\n*** Total  - Files found:" + antalT + "  deleted:" + antdeletedT
 					+ "  copied:" + antcopiesT + "  moved:" + antmovedT + "  archived:" + antarchivedT + "  errors:"
 					+ anterrorsT + "  empty:" + antemptyT + "  del dir:" + antdedT+ "  cmd:"+antalTCMD);
 			//		if (antal>0) sLog=true;   // Hittades filer vill vi ha avslutande logg
-			if (swLogg && antalT>0) {
-				logg.newLine();
-				logg.write("Total  - Files found:" + antalT + "  deleted:" + antdeletedT
+			if (swLogg && antalT>0 && !swParfile) {
+//				logg.newLine();
+				logg.write("*** Total  - Files found:" + antalT + "  deleted:" + antdeletedT
 						+ "  copied:" + antcopiesT + "  moved:" + antmovedT + "  archived:" + antarchivedT
 						+ "  errors:" + anterrorsT + "  empty:" + antemptyT
 						+ "  del dir:" + antdedT+ "  cmd:"+antalTCMD);
@@ -200,9 +204,9 @@ public class ManFiles {
 
 		now = new Date();
 		System.out.println("\n*** Finished " + now);
-		if (swLogg && antalT>0) {
-			logg.write("*** Finished " + now);
-			logg.newLine();
+		if (swLogg && antalT>0 && !swParfile) {
+//			logg.write("*** Finished " + now);
+//			logg.newLine();
 			logg.close();
 		}
 		//		if (antal>0) System.exit(0);
@@ -233,6 +237,7 @@ public class ManFiles {
 		ff = x.new FileFilter(lhou, lmin, Lsec, suf, pos, pref, expath, inpath,	swNew, exfile,scanstr,fdat,tdat);
 		x.new VisitAllFiles(sdir);
 		if (swParfile) {
+			
 			System.out.println("*** ParRow - Files found:" + antal + "  deleted:" + antdeleted
 					+ "  copied:" + antcopies + "  moved:" + antmoved + "  archived:" + antarchived + "  errors:"
 					+ anterrors + "  empty:" + antempty + "  del dir:" + antded+ "  cmd:"+antalCMD);
@@ -414,7 +419,7 @@ public class ManFiles {
 					parFile = "ManFiles";
 					i--;
 				}
-				System.out.println("---> parFile: " + parFile); 
+//				System.out.println("---> parFile: " + parFile); 
 			}
 		}
 
@@ -547,12 +552,14 @@ public class ManFiles {
 				}
 			} else {
 				if (sdir.isFile()) {
-					if (swLogg && antal == 0) {
+					if (swLogg && antal == 0 && element != null) {
 						logg.newLine();
-						logg.write("*** Starting " + new Date());
-						logg.newLine();
-						logg.write("*** Executing ParRow: "+element);
-						logg.newLine();
+//						logg.write("*** Starting " + new Date());
+//						logg.newLine();
+//						if (element != null) {
+							logg.write("*** ParRow * "+ new Date()+" * "+element);
+							logg.newLine();
+//						}
 					}
 					antal++; antalT++;
 					copyerror = false;
@@ -611,6 +618,7 @@ public class ManFiles {
 								if (swMove || swCopy || swDelete) 
 									logg.write("-File: "+sdir.getAbsolutePath());
 								else {
+//									System.out.println("-FileXX: "+sdir.getAbsolutePath());
 									logg.write("-File: "+sdir.getAbsolutePath());
 									logg.newLine();
 								}

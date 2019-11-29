@@ -11,7 +11,7 @@ import java.time.LocalDateTime;
 
 
 class DBupdate {
-/* DBupdate ( 2019-JUL-25 ) */
+/* DBupdate ( 2019-NOV-27 ) */
 	static Connection conn = null;
 	Statement stmt = null;
 	PreparedStatement pStmt = null;
@@ -187,7 +187,7 @@ class DBupdate {
 							else if (rs.getString("sms").startsWith("S")) rs.updateString("sms", "R");
 
 							if (rs.getString("type").startsWith("I")) rs.updateString("type", "D");
-							rs.updateString("condat", null);					
+//							rs.updateString("condat", null);					
 						}
 
 						// If Immediate and not OK, set "console" to C and set "msg" and "sms" to M
@@ -209,14 +209,18 @@ class DBupdate {
 
 						// trigger the background process for the plugin.
 						if (swPlugin && !swDormant && !rs.getString("type").startsWith("D")) {
-							if (!rs.getString("plugin").startsWith(" ")) {
+//							if (!rs.getString("plugin").startsWith(" ") && !rs.getString("plugin").startsWith("")) {
+							if (rs.getString("plugin").length() > 4 ) {
 								System.out.println(LocalDateTime.now()+" #4 plugin " + rs.getString("plugin") + " " + rs.getString("id")+ " " + rs.getString("prio")+ " " + status + " \"" + m.getBody() +"\"");
 								p =  Runtime.getRuntime().exec(rs.getString("plugin") + " " + rs.getString("id")+ " " + rs.getString("prio")+ " " + status + " \"" + m.getBody() +"\"");
 								pList.add(p);
+								System.out.println(LocalDateTime.now()+" #4 plugin started");
 							}
 						}
 
-						try { rs.updateRow(); } catch(NullPointerException npe2) {} 
+						try {
+							rs.updateRow();
+						} catch(NullPointerException npe2) { } 
 					}
 					rs.close(); 
 					stmt.close(); 

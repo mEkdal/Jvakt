@@ -6,7 +6,7 @@ import java.util.Properties;
 public class RptToJv {
 	public static void main(String[] args ) throws IOException, UnknownHostException {
 
-		String version = "RptToDW (2019-SEP-11)";
+		String version = "RptToJv (2019-NOV-26)";
 		String host = "127.0.0.1";
 		int port = 1956; 
 		String id = null;
