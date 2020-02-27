@@ -22,8 +22,10 @@ public class monHttps {
 	static boolean swSingle = false;
 	static boolean swShow = false;
 	static String host;
+	static String hosturl;
+	static String tabbar = "                                                                                               ";
 	static InetAddress inet;
-	static String version = "monHttps (2019-10-23)";
+	static String version = "monHttps (2020-01-16)";
 	static String database = "jVakt";
 	static String dbuser   = "jVakt";
 	static String dbpassword = "xz";
@@ -44,7 +46,7 @@ public class monHttps {
 	public static void main(String[] args) throws UnknownHostException, IOException, Exception {
 
 		String[] tab = new String [1];
-//		String tdat;
+		//		String tdat;
 		String s;
 		File[] listf;
 		DirFilter df;
@@ -116,34 +118,37 @@ public class monHttps {
 		if (config != null ) dir = new File(config);
 		if (config == null ) 	configF = new File("Jvakt.properties");
 		else 					configF = new File(config,"Jvakt.properties");
-		System.out.println("----- Jvakt: "+now+"    Version: "+version);
-		System.out.println("-config file: "+configF);
+
+		
+		System.out.println("\n"+now+" *** Jvakt "+version+" ***\n");
+		if (swShow)	System.out.println(" config file: "+configF);
 
 		getProps();
 
 		System.setProperty("java.net.preferIPv6Addresses", "false");
-
-		System.out.println("-- Dir : "+dir);
-		System.out.println("-- Suf : "+suf);
-		System.out.println("-- Pos : "+pos);
-		System.out.println("-- Host: "+host);
+		if (swShow)	{
+			System.out.println(" Dir : "+dir);
+			System.out.println(" Suf : "+suf);
+			System.out.println(" Pos : "+pos);
+			System.out.println(" Host: "+host+"\n");
+		}
 
 		if (swSingle) {
 			checkHttp();
 		} else {
 
-//			if (pos != null) df = new DirFilter(suf, pos);
-//			else             df = new DirFilter(suf);
+			//			if (pos != null) df = new DirFilter(suf, pos);
+			//			else             df = new DirFilter(suf);
 
 			df = new DirFilter(suf, pos);
-			
+
 			listf = dir.listFiles(df);
 
-			System.out.println("-- Number of files found:"+ listf.length);
+			if (swShow)	System.out.println("-- Number of files found:"+ listf.length);
 
 			for (int i = 0; i < listf.length; i++) {
 
-				System.out.println("-- Checking: "+listf[i]);
+				if (swShow)	System.out.println("-- Checking: "+listf[i]+"\n");
 
 				BufferedReader in = new BufferedReader(new FileReader(listf[i]));
 
@@ -180,51 +185,60 @@ public class monHttps {
 		java.net.CookieHandler.setDefault(cm);
 		// connect to port
 		try {
-			System.out.println("-- URL    : https://"+host+":"+wport+webfile);
-			System.out.println("-- OK text: " +webcontent);
+			hosturl ="https://"+host+":"+wport+webfile;
+			if (swShow)	System.out.println("-- URL    : https://"+host+":"+wport+webfile);
+			if (swShow)	System.out.println("-- OK text: " +webcontent);
 			//			System.setProperty("https.protocols", "SSLv3");
 			URL url = new URL("https://"+host+":"+wport+webfile); 
 			URLConnection con = url.openConnection();  // new
-			System.out.println("-- OK connection");
+			if (swShow)	System.out.println("-- OK connection");
 			con.setReadTimeout(4000);
 			con.setConnectTimeout(2000);
 			//			BufferedReader httpin = new BufferedReader(
 			//					new InputStreamReader(url.openStream()));
-			System.out.println("-- OK get in-stream");
+			if (swShow)	System.out.println("-- OK get in-stream");
 			BufferedReader httpin = new BufferedReader(
 					new InputStreamReader(con.getInputStream()));
 
 			String inputLine;
-			System.out.println("-- start read lines");
+			if (swShow)	System.out.println("-- start read lines");
 			while ((inputLine = httpin.readLine()) != null  && !state) {
 				if (swShow)	System.out.println(inputLine);
 				if (inputLine.toLowerCase().indexOf(webcontent.toLowerCase()) >= 0) {
 					state = true;
-					System.out.println("-- OK text found: "+ webcontent );
+					if (swShow)	System.out.println("-- OK text found: "+ webcontent );
 				}
 			}
 			httpin.close();
 
 		} 
 		catch (Exception e) { System.out.println(e); state = false;   }
-//		catch (UnknownHostException e) { System.out.println(e); state = false;   }
-//		catch (Exception e) { 
-//			System.out.println(e);
-//			if (e.toString().indexOf("403") > 0) state = true;
-//			else state = false;
-//		}
+		//		catch (UnknownHostException e) { System.out.println(e); state = false;   }
+		//		catch (Exception e) { 
+		//			System.out.println(e);
+		//			if (e.toString().indexOf("403") > 0) state = true;
+		//			else state = false;
+		//		}
 
 		//		try { Thread.currentThread(); Thread.sleep(1000); } catch (Exception e) {} ;
 
-		if (state) {System.out.println("Connection succcessful"); return true; }
-		else 	   {System.out.println("Connection failed"); return false; }
+		if (t_desc == null) t_desc = " ";
+		if (hosturl.length()>85) hosturl=hosturl.substring(0,85);
+		hosturl = hosturl + tabbar.substring(0,85-hosturl.length());
+
+		if (state) {System.out.println(new Date()+" -- Connection succcessful - "+hosturl+t_desc); return true; }
+		else 	   {System.out.println(new Date()+" -- Connection failed      - "+hosturl+t_desc); return false; }
+
+		//		if (state) {System.out.println("Connection succcessful"); return true; }
+		//		else 	   {System.out.println("Connection failed"); return false; }
 	}
 
 	// sends status to the server
 	static protected void sendSTS( boolean STS) throws IOException {
 		Message jmsg = new Message();
 		SendMsg jm = new SendMsg(jvhost, port);
-		System.out.println(jm.open());
+		if (swShow)	System.out.println(jm.open());
+		else jm.open();
 		jmsg.setId(t_id+"-monHttps-"+host);
 		if (STS) jmsg.setRptsts("OK");
 		else jmsg.setRptsts("ERR");
@@ -232,7 +246,7 @@ public class monHttps {
 		jmsg.setType("R");
 		jmsg.setAgent(agent);
 		//		jm.sendMsg(jmsg);
-		if (jm.sendMsg(jmsg)) System.out.println("-- Rpt Delivered --");
+		if (jm.sendMsg(jmsg));
 		else            	  System.out.println("-- Rpt Failed --");
 		jm.close();
 	}
@@ -248,13 +262,13 @@ public class monHttps {
 			jvport   = prop.getProperty("jvport");
 			jvhost   = prop.getProperty("jvhost");
 			port = Integer.parseInt(jvport);
-			System.out.println("getProps jvport:" + jvport + "  jvhost"+jvhost) ;
+			if (swShow)	System.out.println(" jvport : " + jvport + "\n jvhost : "+jvhost) ;
 		} catch (IOException ex) {
 			ex.printStackTrace();
 		}
 		try {
 			inet = InetAddress.getLocalHost();
-			System.out.println("-- Inet: "+inet);
+			if (swShow)	System.out.println(" Inet : "+inet);
 			agent = inet.toString();
 		}
 		catch (Exception e) { System.out.println(e);  }

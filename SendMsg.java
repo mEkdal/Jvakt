@@ -10,7 +10,7 @@ public class SendMsg {
 	OutputStream sut;
 	PrintWriter ut;
 	int port;
-	String version = "SendMsg 1.4 Date 2019-JUL-18";
+	String version = "SendMsg 1.5 Date 2019-DEC-02";
 
 	public SendMsg(String host, int port ) {
 		this.port = port;
@@ -20,8 +20,8 @@ public class SendMsg {
 		try {
 //		cs = new Socket(host, port);
 		cs = new Socket();
-		cs.connect(new InetSocketAddress(host, port), 5000);
-		cs.setSoTimeout(5000);
+		cs.connect(new InetSocketAddress(host, port), 15000);
+		cs.setSoTimeout(15000);
 
 		sin = cs.getInputStream();
 		in = new BufferedReader(new InputStreamReader(sin));

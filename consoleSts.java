@@ -81,7 +81,7 @@ public class consoleSts extends JFrame implements TableModelListener, WindowList
 		port = Integer.parseInt(jvport);
 
 		// funktion fr�n Jframe att s�tta rubrik
-		setTitle("Jvakt consoleSts 2.17  -  F1 = Help");
+		setTitle("Jvakt consoleSts 2.18  -  F1 = Help");
 		//	        setSize(5000, 5000);
 
 		// get the screen size as a java dimension
@@ -425,7 +425,10 @@ public class consoleSts extends JFrame implements TableModelListener, WindowList
 			bu1.setBackground(Color.RED);
 			txt = txt + "  No connection with JvaktServer. ";
 		}
-		else if (swDormant) txt = txt + "  System DORMANT.";
+		else if (swDormant) {
+			bu1.setBackground(Color.ORANGE); 
+			txt = txt + "  System DORMANT.";
+		}
 		else txt = txt +  "  System ACTIVE.";
 
 		bu1.setText(txt);
@@ -456,7 +459,7 @@ public class consoleSts extends JFrame implements TableModelListener, WindowList
 		keyStroke = KeyStroke.getKeyStroke(KeyEvent.VK_DELETE, 0);  		// delete key in Win  Linux
 		table.getInputMap(JComponent.WHEN_FOCUSED).put(keyStroke, "delRow");
 
-		keyStroke = KeyStroke.getKeyStroke(KeyEvent.VK_F9, 0);  		// copyRow
+		keyStroke = KeyStroke.getKeyStroke(KeyEvent.VK_F9, 0);  		// copyRow   {
 		table.getInputMap(JComponent.WHEN_FOCUSED).put(keyStroke, "cpyRow");
 
 	}  

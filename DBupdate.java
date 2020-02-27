@@ -11,7 +11,7 @@ import java.time.LocalDateTime;
 
 
 class DBupdate {
-/* DBupdate ( 2019-NOV-27 ) */
+/* DBupdate ( 2020-FEB-26 ) */
 	static Connection conn = null;
 	Statement stmt = null;
 	PreparedStatement pStmt = null;
@@ -254,7 +254,7 @@ class DBupdate {
 								st.setTime(9, new java.sql.Time( cal.getTime().getTime())); // chktim 08:00:00 
 							}
 							else {
-								cal.set(1970, 01, 01, 6, 0, 0); // only HH:MM:SS is used
+								cal.set(1970, 01, 01, 0, 0, 0); // only HH:MM:SS is used
 								st.setTime(9, new java.sql.Time( cal.getTime().getTime())); // chktim 06:00:00
 							}
 						}
@@ -280,7 +280,7 @@ class DBupdate {
 						@SuppressWarnings("unused")
 						int rowsInserted = st.executeUpdate();
 						st.close();
-					} // �newrecord      
+					} // newrecord      
 
 
 					// remove process used for plugin from list

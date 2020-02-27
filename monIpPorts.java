@@ -18,9 +18,11 @@ public class monIpPorts {
 	static long ts;
 	static boolean swFound;
 	static boolean swSingle = false;
+	static boolean swShow = false;
 	static String host;
+	static String hostport;
 	static InetAddress inet;
-	static String version = "monIpPorts 1.4 # 2018-05-07";
+	static String version = "monIpPorts (2020-01-16)";
 	static String database = "jVakt";
 	static String dbuser   = "jVakt";
 	static String dbpassword = "xz";
@@ -36,10 +38,13 @@ public class monIpPorts {
 	static String config = null;
 	static File configF;
 
+	static String 		tabbar = "                                                                                         ";
+
+
 	public static void main(String[] args) throws UnknownHostException, IOException {
 
 		String[] tab = new String [1];
-//		String tdat;
+		//		String tdat;
 		String s;
 		File[] listf;
 		DirFilter df;
@@ -64,50 +69,59 @@ public class monIpPorts {
 			System.out.println("\n\nThe parameters and their meaning are:\n"+
 					"\n-config \tThe dir of the input files. Like: \"-dir c:\\Temp\" "+
 					"\n-run   \tTo actually update the status on the server side."+
-					"\n-host  \tCheck a single host."          );
+					"\n-host  \tCheck a single host."+          
+					"\n-show   \tShow the response from the server."
+					);
 
 			System.exit(4);
 		}
 
 		// reads command line arguments
 		for ( int i = 0; i < args.length; i++) {
-//			if (args[i].equalsIgnoreCase("-dir")) dir = new File(args[++i]);
+			//			if (args[i].equalsIgnoreCase("-dir")) dir = new File(args[++i]);
 			if (args[i].equalsIgnoreCase("-port")) wport = Integer.parseInt(args[++i]);
 			if (args[i].equalsIgnoreCase("-run")) swRun = true;
 			if (args[i].equalsIgnoreCase("-host")) { swSingle = true; host = args[++i]; }
 			if (args[i].equalsIgnoreCase("-config")) config = args[++i];
+			if (args[i].equalsIgnoreCase("-show")) swShow = true;
+
 		}
 		if (config != null ) dir = new File(config);
 		if (config == null ) 	configF = new File("Jvakt.properties");
 		else 					configF = new File(config,"Jvakt.properties");
-		System.out.println("----- Jvakt: "+new Date()+"  Version: "+version);
-		System.out.println("-config file: "+configF);
-		
+
+		System.out.println("\n"+new Date()+" *** Jvakt "+version+" ***\n");
+
+		if (swShow)	System.out.println(" config file: "+configF);
+
 		getProps();
 
 		System.setProperty("java.net.preferIPv6Addresses", "false");
 
-		System.out.println("-- Dir : "+dir);
-		System.out.println("-- Suf : "+suf);
-		System.out.println("-- Pos : "+pos);
-		System.out.println("-- Host: "+host);
+		if (swShow)	{
+		System.out.println(" Dir : "+dir);
+		System.out.println(" Suf : "+suf);
+		System.out.println(" Pos : "+pos);
+		System.out.println(" Host: "+host);
+		System.out.println();
+		}
 
 		if (swSingle) {
 			checkIpPort();
 		} else {
 
-//			if (pos != null) df = new DirFilter(suf, pos);
-//			else             df = new DirFilter(suf);
-			
+			//			if (pos != null) df = new DirFilter(suf, pos);
+			//			else             df = new DirFilter(suf);
+
 			df = new DirFilter(suf, pos);
-			
+
 			listf = dir.listFiles(df);
 
-			System.out.println("-- Numer of files found:"+ listf.length);
+			if (swShow)	System.out.println("-- Numer of files found:"+ listf.length);
 
 			for (int i = 0; i < listf.length; i++) {
 
-				System.out.println("-- Checking: "+listf[i]);
+				if (swShow)	System.out.println("-- Checking: "+listf[i]+"\n");
 
 				BufferedReader in = new BufferedReader(new FileReader(listf[i]));
 
@@ -115,14 +129,12 @@ public class monIpPorts {
 					if (s.length() == 0) continue; 
 					if (s.startsWith("#")) continue; 
 
-					// splittar rad från fil
+					// splittar rad frÃ¥n fil
 					tab = s.split(";" , 4);
 					t_id = tab[0];
 					host = tab[1];
 					wport = Integer.parseInt(tab[2]);
 					t_desc = tab[3];
-
-
 
 					checkIpPort();
 
@@ -143,17 +155,17 @@ public class monIpPorts {
 		// connect to port
 		state = "OKAY";
 		try {
-			System.out.println("Connection to: " + host + ":" + wport);
+			//			System.out.print(new Date()+" --- Connection to: " + host + ":" + wport);
 			cs = new Socket();
 			cs.connect(new InetSocketAddress(host, wport), 5000);
-//			BufferedInputStream inFromClient = new BufferedInputStream(cs.getInputStream());
-//			BufferedOutputStream outToClient = new BufferedOutputStream(cs.getOutputStream());
+			//			BufferedInputStream inFromClient = new BufferedInputStream(cs.getInputStream());
+			//			BufferedOutputStream outToClient = new BufferedOutputStream(cs.getOutputStream());
 			//cs = new Socket(host, port);
-//			outToClient.write(' ');
-//			outToClient.flush();
-		} catch (Exception e) { System.out.println("Connection failed:" + e); state = "FAILED";   }
+			//			outToClient.write(' ');
+			//			outToClient.flush();
+		} catch (Exception e) { System.out.println(new Date()+" *** Exeption - Connection failed:" + e); state = "FAILED";   }
 
-//		try { Thread.currentThread(); Thread.sleep(1000); } catch (Exception e) {} ;
+		//		try { Thread.currentThread(); Thread.sleep(1000); } catch (Exception e) {} ;
 
 		// disconnect from port
 		try {
@@ -162,22 +174,30 @@ public class monIpPorts {
 			}
 		}  catch (Exception e) { System.out.println("Close failed:" + e);   }
 
-		if (state.equals("OKAY")) { System.out.println("Connection succcessful"); return true; }
-		else 					  {	System.out.println("Connection failed"); return false; }
+
+		if (t_desc == null) t_desc = " ";
+		hostport = host+":"+wport;
+		if (hostport.length()>50) hostport=hostport.substring(0,50);
+		hostport = hostport + tabbar.substring(0,50-hostport.length());
+
+		if (state.equals("OKAY")) { System.out.println(new Date()+" --- Connection succcessful - "+hostport+t_desc); return true; }
+		System.out.println(new Date()+" --- Connection failed      - "+hostport+t_desc);
+		return false;
 	}
 
 	// sends status to the server
 	static protected void sendSTS( boolean STS) throws IOException {
 		Message jmsg = new Message();
 		SendMsg jm = new SendMsg(jvhost, port);
-		System.out.println(jm.open());
+		if (swShow)	System.out.println(jm.open());
+		else jm.open();
 		jmsg.setId(t_id+"-monIpPort-"+host+":"+wport);
 		if (STS) jmsg.setRptsts("OK");
 		else jmsg.setRptsts("ERR");
 		jmsg.setBody(t_desc);
 		jmsg.setType("R");
 		jmsg.setAgent(agent);
-		if (jm.sendMsg(jmsg)) System.out.println("-- Rpt Delivered --");
+		if (jm.sendMsg(jmsg)) ;
 		else            	  System.out.println("-- Rpt Failed --");
 		jm.close();
 	}
@@ -193,13 +213,13 @@ public class monIpPorts {
 			jvport   = prop.getProperty("jvport");
 			jvhost   = prop.getProperty("jvhost");
 			port = Integer.parseInt(jvport);
-			System.out.println("getProps jvport:" + jvport + "  jvhost"+jvhost) ;
+			if (swShow)	System.out.println(" jvport : " + jvport + "\n jvhost : "+jvhost) ;
 		} catch (IOException ex) {
 			ex.printStackTrace();
 		}
 		try {
 			inet = InetAddress.getLocalHost();
-			System.out.println("-- Inet: "+inet);
+			if (swShow)	System.out.println(" Inet: "+inet);
 			agent = inet.toString();
 		}
 		catch (Exception e) { System.out.println(e);  }

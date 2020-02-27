@@ -1,6 +1,7 @@
 package Jvakt;
 
 import java.io.*;
+import java.net.InetAddress;
 import java.text.SimpleDateFormat;
 import java.util.*;
 
@@ -10,7 +11,7 @@ public class ManFiles {
 	 * @param args
 	 */
 	static boolean swList = true, swDelete = false, swHelp = false,swParfile=false,
-			swSub = true, swFirst = true, swCopy = false, swRun = false,
+			swSub = true, swFirst = true, swCopy = false, swRun = false, swRunJvakt = false,
 			swMove = false, swSettings = false, swSN = false, swDed = false, swArch = false, 
 			swRepl = true, swAppend = false, swUnique = false, swCountC = false;
 	static boolean swExists = false, swFlat = false, swNew = false, swCmd = false,
@@ -33,6 +34,19 @@ public class ManFiles {
 	static OutputStreamWriter osw;
 	static String element;
 	String[] args2 = new String[3];
+
+	static String jvhost   = "localhost";
+	static String jvport   = "1956";
+	static String jvtype = "T";
+	static int port ;
+	static String id = null;
+	static String desc;
+	static InetAddress inet;
+	static String agent = null;
+	static String config = null;
+	static File configF;
+	static boolean swJvakt = false;
+
 	//	static ManFiles x;
 	static ManFiles x = new ManFiles();
 
@@ -50,11 +64,12 @@ public class ManFiles {
 		scanstr = null;
 		swNrunq = false;
 
+		now = new Date();
+		System.out.println("\n*** Jvakt.ManFiles starting --- " + now);
+		
 		parseParameters(args);
 		swArgs = false;
 
-		now = new Date();
-		System.out.println("\n*** Jvakt.ManFiles starting --- " + now);
 		//		if (swLogg && sLog) {
 		//			logg.write("\n*** Starting " + now);
 		//			logg.newLine();
@@ -92,7 +107,7 @@ public class ManFiles {
 
 		if (swHelp) {
 			System.out
-			.println("\n*** Jvakt.ManFiles (2019-NOV-28) ***"
+			.println("\n*** Jvakt.ManFiles (2019-DEC-16) ***"
 					+ "\n*** by Michael Ekdal, Sweden. ***");
 			System.out
 			.println("\nThe parameters and their meaning are:\n"
@@ -147,7 +162,10 @@ public class ManFiles {
 					+ "\n-cmd1    \tThe command part1 to use on files."
 					+ "\n         \t i.e. \"print /d:\\\\ptp165\\PBEdicom\\\" (The selected filename is used as a parameter to the command)"
 					+ "\n-cmd2    \tThe command part2 to use on files."
-					+ "\n-countc  \tShows the number of children in each traversed directory." 
+					+ "\n-countc  \tShows the number of children in each traversed directory."
+					+ "\n-jvakt  \tA switch to enable report to Jvakt. Default is no connection to Jvakt. The file Jvakt.properties must be provided" 
+					+ "\n-id     \tUsed as identifier in the Jvakt monitoring system. Mandatory if -jvakt switch is used." 
+					+ "\n-config \tThe directory where to find the Jvakt.properties file. like \"-config c:\\Temp\". Optional. Default is the current directory." 
 					+ "\n-loop    \tExecutes every second in a never ending loop. No loop is the default value." 
 					+ "\n\nComments:"
 					+ "\nErrorlevel is set to the number of found files. Max value is 255 though.\n");
@@ -181,7 +199,7 @@ public class ManFiles {
 					+ anterrorsT + "  empty:" + antemptyT + "  del dir:" + antdedT+ "  cmd:"+antalTCMD);
 			//		if (antal>0) sLog=true;   // Hittades filer vill vi ha avslutande logg
 			if (swLogg && antalT>0 && !swParfile) {
-//				logg.newLine();
+				//				logg.newLine();
 				logg.write("*** Total  - Files found:" + antalT + "  deleted:" + antdeletedT
 						+ "  copied:" + antcopiesT + "  moved:" + antmovedT + "  archived:" + antarchivedT
 						+ "  errors:" + anterrorsT + "  empty:" + antemptyT
@@ -201,16 +219,23 @@ public class ManFiles {
 			}
 		}
 
-
+		if (swRunJvakt && swJvakt) {
+			desc = "Errors found in ManFiles: " + anterrorsT;
+			if (anterrorsT == 0) sendSTS(true);
+			else 				sendSTS(false);
+		}
+		
 		now = new Date();
 		System.out.println("\n*** Finished " + now);
 		if (swLogg && antalT>0 && !swParfile) {
-//			logg.write("*** Finished " + now);
-//			logg.newLine();
+			//			logg.write("*** Finished " + now);
+			//			logg.newLine();
 			logg.close();
 		}
 		//		if (antal>0) System.exit(0);
 		//		else 		System.exit(4);
+		
+		
 		if (antalT > 255) antalT = 255;
 		System.exit(antalT);
 	}
@@ -237,7 +262,7 @@ public class ManFiles {
 		ff = x.new FileFilter(lhou, lmin, Lsec, suf, pos, pref, expath, inpath,	swNew, exfile,scanstr,fdat,tdat);
 		x.new VisitAllFiles(sdir);
 		if (swParfile) {
-			
+
 			System.out.println("*** ParRow - Files found:" + antal + "  deleted:" + antdeleted
 					+ "  copied:" + antcopies + "  moved:" + antmoved + "  archived:" + antarchived + "  errors:"
 					+ anterrors + "  empty:" + antempty + "  del dir:" + antded+ "  cmd:"+antalCMD);
@@ -261,7 +286,7 @@ public class ManFiles {
 		swSub = true; swFirst = true; swCopy = false; swRun = false;
 		swMove = false; swArch = false; swSettings = false; swSN = false; swDed = false;
 		swRepl = true; swAppend = false; swUnique = false; swCountC = false;
-		swExists = false; swFlat = false; swNew = false;
+		swExists = false; swFlat = false; swNew = false; swCmd = false;
 		swNrunq = false; swLogg = false; swNfile = false;
 		moved = false;
 		sdir=null; tdir=null; newfile=null;
@@ -419,8 +444,13 @@ public class ManFiles {
 					parFile = "ManFiles";
 					i--;
 				}
-//				System.out.println("---> parFile: " + parFile); 
+				//				System.out.println("---> parFile: " + parFile); 
 			}
+			else if (args[i].equalsIgnoreCase("-jvakt")) swJvakt=true;
+			else if (args[i].equalsIgnoreCase("-config")) config = args[++i];
+			else if (args[i].equalsIgnoreCase("-id"))  id  = args[++i];
+
+
 		}
 
 		if (tdir == null) {
@@ -444,6 +474,15 @@ public class ManFiles {
 		//			System.out.println("**** Both -sdir and -parfile is missing!!");	
 		//			System.exit(12);
 		//		}
+		
+		if (swJvakt && id != null && swArgs ) {
+			swRunJvakt = swRun;
+			if (swParfile) swRunJvakt=true;
+			if (config == null ) 	configF = new File("Jvakt.properties");
+			else 					configF = new File(config,"Jvakt.properties");
+			System.out.println("-config file: "+configF);
+			getProps();
+		}
 
 	}
 
@@ -507,6 +546,64 @@ public class ManFiles {
 		out.close();
 	}
 
+
+	// sends status to the Jvakt server
+	static protected void sendSTS( boolean STS) throws IOException {
+
+		System.out.println("\n--- " + id + "  --  " + desc);
+		System.out.println("--- Connecting to "+jvhost+":"+jvport);
+		Message jmsg = new Message();
+		SendMsg jm = new SendMsg(jvhost, port);
+		//			try {
+		System.out.println(jm.open()); 
+		//			}
+		//			catch (java.net.ConnectException e ) {System.out.println("-- Rpt Failed -" + e);    return;}
+		//			catch (NullPointerException npe2 )   {System.out.println("-- Rpt Failed --" + npe2); return;}
+
+		//		if (!swSlut) jmsg.setId(id+"-CheckLogs-"+aFile);
+		//		else		 jmsg.setId(id+"-CheckLogs-"+aFile+"-JV");
+		// 	    jmsg.setId(id+"-CheckLogs-"+aFile);
+		if (STS) jmsg.setRptsts("OK");
+		else jmsg.setRptsts("ERR");
+		jmsg.setId(id);
+		jmsg.setType(jvtype);
+		jmsg.setId(id);
+		jmsg.setType("T");
+		jmsg.setBody(desc);
+		jmsg.setAgent(agent);
+		//		jm.sendMsg(jmsg);
+		if (jm.sendMsg(jmsg)) System.out.println("--- Rpt Delivered --  " + id + "  --  " + desc);
+		else           		  System.out.println("--- Rpt Failed ---");
+		jm.close();
+	}
+
+	static void getProps() {
+
+		Properties prop = new Properties();
+		InputStream input = null;
+		try {
+			input = new FileInputStream(configF);
+			prop.load(input);
+			// get the property value and print it out
+			jvport   = prop.getProperty("jvport");
+			jvhost   = prop.getProperty("jvhost");
+			port = Integer.parseInt(jvport);
+			System.out.println("getProps jvport: " + jvport + "    jvhost: "+jvhost) ;
+		} catch (IOException ex) {
+			ex.printStackTrace();
+		}
+		try {
+			inet = InetAddress.getLocalHost();
+			System.out.println("-- Inet: "+inet);
+			agent = inet.toString();
+		}
+		catch (Exception e) { System.out.println(e);  }
+
+	}
+
+
+
+
 	// ** start internal classes **
 
 	// Process only files under sdir
@@ -554,12 +651,12 @@ public class ManFiles {
 				if (sdir.isFile()) {
 					if (swLogg && antal == 0 && element != null) {
 						logg.newLine();
-//						logg.write("*** Starting " + new Date());
-//						logg.newLine();
-//						if (element != null) {
-							logg.write("*** ParRow * "+ new Date()+" * "+element);
-							logg.newLine();
-//						}
+						//						logg.write("*** Starting " + new Date());
+						//						logg.newLine();
+						//						if (element != null) {
+						logg.write("*** ParRow * "+ new Date()+" * "+element);
+						logg.newLine();
+						//						}
 					}
 					antal++; antalT++;
 					copyerror = false;
@@ -588,6 +685,8 @@ public class ManFiles {
 								}
 							}
 							else {
+								swRun = false;   // do not proceed if cmd failed
+								anterrors++;
 								if (swList) {
 									System.out.println(" -failed cmd: "+args2[0]+" \""+args2[1]+"\" "+args2[2]);
 									if (swLogg) {
@@ -618,7 +717,7 @@ public class ManFiles {
 								if (swMove || swCopy || swDelete) 
 									logg.write("-File: "+sdir.getAbsolutePath());
 								else {
-//									System.out.println("-FileXX: "+sdir.getAbsolutePath());
+									//									System.out.println("-FileXX: "+sdir.getAbsolutePath());
 									logg.write("-File: "+sdir.getAbsolutePath());
 									logg.newLine();
 								}
@@ -639,7 +738,7 @@ public class ManFiles {
 					}
 
 					if (swArch) {
-						
+
 						if (!swFlat) {
 							newDirA = norigdirA+sdir.getPath().substring(origdir.length(),(sdir.getPath().length()-sdir.getName().length()-1));
 							adir = new File(newDirA);
@@ -647,11 +746,11 @@ public class ManFiles {
 							newDirA = norigdirA;
 							adir = new File(newDirA);
 						}
-						
-//						newDirA = norigdirA+sdir.getPath().substring(origdir.length(),(sdir.getPath().length()-sdir.getName().length()-1));
-//						adir = new File(newDirA);
+
+						//						newDirA = norigdirA+sdir.getPath().substring(origdir.length(),(sdir.getPath().length()-sdir.getName().length()-1));
+						//						adir = new File(newDirA);
 						newfile = new File(newDirA, sdir.getName());
-						
+
 						if (!adir.exists() && swRun)
 							adir.mkdirs();
 
@@ -664,7 +763,7 @@ public class ManFiles {
 						}
 
 						if (swList) {
-//							System.out.print(" -archived> " + newfile);
+							//							System.out.print(" -archived> " + newfile);
 							if (!swMove && !swCopy) System.out.println(" -archived> " + newfile);
 							else System.out.print(" -archived> " + newfile);
 							if (swLogg) {
@@ -678,6 +777,7 @@ public class ManFiles {
 								antarchived++; antarchivedT++;
 							}
 						} catch (IOException e) {
+							swRun = false;   // do not proceed if arcive failed
 							archiveerror = true;
 							anterrors++;
 							System.out.println(e);
@@ -741,6 +841,7 @@ public class ManFiles {
 							}
 						}
 					}
+
 					if (swCopy) {
 						// newfile = new File(newDir2,dir.getName());
 						if (swUnique) {
@@ -1018,7 +1119,7 @@ public class ManFiles {
 				// p.waitFor();
 
 				nuWait = 0;
-				// waits 120 seconds for print to end.
+				// waits a number of seconds for command to end.
 				swGoon = true;
 				while (nuWait < 360 && swGoon && !swError) {
 					swGoon = false;

@@ -8,39 +8,11 @@ import java.net.InetAddress;
 import java.sql.*;
 import java.util.Date;
 import java.util.Properties;
-
 import Jvakt.Message;
 import Jvakt.SendMsg;
 
-
-public class MonDB_SQL
+public class MonDB_Oracle
 {
-
-	static String instance = "default";
-
-	static boolean swShow = false;
-	static boolean swRun = false;
-	static boolean swSlut = false;
-	static boolean swList = false;
-	static String host;
-	static String port = "1433";
-	static String user;
-	static String pw;
-	static String collectionName;
-	static String table;
-	static String where = ""; 
-	static String url;
-	static String stmt;
-	static String state = "ERR";
-	static String version = "monDB_Oracle (2020-02-25)";
-
-
-	static String id;
-	static String t_sys;
-	static String t_id;
-	static String t_ip;
-	static String t_desc;
-	static int antal ;
 
 	// jvakt
 	static String agent = null;
@@ -52,8 +24,22 @@ public class MonDB_SQL
 	static File configF;
 	static boolean msgFixat = false;
 	// jvakt
-
-
+	static boolean swShow = false;
+	static boolean swRun = false;
+	static boolean swList = false;
+	static String host;
+	static String sid;
+	static String port;
+	static String user;
+	static String pw;
+	static String collectionName;
+	static String table;
+	static String where = ""; 
+	static String url;
+	static String stmt;
+	static String state = "ERR";
+	static String version = "monDB_Oracle (2020-02-25)";
+	static int antal = 0 ;
 
 	// Format a string so that it has the specified width.
 	private static String format (String s, int width)
@@ -86,16 +72,15 @@ public class MonDB_SQL
 			System.out.println("\n\nThe parameters and their meaning are:\n"+
 					"\n-config \tThe dir of the input files. Like: \"-dir c:\\Temp\" "+
 					"\n-run    \tTo actually update the status in Jvakt."+
-					"\n-host   \tThe host name or IP address of the SQL server." +
-					"\n-port   \tThe port number of the SQL server." +
-					"\n-inst   \tThe instance of the SQL database." +
-					"\n-coll   \tThe collection of the SQL database." +
-					"\n-user   \tThe username in the SQL database." +
+					"\n-host   \tThe host name or IP address of the Oracle server." +
+					"\n-port   \tThe port number of the Oracle server." +
+					"\n-sid    \tThe sid of the Oracle database." +
+					"\n-user   \tThe username in the Oracle database." +
 					"\n-pw     \tThe password." +
 					"\n-table  \tThe table to query." +
 					"\n-where  \tThe where statement of the query." +
 					"\n-show   \tShow the response from the server." + 
-					"\n-list   \tList the result from the query." 
+					"\n-list   \tList the result from the query."  
 					);
 			System.exit(4);
 		}
@@ -105,8 +90,7 @@ public class MonDB_SQL
 			if (args[i].equalsIgnoreCase("-run")) swRun = true;
 			if (args[i].equalsIgnoreCase("-host")) { host = args[++i]; }
 			if (args[i].equalsIgnoreCase("-port")) { port = args[++i]; }
-			if (args[i].equalsIgnoreCase("-inst")) { instance = args[++i]; }
-			if (args[i].equalsIgnoreCase("-coll")) { collectionName = args[++i]; }
+			if (args[i].equalsIgnoreCase("-sid")) { sid = args[++i]; }
 			if (args[i].equalsIgnoreCase("-user")) { user = args[++i]; }
 			if (args[i].equalsIgnoreCase("-pw")) { pw = args[++i]; }
 			if (args[i].equalsIgnoreCase("-table")) { table = args[++i]; }
@@ -121,91 +105,89 @@ public class MonDB_SQL
 		else 					configF = new File(config,"Jvakt.properties");
 		if (swShow && swRun) System.out.println("-config file: "+configF);
 
+		//		Properties props = new Properties();
 		if (swRun) getProps();  // get Jvakt properties
 		// jvakt   	
 
-
 		Connection connection   = null;
-		state = "OK";
+
 		try {
-			if (swShow) System.out.println("Class loading...");
-			// Load the Microsoft for Java JDBC driver.
-			Class.forName("com.microsoft.sqlserver.jdbc.SQLServerDriver");
-			//        	Class.forName("net.sourceforge.jtds.jdbc.Driver");
-			if (swShow) System.out.println("Class loaded OK");
+
+			// Load the Ora thin JDBS driver.
+			//DriverManager.registerDriver (new oracle.jdbc.driver.OracleDriver());
+			Class.forName("oracle.jdbc.OracleDriver") ;
+			if (swShow) System.out.println("Oracle JDBC driver loaded ok.");
 
 
-			// Get a connection to the database.  
-			url = "jdbc:sqlserver://"+host+":"+port+";instance="+instance+";integratedSecurity=true;authenticationScheme=NativeAuthentication;databaseName="+ collectionName+";";  
+			// Get a connection to the database.  Since we do not
+			url = "jdbc:oracle:thin:"+user+"/"+pw+"@//"+host+":"+port+"/"+sid ;
 			if (swShow) System.out.println(url +"\n");
 			connection = DriverManager.getConnection(url);
-			if (swShow) System.out.println("Connection OK");
+
+//			DatabaseMetaData dmd = connection.getMetaData ();
 
 			// Execute the query.
 			Statement select = connection.createStatement ();
+
 			if (swList) {
-				if (where.length()>1) stmt = ("SELECT * FROM " + table + " WHERE " + where );
+				if (where.length()>1) stmt = ("SELECT * FROM " + table + " WHERE " + where);
 				else                  stmt = ("SELECT * FROM " + table );
 			}
 			else {
-				if (where.length()>1) stmt = ("SELECT count(*) FROM " + table + " WHERE " + where );
+				if (where.length()>1) stmt = ("SELECT count(*) FROM " + table + " WHERE " + where);
 				else                  stmt = ("SELECT count(*) FROM " + table );
 			}
 			state = "OK";
+
 			if (swShow) System.out.println(stmt +"\n");
 			ResultSet rs = select.executeQuery (stmt);
-  
-			
-			
+
 			if (swShow || swList) {
-				
-			// Get information about the result set.  Set the column
-			// width to whichever is longer: the length of the label
-			// or the length of the data.
-			ResultSetMetaData rsmd = rs.getMetaData ();
-			int columnCount = rsmd.getColumnCount ();
-			String[] columnLabels = new String[columnCount];
-			int[] columnWidths = new int[columnCount];
-			for (int i = 1; i <= columnCount; ++i) {
-				columnLabels[i-1] = rsmd.getColumnLabel (i);
-				columnWidths[i-1] = Math.max (columnLabels[i-1].length(),
-						rsmd.getColumnDisplaySize (i));
-			}
-
-			// Output the column headings.
-			for (int i = 1; i <= columnCount; ++i) {
-				System.out.print (format (rsmd.getColumnLabel(i), columnWidths[i-1]));
-				System.out.print (" ");
-			}
-			System.out.println ();
-
-			// Output a dashed line.
-			//          StringBuffer dashedLine;
-			for (int i = 1; i <= columnCount; ++i) {
-				for (int j = 1; j <= columnWidths[i-1]; ++j)
-					System.out.print ("-");
-				System.out.print (" ");
-			}
-			System.out.println ();
-
-			// Iterate throught the rows in the result set and output
-			// the columns for each row.
-			antal = 0;
-			while (rs.next ()) {
+				// Get information about the result set.  Set the column
+				// width to whichever is longer: the length of the label
+				// or the length of the data.
+				ResultSetMetaData rsmd = rs.getMetaData ();
+				int columnCount = rsmd.getColumnCount ();
+				String[] columnLabels = new String[columnCount];
+				int[] columnWidths = new int[columnCount];
 				for (int i = 1; i <= columnCount; ++i) {
-					String value = rs.getString (i);
-					if (rs.wasNull ())
-						value = "<null>";
+					columnLabels[i-1] = rsmd.getColumnLabel (i);
+					columnWidths[i-1] = Math.max (columnLabels[i-1].length(),
+							rsmd.getColumnDisplaySize (i));
+				}
+
+				// Output the column headings.
+				for (int i = 1; i <= columnCount; ++i) {
+					System.out.print (format (rsmd.getColumnLabel(i), columnWidths[i-1]));
+					System.out.print (" ");
+				}
+				System.out.println ();
+
+				// Output a dashed line.
+				//          StringBuffer dashedLine;
+				for (int i = 1; i <= columnCount; ++i) {
+					for (int j = 1; j <= columnWidths[i-1]; ++j)
+						System.out.print ("-");
+					System.out.print (" ");
+				}
+				System.out.println ();
+
+				// Iterate through the rows in the result set and output
+				// the columns for each row.
+				antal = 0;
+				while (rs.next ()) {
+					for (int i = 1; i <= columnCount; ++i) {
+						String value = rs.getString (i);
+						if (rs.wasNull ())
+							value = "<null>";
 						System.out.print (format (value, columnWidths[i-1]));
 						System.out.print (" ");
 						state = "OK";
+					}
+					antal++;
+					System.out.println ();
 				}
-				antal++;
-				System.out.println ();
 			}
-			
-			}
-			
 
 		}
 
@@ -216,15 +198,15 @@ public class MonDB_SQL
 
 		finally {
 			if (state.startsWith("OK")) {
-				System.out.println(new Date()+" -- Connection succcessful     "+host+":"+port+" "+collectionName);
+				System.out.println(new Date()+" -- Connection succcessful     "+host+":"+port+" "+sid);
 			}
 			else {
-				System.out.println(new Date()+" -- Connection failed          "+host+":"+port+" "+collectionName);
+				System.out.println(new Date()+" -- Connection failed          "+host+":"+port+" "+sid);
 				antal = 0;
 			}
 			if (swRun) {
 				try {
-					sendJv("MonDB_SQL_"+host+":"+port+"-"+collectionName , state , "R",  "Checking Oracle connection to: "+host+":"+port+" "+collectionName);
+					sendJv("MonDB_Oracle_"+host+":"+port+"-"+sid , state , "R",  "Checking Oracle connection to: "+host+":"+port+" "+sid);
 				}
 				catch (IOException e) {
 					// Ignore. 
@@ -235,7 +217,9 @@ public class MonDB_SQL
 				if (connection != null)
 					connection.close ();
 			}
-			catch (SQLException e) { }
+			catch (SQLException e) { 
+				// Ignore. 
+			}
 		}
 
 		if (swShow) System.out.println ("-- Antal: "+antal);
@@ -285,5 +269,8 @@ public class MonDB_SQL
 		catch (Exception e) { System.out.println(e);  }
 
 	}
+
+
+
 
 }

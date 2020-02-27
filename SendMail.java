@@ -301,7 +301,7 @@ public class SendMail {
 						warnings++;
 //						wbody = wbody +rowStr+boxStrY+ rs.getString("id")+boxEnd +boxStrY+ rs.getString("body")+boxEnd+boxStrY+ rs.getString("agent")+boxEnd+rowEnd;
 //						wbody = wbody +rowStr+boxStrB+ rs.getString("id")+boxEnd +boxStrB+ rs.getString("body")+boxEnd+boxStrB+ rs.getString("agent")+boxEnd+rowEnd;
-						wbody = wbody +rowStr+boxStrB+ rs.getString("id")+boxEnd +boxStrB+ "The Jvakt agent did not report in set time."+boxEnd+rowEnd;
+						wbody = wbody +rowStr+boxStrB+ rs.getString("id")+boxEnd +boxStrB+ "The Jvakt agent did not report in due time."+boxEnd+rowEnd;
 					}
 					swMail = true;
 					if (rs.getString("msg").equalsIgnoreCase("R")) rs.updateString("msg", " ");

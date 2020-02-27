@@ -84,7 +84,7 @@ public class console extends JFrame implements TableModelListener, WindowListene
 		port = Integer.parseInt(jvport);
 
 		// funktion från Jframe att sätta rubrik
-		setTitle("Jvakt console 2.43  -  F1 = Help");
+		setTitle("Jvakt console 2.46  -  F1 = Help");
 		//	        setSize(5000, 5000);
 
 		// get the screen size as a java dimension
@@ -187,10 +187,10 @@ public class console extends JFrame implements TableModelListener, WindowListene
 
 				ListSelectionModel lsm = (ListSelectionModel) e.getSource();
 				if (lsm.isSelectionEmpty()) {
-//					System.out.println("No rows are selected.");
+					//					System.out.println("No rows are selected.");
 				} else {
-//					int selectedRow = lsm.getMinSelectionIndex();
-//					System.out.println("Row " + selectedRow + " is now selected.");
+					//					int selectedRow = lsm.getMinSelectionIndex();
+					//					System.out.println("Row " + selectedRow + " is now selected.");
 					deselectCount = 0;
 				}
 				return;
@@ -401,7 +401,10 @@ public class console extends JFrame implements TableModelListener, WindowListene
 			bu1.setBackground(Color.RED);
 			txt = txt + "  No connection with JvaktServer. ";
 		}
-		else if (swDormant) txt = txt + "  System DORMANT.";
+		else if (swDormant) {
+			bu1.setBackground(Color.ORANGE);
+			txt = txt + "  System DORMANT.";
+		}
 		else txt = txt +  "  System ACTIVE.";
 
 		bu1.setText(txt);
@@ -465,7 +468,7 @@ public class console extends JFrame implements TableModelListener, WindowListene
 				//					                 JOptionPane.showMessageDialog(TestTableKeyBinding.this.table, "Action Triggered.");
 				//				System.out.println("ShowHelp");
 				JOptionPane.showMessageDialog(getContentPane(),
-						"F1 : Help \nF3 : Increase font size \nF4 : Decrease font size \nF5 : History \nF6 : Status table \nF7 : Show row \nF8 : Toggle dormant \nF9 : Enter info text  \n\nDEL : delete rows \nESC : Unselect\n" +
+						"F1 : Help \nF3 : Increase font size \nF4 : Decrease font size \nF5 : History \nF6 : Status table \nF7 : Show row \nF8 : Toggle System active / dormant \nF9 : Enter info text  \n\nDEL : delete rows \nESC : Unselect\n" +
 								"\nThis app shows the filtered reports/messages sent to the Jvakt server. OK messages of types 'R', 'T' and 'S' remains in the database." + 
 								"\nThe upper bar acts a button to stop/start the automatic update. \nIt will also show the status of the server and database." + 
 								"\n\nFields: " + 
@@ -725,26 +728,39 @@ public class console extends JFrame implements TableModelListener, WindowListene
 			@Override
 			public void actionPerformed(ActionEvent e)  {
 
-				try {
-					Message jmsg = new Message();
-					SendMsg jm = new SendMsg(jvhost, port);
-					System.out.println(jm.open());
-					jmsg.setId("Jvakt");
-					if (swDormant) jmsg.setType("Active");
-					else jmsg.setType("Dormant");
-					jmsg.setAgent("GUI");
-					if (jm.sendMsg(jmsg)) System.out.println("-- Rpt Delivered --");
-					else            	  System.out.println("-- Rpt Failed 4 --");
-					jm.close();
-				} 
-				catch (IOException e1) {
-					System.err.println(e1);
-					System.err.println(e1.getMessage());
+
+				Object[] options = { "OK", "Cancel" };
+				int n = JOptionPane.showOptionDialog(null, "Do you want to toggle System active / dormant?", "Toggle active / dormant",
+						JOptionPane.DEFAULT_OPTION, JOptionPane.WARNING_MESSAGE,
+						null, options, options[0]);
+
+				if (n==1) {
+					System.out.println("-- Cancel Toggle dormant ---");	
+				} else {
+//					System.out.println("-- OK to Toggle dormant ---");
+					try {
+						Message jmsg = new Message();
+						SendMsg jm = new SendMsg(jvhost, port);
+						System.out.println(jm.open());
+						jmsg.setId("Jvakt");
+						if (swDormant) jmsg.setType("Active");
+						else jmsg.setType("Dormant");
+						jmsg.setAgent("GUI");
+						if (jm.sendMsg(jmsg)) System.out.println("-- Rpt Delivered --");
+						else            	  System.out.println("-- Rpt Failed 4 --");
+						jm.close();
+					} 
+					catch (IOException e1) {
+						System.err.println(e1);
+						System.err.println(e1.getMessage());
+					}
+					catch (Exception e2) {
+						System.err.println(e2);
+						System.err.println(e2.getMessage());
+					}
+
 				}
-				catch (Exception e2) {
-					System.err.println(e2);
-					System.err.println(e2.getMessage());
-				}
+
 			}
 		};
 		return save;

@@ -278,7 +278,7 @@ public class SendMail30 {
 						}
 						else {
 							warnings++;
-							wbody = wbody +rowStr+boxStrB+ rs.getString("id")+boxEnd +boxStrB+ "The Jvakt agent did not report in set time."+boxEnd+rowEnd;
+							wbody = wbody +rowStr+boxStrB+ rs.getString("id")+boxEnd +boxStrB+ "The Jvakt agent did not report in due time."+boxEnd+rowEnd;
 						}
 						swMail = true;	
 						if (rs.getInt("prio")>=30) {

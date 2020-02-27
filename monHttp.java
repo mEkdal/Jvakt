@@ -15,8 +15,10 @@ public class monHttp {
 	static boolean swSingle = false;
 	static boolean swShow = false;
 	static String host;
+	static String hosturl;
+	static String tabbar="                                                                                                 ";
 	static InetAddress inet;
-	static String version = "monHttp (2019-10-23)";
+	static String version = "monHttp (2020-01-16)";
 	static String database = "jVakt";
 	static String dbuser   = "jVakt";
 	static String dbpassword = "xz";
@@ -62,7 +64,7 @@ public class monHttp {
 					"\n-port   \tDefault is 80." +
 					"\n-web    \tlike /index.html" +
 					"\n-webcontent \tstring in the response to check for." +
-					"\n-show   \tShow the response from teh server."
+					"\n-show   \tShow the response from the server."
 );
 
 			System.exit(4);
@@ -83,17 +85,21 @@ public class monHttp {
 		if (config != null ) dir = new File(config);
 		if (config == null ) 	configF = new File("Jvakt.properties");
 		else 					configF = new File(config,"Jvakt.properties");
-		System.out.println("----- Jvakt: "+now+"    Version: "+version);
-		System.out.println("-config file: "+configF);
+
+		System.out.println("\n"+now+" *** Jvakt "+version+" ***\n");
+
+		if (swShow)	System.out.println(" config file: "+configF);
 
 		getProps();
 
 		System.setProperty("java.net.preferIPv6Addresses", "false");
 
-		System.out.println("-- Dir : "+dir);
-		System.out.println("-- Suf : "+suf);
-		System.out.println("-- Pos : "+pos);
-		System.out.println("-- Host: "+host);
+		if (swShow)	{
+		System.out.println(" Dir : "+dir);
+		System.out.println(" Suf : "+suf);
+		System.out.println(" Pos : "+pos);
+		System.out.println(" Host: "+host+"\n");
+		}
 
 		if (swSingle) {
 			checkHttp();
@@ -106,11 +112,11 @@ public class monHttp {
 
 			listf = dir.listFiles(df);
 
-			System.out.println("-- Number of files found:"+ listf.length);
+			if (swShow)	System.out.println("-- Number of files found:"+ listf.length);
 
 			for (int i = 0; i < listf.length; i++) {
 
-				System.out.println("-- Checking: "+listf[i]);
+				if (swShow)	System.out.println("-- Checking: "+listf[i]+"\n");
 
 				BufferedReader in = new BufferedReader(new FileReader(listf[i]));
 
@@ -147,8 +153,9 @@ public class monHttp {
 		java.net.CookieHandler.setDefault(cm);
 		// connect to port
 		try {
-			System.out.println("-- URL    : http://"+host+":"+wport+webfile);
-			System.out.println("-- OK text: " +webcontent);
+			hosturl ="http://"+host+":"+wport+webfile;
+			if (swShow)	System.out.println("-- URL    : http://"+host+":"+wport+webfile);
+			if (swShow)	System.out.println("-- OK text: " +webcontent);
 			URL url = new URL("http://"+host+":"+wport+webfile); 
 			URLConnection con = url.openConnection();  // new
 			con.setReadTimeout(4000);
@@ -164,25 +171,31 @@ public class monHttp {
 				if (swShow)	System.out.println(inputLine);
 				if (inputLine.toLowerCase().indexOf(webcontent.toLowerCase()) >= 0) {
 					state = true;
-					System.out.println("-- OK text: "+ webcontent + " found! ");
+					if (swShow)	System.out.println("-- OK text: "+ webcontent + " found! ");
 				}
 			}
 			httpin.close();
-			if (!state) System.out.println("-- OK text: "+ webcontent + " NOT found! ");
+			if (!state) { 
+				if (swShow)	System.out.println("-- OK text: "+ webcontent + " NOT found! "); 
+				}
 
 		} catch (Exception e) { System.out.println(e); state = false;   }
 
 //		try { Thread.currentThread(); Thread.sleep(1000); } catch (Exception e) {} ;
+		if (t_desc == null) t_desc = " ";
+		if (hosturl.length()>85) hosturl=hosturl.substring(0,85);
+		hosturl = hosturl + tabbar.substring(0,85-hosturl.length());
 
-		if (state) {System.out.println("Connection succcessful"); return true; }
-		else 	   {System.out.println("Connection failed"); return false; }
+		if (state) {System.out.println(new Date()+" -- Connection succcessful - "+hosturl+t_desc); return true; }
+		else 	   {System.out.println(new Date()+" -- Connection failed      - "+hosturl+t_desc); return false; }
 	}
 
 	// sends status to the server
 	static protected void sendSTS( boolean STS) throws IOException {
 		Message jmsg = new Message();
 		SendMsg jm = new SendMsg(jvhost, port);
-		System.out.println(jm.open());
+		if (swShow)			System.out.println(jm.open());
+		else jm.open();
 		jmsg.setId(t_id+"-monHttp-"+host);
 		if (STS) jmsg.setRptsts("OK");
 		else jmsg.setRptsts("ERR");
@@ -190,7 +203,7 @@ public class monHttp {
 		jmsg.setType("R");
 		jmsg.setAgent(agent);
 //		jm.sendMsg(jmsg);
-		if (jm.sendMsg(jmsg)) System.out.println("-- Rpt Delivered --");
+		if (jm.sendMsg(jmsg));
 		else            	  System.out.println("-- Rpt Failed --");
 		jm.close();
 	}
@@ -206,13 +219,13 @@ public class monHttp {
 			jvport   = prop.getProperty("jvport");
 			jvhost   = prop.getProperty("jvhost");
 			port = Integer.parseInt(jvport);
-			System.out.println("getProps jvport:" + jvport + "  jvhost"+jvhost) ;
+			if (swShow)	System.out.println(" jvport : " + jvport + "\n jvhost : "+jvhost) ;
 		} catch (IOException ex) {
 			ex.printStackTrace();
 		}
 		try {
 			inet = InetAddress.getLocalHost();
-			System.out.println("-- Inet: "+inet);
+			if (swShow)	System.out.println(" Inet : "+inet);
 			agent = inet.toString();
 		}
 		catch (Exception e) { System.out.println(e);  }

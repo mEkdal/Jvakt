@@ -31,7 +31,7 @@ public class CheckStatus {
 	static int errors = 0;
 	static int warnings = 0;
 	static int infos = 0;
-	static String version = "CheckStatus (2019-NOV-27)";
+	static String version = "CheckStatus (2020-FEB-26)";
 	static String database = "jVakt";
 	static String dbuser   = "jVakt";
 	static String dbpassword = "xz";
@@ -137,7 +137,7 @@ public class CheckStatus {
 				if (!rs.getString("type").equalsIgnoreCase("R") && !rs.getString("type").equalsIgnoreCase("S") && !rs.getString("type").equalsIgnoreCase("T") && !rs.getString("type").equalsIgnoreCase("I")) continue;
 
 				if (!rs.getString("status").equalsIgnoreCase("OK"))
-					System.out.println(LocalDateTime.now()+" -#1: "+rs.getString("state")+" " + rs.getString("id")+" "+rs.getString("type")+" "+rs.getString("prio")+" "+rs.getString("console")+" "+rs.getString("status")+" "+rs.getString("errors")+" "+rs.getString("accerr"));
+					System.out.println(LocalDateTime.now()+" -#1: "+rs.getString("state")+" " + rs.getString("id")+" "+rs.getString("type")+" "+rs.getString("prio")+" "+rs.getString("console")+" "+rs.getString("status")+" "+rs.getString("errors")+" "+rs.getString("accerr")+" "+rs.getString("chkday")+" "+rs.getTime("chktim"));
 
 				zD = rs.getTimestamp("rptdat"); 
 				accerr = rs.getInt("accerr");
@@ -175,9 +175,8 @@ public class CheckStatus {
 				swDelete = false;
 				//				System.out.println("ERR #1,5 swShDay: " + swShDay);
 
-				// Om status är ERR eller INFO till console
-				if (( (rs.getString("status").equalsIgnoreCase("ERR") && err > accerr) || rs.getString("status").equalsIgnoreCase("INFO") ) 
-						&& swShDay ) { 
+				// If status is ERR or INFO the row is tagged console, SMS and mail
+				if ( (rs.getString("status").equalsIgnoreCase("ERR") && err > accerr) || rs.getString("status").equalsIgnoreCase("INFO") ) { 
 					//					(rs.getString("type").equalsIgnoreCase("R") || rs.getString("type").equalsIgnoreCase("S") || rs.getString("type").equalsIgnoreCase("I"))) {
 					System.out.println(LocalDateTime.now()+" ERR: #2 "+"  MSG:"+rs.getString("msg")+" " + rs.getString("id")+" "+rs.getString("type")+" "+rs.getString("prio")+" "+rs.getString("console")+" "+rs.getString("status")+" "+rs.getString("errors")+" "+rs.getString("accerr"));
 					if (rs.getString("console").startsWith(" ")) {
@@ -207,9 +206,9 @@ public class CheckStatus {
 						trigPlugin(rs.getString("id"), rs.getString("status"), "P", rs.getString("body")); 
 					}
 				} 
-				// Om timeout inträffat för S och R varnas till console
+				// If timeout occurred regarding S and R, console is tagged
 				if ( 
-						(rs.getString("type").equalsIgnoreCase("R") && rs.getString("status").equalsIgnoreCase("OK") && swShDay &&	Lsec > 1200	) 
+						(rs.getString("type").equalsIgnoreCase("R") && rs.getString("status").equalsIgnoreCase("OK") && Lsec > 1200 && swShDay  ) 
 						||
 						(rs.getString("type").equalsIgnoreCase("S") && swShDay && 
 								rs.getTimestamp("rptdat").getTime() < mi.getTime() )    // mi is the date and time of midnight
@@ -241,7 +240,7 @@ public class CheckStatus {
 					if (swPlugin && !rs.getString("plugin").startsWith(" ")) {
 						trigPlugin(rs.getString("id"), rs.getString("status"), "P", rs.getString("body")); 
 					}
-				} // Om status är OK tas console bort för S,R och T och om console=C eller msg icke " " eller sms icke " "
+				} // If status is OK the console tag will be removed for S,R and T, and if console=C or msg isn't " " or sms isn't " "
 				else	 if ((rs.getString("type").equalsIgnoreCase("R") || rs.getString("type").equalsIgnoreCase("S") || rs.getString("type").equalsIgnoreCase("T")) && 
 						rs.getString("status").equalsIgnoreCase("OK") &&  
 						(rs.getString("console").equalsIgnoreCase("C") || !rs.getString("msg").startsWith(" ") || !rs.getString("sms").startsWith(" ") )

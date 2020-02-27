@@ -228,7 +228,7 @@ public class SendSMS {
 						resolved = true;
 					}
 					else {
-						body = rs.getString("id")+" The Jvakt agent did not report in set time.";
+						body = rs.getString("id")+" The Jvakt agent did not report in due time.";
 						System.out.println("Timeout " + body);
 						//						warnings++;
 						warning = true;

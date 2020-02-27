@@ -19,7 +19,7 @@ class ServerThread extends Thread {
 	public void run() {
 		try {
 			swData = false;
-			client.setSoTimeout(5000);
+			client.setSoTimeout(15000);
 			BufferedReader in = new BufferedReader(new InputStreamReader(client.getInputStream()));
 			PrintWriter    ut = new PrintWriter(new OutputStreamWriter(client.getOutputStream()));
 //			dt.getStatus();
