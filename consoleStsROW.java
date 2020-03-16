@@ -31,6 +31,9 @@ public class consoleStsROW {
 	private String agent;
 	private String sms;
 	private String smsdat;
+	private String msg30;
+	private String msgdat30;
+
 
 	public int row;
 	public int col = 0;
@@ -56,6 +59,8 @@ public class consoleStsROW {
 		this.agent = " ";
 		this.sms = " ";
 		this.smsdat = " ";
+		this.msg30 = " ";
+		this.msgdat30 = " ";
 	}
  
 	public String getState()  { return state;}
@@ -78,6 +83,8 @@ public class consoleStsROW {
 	public String getAgent()  { return agent;   }
 	public String getSms()    { return sms; 	}
 	public String getSmsdat() { return smsdat; 	}
+	public String getMsg30()    { return msg30; 	}
+	public String getMsgdat30() { return msgdat30; 	}
 
 	public void setState(String state)  { this.state = state;}
 	public void setId(String id) 	  { this.id = id; 	}
@@ -99,5 +106,7 @@ public class consoleStsROW {
 	public void setAgent(String agent)  { this.agent = agent; }
 	public void setSms(String sms)   { this.sms = sms;	}
 	public void setSmsdat(String smsdat) { this.smsdat = smsdat;	}
+	public void setMsg30(String msg30)   { this.msg30 = msg30;	}
+	public void setMsgdat30(String msgdat30) { this.msgdat30 = msgdat30;	}
 	
 }

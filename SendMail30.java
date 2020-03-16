@@ -85,10 +85,10 @@ public class SendMail30 {
 
 	public static void main(String[] args ) throws IOException, UnknownHostException {
 
-		String version = "SendMail30 (2019-SEP-12)";
+		String version = "SendMail30 (2020-FEB-27)";
 		String database = "jVakt";
 		String dbuser   = "jVakt";
-		String dbpassword = "xz";
+		String dbpassword = "unknown";
 		String dbhost   = "localhost";
 		String dbport   = "5433";
 		String jvhost   = "localhost";
@@ -208,8 +208,7 @@ public class SendMail30 {
 			//					";"); 
 			s = new String("select * from status " + 
 					"WHERE state='A' " +
-					" and (msg='M' or msg='T' or msg='R')" +
-					" and prio >= 30" +
+					" and (msg30='M' or msg30='T' or msg30='R')" +
 					";"); 
 
 			//			System.out.println(s);
@@ -220,7 +219,7 @@ public class SendMail30 {
 			//			swHits = false;  // is there already a record?
 			while (rs.next()) {
 				//				System.out.println("---- main RS: "+rs.getString("state")+" " + rs.getString("id")+" "+rs.getString("type")+" "+rs.getString("prio")+" "+rs.getString("console")+" "+rs.getString("status")+ " "+rs.getString("msg"));
-				System.out.println("- main RS - State:"+rs.getString("state")+" Id:" + rs.getString("id")+" Type:"+rs.getString("type")+" Prio:"+rs.getString("prio")+" Console:"+rs.getString("console")+" Status:"+rs.getString("status")+ " Msg:"+rs.getString("msg"));
+				System.out.println("- main RS - State:"+rs.getString("state")+" Id:" + rs.getString("id")+" Type:"+rs.getString("type")+" Prio:"+rs.getString("prio")+" Console:"+rs.getString("console")+" Status:"+rs.getString("status")+ " Msg30:"+rs.getString("msg30"));
 				//				swHits = true;  
 				swTiming = false;  
 
@@ -256,7 +255,7 @@ public class SendMail30 {
 					}
 				} 
 				if (rs.getInt("prio") <= 10) swShDay = true; // always handle prio 10 and below.
-//				System.out.println("swShDay: "+swShDay);
+				//				System.out.println("swShDay: "+swShDay);
 
 				//				swDelete = false;
 
@@ -264,15 +263,15 @@ public class SendMail30 {
 
 					if (   checkInterest(rs.getString("id"),rs.getInt("prio"))   ) {
 
-						if (rs.getString("msg").equalsIgnoreCase("M") && rs.getInt("prio") < 30 ) { 
+						if (rs.getString("msg30").equalsIgnoreCase("M") && rs.getInt("prio") < 30 ) { 
 							serrors++;
 							sbody = sbody +rowStr+boxStrB+ rs.getString("id")+boxEnd +boxStrB+ rs.getString("body")+boxEnd +rowEnd;
 						}
-						else if (rs.getString("msg").equalsIgnoreCase("M") && rs.getInt("prio") >= 30 ) { 
+						else if (rs.getString("msg30").equalsIgnoreCase("M") && rs.getInt("prio") >= 30 ) { 
 							errors++;
 							ebody = ebody +rowStr+boxStrB+ rs.getString("id")+boxEnd +boxStrB+ rs.getString("body")+boxEnd+rowEnd;
 						}
-						else if (rs.getString("msg").equalsIgnoreCase("R")) {
+						else if (rs.getString("msg30").equalsIgnoreCase("R")) {
 							resolved++;
 							rbody = rbody +rowStr+boxStrB+ rs.getString("id")+boxEnd +boxStrB+ rs.getString("body")+boxEnd+rowEnd;
 						}
@@ -281,12 +280,10 @@ public class SendMail30 {
 							wbody = wbody +rowStr+boxStrB+ rs.getString("id")+boxEnd +boxStrB+ "The Jvakt agent did not report in due time."+boxEnd+rowEnd;
 						}
 						swMail = true;	
-						if (rs.getInt("prio")>=30) {
-							if (rs.getString("msg").equalsIgnoreCase("R")) rs.updateString("msg", " ");
-							else rs.updateString("msg", "S");
-							rs.updateTimestamp("msgdat", new java.sql.Timestamp((new Date(System.currentTimeMillis())).getTime()));
-							try { rs.updateRow(); } catch(NullPointerException npe2) {}
-						}
+						if (rs.getString("msg30").equalsIgnoreCase("R")) rs.updateString("msg30", " ");
+						else rs.updateString("msg30", "S");
+						rs.updateTimestamp("msgdat30", new java.sql.Timestamp((new Date(System.currentTimeMillis())).getTime()));
+						try { rs.updateRow(); } catch(NullPointerException npe2) {}
 					}
 
 				}
@@ -330,13 +327,13 @@ public class SendMail30 {
 
 		listf = dir.listFiles(df);
 
-//		System.out.println("-- Antal filer:"+ listf.length);
+		//		System.out.println("-- Antal filer:"+ listf.length);
 		try {
 			BufferedReader in;
 
 			for (int i = 0; i < listf.length; i++) {
 
-//				System.out.println("-- Importing: "+listf[i]);
+				//				System.out.println("-- Importing: "+listf[i]);
 				in = new BufferedReader(new FileReader(listf[i]));
 
 				while ((s = in.readLine()) != null) {
@@ -344,7 +341,7 @@ public class SendMail30 {
 					if (s.startsWith("#")) continue; 
 
 					listToS.add(s);
-//					System.out.println("-- add: "+s);
+					//					System.out.println("-- add: "+s);
 				}
 				in.close();
 			}

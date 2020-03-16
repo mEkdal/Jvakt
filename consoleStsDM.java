@@ -18,7 +18,7 @@ class consoleStsDM extends AbstractTableModel {
 
 	static final long serialVersionUID = 50L;
 	String afn;
-	String columnNames[] = {"state", "id","prio", "type", "status", "body",  "rptdat", "chkday", "chktim", "errors", "accerr", "msg", "msgdat", "console", "condat", "info", "plugin", "agent", "sms", "smsdat"};
+	String columnNames[] = {"state", "id","prio", "type", "status", "body",  "rptdat", "chkday", "chktim", "errors", "accerr", "msg", "msgdat", "console", "condat", "info", "plugin", "agent", "sms", "smsdat", "msg30", "msgdat30"};
 //	static Vector map = new Vector(1000,100);
 	static Vector<consoleStsROW> map = new Vector<consoleStsROW>(100,100);
 
@@ -30,7 +30,7 @@ class consoleStsDM extends AbstractTableModel {
 	static Connection conn = null;
 	PreparedStatement prepStmt = null;
 
-	String version = "jVakt - consoleStsDM (2019-AUG-30)";
+	String version = "jVakt - consoleStsDM (2020-FEB-28)";
 	String database = "Jvakt";
 	String dbuser   = "console";
 	String dbpassword = "Jvakt";
@@ -116,6 +116,10 @@ class consoleStsDM extends AbstractTableModel {
 			return rad.getSms();
 		} else if (col == 19) {
 			return rad.getSmsdat();
+		} else if (col == 20) {
+			return rad.getMsg30();
+		} else if (col == 21) {
+			return rad.getMsgdat30();
 		} else {
 			return null;
 		}
@@ -203,6 +207,10 @@ class consoleStsDM extends AbstractTableModel {
 			rad.setSms((String)value);
 		} else if (col == 19) {
 			rad.setSmsdat((String)value);
+		} else if (col == 20) {
+			rad.setMsg30((String)value);
+		} else if (col == 21) {
+			rad.setMsgdat30((String)value);
 		}
 
 		fireTableCellUpdated(row, col);
@@ -256,8 +264,8 @@ class consoleStsDM extends AbstractTableModel {
 
 		try {
 			// insert new line with new timestamp and counter
-			PreparedStatement st = conn.prepareStatement("INSERT INTO status (state,id,prio,type,status,body,rptdat,chkday,chktim,errors,accerr,msg,msgdat,console,condat,info,plugin,agent,sms,smsdat) "
-					+ "values (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)");
+			PreparedStatement st = conn.prepareStatement("INSERT INTO status (state,id,prio,type,status,body,rptdat,chkday,chktim,errors,accerr,msg,msgdat,console,condat,info,plugin,agent,sms,smsdat,msg30,msgdat30) "
+					+ "values (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)");
 			st.setString(1,"I"); // state
 			st.setString(2,rad.getId()); // id
 			st.setInt(3,oPrio); // prio
@@ -284,6 +292,8 @@ class consoleStsDM extends AbstractTableModel {
 			st.setString(18," "); // agent 
 			st.setString(19," "); // sms 
 			st.setTimestamp(20,null); // smsdat
+			st.setString(21," "); // msg30 
+			st.setTimestamp(22,null); // msgdat30
 			int rowsInserted = st.executeUpdate();
 			st.close();
 			System.out.println("Rows insterted : "+rowsInserted);
@@ -381,6 +391,8 @@ class consoleStsDM extends AbstractTableModel {
 				rad.setAgent(rs.getString("agent"));
 				rad.setSms(rs.getString("sms"));
 				rad.setSmsdat(rs.getString("smsdat"));
+				rad.setMsg30(rs.getString("msg30"));
+				rad.setMsgdat30(rs.getString("msgdat30"));
 
 				map.add(rad);
 			}
@@ -429,6 +441,8 @@ class consoleStsDM extends AbstractTableModel {
 		rad.setAgent(" ");
 		rad.setSms(" ");
 		rad.setSmsdat(" ");
+		rad.setMsg30(" ");
+		rad.setMsgdat30(" ");
 
 		//		map.add(rad);
 

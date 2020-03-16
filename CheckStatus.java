@@ -31,7 +31,7 @@ public class CheckStatus {
 	static int errors = 0;
 	static int warnings = 0;
 	static int infos = 0;
-	static String version = "CheckStatus (2020-FEB-26)";
+	static String version = "CheckStatus (2020-FEB-27)";
 	static String database = "jVakt";
 	static String dbuser   = "jVakt";
 	static String dbpassword = "xz";
@@ -198,6 +198,12 @@ public class CheckStatus {
 						rs.updateTimestamp("smsdat", new java.sql.Timestamp((new Date(System.currentTimeMillis())).getTime()));
 						swUpdate=true;
 					}
+					if ( rs.getString("msg30").startsWith("T") || rs.getString("msg30").startsWith(" ")) {
+						System.out.println(LocalDateTime.now()+" ERR: Set msg30 to M" + " " + rs.getString("id"));
+						rs.updateString("msg30", "M");
+						rs.updateTimestamp("msgdat30", new java.sql.Timestamp((new Date(System.currentTimeMillis())).getTime()));
+						swUpdate=true;
+					}
 					if (swUpdate) try { rs.updateRow(); } catch(NullPointerException npe2) {}
 					//					System.out.println("## 1");
 					updC(rs); // add or remove line to/from the console table
@@ -234,6 +240,11 @@ public class CheckStatus {
 						rs.updateString("sms", "T");
 						rs.updateTimestamp("smsdat", new java.sql.Timestamp((new Date(System.currentTimeMillis())).getTime()));
 					}
+					if (rs.getString("msg30").startsWith(" ")) {
+						System.out.println(LocalDateTime.now()+" TOut: Set msg30 to T " + rs.getString("id"));
+						rs.updateString("msg30", "T");
+						rs.updateTimestamp("msgdat30", new java.sql.Timestamp((new Date(System.currentTimeMillis())).getTime()));
+					}
 					System.out.println(LocalDateTime.now()+" timing #3.a :  " + rs.getString("id")+"  MSG:"+rs.getString("msg"));
 					if (swUpdate) try { rs.updateRow(); } catch(NullPointerException npe2) {}
 					updC(rs); // add new line to the console table
@@ -243,9 +254,9 @@ public class CheckStatus {
 				} // If status is OK the console tag will be removed for S,R and T, and if console=C or msg isn't " " or sms isn't " "
 				else	 if ((rs.getString("type").equalsIgnoreCase("R") || rs.getString("type").equalsIgnoreCase("S") || rs.getString("type").equalsIgnoreCase("T")) && 
 						rs.getString("status").equalsIgnoreCase("OK") &&  
-						(rs.getString("console").equalsIgnoreCase("C") || !rs.getString("msg").startsWith(" ") || !rs.getString("sms").startsWith(" ") )
+						(rs.getString("console").equalsIgnoreCase("C") || !rs.getString("msg").startsWith(" ") || !rs.getString("sms").startsWith(" ") || !rs.getString("msg30").startsWith(" ") )
 						) {
-					System.out.println(LocalDateTime.now()+" DEL: #4 " + rs.getString("id")+" "+rs.getString("status")+"  MSG:"+rs.getString("msg")+"  SMS:"+rs.getString("sms"));
+					System.out.println(LocalDateTime.now()+" DEL: #4 " + rs.getString("id")+" "+rs.getString("status")+"  MSG:"+rs.getString("msg")+"  SMS:"+rs.getString("sms")+"  MSG30:"+rs.getString("msg30") );
 					swDelete = true;   // remove lines from console
 					rs.updateString("console", " ");
 //					rs.updateString("condat", null);
@@ -270,6 +281,14 @@ public class CheckStatus {
 						System.out.println(LocalDateTime.now()+" OK: Set sms to R" + " " + rs.getString("id"));
 						rs.updateString("sms", "R");
 //						rs.updateTimestamp("smsdat", null);
+					}
+					if (rs.getString("msg30").startsWith("M") || rs.getString("msg30").startsWith("T")) {
+						System.out.println(LocalDateTime.now()+" OK: Set msg30 to blank" + " " + rs.getString("id"));
+						rs.updateString("msg30", " ");
+					}
+					else if (rs.getString("msg30").startsWith("S")) {
+						System.out.println(LocalDateTime.now()+" OK: Set msg30 to R" + " " + rs.getString("id"));
+						rs.updateString("msg30", "R");
 					}
 					if (swUpdate) try { rs.updateRow(); } catch(NullPointerException npe2) {}
 					updC(rs); // update or remove line from the console table

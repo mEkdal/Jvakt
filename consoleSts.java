@@ -81,7 +81,7 @@ public class consoleSts extends JFrame implements TableModelListener, WindowList
 		port = Integer.parseInt(jvport);
 
 		// funktion fr�n Jframe att s�tta rubrik
-		setTitle("Jvakt consoleSts 2.18  -  F1 = Help");
+		setTitle("Jvakt consoleSts 2.19  -  F1 = Help");
 		//	        setSize(5000, 5000);
 
 		// get the screen size as a java dimension
@@ -221,7 +221,7 @@ public class consoleSts extends JFrame implements TableModelListener, WindowList
 		//		table.setAutoResizeMode(JTable.AUTO_RESIZE_ALL_COLUMNS);
 		table.setAutoResizeMode(JTable.AUTO_RESIZE_SUBSEQUENT_COLUMNS);
 		//	        table.setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
-		//state id prio type status body rptdat chkday chktim errors accerr msg msgdat console condat info plugin agent sms smsdat
+		//state id prio type status body rptdat chkday chktim errors accerr msg msgdat console condat info plugin agent sms smsdat msg30 msgdat30
 		TableColumn column = null;
 		column = table.getColumnModel().getColumn(0); // state
 		column.setPreferredWidth(40);
@@ -281,6 +281,12 @@ public class consoleSts extends JFrame implements TableModelListener, WindowList
 		column.setPreferredWidth(40);
 		column.setMaxWidth(150);
 		column = table.getColumnModel().getColumn(19); // smsdat
+		column.setPreferredWidth(120);
+		column.setMaxWidth(350);
+		column = table.getColumnModel().getColumn(20); // msg30
+		column.setPreferredWidth(40);
+		column.setMaxWidth(150);
+		column = table.getColumnModel().getColumn(21); // msgdat30
 		column.setPreferredWidth(120);
 		column.setMaxWidth(350);
 

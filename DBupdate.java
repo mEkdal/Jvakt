@@ -9,9 +9,8 @@ import java.time.LocalDateTime;
 
 //import org.postgresql.util.PSQLException;
 
-
 class DBupdate {
-/* DBupdate ( 2020-FEB-26 ) */
+/* DBupdate ( 2020-FEB-27 ) */
 	static Connection conn = null;
 	Statement stmt = null;
 	PreparedStatement pStmt = null;
@@ -186,6 +185,10 @@ class DBupdate {
 							else if (rs.getString("sms").startsWith("T")) rs.updateString("sms", " ");
 							else if (rs.getString("sms").startsWith("S")) rs.updateString("sms", "R");
 
+							if (rs.getString("msg30").startsWith("M")) rs.updateString("msg30", " ");
+							else if (rs.getString("msg30").startsWith("T")) rs.updateString("msg30", " ");
+							else if (rs.getString("msg30").startsWith("S")) rs.updateString("msg30", "R");
+
 							if (rs.getString("type").startsWith("I")) rs.updateString("type", "D");
 //							rs.updateString("condat", null);					
 						}
@@ -204,6 +207,10 @@ class DBupdate {
 							if (rs.getString("sms").startsWith(" ")) {
 								rs.updateString("sms", "M");
 								rs.updateTimestamp("smsdat", new java.sql.Timestamp((new Date(System.currentTimeMillis())).getTime()));
+							}
+							if (rs.getString("msg30").startsWith(" ")) {
+								rs.updateString("msg30", "M");
+								rs.updateTimestamp("msgdat30", new java.sql.Timestamp((new Date(System.currentTimeMillis())).getTime()));
 							}
 						}
 
@@ -228,8 +235,8 @@ class DBupdate {
 					// newrecord. Not found before, thus create a new record in the status table
 					if ( !swHits ) {   
 
-						PreparedStatement st = conn.prepareStatement("INSERT INTO status (state,id,prio,type,status,body,rptdat,chkday,chktim,errors,accerr,msg,msgdat,console,condat,info,plugin,agent,sms,smsdat) "
-								+ "values (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)");
+						PreparedStatement st = conn.prepareStatement("INSERT INTO status (state,id,prio,type,status,body,rptdat,chkday,chktim,errors,accerr,msg,msgdat,console,condat,info,plugin,agent,sms,smsdat,msg30,msgdat30) "
+								+ "values (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)");
 						st.setString(1,"A"); // sts
 						st.setString(2,m.getId() ); 
 						st.setInt(3,m.getPrio()); // prio
@@ -277,6 +284,8 @@ class DBupdate {
 						st.setString(18,m.getAgent() ); 
 						st.setString(19," "); // sms 
 						st.setTime(20,null ); // smsdat 
+						st.setString(21," "); // msg30 
+						st.setTime(22,null ); // msgdat30 
 						@SuppressWarnings("unused")
 						int rowsInserted = st.executeUpdate();
 						st.close();
