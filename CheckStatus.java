@@ -31,7 +31,7 @@ public class CheckStatus {
 	static int errors = 0;
 	static int warnings = 0;
 	static int infos = 0;
-	static String version = "CheckStatus (2020-FEB-27)";
+	static String version = "CheckStatus (2020-MAR-18)";
 	static String database = "jVakt";
 	static String dbuser   = "jVakt";
 	static String dbpassword = "xz";
@@ -402,7 +402,8 @@ public class CheckStatus {
 						rs2.updateString("body", rs.getString("body"));
 					}
 					else {
-						rs2.updateString("status",rs.getString("status").toUpperCase() );
+						if (!swShDay) rs2.updateString("status","INFO");    // Force INFO if chkday is out of range
+						else rs2.updateString("status",rs.getString("status").toUpperCase() );
 						rs2.updateString("body", rs.getString("body"));
 					}
 					// om dormant
@@ -437,7 +438,8 @@ public class CheckStatus {
 					st.setString(8,rs.getString("body") );
 				}
 				else {
-					st.setString(7,rs.getString("status").toUpperCase() );
+					if (!swShDay) st.setString(7,"INFO");    // Force INFO if chkday is out of range
+					else st.setString(7,rs.getString("status").toUpperCase() );					
 					st.setString(8,rs.getString("body") );
 				}
 				//				st.setString(8,rs.getString("body") ); // 

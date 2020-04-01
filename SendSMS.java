@@ -73,7 +73,7 @@ public class SendSMS {
 
 	public static void main(String[] args ) throws IOException, UnknownHostException {
 
-		String version = "SendSMS (2019-NOV-08)";
+		String version = "SendSMS (2020-MAR-23)";
 		String database = "jVakt";
 		String dbuser   = "jVakt";
 		String dbpassword = "xz";
@@ -173,7 +173,7 @@ public class SendSMS {
 
 			s = new String("select * from status " + 
 					"WHERE state='A' " +
-					" and (sms='M' or sms='T' or sms='R')" +
+					" and (sms='M' or sms='T' or sms='R' or sms='S')" +
 					" and prio < 30" +
 					";"); 
 
@@ -222,18 +222,27 @@ public class SendSMS {
 						//						serrors++; 
 						error = true;
 					}
-					else if (rs.getString("sms").equalsIgnoreCase("R")) {
+					else if (rs.getString("sms").equalsIgnoreCase("R") || 
+							(rs.getString("type").equalsIgnoreCase("D")    && rs.getString("sms").equalsIgnoreCase("S")) || 
+							(rs.getString("status").equalsIgnoreCase("OK") && rs.getString("sms").equalsIgnoreCase("S")) 
+							) 
+					{
 						System.out.println("Resolved " + body);
 						//						resolved++;
 						resolved = true;
 					}
+					else if (rs.getString("sms").equalsIgnoreCase("S")) continue;
 					else {
 						body = rs.getString("id")+" The Jvakt agent did not report in due time.";
 						System.out.println("Timeout " + body);
 						//						warnings++;
 						warning = true;
 					}
-					if (rs.getString("sms").equalsIgnoreCase("R")) rs.updateString("sms", " ");
+					if (rs.getString("sms").equalsIgnoreCase("R") ||
+					   (rs.getString("type").equalsIgnoreCase("D")    && rs.getString("sms").equalsIgnoreCase("S")) || 
+					   (rs.getString("status").equalsIgnoreCase("OK") && rs.getString("sms").equalsIgnoreCase("S"))  
+					   )
+						 rs.updateString("sms", " ");
 					else rs.updateString("sms", "S");
 					rs.updateTimestamp("smsdat", new java.sql.Timestamp((new Date(System.currentTimeMillis())).getTime()));
 					try { rs.updateRow(); } catch(NullPointerException npe2) {}

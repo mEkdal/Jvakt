@@ -19,7 +19,7 @@ public class DW2Jvakt  {
 
 		// Displays help
 		if (args.length == 0) {
-			System.out.println("\n*** DW2Jvakt 1.2 Date 2019-06-14 ***" +
+			System.out.println("\n*** DW2Jvakt 1.2 Date 2020-02-28 ***" +
 					"\n*** by Michael Ekdal Perstorp Sweden. ***");
 			System.out.println("\n\nThe parameters and their meaning are:\n"+
 					"\n-q \tThe name of the AS400 message queue, like \" /qsys.lib/itoctools.lib/xxx.msgq\" "+
@@ -166,7 +166,13 @@ public class DW2Jvakt  {
 						sev = 10; sts = "ERR"; } 
 
 					// INFO 30 again
-					if (msg.contains("Autoanswer:")) { 
+					if (msg.contains("Autoanswer:") ||
+						msg.contains("ITO9806 PPSE08 MSGW in QINTER jobb MOE202") ||  
+						msg.contains("ITO9806 PPSE08 MSGW in GRP100BCH jobb MRU000XJ") ||
+						msg.contains("ITO9806 PPSE08 MSGW in GRP280BCH jobb MIU160XJ") ||
+						msg.contains("ITO9806 PPSE08 MSGW in GRP280BCH jobb MOR500XJ") 
+						)
+					{ 
 						sev = 30; sts = "INFO"; } 
 
 					try {

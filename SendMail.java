@@ -81,7 +81,7 @@ public class SendMail {
 	
 	public static void main(String[] args ) throws IOException, UnknownHostException {
 
-		String version = "SendMail 1.6 (2019-SEP-09)";
+		String version = "SendMail (2020-MAR-23)";
 		String database = "jVakt";
 		String dbuser   = "jVakt";
 		String dbpassword = "xz";
@@ -222,7 +222,7 @@ public class SendMail {
 			//					";"); 
 			s = new String("select * from status " + 
 					"WHERE state='A' " +
-					" and (msg='M' or msg='T' or msg='R')" +
+					" and (msg='M' or msg='T' or msg='R' or msg='S')" +
 					" and prio < 30" +
 					";"); 
 
@@ -289,13 +289,18 @@ public class SendMail {
 //						ebody = ebody +rowStr+boxStrB+ rs.getString("id")+boxEnd +boxStrB+ rs.getString("body")+boxEnd+boxStrB+ rs.getString("agent")+boxEnd+rowEnd;
 						ebody = ebody +rowStr+boxStrB+ rs.getString("id")+boxEnd +boxStrB+ rs.getString("body")+boxEnd+rowEnd;
 					}
-					else if (rs.getString("msg").equalsIgnoreCase("R")) {
+					else if (rs.getString("msg").equalsIgnoreCase("R") || 
+							(rs.getString("type").equalsIgnoreCase("D")    && rs.getString("msg").equalsIgnoreCase("S")) || 
+							(rs.getString("status").equalsIgnoreCase("OK") && rs.getString("msg").equalsIgnoreCase("S"))  
+							)
+					{
 //						cause = "Resolved:\t";
 						resolved++;
 //						rbody = rbody +rowStr+boxStrG+ rs.getString("id")+boxEnd +boxStrG+ rs.getString("body")+boxEnd+boxStrG+ rs.getString("agent")+boxEnd+rowEnd;
 //						rbody = rbody +rowStr+boxStrB+ rs.getString("id")+boxEnd +boxStrB+ rs.getString("body")+boxEnd+boxStrB+ rs.getString("agent")+boxEnd+rowEnd;
 						rbody = rbody +rowStr+boxStrB+ rs.getString("id")+boxEnd +boxStrB+ rs.getString("body")+boxEnd+rowEnd;
 					}
+					else if (rs.getString("msg").equalsIgnoreCase("S")) continue;
 					else {
 //						cause = "Time out:\t";
 						warnings++;
@@ -304,7 +309,11 @@ public class SendMail {
 						wbody = wbody +rowStr+boxStrB+ rs.getString("id")+boxEnd +boxStrB+ "The Jvakt agent did not report in due time."+boxEnd+rowEnd;
 					}
 					swMail = true;
-					if (rs.getString("msg").equalsIgnoreCase("R")) rs.updateString("msg", " ");
+					if (rs.getString("msg").equalsIgnoreCase("R") || 
+					   (rs.getString("type").equalsIgnoreCase("D")    && rs.getString("msg").equalsIgnoreCase("S")) || 
+					   (rs.getString("status").equalsIgnoreCase("OK") && rs.getString("msg").equalsIgnoreCase("S"))  
+					   )
+						 rs.updateString("msg", " ");
 					else rs.updateString("msg", "S");
 					rs.updateTimestamp("msgdat", new java.sql.Timestamp((new Date(System.currentTimeMillis())).getTime()));
 					try { rs.updateRow(); } catch(NullPointerException npe2) {}

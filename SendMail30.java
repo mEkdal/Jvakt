@@ -85,7 +85,7 @@ public class SendMail30 {
 
 	public static void main(String[] args ) throws IOException, UnknownHostException {
 
-		String version = "SendMail30 (2020-FEB-27)";
+		String version = "SendMail30 (2020-MAR-19)";
 		String database = "jVakt";
 		String dbuser   = "jVakt";
 		String dbpassword = "unknown";
@@ -208,7 +208,7 @@ public class SendMail30 {
 			//					";"); 
 			s = new String("select * from status " + 
 					"WHERE state='A' " +
-					" and (msg30='M' or msg30='T' or msg30='R')" +
+					" and (msg30='M' or msg30='T' or msg30='R' or msg30='S')" +
 					";"); 
 
 			//			System.out.println(s);
@@ -271,16 +271,27 @@ public class SendMail30 {
 							errors++;
 							ebody = ebody +rowStr+boxStrB+ rs.getString("id")+boxEnd +boxStrB+ rs.getString("body")+boxEnd+rowEnd;
 						}
-						else if (rs.getString("msg30").equalsIgnoreCase("R")) {
+						else if (rs.getString("msg30").equalsIgnoreCase("R") || 
+								(rs.getString("type").equalsIgnoreCase("D")    && rs.getString("msg30").equalsIgnoreCase("S")) || 
+								(rs.getString("status").equalsIgnoreCase("OK") && rs.getString("msg30").equalsIgnoreCase("S")) 
+								) 
+						{
 							resolved++;
 							rbody = rbody +rowStr+boxStrB+ rs.getString("id")+boxEnd +boxStrB+ rs.getString("body")+boxEnd+rowEnd;
+						}
+						else if (rs.getString("msg30").equalsIgnoreCase("S")) { 
+							System.out.println("-- Already got an S in msg30, going on...");
+							continue; 
 						}
 						else {
 							warnings++;
 							wbody = wbody +rowStr+boxStrB+ rs.getString("id")+boxEnd +boxStrB+ "The Jvakt agent did not report in due time."+boxEnd+rowEnd;
 						}
 						swMail = true;	
-						if (rs.getString("msg30").equalsIgnoreCase("R")) rs.updateString("msg30", " ");
+						if (rs.getString("msg30").equalsIgnoreCase("R") ||
+						   (rs.getString("type").equalsIgnoreCase("D")    && rs.getString("msg30").equalsIgnoreCase("S")) || 
+						   (rs.getString("status").equalsIgnoreCase("OK") && rs.getString("msg30").equalsIgnoreCase("S")) )
+							rs.updateString("msg30", " ");
 						else rs.updateString("msg30", "S");
 						rs.updateTimestamp("msgdat30", new java.sql.Timestamp((new Date(System.currentTimeMillis())).getTime()));
 						try { rs.updateRow(); } catch(NullPointerException npe2) {}
@@ -366,7 +377,7 @@ public class SendMail30 {
 			if ( prio.compareTo(prioCsv) < 0  )	continue; 
 			if (id.toLowerCase().indexOf(tab[0].toLowerCase()) >= 0 ) {
 				listTo.add(tab[1]);
-				System.out.println("** YES. Added: "+ tab[1]);
+//				System.out.println("** YES. Added: "+ tab[1]);
 				ok = true;
 			}
 		}

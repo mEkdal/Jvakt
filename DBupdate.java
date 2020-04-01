@@ -262,7 +262,7 @@ class DBupdate {
 							}
 							else {
 								cal.set(1970, 01, 01, 0, 0, 0); // only HH:MM:SS is used
-								st.setTime(9, new java.sql.Time( cal.getTime().getTime())); // chktim 06:00:00
+								st.setTime(9, new java.sql.Time( cal.getTime().getTime())); // chktim 00:00:00
 							}
 						}
 						if (m.getRptsts().toUpperCase().equals("OK") || m.getRptsts().toUpperCase().equals("INFO")) st.setInt(10,0); // errors 
