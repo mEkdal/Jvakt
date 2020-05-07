@@ -26,7 +26,7 @@ public class console2html {
 	static int errors = 0;
 	static int warnings = 0;
 	static int infos = 0;
-	static String version = "CheckStatus Date 2019-11-01";
+	static String version = "CheckStatus Date 2020-04-15";
 	static String database = "Jvakt";
 	static String dbuser   = "console";
 	static String dbpassword = "Jvakt";
@@ -57,11 +57,13 @@ public class console2html {
     getProps();
     DBUrl = "jdbc:postgresql://"+dbhost+":"+dbport+"/"+database;
     
-	String head   = "<html><head>  <TITLE>jVakt - CONSOLE - System Status</TITLE> <meta http-equiv=\"refresh\" content=\"60\">  </head> <body>";
+	String head   = "<html><head>  <TITLE>jVakt - CONSOLE - System Status</TITLE> <meta http-equiv=\"refresh\" content=\"60\">  </head> <body bgcolor=\"silver\">";
 	String foot   = "</body></html>";
-	String tblStr = "<TABLE COLS=7 BORDER=8 cellpadding=\"5\" width=\"100%\"  >"; 
+//	String tblStr = "<TABLE COLS=7 BORDER=8 cellpadding=\"5\" width=\"100%\"  >"; 
+	String tblStr = "<TABLE COLS=6 BORDER=8 cellpadding=\"5\" width=\"100%\"  >"; 
 	String tblEnd = "</TABLE>";
-	String tblHdr = "<TH>Count</TH> <TH>Id</TH> <TH>Prio</TH> <TH>Type</TH> <TH>Condat</TH>  <TH>Status</TH>  <TH>Body - "+ now +" </TH> <TH>Agent</TH>"; 
+//	String tblHdr = "<TH>Count</TH> <TH>Id</TH> <TH>Prio</TH> <TH>Type</TH> <TH>Condat</TH>  <TH>Status</TH>  <TH>Body - "+ now +" </TH> <TH>Agent</TH>"; 
+	String tblHdr = "<TH>Id</TH> <TH>Prio</TH> <TH>Type</TH> <TH>Condat</TH>  <TH>Status</TH>  <TH>Body - "+ now +" </TH> <TH>Agent</TH>"; 
 	String hdrStrG = "<TH BGCOLOR=\"#00FF00\"><FONT SIZE=5>"; // Green
 	String hdrStrY = "<TH BGCOLOR=\"#FFFF00\"><FONT SIZE=5>"; // Yellow
 	String hdrStrR = "<TH BGCOLOR=\"#FF6600\"><FONT SIZE=5>"; // Red
@@ -70,11 +72,15 @@ public class console2html {
 	String hdrEnd = "</TH>";
 	String rowStr = "<TR>"; 
 	String rowEnd = "</TR>";
-	String boxStrG = "<TD BGCOLOR=\"#00FF00\"><FONT SIZE=5>"; // Green
-	String boxStrY = "<TD BGCOLOR=\"#FFFF00\"><FONT SIZE=5>"; // Yellow
-	String boxStrR = "<TD BGCOLOR=\"#FF6600\"><FONT SIZE=5>"; // Red
+	String boxStrG = "<TD BGCOLOR=\"#3CB371\"><FONT SIZE=5>"; // MediumSeaGreen
+//	String boxStrG = "<TD BGCOLOR=\"#00FF00\"><FONT SIZE=5>"; // Green
+	String boxStrY = "<TD BGCOLOR=\"#FAFAD2\"><FONT SIZE=5>"; // LightGoldenRodYellow
+//	String boxStrY = "<TD BGCOLOR=\"#FFFF00\"><FONT SIZE=5>"; // Yellow
+	String boxStrR = "<TD BGCOLOR=\"#CD5C5C\"><FONT SIZE=5>"; // IndianRed 
+//	String boxStrR = "<TD BGCOLOR=\"#FF6600\"><FONT SIZE=5>"; // Red
 	String boxStrM = "<TD BGCOLOR=\"#FF00FF\"><FONT SIZE=5>"; // Magenta
 	String boxStrB = "<TD BGCOLOR=\"#CCEEFF\"><FONT SIZE=5>"; // Light blue
+	String boxStrO = "<TD BGCOLOR=\"#FF8C00\"><FONT SIZE=5>"; // DarkOrange
 	String boxStr  = "<TD><FONT SIZE=5>"; 
 	String boxEnd  = "</FONT></TD>";
 
@@ -102,13 +108,14 @@ public class console2html {
 	    	System.out.println (rowStr);
 
 		for (int i = 1; i <= 9; i++) {
+			if (i==1) continue;  // not interested in showing count
 			if (i==6) continue;  // not interested in showing credat
 		    value = rs.getString (i);
   		       
 		    if (rs.getInt("prio") < 30 && rs.getString("status").contentEquals("ERR")) System.out.println (boxStrM);
 		    else if (rs.getInt("prio") >= 30 && rs.getString("status").contentEquals("ERR")) System.out.println (boxStrR);
-		    else if (rs.getString("status").contentEquals("INFO")) System.out.println (boxStrB);
-		    else if (rs.getString("status").startsWith("TOut")) System.out.println (boxStrY);
+		    else if (rs.getString("status").contentEquals("INFO")) System.out.println (boxStrY);
+		    else if (rs.getString("status").startsWith("TOut")) System.out.println (boxStrO);
 		    else if (rs.getString("status").contentEquals("OK"))		System.out.println (boxStrG); 
 		    else System.out.println (boxStrB);
 		    	 
@@ -118,34 +125,34 @@ public class console2html {
     	System.out.println (rowEnd); 
 		
 	    }
-		if (!swFound) {
-			System.out.println (rowStr);
-			System.out.println (boxStrG);
-			System.out.println ("&nbsp;");
-			System.out.println (boxEnd);
-			System.out.println (boxStrG);
-			System.out.println ("&nbsp;");
-			System.out.println (boxEnd);
-			System.out.println (boxStrG);
-			System.out.println ("&nbsp;");
-			System.out.println (boxEnd);
-			System.out.println (boxStrG);
-			System.out.println ("&nbsp;");
-			System.out.println (boxEnd);
-			System.out.println (boxStrG);
-			System.out.println ("&nbsp;");
-			System.out.println (boxEnd);
-			System.out.println (boxStrG);
-			System.out.println ("&nbsp;");
-			System.out.println (boxEnd);
-			System.out.println (boxStrG);
-			System.out.println ("&nbsp;");
-			System.out.println (boxEnd);
-			System.out.println (boxStrG);
-			System.out.println ("&nbsp;");
-			System.out.println (boxEnd);
-			System.out.println (rowEnd);
-		}
+//		if (!swFound) {
+//			System.out.println (rowStr);
+//			System.out.println (boxStrG);
+//			System.out.println ("&nbsp;");
+//			System.out.println (boxEnd);
+//			System.out.println (boxStrG);
+//			System.out.println ("&nbsp;");
+//			System.out.println (boxEnd);
+//			System.out.println (boxStrG);
+//			System.out.println ("&nbsp;");
+//			System.out.println (boxEnd);
+//			System.out.println (boxStrG);
+//			System.out.println ("&nbsp;");
+//			System.out.println (boxEnd);
+//			System.out.println (boxStrG);
+//			System.out.println ("&nbsp;");
+//			System.out.println (boxEnd);
+//			System.out.println (boxStrG);
+//			System.out.println ("&nbsp;");
+//			System.out.println (boxEnd);
+//			System.out.println (boxStrG);
+//			System.out.println ("&nbsp;");
+//			System.out.println (boxEnd);
+//			System.out.println (boxStrG);
+//			System.out.println ("&nbsp;");
+//			System.out.println (boxEnd);
+//			System.out.println (rowEnd);
+//		}
 
 	}
 	catch (Exception e) {

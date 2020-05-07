@@ -81,7 +81,7 @@ public class consoleSts extends JFrame implements TableModelListener, WindowList
 		port = Integer.parseInt(jvport);
 
 		// funktion fr�n Jframe att s�tta rubrik
-		setTitle("Jvakt consoleSts 2.19  -  F1 = Help");
+		setTitle("Jvakt consoleSts 2.20  -  F1 = Help");
 		//	        setSize(5000, 5000);
 
 		// get the screen size as a java dimension
@@ -211,7 +211,7 @@ public class consoleSts extends JFrame implements TableModelListener, WindowList
 		// s�tter f�rg p� raderna
 		consoleStsCR cr=new consoleStsCR();
 
-		for (int i=0; i <= 19; i++ ) {      
+		for (int i=0; i <= 21; i++ ) {      
 			table.getColumn(table.getColumnName(i)).setCellRenderer(cr);
 		}
 

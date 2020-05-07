@@ -21,6 +21,7 @@ public class GetImap4Msg {
 
 	static boolean swSmq1PXP = false;
 	static boolean swSmq2PCP = false;
+	static boolean swUnomaly = false;
 	static int Sm58PCPerr = 0;
 
 	static String from;
@@ -46,7 +47,7 @@ public class GetImap4Msg {
 
 	public static void main(String[] args) throws IOException, FileNotFoundException {
 
-		String version = "GetImap4Msg # ( 2019-07-16 )";
+		String version = "GetImap4Msg # ( 2020-04-28 )";
 
 		for (int i=0; i<args.length; i++) {
 			if (args[i].equalsIgnoreCase("-config")) config = args[++i];
@@ -154,6 +155,7 @@ public class GetImap4Msg {
 				body = null;
 				swHtml = false;
 				Object o = null;
+				//				if (messages[i].isMimeType("text/plain") || messages[i].isMimeType("text/html") || messages[i].isMimeType("multipart/alternative") ) {
 				if (messages[i].isMimeType("text/plain") || messages[i].isMimeType("text/html")  ) {
 					try {
 						o = messages[i].getContent();
@@ -169,9 +171,10 @@ public class GetImap4Msg {
 				//********************************
 				//************** analys start *****
 
-				//				System.out.println("From> " + from);
-				//				System.out.println("Subject> " + subject);
-				//    		System.out.println("Body> " + body);
+				System.out.println("From-> " + from);
+				System.out.println("Subject-> " + subject);
+				System.out.println("Body-> " + body);
+
 				msgFixat = false;
 
 				// Msg från Equallogic  
@@ -254,7 +257,7 @@ public class GetImap4Msg {
 							System.out.println("* Mark as DELETED ");
 						}
 					}
-					else sendJv("MAIL_From_UPS-BGT_Info" , "INFO" , "I",  subject );
+					else sendJv("MAIL_From_UPS-BGT_Info" , "INFO" , "I",  subject + " " + body );
 					msgFixat = true;
 				}
 
@@ -284,11 +287,16 @@ public class GetImap4Msg {
 				}
 
 				// Msg från id_prove@perstorp.com  
-				if (from.indexOf("id_prove@perstorp.com") >= 0) {
-					if (body.indexOf("ERROR") >= 0) {
-						sendJv("MAIL_From_ID_PROVE" , "ERR" , "I",  subject + " " + body);
-					} 
-					msgFixat = true;
+				if (from.indexOf("MAILTODW@perstorp.com") >= 0) {
+					if (subject.indexOf("Sanktionslistenimport") >= 0) {
+						if (body.indexOf("ERROR") >= 0) {
+							sendJv("MAIL_From_ID_PROVE" , "ERR" , "S",  subject + " " + body);
+						} 
+						else {
+							sendJv("MAIL_From_ID_PROVE" , "OK" , "S",  subject + " " + body);
+						} 
+						msgFixat = true;
+					}
 				}
 
 				// Msg från UPS_BGT@perstorp.com  
@@ -318,7 +326,7 @@ public class GetImap4Msg {
 					if (subject.indexOf("Device Error Report") >= 0) {
 						sendJv("MAIL_From_HP_DP" , "INFO" , "I",  "Data Protector Device Error Report!");
 					}
-					// Rapport på fulla tabeller osv. fr�n OeBS
+					// Rapport på fulla tabeller osv. från OeBS
 					if (subject.indexOf("Rapport fr�n OeBS p� object d�r antal lediga extents �r l�gt") >= 0) {
 						if (body.indexOf("no rows selected") < 0) {
 							sendJv("MAIL_From_OeBS" , "ERR" , "I",  "OeBS har l�gt antal lediga extents!");
@@ -372,11 +380,37 @@ public class GetImap4Msg {
 					sendJv("MAIL_From_Qnap" , "INFO" , "I",  subject + " " + body);
 				}
 
+				// Error från Unomaly
+				if (from.toLowerCase().indexOf("unomaly") >= 0 || subject.toLowerCase().indexOf("unomaly") >= 0 || body.toLowerCase().indexOf("unomaly") >= 0) {
+					msgFixat = true;
+					swUnomaly = true;
+
+					if (messages[i].getContentType().startsWith("multipart")) {
+						System.out.println("*** Unomaly multipart ");
+						Multipart mp = (Multipart)messages[i].getContent();
+						System.out.println("***Count> " + mp.getCount());
+
+						for (int j=0, n=mp.getCount(); j<n; j++) {
+							Part part = mp.getBodyPart(j);
+							System.out.println("*** Attachment Descript : "+part.getDescription());
+							System.out.println("*** Attachment ContentType : "+part.getContentType());
+							if (part.getContentType().contains("text/plain")) {
+								body = part.getContent().toString();
+								//								if (body.indexOf("00331 FFI")  >=0) swUnomaly = false; // don't send error n this types  
+								if (body.indexOf("significant")>=0)	body = body.substring(body.indexOf("significant"));
+								System.out.println("*** Attachment Content : "+body);
+							}
+						}									
+					}
+
+					if (swUnomaly) sendJv("MAIL_From_Unomaly" , "INFO" , "T",  subject + " " + body);
+				}
+
 				if (subject.indexOf("Autosvar:") == 0) {
 					msgFixat = true;  
 				}
 
-				if (subject.startsWith("PCP")) {  // Mail fr�n PCP 
+				if (subject.startsWith("PCP")) {  // Mail från PCP 
 					msgFixat = true;  
 					System.out.println("*** PCP> " + body);
 					System.out.println("*** SAP System PCP  ");
@@ -388,7 +422,7 @@ public class GetImap4Msg {
 						for (int j=0, n=mp.getCount(); j<n; j++) {
 							Part part = mp.getBodyPart(j);
 
-//							String disposition = part.getDisposition();
+							//							String disposition = part.getDisposition();
 							//System.out.println("***Disp> " + disposition);
 
 							//        	        		  if ( (disposition != null) && 
@@ -404,7 +438,7 @@ public class GetImap4Msg {
 					}
 				}
 
-				if (subject.startsWith("Job PTP CHECK SMQ2")) {  // Mail fr�n �vervakning av SMQ2 i PCP
+				if (subject.startsWith("Job PTP CHECK SMQ2")) {  // Mail från övervakning av SMQ2 i PCP
 					msgFixat = true;  
 					if (imaprw.startsWith("Y")) {
 						messages[i].setFlag(Flags.Flag.DELETED, true); // markera mailet f�r deletion
@@ -420,7 +454,7 @@ public class GetImap4Msg {
 						for (int j=0, n=mp.getCount(); j<n; j++) {
 							Part part = mp.getBodyPart(j);
 
-//							String disposition = part.getDisposition();
+							//							String disposition = part.getDisposition();
 							//System.out.println("***Disp> " + disposition);
 
 							//        	        		  if ( (disposition != null) && 
@@ -440,10 +474,10 @@ public class GetImap4Msg {
 					}
 				}
 
-				if (subject.startsWith("Job PTP CHECK SM58")) {  // Mail fr�n �vervakning av SM58 i PCP
+				if (subject.startsWith("Job PTP CHECK SM58")) {  // Mail från övervakning av SM58 i PCP
 					msgFixat = true;  
 					if (imaprw.startsWith("Y")) {
-						messages[i].setFlag(Flags.Flag.DELETED, true); // markera mailet f�r deletion
+						messages[i].setFlag(Flags.Flag.DELETED, true); // markera mailet för deletion
 						System.out.println("* Mark as DELETED ");
 					}
 					System.out.println("*** PCP check> " + body);
@@ -456,7 +490,7 @@ public class GetImap4Msg {
 						for (int j=0, n=mp.getCount(); j<n; j++) {
 							Part part = mp.getBodyPart(j);
 
-//							String disposition = part.getDisposition();
+							//							String disposition = part.getDisposition();
 							//System.out.println("***Disp> " + disposition);
 
 							//        	        		  if ( (disposition != null) && 
@@ -500,7 +534,7 @@ public class GetImap4Msg {
 			ex.printStackTrace();
 		}
 
-		// St�ngrutiner
+		// Stängrutiner
 		// Sunet echo expected only to be found in the INBOX folder
 		if (imapFolder.endsWith("INBOX")) {
 			if (!swSunet) {
@@ -513,7 +547,7 @@ public class GetImap4Msg {
 			}
 		}
 
-	} // slut p� pgm
+	} // slut på pgm
 
 	static protected void sendJv( String ID, String STS, String type, String msg) throws IOException {
 		Message jmsg = new Message();
@@ -530,7 +564,7 @@ public class GetImap4Msg {
 		} else jmsg.setPrio(30);
 
 		if (jm.sendMsg(jmsg)) {
-//			System.out.println("-- Rpt Delivered -- " + ID +" - "+ STS +" - "+ type +" - "+ msg +" - "+ agent);
+			//			System.out.println("-- Rpt Delivered -- " + ID +" - "+ STS +" - "+ type +" - "+ msg +" - "+ agent);
 			System.out.println("-- Rpt Delivered -- " + ID +" - "+ STS +" - "+ type +" - "+ agent);
 			msgFixat = true;
 		}

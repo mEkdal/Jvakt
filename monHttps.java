@@ -25,7 +25,7 @@ public class monHttps {
 	static String hosturl;
 	static String tabbar = "                                                                                               ";
 	static InetAddress inet;
-	static String version = "monHttps (2020-01-16)";
+	static String version = "monHttps (2020-05-01)";
 	static String database = "jVakt";
 	static String dbuser   = "jVakt";
 	static String dbpassword = "xz";
@@ -192,8 +192,8 @@ public class monHttps {
 			URL url = new URL("https://"+host+":"+wport+webfile); 
 			URLConnection con = url.openConnection();  // new
 			if (swShow)	System.out.println("-- OK connection");
-			con.setReadTimeout(4000);
-			con.setConnectTimeout(2000);
+			con.setReadTimeout(5000);
+			con.setConnectTimeout(5000);
 			//			BufferedReader httpin = new BufferedReader(
 			//					new InputStreamReader(url.openStream()));
 			if (swShow)	System.out.println("-- OK get in-stream");
