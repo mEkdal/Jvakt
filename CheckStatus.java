@@ -27,11 +27,11 @@ public class CheckStatus {
 	static java.sql.Timestamp zD;
 	static java.sql.Timestamp zTs;
 	static java.sql.Time zT;
-	static Long lhou, lmin, Lsec, Lrptdat, Lchktim;
+	static Long lhou, lmin, Lsec, Lrptdat, Lchktim, Lchktimto;
 	static int errors = 0;
 	static int warnings = 0;
 	static int infos = 0;
-	static String version = "CheckStatus (2020-MAR-18)";
+	static String version = "CheckStatus (2020-MAY-07)";
 	static String database = "jVakt";
 	static String dbuser   = "jVakt";
 	static String dbpassword = "xz";
@@ -137,7 +137,7 @@ public class CheckStatus {
 				if (!rs.getString("type").equalsIgnoreCase("R") && !rs.getString("type").equalsIgnoreCase("S") && !rs.getString("type").equalsIgnoreCase("T") && !rs.getString("type").equalsIgnoreCase("I")) continue;
 
 				if (!rs.getString("status").equalsIgnoreCase("OK"))
-					System.out.println(LocalDateTime.now()+" -#1: "+rs.getString("state")+" " + rs.getString("id")+" "+rs.getString("type")+" "+rs.getString("prio")+" "+rs.getString("console")+" "+rs.getString("status")+" "+rs.getString("errors")+" "+rs.getString("accerr")+" "+rs.getString("chkday")+" "+rs.getTime("chktim"));
+					System.out.println(LocalDateTime.now()+" -#1: "+rs.getString("state")+" " + rs.getString("id")+" "+rs.getString("type")+" "+rs.getString("prio")+" "+rs.getString("console")+" "+rs.getString("status")+" "+rs.getString("errors")+" "+rs.getString("accerr")+" "+rs.getString("chkday")+" "+rs.getTime("chktim")+" "+rs.getTime("chktimto"));
 
 				zD = rs.getTimestamp("rptdat"); 
 				accerr = rs.getInt("accerr");
@@ -151,11 +151,13 @@ public class CheckStatus {
 				Lsec = (zTs.getTime() / 1000 - zD.getTime() / 1000);  // Aktuella tiden minus tiden rptdat i sekunder  
 
 				Lchktim = rs.getTime("chktim").getTime();
+				Lchktimto = rs.getTime("chktimto").getTime();
 				Lrptdat = rs.getTime("rptdat").getTime(); 
 
 				// swShDay will be set to true if the chktim time has passed and chkday is *ALL or the name of day like MON, TUE... 
 				swShDay = false;
 				if (rs.getString("chkday").startsWith("*ALL") || rs.getString("chkday").indexOf(DOW.name().substring(0, 2)) >= 0 ) {
+					// check chktim
 					//					System.out.println("Hour:"+rs.getTime("chktim").getHours() +" Min:"+ rs.getTime("chktim").getMinutes()+" Sec:"+rs.getTime("chktim").getSeconds());
 					cal.setTime(rs.getTime("chktim"));
 					//					System.out.println("Timm "+cal.get(Calendar.HOUR_OF_DAY)+" MIn:"+cal.get(Calendar.MINUTE) + " Sek:"+cal.get(Calendar.SECOND));
@@ -171,9 +173,22 @@ public class CheckStatus {
 					else if (nu.getHour() == cal.get(Calendar.HOUR_OF_DAY)  && nu.getMinute() == cal.get(Calendar.MINUTE) && nu.getSecond() > cal.get(Calendar.SECOND) ) {
 						swShDay = true;	
 					}
+
+					// check chktimto
+					cal.setTime(rs.getTime("chktimto"));
+					if (nu.getHour() > cal.get(Calendar.HOUR_OF_DAY) ) {
+						swShDay = false; 
+					}
+					else if (nu.getHour() == cal.get(Calendar.HOUR_OF_DAY)  && nu.getMinute() > cal.get(Calendar.MINUTE) ) {
+						swShDay = false;	
+					}
+					else if (nu.getHour() == cal.get(Calendar.HOUR_OF_DAY)  && nu.getMinute() == cal.get(Calendar.MINUTE) && nu.getSecond() > cal.get(Calendar.SECOND) ) {
+						swShDay = false;	
+					}
+
 				} 
 				swDelete = false;
-				//				System.out.println("ERR #1,5 swShDay: " + swShDay);
+				System.out.println("ERR #1,5 swShDay: " + swShDay);
 
 				// If status is ERR or INFO the row is tagged console, SMS and mail
 				if ( (rs.getString("status").equalsIgnoreCase("ERR") && err > accerr) || rs.getString("status").equalsIgnoreCase("INFO") ) { 

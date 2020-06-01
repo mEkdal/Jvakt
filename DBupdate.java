@@ -235,8 +235,8 @@ class DBupdate {
 					// newrecord. Not found before, thus create a new record in the status table
 					if ( !swHits ) {   
 
-						PreparedStatement st = conn.prepareStatement("INSERT INTO status (state,id,prio,type,status,body,rptdat,chkday,chktim,errors,accerr,msg,msgdat,console,condat,info,plugin,agent,sms,smsdat,msg30,msgdat30) "
-								+ "values (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)");
+						PreparedStatement st = conn.prepareStatement("INSERT INTO status (state,id,prio,type,status,body,rptdat,chkday,chktim,errors,accerr,msg,msgdat,console,condat,info,plugin,agent,sms,smsdat,msg30,msgdat30,chktimto) "
+								+ "values (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)");
 						st.setString(1,"A"); // sts
 						st.setString(2,m.getId() ); 
 						st.setInt(3,m.getPrio()); // prio
@@ -286,6 +286,8 @@ class DBupdate {
 						st.setTime(20,null ); // smsdat 
 						st.setString(21," "); // msg30 
 						st.setTime(22,null ); // msgdat30 
+						cal.set(1970, 01, 01, 23, 59, 59); // only HH:MM:SS is used
+						st.setTime(23, new java.sql.Time( cal.getTime().getTime())); // chktimto 23:59:59 
 						@SuppressWarnings("unused")
 						int rowsInserted = st.executeUpdate();
 						st.close();

@@ -18,7 +18,7 @@ class consoleStsDM extends AbstractTableModel {
 
 	static final long serialVersionUID = 50L;
 	String afn;
-	String columnNames[] = {"state", "id","prio", "type", "status", "body",  "rptdat", "chkday", "chktim", "errors", "accerr", "msg", "msgdat", "console", "condat", "info", "plugin", "agent", "sms", "smsdat", "msg30", "msgdat30"};
+	String columnNames[] = {"state", "id","prio", "type", "status", "body",  "rptdat", "chkday", "chktim", "errors", "accerr", "msg", "msgdat", "console", "condat", "info", "plugin", "agent", "sms", "smsdat", "msg30", "msgdat30", "chktimto"};
 //	static Vector map = new Vector(1000,100);
 	static Vector<consoleStsROW> map = new Vector<consoleStsROW>(100,100);
 
@@ -30,7 +30,7 @@ class consoleStsDM extends AbstractTableModel {
 	static Connection conn = null;
 	PreparedStatement prepStmt = null;
 
-	String version = "jVakt - consoleStsDM (2020-FEB-28)";
+	String version = "jVakt - consoleStsDM (2020-MAY-07)";
 	String database = "Jvakt";
 	String dbuser   = "console";
 	String dbpassword = "Jvakt";
@@ -69,7 +69,7 @@ class consoleStsDM extends AbstractTableModel {
 	}
 
 	public Object getValueAt(int row, int col) {
-		// se till att objektet User h�mtar v�rdet med r�tt get metod ( if (col == 2) .........
+		// se till att objektet User hämtar värdet med rätt get metod ( if (col == 2) .........
 
 		if ( row >= map.size()) return null;
 
@@ -120,6 +120,8 @@ class consoleStsDM extends AbstractTableModel {
 			return rad.getMsg30();
 		} else if (col == 21) {
 			return rad.getMsgdat30();
+		} else if (col == 22) {
+			return rad.getChktimto();
 		} else {
 			return null;
 		}
@@ -137,7 +139,7 @@ class consoleStsDM extends AbstractTableModel {
 
 
 	public boolean isCellEditable(int row, int col) {
-		if (editable && (col==0||col==1||col==2||col==3||col==4||col==7||col==8||col==10||col==15||col==16)) return true;
+		if (editable && (col==0||col==1||col==2||col==3||col==4||col==7||col==8||col==10||col==11||col==13||col==15||col==16||col==18||col==20||col==22)) return true;
 		else return false;
 	}
 
@@ -211,11 +213,13 @@ class consoleStsDM extends AbstractTableModel {
 			rad.setMsg30((String)value);
 		} else if (col == 21) {
 			rad.setMsgdat30((String)value);
+		} else if (col == 22) {
+			rad.setChktimto((String)value);
 		}
 
 		fireTableCellUpdated(row, col);
-		//col==0||col==2||col==3||col==4||col==7||col==8||col==10||col==15||col==16		
-		String updateTable = "UPDATE status SET state=?, id=?, prio=?, type=?, status=?, chkday=?, chktim=?, accerr=?, info=?, plugin=?  "
+		//col==0||col==2||col==3||col==4||col==7||col==8||col==10||col==15||col==22		
+		String updateTable = "UPDATE status SET state=?, id=?, prio=?, type=?, status=?, chkday=?, chktim=?, accerr=?, info=?, plugin=?, chktimto=?,msg=?,sms=?,msg30=?,console=?  "
 				+ " WHERE ID = ? and prio = ? ";
 		try {
 			prepStmt = conn.prepareStatement(updateTable);
@@ -242,8 +246,24 @@ class consoleStsDM extends AbstractTableModel {
 			prepStmt.setString(9, rad.getInfo());
 			prepStmt.setString(10, rad.getPlugin());
 
-			prepStmt.setString(11, oId);
-			prepStmt.setInt(   12, oPrio);
+			if (rad.getChktimto() != null) {
+				tab = rad.getChktimto().split(":" , 6);
+				tab[2] = tab[2].substring(0, 2);
+				cal.set(1970, 01, 01, Integer.valueOf(tab[0]), Integer.valueOf(tab[1]), Integer.valueOf(tab[2])); // only HH:MM:SS is used
+				prepStmt.setTime(11, new java.sql.Time( cal.getTime().getTime()));  
+			}
+			else {
+				cal.set(1970, 01, 01, 23, 59, 59); // only HH:MM:SS is used
+				prepStmt.setTime(11, new java.sql.Time( cal.getTime().getTime())); // chktim 06:00:00
+			}
+			prepStmt.setString(12, rad.getMsg());
+			prepStmt.setString(13, rad.getSms());
+			prepStmt.setString(14, rad.getMsg30());
+			prepStmt.setString(15, rad.getConsole());
+			
+			prepStmt.setString(16, oId);
+			prepStmt.setInt(   17, oPrio);
+
 			System.out.println("Rows updated : "+prepStmt.executeUpdate());
 
 		} catch (SQLException e) {
@@ -264,8 +284,8 @@ class consoleStsDM extends AbstractTableModel {
 
 		try {
 			// insert new line with new timestamp and counter
-			PreparedStatement st = conn.prepareStatement("INSERT INTO status (state,id,prio,type,status,body,rptdat,chkday,chktim,errors,accerr,msg,msgdat,console,condat,info,plugin,agent,sms,smsdat,msg30,msgdat30) "
-					+ "values (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)");
+			PreparedStatement st = conn.prepareStatement("INSERT INTO status (state,id,prio,type,status,body,rptdat,chkday,chktim,errors,accerr,msg,msgdat,console,condat,info,plugin,agent,sms,smsdat,msg30,msgdat30,chktimto) "
+					+ "values (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)");
 			st.setString(1,"I"); // state
 			st.setString(2,rad.getId()); // id
 			st.setInt(3,oPrio); // prio
@@ -294,6 +314,8 @@ class consoleStsDM extends AbstractTableModel {
 			st.setTimestamp(20,null); // smsdat
 			st.setString(21," "); // msg30 
 			st.setTimestamp(22,null); // msgdat30
+			cal.set(1970, 01, 01, 23, 59, 59); // only HH:MM:SS is used
+			st.setTime(23, new java.sql.Time( cal.getTime().getTime())); // chktimto 23:59:59
 			int rowsInserted = st.executeUpdate();
 			st.close();
 			System.out.println("Rows insterted : "+rowsInserted);
@@ -393,6 +415,7 @@ class consoleStsDM extends AbstractTableModel {
 				rad.setSmsdat(rs.getString("smsdat"));
 				rad.setMsg30(rs.getString("msg30"));
 				rad.setMsgdat30(rs.getString("msgdat30"));
+				rad.setChktimto(rs.getString("chktimto"));
 
 				map.add(rad);
 			}
@@ -443,6 +466,7 @@ class consoleStsDM extends AbstractTableModel {
 		rad.setSmsdat(" ");
 		rad.setMsg30(" ");
 		rad.setMsgdat30(" ");
+		rad.setChktimto(" ");
 
 		//		map.add(rad);
 

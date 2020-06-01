@@ -65,7 +65,7 @@ public class consoleSts extends JFrame implements TableModelListener, WindowList
 		mainFrame.pack();                   // kallar på innevarande class metod pack som ärvts via Jframe 
 		mainFrame.setVisible(true);  	    // kallar på innevarande class metod setVisible och nu visas fönster för användaren
 
-	}   // main st�r nu och "v�ntar" vid slutet tills de andra objekten avslutas.
+	}   // main står nu och "väntar" vid slutet tills de andra objekten avslutas.
 
 
 	// construktorn som startas i den statiska main metoden.
@@ -81,7 +81,7 @@ public class consoleSts extends JFrame implements TableModelListener, WindowList
 		port = Integer.parseInt(jvport);
 
 		// funktion fr�n Jframe att s�tta rubrik
-		setTitle("Jvakt consoleSts 2.20  -  F1 = Help");
+		setTitle("Jvakt consoleSts 2.21  -  F1 = Help");
 		//	        setSize(5000, 5000);
 
 		// get the screen size as a java dimension
@@ -140,7 +140,7 @@ public class consoleSts extends JFrame implements TableModelListener, WindowList
 
 		swServer = true;
 		try {
-			SendMsg jm = new SendMsg(jvhost, port);  // kollar om JvaktServer �r tillgänglig.
+			SendMsg jm = new SendMsg(jvhost, port);  // kollar om JvaktServer är tillgänglig.
 			String oSts = jm.open();
 			//			System.out.println("#1 "+oSts);
 			if (oSts.startsWith("failed")) 	swServer  = false;
@@ -159,7 +159,7 @@ public class consoleSts extends JFrame implements TableModelListener, WindowList
 		}
 		//		System.out.println("swServer :" + swServer);
 		wD.setEditable(!swAuto);
-		swDBopen = wD.refreshData(); // kollar om DB �r tillgänglig
+		swDBopen = wD.refreshData(); // kollar om DB är tillgänglig
 		setBu1Color();
 
 		bu1.addActionListener(new ActionListener() {
@@ -203,25 +203,25 @@ public class consoleSts extends JFrame implements TableModelListener, WindowList
 		//
 
 
-		// s�tter automatsortering i tabellerna    
+		// sätter automatsortering i tabellerna    
 		//	        table.setAutoCreateRowSorter(true);
-		// talar om f�r tabellernas datamodellobjekt (wD o wD2) att detta objekt lyssnar; metoden tableChanged
+		// talar om för tabellernas datamodellobjekt (wD o wD2) att detta objekt lyssnar; metoden tableChanged
 		table.getModel().addTableModelListener(this);
 
-		// s�tter f�rg p� raderna
+		// sätter färg på raderna
 		consoleStsCR cr=new consoleStsCR();
 
-		for (int i=0; i <= 21; i++ ) {      
+		for (int i=0; i <= 22; i++ ) {      
 			table.getColumn(table.getColumnName(i)).setCellRenderer(cr);
 		}
 
-		// skapar nya JScrollPane och l�gger till tabellerna via construktorn. F�r att kunna scrolla tabellerna.
+		// skapar nya JScrollPane och lägger till tabellerna via construktorn. För att kunna scrolla tabellerna.
 
 		scrollPane = new JScrollPane(table);
 		//		table.setAutoResizeMode(JTable.AUTO_RESIZE_ALL_COLUMNS);
 		table.setAutoResizeMode(JTable.AUTO_RESIZE_SUBSEQUENT_COLUMNS);
 		//	        table.setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
-		//state id prio type status body rptdat chkday chktim errors accerr msg msgdat console condat info plugin agent sms smsdat msg30 msgdat30
+		//state id prio type status body rptdat chkday chktim errors accerr msg msgdat console condat info plugin agent sms smsdat msg30 msgdat30 chktimto
 		TableColumn column = null;
 		column = table.getColumnModel().getColumn(0); // state
 		column.setPreferredWidth(40);
@@ -289,21 +289,24 @@ public class consoleSts extends JFrame implements TableModelListener, WindowList
 		column = table.getColumnModel().getColumn(21); // msgdat30
 		column.setPreferredWidth(120);
 		column.setMaxWidth(350);
+		column = table.getColumnModel().getColumn(22); // chktimto
+		column.setPreferredWidth(80);
+		column.setMaxWidth(250);
 
 		addKeyBindings();
 
 		scrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
 		//	        scrollPane.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_ALWAYS);
 
-		// skapar tv� nya JPanel att anv�ndas inuti topPanel, som ocks� �r en JPanel
+		// skapar två nya JPanel att användas inuti topPanel, som också är en JPanel
 		usrPanel = new JPanel();
 		usrPanel.setLayout(new BorderLayout());
 		//	        logPanel = new JPanel();
 		//	        logPanel.setLayout(new BorderLayout());
-		// talar om f�r de nya JPanels vilka scrollPanes dom ska inneh�lla (scrollPanes inneh�ller tabellerna).
+		// talar om för de nya JPanels vilka scrollPanes dom ska innehålla (scrollPanes innehåller tabellerna).
 		//	        usrPanel.add(scrollPane, BorderLayout.CENTER);
 		//		topPanel.add(scrollPane, BorderLayout.CENTER);
-		// talar om f�r topPanel att den ska inneh�lla tv� JPanelobjekt NORTH och CENTER       
+		// talar om för topPanel att den ska innehålla två JPanelobjekt NORTH och CENTER       
 		//	        usrPanel.add(bu1, BorderLayout.NORTH);
 		//		topPanel.add(bu1, BorderLayout.NORTH);
 
@@ -314,7 +317,7 @@ public class consoleSts extends JFrame implements TableModelListener, WindowList
 
 		//	        topPanel.add(usrPanel, BorderLayout.NORTH);
 		//	        topPanel.add(logPanel, BorderLayout.CENTER);
-		// talar om f�r innevarande object att den lyssnar p� sig sj�lv. (metoderna f�r WindowListener)
+		// talar om för innevarande object att den lyssnar på sig själv. (metoderna för WindowListener)
 		addWindowListener(this);
 
 		Timer timer = new Timer(2500, new ActionListener() {
@@ -387,7 +390,7 @@ public class consoleSts extends JFrame implements TableModelListener, WindowList
 	} // slut construktor
 
 
-	// vi implementerade TableModelListener och addade "this" för att denna metod skulle anropas vidä�nding av värde i tabellen
+	// vi implementerade TableModelListener och addade "this" för att denna metod skulle anropas vid ändring av värde i tabellen
 	// detta användas bara för loggning
 	public void tableChanged(TableModelEvent e)  {
 		int row = e.getFirstRow();
@@ -484,17 +487,19 @@ public class consoleSts extends JFrame implements TableModelListener, WindowList
 						"F1 : Help \nF3 : Increase font size \nF4 : Decrease font size \nF9 : Copy row \nDEL : Mark for deletion \n\nESC : Unselect"+
 								"\n\nThe SEARCH field (a where statement) is active when an ending space is present"+
 								"\n\nSome fields are updatable when the 'Auto Update' is off!\n Please heed the rules for the fields!" +
-								"\n\nstate  - Must be A (active), I (inactive) or D (dormant)" + 
-								"\nprio   - Below 30   may trigger SMS or Mail depending on chkday/chktim " + 
-								"\nprio   - 10 or less may trigger SMS or Mail 24/7. " +
-								"\ntype   - R = rptdat must be updated at least every 20 minutes or a time out warning is issued. " +
-								"\ntype   - S = rptday must be updated 'today' or a time out warning is issued. " +
-								"\ntype   - T = no time out warning is issued. " +
-								"\ntype   - I = a temporary type used for impromptu messages. " +
-								"\ntype   - D = delete mark. the row will be purged by the nightly housekeeping routine. " +
-								"\nchkday - Must be *ALL or a mix of MON TUE WED THU FRI SAT SUN"+ 
-								"\nchktim - The time of day when the check starts. The format is HH:MM:TT"+ 
-								"\naccerr - The number of acceptable errors before a warning is issued." 
+								"\n\nstate - Must be A (active), I (inactive) or D (dormant)" + 
+								"\nprio - Below 30   may trigger SMS or Mail depending on chkday/chktim " + 
+								"\nprio - 10 or less may trigger SMS or Mail 24/7. " +
+								"\ntype - R = rptdat must be updated at least every 20 minutes or a time out warning is issued. " +
+								"\ntype - S = rptday must be updated 'today' or a time out warning is issued. " +
+								"\ntype - T = no time out warning is issued. " +
+								"\ntype - I = a temporary type used for impromptu messages. " +
+								"\ntype - D = delete mark. the row will be purged by the nightly housekeeping routine. " +
+								"\nchkday - Must be *ALL or a mix of MON TUE WED THU FRI SAT SUN  (regarding SMS and mail) "+ 
+								"\nchktim - The time of day when the check starts (regarding SMS and mail). The format is HH:MM:TT"+ 
+								"\naccerr - The number of acceptable errors before a warning is issued." + 
+								"\nchktimto - The time of day when the check ends (regarding SMS and mail). The format is HH:MM:TT" + 
+								"\ninfo - The info field is only used here. A place to explain what the row is all about."  
 								,"Jvakt Help",
 								JOptionPane.INFORMATION_MESSAGE);
 
@@ -621,13 +626,13 @@ public class consoleSts extends JFrame implements TableModelListener, WindowList
 
 
 	// windows listeners
-	// vi implementerade WindowListener och addade "this" f�r att denna metod skulle anropas vid normalt avslut av Jframe 
-	// v�rdena i tabellerna skrivt till var sin fil
+	// vi implementerade WindowListener och addade "this" för att denna metod skulle anropas vid normalt avslut av Jframe 
+	// värdena i tabellerna skrivt till var sin fil
 	public void windowClosing(WindowEvent e) {
 		//skriv userDB
 		wD.closeDB();
 		System.exit(0);
-		// ...och h�r �r det slut i rutan..!!!... 
+		// ...och här är det slut i rutan..!!!... 
 	}
 
 	void getProps() {

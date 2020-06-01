@@ -73,7 +73,7 @@ public class SendSMS {
 
 	public static void main(String[] args ) throws IOException, UnknownHostException {
 
-		String version = "SendSMS (2020-MAR-23)";
+		String version = "SendSMS (2020-MAY-07)";
 		String database = "jVakt";
 		String dbuser   = "jVakt";
 		String dbpassword = "xz";
@@ -211,6 +211,19 @@ public class SendSMS {
 					else if (nu.getHour() == cal.get(Calendar.HOUR_OF_DAY) && nu.getMinute() == cal.get(Calendar.MINUTE) && nu.getSecond() > cal.get(Calendar.SECOND) ) {
 						swShDay = true;	System.out.println("Sekunden swShDay: "+swShDay);
 					}
+					
+					// check chktimto
+					cal.setTime(rs.getTime("chktimto"));
+					if (nu.getHour() > cal.get(Calendar.HOUR_OF_DAY) ) {
+						swShDay = false; 
+					}
+					else if (nu.getHour() == cal.get(Calendar.HOUR_OF_DAY)  && nu.getMinute() > cal.get(Calendar.MINUTE) ) {
+						swShDay = false;	
+					}
+					else if (nu.getHour() == cal.get(Calendar.HOUR_OF_DAY)  && nu.getMinute() == cal.get(Calendar.MINUTE) && nu.getSecond() > cal.get(Calendar.SECOND) ) {
+						swShDay = false;	
+					}
+					
 				} 
 				if (rs.getInt("prio") <= 10) swShDay = true; // always handle prio 10 and below.
 				System.out.println("swShDay: "+swShDay);
