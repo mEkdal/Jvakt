@@ -23,7 +23,7 @@ public class monIPAddr {
 	static String tabbar = "                                                                                         ";
 	static String status = null;
 	static InetAddress inet;
-	static String version = "monIPAddr (2020-02-25)";
+	static String version = "monIPAddr (built 2020-05-27)";
 	static String database = "jVakt";
 	static String dbuser   = "jVakt";
 	static String dbpassword = "xz";
@@ -34,6 +34,7 @@ public class monIPAddr {
 	static int port ;
 	static String agent = null;
 	static Date now;
+	static int sleep = 1000;
 
 	static String config = null;
 	static File configF;
@@ -55,9 +56,9 @@ public class monIPAddr {
 		boolean swRun = false;
 
 		if (args.length < 1) {
-			System.out.println("\n " +version);
-			System.out.println("File names must contain monIPAddr and end with .csv. e.g. monIPAddr-01.csv ");
-			System.out.println("IPv4. Will try to establish a TCP connection to port 7 (Echo) and will use ICMP (ping) as a fallback.");
+			System.out.println("\n *** " +version + " *** \n");
+			System.out.println("Input file names must contain monIPAddr and end with .csv. e.g. monIPAddr-01.csv ");
+			System.out.println("Will try to establish a TCP connection to port 7 (Echo) and will use ICMP (ping) as a fallback.");
 			System.out.println("Fields: ID ; host ; description ; wan router ; status");
 			System.out.println("\nwan router: If ip address to WAN router is entered it must respond to ping for the test to ve valid.");
 			System.out.println("     I.e. the status will be OK if the WAN is down. This to ensure not all addresses behind a WAN is marked failed when the WAN is lost.");
@@ -71,10 +72,11 @@ public class monIPAddr {
 			System.out.println("\n\nThe parameters and their meaning are:\n"+
 					"\n-config \tThe dir of the input files. Like: \"-dir c:\\Temp\" "+
 					"\n-run    \tTo actually update the status on the server side."+
-					"\n-loop   \tTo ping every second."+
+					"\n-loop   \tTo check every second. Use -sleep to change the default intervall."+
 					"\n-host   \tCheck a single host." +
-					"\n-show   \tShow the response from the server." +
-					"\n-tracert\tShow the response from the server."
+					"\n-show   \tShow a verboose log." +
+					"\n-tracert\tTo make a traceroute when a check fails." +
+					"\n-sleep  \tIn seconds. Used with loop to sleep between checks. The default is one second."
 					);
 
 			System.exit(4);
@@ -89,6 +91,7 @@ public class monIPAddr {
 			if (args[i].equalsIgnoreCase("-loop")) swLoop = true;
 			if (args[i].equalsIgnoreCase("-show")) swShow = true;
 			if (args[i].equalsIgnoreCase("-tracert")) swTracert = true;
+			if (args[i].equalsIgnoreCase("-sleep")) { sleep = Integer.valueOf(args[++i]); sleep = sleep *1000; }
 		}
 		now = new Date();
 		System.out.println("\n"+now+" *** Jvakt "+version+" ***\n");
@@ -110,7 +113,8 @@ public class monIPAddr {
 			System.out.println(" Suf  : "+suf);
 			System.out.println(" Pos  : "+pos);
 			System.out.println(" Host : "+host);
-			System.out.println(" Loop : "+swLoop+"\n");
+			System.out.println(" Loop : "+swLoop);
+			System.out.println(" Sleep: "+sleep+" ms\n");
 		}
 
 		do {
@@ -171,7 +175,7 @@ public class monIPAddr {
 				}
 			}
 			//			if (swLoop) try {Thread.currentThread().sleep(1000);} catch (InterruptedException e) {e.printStackTrace();} // sleep 1 second
-			if (swLoop) try {Thread.sleep(1000);} catch (InterruptedException e) {e.printStackTrace();} // sleep 1 second
+			if (swLoop) try {Thread.sleep(sleep);} catch (InterruptedException e) {e.printStackTrace();} 
 		} while(swLoop);
 
 	}
@@ -187,18 +191,22 @@ public class monIPAddr {
 			//			if (!swLoop) System.out.println("\n-- Inet: "+inet);
 			//System.out.println("-- Inet bool: "+inet.isReachable(5000));
 			//  TCP connection on port 7 (Echo) 
-			if (!inet.isReachable(2000)) { state = "FAILED"; 
-			if (swShow)	System.out.println(new Date()+" -- Echo failed, pinging..." );
+			if (!inet.isReachable(5000)) { 
+				state = "FAILED"; 
+				if (swShow)	System.out.println(new Date()+" -- Echo failed, pinging..." );
 			}
-			else 						 { state = "OKAY"; swEcho=true;  }
+			else { 
+				state = "OKAY"; 
+				swEcho=true;  
+			}
 		} catch (Exception e) { state = "FAILED"; /*System.out.println("-- exeption state: "+state);*/  }
 
 		if (state.equals("FAILED")) { // make a second attempt by use of ICMP 
 			try {
 				state = "OKAY";
 
-				if (OS.indexOf("win") >= 0) cmd = "ping -n 1 -l 8 -w 2000 " + host;   // Windows
-				else if (OS.indexOf("nix") >= 0) cmd = "ping -c 1 -W 2 " + host;      // Linux or Unix
+				if (OS.indexOf("win") >= 0) cmd = "ping -n 1 -l 8 -w 5000 " + host;   // Windows
+				else if (OS.indexOf("nix") >= 0) cmd = "ping -c 1 -W 5 " + host;      // Linux or Unix
 				else cmd = "ping " + host;											  // 
 
 				if (!runCMD(cmd)) { 

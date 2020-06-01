@@ -46,6 +46,7 @@ public class ManFiles {
 	static String config = null;
 	static File configF;
 	static boolean swJvakt = false;
+	static int sleep = 1000;
 
 	//	static ManFiles x;
 	static ManFiles x = new ManFiles();
@@ -107,14 +108,15 @@ public class ManFiles {
 
 		if (swHelp) {
 			System.out
-			.println("\n*** Jvakt.ManFiles (2019-DEC-16) ***"
+			.println("\n*** Jvakt.ManFiles (built 2020-MAY-29) ***"
 					+ "\n*** by Michael Ekdal, Sweden. ***");
 			System.out
 			.println("\nThe parameters and their meaning are:\n"
 					+ "\n-parfile \tThe name prefix of the parameter file (default is ManFiles). The suffix must end with .par"
 					+ "\n         \tIn the default case, files named ManFiles01.par, ManFiles02.par and so on will be found."
 					+ "\n         \tThe files must reside in the current directory."
-					+ "\n         \tNOTE: -sdir and -tdir can contain maximum one blank in the string."
+					+ "\n         \tNOTE: -sdir and -tdir can contain maximum one consecutive space in the string."
+					+ "\n         \tNOTE: Spaces can be substituted with a ? if more than one space are needed."
 					+ "\n         \tNOTE: No single or dubble quotes are allowed anyware in the file."
 					+ "\n-sdir    \tThe name of the source  directory, like \"-sdir c:\\Temp\" "
 					+ "\n-tdir    \tThe name of the target  directory, like \"-tdir c:\\Temp2\" "
@@ -166,7 +168,8 @@ public class ManFiles {
 					+ "\n-jvakt  \tA switch to enable report to Jvakt. Default is no connection to Jvakt. The file Jvakt.properties must be provided" 
 					+ "\n-id     \tUsed as identifier in the Jvakt monitoring system. Mandatory if -jvakt switch is used." 
 					+ "\n-config \tThe directory where to find the Jvakt.properties file. like \"-config c:\\Temp\". Optional. Default is the current directory." 
-					+ "\n-loop    \tExecutes every second in a never ending loop. No loop is the default value." 
+					+ "\n-loop    \tExecutes every second in a never ending loop. -noloop is the default value."
+					+ "\n-sleep  \tIn seconds. Used with loop to sleep between checks. The default is one second."
 					+ "\n\nComments:"
 					+ "\nErrorlevel is set to the number of found files. Max value is 255 though.\n");
 
@@ -212,7 +215,7 @@ public class ManFiles {
 			antalT=0;antdeletedT=0;antcopiesT=0;antmovedT=0;antarchivedT=0;anterrorsT=0;antemptyT=0;antdedT=0;antalTCMD=0;
 			try {
 				//				Thread.currentThread().sleep(1000);
-				Thread.sleep(1000);
+				Thread.sleep(sleep);
 			}
 			catch (InterruptedException e) {
 				e.printStackTrace();
@@ -358,6 +361,9 @@ public class ManFiles {
 					if ( args[i+1].length() > 2 && args[i+1].startsWith("-")) break;
 					ssdir = ssdir+" "+args[++i];
 				}
+//				Character in need of escapes <([{\^-=$!|]})?*+.> 
+				ssdir = ssdir.replaceAll("[\\*\\?\\<\\>\\|]" , " ");
+//				System.out.println("ssdir: "+ssdir);
 				sdir = new File(ssdir);
 				origdir = sdir.toString();
 			} else if (args[i].equalsIgnoreCase("-tdir")) {
@@ -366,6 +372,7 @@ public class ManFiles {
 					if ( args[i+1].length() > 2 && args[i+1].startsWith("-")) break;
 					ssdir = ssdir+" "+args[++i];
 				}
+				ssdir = ssdir.replaceAll("[\\*\\?\\<\\>\\|]" , " ");
 				tdir = new File(ssdir);
 				norigdir = tdir.toString();
 			} else if (args[i].equalsIgnoreCase("-adir")) {
@@ -375,6 +382,7 @@ public class ManFiles {
 					if ( args[i+1].length() > 2 && args[i+1].startsWith("-")) break;
 					ssdir = ssdir+" "+args[++i];
 				}
+				ssdir = ssdir.replaceAll("[\\*\\?\\<\\>\\|]" , " ");
 				adir = new File(ssdir);
 				norigdirA = adir.toString();
 			} else if (args[i].equalsIgnoreCase("-suf"))
@@ -449,7 +457,7 @@ public class ManFiles {
 			else if (args[i].equalsIgnoreCase("-jvakt")) swJvakt=true;
 			else if (args[i].equalsIgnoreCase("-config")) config = args[++i];
 			else if (args[i].equalsIgnoreCase("-id"))  id  = args[++i];
-
+			else if (args[i].equalsIgnoreCase("-sleep")) { sleep = Integer.valueOf(args[++i]); sleep = sleep *1000; }
 
 		}
 
@@ -837,6 +845,7 @@ public class ManFiles {
 									}
 									moveerror = true;
 									anterrors++;
+									anterrorsT++;
 								}
 							}
 						}
@@ -888,6 +897,7 @@ public class ManFiles {
 						} catch (IOException e) {
 							copyerror = true;
 							anterrors++;
+							anterrorsT++;
 							System.out.println(e);
 							if (swList)
 								System.out.println("   *** copy error --> "	+ newfile);

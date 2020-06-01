@@ -24,9 +24,10 @@ public class CheckLogs {
 	static String jvtype = "R";
 	static int port ;
 	static InetAddress inet;
-	static String version = "CheckLogs (2019-JUL-25)";
+	static String version = "CheckLogs (Build 2020-JUN-01)";
 	static String agent = null;
 	static boolean swSlut = false;
+	static String charset = "UTF8";
 
 	static String config = null;
 	static File configF;
@@ -73,6 +74,7 @@ public class CheckLogs {
 			if (args[i].equalsIgnoreCase("-jvakt")) swJvakt=true;
 			if (args[i].equalsIgnoreCase("-jvtype")) jvtype  = args[++i];
 			if (args[i].equalsIgnoreCase("-config")) config = args[++i];
+			if (args[i].equalsIgnoreCase("-charset")) charset = args[++i];
 		}
 
 		if (args.length < 1) {
@@ -88,7 +90,8 @@ public class CheckLogs {
 					"\n-jvakt  \tA switch to enable report to Jvakt. Default is no connection to Jvakt." +
 					"\n-jvtype \tThe type of the Jvakt report. Optional.  The default is \"R\"" +
 					"\n-id     \tUsed as identifier in the Jvakt monitoring system." +
-					"\n-config \tThe directory where to find the Jvakt.properties file. like \"-config c:\\Temp\". Optional. Default is the current directory.");
+					"\n-config \tThe directory where to find the Jvakt.properties file. like \"-config c:\\Temp\". Optional. Default is the current directory." +
+					"\n-charset \tDefault is UTF8. It could be UTF-16, UTF-32, ASCII, ISO8859_1...");
 
 			System.out.println("\n\n--- The following files must be present in the current directory ---\n"+
 					"\nCheckLogs.srch  \tStrings considered errors if found in the log file. e.g. ORA-"+
@@ -229,7 +232,8 @@ public class CheckLogs {
 		        fis = new FileInputStream(aFile);
 //				in = new BufferedReader( new FileReader(oldnamn) );
 			}
-	        InputStreamReader isr = new InputStreamReader(fis, "UTF8");
+//			InputStreamReader isr = new InputStreamReader(fis, "UTF8"); 
+			InputStreamReader isr = new InputStreamReader(fis, charset); 
 	        in = new BufferedReader(isr);
 
 			position = 0;
@@ -301,7 +305,7 @@ public class CheckLogs {
 		}
 		else      {
 			swWarn=true;
-			t_desc = errors + " errors found in log file.";
+//			t_desc = errors + " errors found in log file.";
 			sendSTS(swWarn);
 		}
 
@@ -314,7 +318,11 @@ public class CheckLogs {
 	// sends status to the server
 	static protected void sendSTS( boolean STS) throws IOException {
 		if (!swSlut) { 
-			t_desc =aFile+": "+t_desc;
+			if (jvtype.startsWith("I")) {
+				if (t_desc.length() > 200) t_desc = t_desc.substring(0, 200);
+				t_desc =t_desc+" : "+aFile;
+			}
+//			t_desc =t_desc+" : "+aFile;
 		}
 
 		if (swJvakt) {
@@ -328,24 +336,35 @@ public class CheckLogs {
 //			catch (java.net.ConnectException e ) {System.out.println("-- Rpt Failed -" + e);    return;}
 //			catch (NullPointerException npe2 )   {System.out.println("-- Rpt Failed --" + npe2); return;}
 
-			//		if (!swSlut) jmsg.setId(id+"-CheckLogs-"+aFile);
-			//		else		 jmsg.setId(id+"-CheckLogs-"+aFile+"-JV");
-			// 	    jmsg.setId(id+"-CheckLogs-"+aFile);
 			jmsg.setId(id);
-			if (!STS) jmsg.setRptsts("OK");
-			else jmsg.setRptsts("ERR");
+			if (!STS) {
+				jmsg.setRptsts("OK");
+			}
+			else {
+				if (jvtype.startsWith("I")) jmsg.setRptsts("INFO");
+				else jmsg.setRptsts("ERR");
+			}
 			if (swSlut) { 
-				jmsg.setType(jvtype);
+				if (!STS) jmsg.setRptsts("OK");
+				else {
+					if (jvtype.startsWith("I")) {
+						if (t_desc.length() > 200) t_desc = t_desc.substring(0, 200);
+						t_desc =t_desc+" : "+aFile;
+					}
+				}
 			} else {
-				//			t_desc =aFile+": "+t_desc;
-				jmsg.setId(id+"_info");
-				jmsg.setId(id);
-				jmsg.setType("I");
-				jmsg.setRptsts("ERR");
+				if (jvtype.startsWith("I")) {
+					jmsg.setId(id+"_info");
+					jmsg.setRptsts("INFO");
+				}
+				else {
+					jmsg.setRptsts("ERR");
+					jmsg.setId(id);
+				}
+				jmsg.setType(jvtype);
 			}
 			jmsg.setBody(t_desc);
 			jmsg.setAgent(agent);
-			//		jm.sendMsg(jmsg);
 			if (jm.sendMsg(jmsg)) System.out.println("--- Rpt Delivered --  " + id + "  --  " + t_desc);
 			else           		  System.out.println("--- Rpt Failed ---");
 			jm.close();
