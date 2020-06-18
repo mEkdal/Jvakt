@@ -47,6 +47,7 @@ public class ManFiles {
 	static File configF;
 	static boolean swJvakt = false;
 	static int sleep = 1000;
+	static String charset = "UTF8";
 
 	//	static ManFiles x;
 	static ManFiles x = new ManFiles();
@@ -63,6 +64,7 @@ public class ManFiles {
 		min = "0";
 		sec = "0";
 		scanstr = null;
+		charset = "UTF8";
 		swNrunq = false;
 
 		now = new Date();
@@ -89,7 +91,7 @@ public class ManFiles {
 					+ "\t inpath=" + inpath + "\t swRepl=" + swRepl
 					+ "\t swNrunq=" + swNrunq + "\t swFlat=" + swFlat
 					+ "\t swAppend=" + swAppend + "\t swUnique=" + swUnique + "\t swLoop=" + swLoop
-					+ "\t swNew=" + swNew + "\t swLogg=" + swLogg + "\t swCountC=" + swCountC +"\t scan=" + scanstr + "\t parfile=" + parFile;
+					+ "\t swNew=" + swNew + "\t swLogg=" + swLogg + "\t swCountC=" + swCountC +"\t scan=" + scanstr + "\t charset=" + charset+ "\t parfile=" + parFile;
 			System.out.println(infTxt);
 			if (swLogg) {
 				logg.write(infTxt);
@@ -108,7 +110,7 @@ public class ManFiles {
 
 		if (swHelp) {
 			System.out
-			.println("\n*** Jvakt.ManFiles (built 2020-MAY-29) ***"
+			.println("\n*** Jvakt.ManFiles (build 2020-JUN-02) ***"
 					+ "\n*** by Michael Ekdal, Sweden. ***");
 			System.out
 			.println("\nThe parameters and their meaning are:\n"
@@ -161,6 +163,7 @@ public class ManFiles {
 					+ "\n-help    \tThis help text are shown."
 					+ "\n-set     \tShows the program settings."
 					+ "\n-scan    \tThe string that is searched for inside the files. It must be a single string with no blanks."
+					+ "\n-charset \tUsed with -scan. Default is UTF8. It could be UTF-16, UTF-32, ASCII, ISO8859_1..."
 					+ "\n-cmd1    \tThe command part1 to use on files."
 					+ "\n         \t i.e. \"print /d:\\\\ptp165\\PBEdicom\\\" (The selected filename is used as a parameter to the command)"
 					+ "\n-cmd2    \tThe command part2 to use on files."
@@ -262,7 +265,7 @@ public class ManFiles {
 		Lsec = new Long(sec);
 		//		x = new ManFiles();
 		//		System.out.println("pref: "+pref+" inpath: "+inpath+" sdir "+ sdir); 
-		ff = x.new FileFilter(lhou, lmin, Lsec, suf, pos, pref, expath, inpath,	swNew, exfile,scanstr,fdat,tdat);
+		ff = x.new FileFilter(lhou, lmin, Lsec, suf, pos, pref, expath, inpath,	swNew, exfile,scanstr,charset,fdat,tdat);
 		x.new VisitAllFiles(sdir);
 		if (swParfile) {
 
@@ -305,6 +308,7 @@ public class ManFiles {
 		min = "0";
 		sec = "0";
 		scanstr = null;
+		charset = "UTF8";
 		cmd1 = "";
 		cmd2 = "";
 		fdat = "00000000000000";
@@ -426,6 +430,7 @@ public class ManFiles {
 				swCountC = true;
 			else if (args[i].equalsIgnoreCase("-scan"))
 				scanstr = args[++i];
+			else if (args[i].equalsIgnoreCase("-charset")) charset = args[++i];
 			else if (args[i].equalsIgnoreCase("-cmd1")) {
 				cmd1 = args[++i];  swCmd = true;
 				while( args.length > i+1 ) {
@@ -936,6 +941,7 @@ public class ManFiles {
 		String expath;
 		String inpath;
 		String scanstr;
+		String charset;
 		String tdat;
 		String fdat;
 		long inhours;
@@ -947,7 +953,7 @@ public class ManFiles {
 
 		FileFilter(Long inhours, Long inmin, Long insec, String afn,
 				String infix, String inpref, String expath, String inpath,
-				boolean swNew, String exfile, String scanstr, String fdat,String tdat) {
+				boolean swNew, String exfile, String scanstr, String charset, String fdat,String tdat) {
 			this.afn = afn.toLowerCase();
 			this.infix = infix.toLowerCase();
 			this.inpref = inpref.toLowerCase();
@@ -962,6 +968,7 @@ public class ManFiles {
 			else 				this.scanstr = scanstr.toLowerCase();
 			this.fdat = fdat;
 			this.tdat = tdat;
+			this.charset = charset;
 
 		}
 
@@ -1051,7 +1058,7 @@ public class ManFiles {
 					okay = false;
 			}
 			if (okay && scanstr!=null) {
-				try {okay = scanF(fi,scanstr); }
+				try {okay = scanF(fi,scanstr,charset); }
 				catch (IOException e) {	
 					e.printStackTrace(); 
 					okay = false; }
@@ -1062,10 +1069,12 @@ public class ManFiles {
 		}
 
 		// searches for a string inside the file 
-		protected boolean scanF(File src, String scanstr) throws IOException {
+		protected boolean scanF(File src, String scanstr, String charset) throws IOException {
 			boolean found = false;
 			String s;
-			BufferedReader in = new BufferedReader(new FileReader(src));
+			FileInputStream fis = new FileInputStream(src);
+			InputStreamReader isr = new InputStreamReader(fis, charset);
+			BufferedReader in = new BufferedReader(isr);
 			while ((s = in.readLine()) != null && !found) {
 				if (s.toLowerCase().indexOf(scanstr) >= 0) found = true;
 			} 
