@@ -10,7 +10,7 @@ import java.time.LocalDateTime;
 //import org.postgresql.util.PSQLException;
 
 class DBupdate {
-/* DBupdate ( 2020-FEB-27 ) */
+/* DBupdate ( 2020-JUL-22 ) */
 	static Connection conn = null;
 	Statement stmt = null;
 	PreparedStatement pStmt = null;
@@ -105,7 +105,8 @@ class DBupdate {
 			if(!swDB) {
 				DBUrl = "jdbc:postgresql://"+dbhost+":"+dbport+"/"+database;
 				conn = DriverManager.getConnection(DBUrl,dbuser,dbpassword);
-				conn.setAutoCommit(true);
+//				conn.setAutoCommit(true);   // 2020-07-22
+				conn.setAutoCommit(false);   // 2020-07-22
 				swDB = true;
 			}
 
@@ -231,8 +232,9 @@ class DBupdate {
 					}
 					rs.close(); 
 					stmt.close(); 
+					conn.commit();  // 2020-07-22
 
-					// newrecord. Not found before, thus create a new record in the status table
+					// new record. Not found before, thus create a new record in the status table
 					if ( !swHits ) {   
 
 						PreparedStatement st = conn.prepareStatement("INSERT INTO status (state,id,prio,type,status,body,rptdat,chkday,chktim,errors,accerr,msg,msgdat,console,condat,info,plugin,agent,sms,smsdat,msg30,msgdat30,chktimto) "
@@ -291,6 +293,7 @@ class DBupdate {
 						@SuppressWarnings("unused")
 						int rowsInserted = st.executeUpdate();
 						st.close();
+						conn.commit(); // 2020-07-22
 					} // newrecord      
 
 
@@ -363,6 +366,7 @@ class DBupdate {
 						rs2.close(); 
 						//						System.out.println(">>> innan stmt.close");
 						stmt.close();
+						conn.commit(); // 2020-07-22
 						//						System.out.println(">>> efter stmt.close");
 
 						if ( count == 1 && (sType.equalsIgnoreCase("I") || m.getType().equalsIgnoreCase("I")) && !m.getType().equalsIgnoreCase("D")) {
@@ -385,11 +389,12 @@ class DBupdate {
 							int rowsInserted = st.executeUpdate();
 							//        System.out.println("Executed insert " +rowsInserted);
 							st.close();
+							conn.commit();  // 2020-07-22
 							//        System.out.println("Closed " + sessnum );
 							//  Sleep one millisecond to be sure next timestamp is unique.
 							try { Thread.sleep(1); } catch (InterruptedException e) { e.printStackTrace();}
 						}
-					} //�console    
+					} //@console    
 
 				}
 		}
@@ -437,6 +442,7 @@ class DBupdate {
 			if (swLogg)
 				System.out.println(LocalDateTime.now()+" #16 Executed insert addHst " +rowsInserted);
 			st.close();
+			conn.commit(); // 2020-07-22
 			if (swLogg)
 				System.out.println(LocalDateTime.now()+" #17 Closed addHst");
 		}
