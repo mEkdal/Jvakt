@@ -25,11 +25,6 @@ public class monPingdom {
 	static String tabbar = "                                                                                               ";
 	static InetAddress inet;
 	static String version = "monPingdom (2020-08-27)";
-	static String database = "jVakt";
-	static String dbuser   = "jVakt";
-	static String dbpassword = "xz";
-	static String dbhost   = "localhost";
-	static String dbport   = "5433";
 	static String jvhost   = "localhost";
 	static String jvport   = "1956";
 	static int port ;
@@ -45,16 +40,6 @@ public class monPingdom {
 	static File configF;
 
 	public static void main(String[] args) throws UnknownHostException, IOException, Exception {
-
-		//		String[] tab = new String [1];
-		//		String tdat;
-		//		String s;
-		//		File[] listf;
-		//		DirFilter df;
-//		File dir = new File(".");
-//		if (config != null ) dir = new File(config);
-//		String suf = ".csv";
-//		String pos = "monHttps-";
 
 		now = new Date();
 
