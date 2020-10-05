@@ -10,7 +10,7 @@ import java.time.LocalDateTime;
 //import org.postgresql.util.PSQLException;
 
 class DBupdate {
-/* DBupdate ( 2020-JUL-22 ) */
+/* DBupdate ( 2020-SEP-19 )  */
 	static Connection conn = null;
 	Statement stmt = null;
 	PreparedStatement pStmt = null;
@@ -23,6 +23,7 @@ class DBupdate {
 	int errors;
 	int accerr;
 	int count;
+	int dbwrites;
 	boolean swDB = false;
 	boolean swPlugin = false;
 	boolean swDormant = true;
@@ -37,6 +38,8 @@ class DBupdate {
 	String dbpassword = "xz";
 	String dbhost   = "localhost";
 	String dbport   = "5433";
+	String autocreate = "yes";
+	int dbwritesMax = 10000 ;
 
 	Properties prop = new Properties();
 
@@ -67,13 +70,15 @@ class DBupdate {
 			dbpassword = prop.getProperty("dbpassword");
 			dbhost   = prop.getProperty("dbhost");
 			dbport   = prop.getProperty("dbport");
+			autocreate  = prop.getProperty("autocreate");
 			String	mode 	 =  prop.getProperty("mode");
 			if (!mode.equalsIgnoreCase("active")) {  
 				swDormant = true;
 				swPerm    = true;
 			}
+			dbwritesMax =  Integer.parseInt(prop.getProperty("dbwritesMax"));
 		} catch (IOException ex) {
-			// ex.printStackTrace();
+			 ex.printStackTrace();
 		}
 		input.close();
 
@@ -89,12 +94,14 @@ class DBupdate {
 
 	public synchronized void dbWrite(Message m)  {
 
+		String sState = "";
 		String sType = "";
 		String sId = "";		
 		String sBody = "";
+		dbwrites++;
 //		int sPrio = 99;
 
-		// Ignore empty conenctions. Most often from console checking the status.
+		// Ignore empty connections. Most often from console checking the status.
 		if ( m.getId().isEmpty() ) {
 			if (swLogg) System.out.println(LocalDateTime.now()+"dbWrite #A: " + m.getType() + " " + m.getId() + " " +m.getRptsts() + " " + m.getBody() + " " +m.getAgent() + " " +m.getPrio());
 			return;
@@ -108,6 +115,7 @@ class DBupdate {
 //				conn.setAutoCommit(true);   // 2020-07-22
 				conn.setAutoCommit(false);   // 2020-07-22
 				swDB = true;
+				System.out.println(LocalDateTime.now()+" #C1 Connected to DB" );
 			}
 
 			if ( m.getType().equalsIgnoreCase("Dormant")) {
@@ -137,13 +145,14 @@ class DBupdate {
 					while (rs.next() && swLoop) {
 						swHits = true;  // A record is already in place
 						swPlugin = false;
+						sState = rs.getString("state");
 						sType = rs.getString("type");
 						sId = rs.getString("id");
 						sBody = rs.getString("body");
 //						sPrio = rs.getInt("prio");
 						if (swLogg) {
 							if (!rs.getString("status").equals(m.getRptsts().toUpperCase()))
-								System.out.println(LocalDateTime.now()+" #1 " + rs.getString("id") + "  "  + sType + " " + rs.getString("status")+"->"+ m.getRptsts().toUpperCase() );
+								System.out.println(LocalDateTime.now()+" #1 " + rs.getString("id") + "  "  + sState + "  "  + sType + " " + rs.getString("status")+"->"+ m.getRptsts().toUpperCase() );
 						}
 						// trigger plugin
 						if ( m.getType().equalsIgnoreCase("P")) {
@@ -159,6 +168,21 @@ class DBupdate {
 						if (rs.getString("type").startsWith("D")) {
 							rs.updateString("type", m.getType().toUpperCase());
 							sType = m.getType().toUpperCase();
+//							rs.updateString("msg", "M");
+//							rs.updateString("sms", "M");
+//							rs.updateString("msg30", "M");
+							if (rs.getString("msg").startsWith("M")) rs.updateString("msg", " ");
+							else if (rs.getString("msg").startsWith("T")) rs.updateString("msg", " ");
+							else if (rs.getString("msg").startsWith("S")) rs.updateString("msg", "R");
+
+							if (rs.getString("sms").startsWith("M")) rs.updateString("sms", " ");
+							else if (rs.getString("sms").startsWith("T")) rs.updateString("sms", " ");
+							else if (rs.getString("sms").startsWith("S")) rs.updateString("sms", "R");
+
+							if (rs.getString("msg30").startsWith("M")) rs.updateString("msg30", " ");
+							else if (rs.getString("msg30").startsWith("T")) rs.updateString("msg30", " ");
+							else if (rs.getString("msg30").startsWith("S")) rs.updateString("msg30", "R");
+
 							if (m.getType().toUpperCase().startsWith("I")) rs.updateInt("prio", m.getPrio());
 							//							System.out.println("sType 2 " + sType );
 						}
@@ -200,16 +224,19 @@ class DBupdate {
 							rs.updateString("console", "C");
 							rs.updateTimestamp("condat", new java.sql.Timestamp((new Date(System.currentTimeMillis())).getTime()));
 							if (rs.getString("msg").startsWith(" ")) {
+								System.out.println(LocalDateTime.now()+" Set msg to M" + " " + rs.getString("id"));  // 2020-09-15
 								rs.updateString("msg", "M");
 								rs.updateTimestamp("msgdat", new java.sql.Timestamp((new Date(System.currentTimeMillis())).getTime()));
 								swPlugin = true;
 								status = rs.getString("status");
 							}
 							if (rs.getString("sms").startsWith(" ")) {
+								System.out.println(LocalDateTime.now()+" Set sms to M" + " " + rs.getString("id")); // 2020-09-15
 								rs.updateString("sms", "M");
 								rs.updateTimestamp("smsdat", new java.sql.Timestamp((new Date(System.currentTimeMillis())).getTime()));
 							}
 							if (rs.getString("msg30").startsWith(" ")) {
+								System.out.println(LocalDateTime.now()+" Set msg30 to M" + " " + rs.getString("id"));  // 2020-09-15
 								rs.updateString("msg30", "M");
 								rs.updateTimestamp("msgdat30", new java.sql.Timestamp((new Date(System.currentTimeMillis())).getTime()));
 							}
@@ -235,7 +262,7 @@ class DBupdate {
 					conn.commit();  // 2020-07-22
 
 					// new record. Not found before, thus create a new record in the status table
-					if ( !swHits ) {   
+					if ( !swHits && !autocreate.equalsIgnoreCase("no") ) {   
 
 						PreparedStatement st = conn.prepareStatement("INSERT INTO status (state,id,prio,type,status,body,rptdat,chkday,chktim,errors,accerr,msg,msgdat,console,condat,info,plugin,agent,sms,smsdat,msg30,msgdat30,chktimto) "
 								+ "values (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)");
@@ -271,7 +298,7 @@ class DBupdate {
 						else                                          st.setInt(10,1); 
 						if (sType.toUpperCase().equals("R")) st.setInt(11,1); // acceptable errors 
 						else 								 st.setInt(11,0); // acceptable errors 
-						st.setString(12," "); // msg 
+						st.setString(12,"M"); // msg 
 						st.setTime(13,null ); // msgdat 
 						if (m.getType().equalsIgnoreCase("I"))   {
 							st.setString(14,"C" ); // console
@@ -284,9 +311,9 @@ class DBupdate {
 						st.setString(16," "); // info
 						st.setString(17," "); // plugin
 						st.setString(18,m.getAgent() ); 
-						st.setString(19," "); // sms 
+						st.setString(19,"M"); // sms 
 						st.setTime(20,null ); // smsdat 
-						st.setString(21," "); // msg30 
+						st.setString(21,"M"); // msg30 
 						st.setTime(22,null ); // msgdat30 
 						cal.set(1970, 01, 01, 23, 59, 59); // only HH:MM:SS is used
 						st.setTime(23, new java.sql.Time( cal.getTime().getTime())); // chktimto 23:59:59 
@@ -312,7 +339,10 @@ class DBupdate {
 
 
 					// console ** Immediate or delete type cause an update to the console table at once.
-					if ( sType.equalsIgnoreCase("I") || m.getType().equalsIgnoreCase("I") || m.getType().equalsIgnoreCase("D") ) {   
+//					if ( sType.equalsIgnoreCase("I") || m.getType().equalsIgnoreCase("I") || m.getType().equalsIgnoreCase("D") ) {   
+					if ( sType.equalsIgnoreCase("I") ||
+					  (!sState.equalsIgnoreCase("I") && m.getType().equalsIgnoreCase("I") && (!autocreate.equalsIgnoreCase("no") || swHits) ) ||
+					    m.getType().equalsIgnoreCase("D") ) {   
 						if (swLogg) {
 							System.out.println(LocalDateTime.now()+" #6 Con  m.Type  : " + m.getType().toUpperCase() +" - "+  m.getId()+" - "+ m.getBody());
 							System.out.println(LocalDateTime.now()+" #7 Con rs.sType : " + sType +" - "+sId+"- -"+ sBody);
@@ -355,7 +385,7 @@ class DBupdate {
 								try { rs2.deleteRow(); } catch(NullPointerException npe2) {System.out.println(LocalDateTime.now()+" #12 delete row npe " + npe2 );}
 							}
 							else { 
-								if (swLogg) System.out.println(LocalDateTime.now()+" #13  update row in console" + rs2.getString("id")+" - "+rs2.getString("body"));
+								if (swLogg) System.out.println(LocalDateTime.now()+" #13  update row in console " + rs2.getString("id")+" - "+rs2.getString("body"));
 								rs2.updateTimestamp("condat", new java.sql.Timestamp((new Date(System.currentTimeMillis())).getTime()));
 								rs2.updateInt("count", count);
 								rs2.updateString("status", m.getRptsts());
@@ -397,6 +427,16 @@ class DBupdate {
 					} //@console    
 
 				}
+			
+			// 2020-09-15
+			if (dbwrites>dbwritesMax) {
+				System.out.println(LocalDateTime.now()+" #C2 closing DB connection" );
+				swDB = false;
+				dbwrites=0;
+				conn.commit();
+				conn.close();	
+			}
+
 		}
 		catch (SQLException e) {
 			System.out.println(LocalDateTime.now()+" #E1 DT SQL exeption session " );
@@ -414,7 +454,6 @@ class DBupdate {
 		finally {
 			//			System.out.println("DT finally  " ); 
 		}
-
 	}
 
 	//----- add new line to the consoleHst table -----

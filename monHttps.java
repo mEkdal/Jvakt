@@ -9,6 +9,8 @@ import javax.net.ssl.SSLSession;
 import javax.net.ssl.TrustManager;
 import javax.net.ssl.X509TrustManager;
 import java.security.cert.X509Certificate;
+import java.security.cert.Certificate;
+import java.security.cert.CertificateException;
 
 public class monHttps {
 
@@ -21,11 +23,13 @@ public class monHttps {
 	static boolean swFound;
 	static boolean swSingle = false;
 	static boolean swShow = false;
+	static boolean swExpire = false;
+	static String expire;
 	static String host;
 	static String hosturl;
 	static String tabbar = "                                                                                               ";
 	static InetAddress inet;
-	static String version = "monHttps (2020-05-01)";
+	static String version = "monHttps (2020-09-10)";
 	static String database = "jVakt";
 	static String dbuser   = "jVakt";
 	static String dbpassword = "xz";
@@ -119,7 +123,7 @@ public class monHttps {
 		if (config == null ) 	configF = new File("Jvakt.properties");
 		else 					configF = new File(config,"Jvakt.properties");
 
-		
+
 		System.out.println("\n"+now+" *** Jvakt "+version+" ***\n");
 		if (swShow)	System.out.println(" config file: "+configF);
 
@@ -190,12 +194,35 @@ public class monHttps {
 			if (swShow)	System.out.println("-- OK text: " +webcontent);
 			//			System.setProperty("https.protocols", "SSLv3");
 			URL url = new URL("https://"+host+":"+wport+webfile); 
-			URLConnection con = url.openConnection();  // new
+			//			URLConnection con = url.openConnection();  // new
+			HttpsURLConnection con = (HttpsURLConnection) url.openConnection();
 			if (swShow)	System.out.println("-- OK connection");
 			con.setReadTimeout(5000);
 			con.setConnectTimeout(5000);
 			//			BufferedReader httpin = new BufferedReader(
 			//					new InputStreamReader(url.openStream()));
+
+			con.connect();
+
+			swExpire = false;
+			Certificate[] certs = con.getServerCertificates();
+			for(Certificate c:certs){
+				//System.out.println(c.getType());
+				//System.out.println(c.toString());
+				X509Certificate xc = (X509Certificate)c; // we should really check the type before doing this typecast..
+				String dn = xc.getSubjectDN().getName();
+				Date expiresOn= xc.getNotAfter();
+				Date now = new Date();
+				long days = (expiresOn.getTime()-now.getTime())/(1000*60*60*24);
+				if (days < 10) { 
+					expire = " ** Warning ** Certificate expires soon - "+expiresOn+" - "+dn ;
+					if (swShow)	System.out.println(expire);
+					swExpire = true;
+				}
+				if (swShow)	System.out.println(dn+"\n The certificate expires on "+expiresOn+".\n "+days+" days to go");
+			}			
+
+
 			if (swShow)	System.out.println("-- OK get in-stream");
 			BufferedReader httpin = new BufferedReader(
 					new InputStreamReader(con.getInputStream()));
@@ -211,6 +238,8 @@ public class monHttps {
 			}
 			httpin.close();
 
+
+
 		} 
 		catch (Exception e) { System.out.println(e); state = false;   }
 		//		catch (UnknownHostException e) { System.out.println(e); state = false;   }
@@ -225,11 +254,16 @@ public class monHttps {
 		if (t_desc == null) t_desc = " ";
 		if (hosturl.length()>85) hosturl=hosturl.substring(0,85);
 		hosturl = hosturl + tabbar.substring(0,85-hosturl.length());
+		
+		if (swExpire) {
+			t_desc = expire +" - "+ t_desc;
+			state = false;
+		}
 
-		if (state) {System.out.println(new Date()+" -- Connection succcessful - "+hosturl+t_desc); return true; }
-		else 	   {System.out.println(new Date()+" -- Connection failed      - "+hosturl+t_desc); return false; }
+		if (state) {System.out.println(new Date()+" -- Connection successful - "+hosturl+t_desc); return true; }
+		else 	   {System.out.println(new Date()+" -- Connection failed     - "+hosturl+t_desc); return false; }
 
-		//		if (state) {System.out.println("Connection succcessful"); return true; }
+		//		if (state) {System.out.println("Connection successful"); return true; }
 		//		else 	   {System.out.println("Connection failed"); return false; }
 	}
 
@@ -242,6 +276,7 @@ public class monHttps {
 		jmsg.setId(t_id+"-monHttps-"+host);
 		if (STS) jmsg.setRptsts("OK");
 		else jmsg.setRptsts("ERR");
+		if (swExpire) t_desc = expire +" - "+ t_desc;
 		jmsg.setBody(t_desc);
 		jmsg.setType("R");
 		jmsg.setAgent(agent);

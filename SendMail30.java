@@ -85,7 +85,7 @@ public class SendMail30 {
 
 	public static void main(String[] args ) throws IOException, UnknownHostException {
 
-		String version = "SendMail30 (2020-MAY-07)";
+		String version = "SendMail30 (2020-SEP-18)";
 		String database = "jVakt";
 		String dbuser   = "jVakt";
 		String dbpassword = "unknown";
@@ -129,7 +129,7 @@ public class SendMail30 {
 		String	mode 	 =  prop.getProperty("mode");
 		if (!mode.equalsIgnoreCase("active"))  swDormant = true;
 		input.close();
-		listTo = new HashSet<String>();
+//		listTo = new HashSet<String>();
 
 		//		String[] toAddr = toEmailW.split("\\,");
 		//		for(int i=0 ; i<toAddr.length;i++) {
@@ -201,11 +201,6 @@ public class SendMail30 {
 			//			conn.setAutoCommit(true);
 			conn.setAutoCommit(false);
 
-			//			s = new String("select * from status " + 
-			//					"WHERE state='A' " +
-			//					" and (msg='M' or msg='T' or msg='R')" +
-			//					" and prio >= 30" +
-			//					";"); 
 			s = new String("select * from status " + 
 					"WHERE state='A' " +
 					" and (msg30='M' or msg30='T' or msg30='R' or msg30='S')" +
@@ -218,25 +213,13 @@ public class SendMail30 {
 			ResultSet rs = stmt.executeQuery(s);
 			//			swHits = false;  // is there already a record?
 			while (rs.next()) {
-				//				System.out.println("---- main RS: "+rs.getString("state")+" " + rs.getString("id")+" "+rs.getString("type")+" "+rs.getString("prio")+" "+rs.getString("console")+" "+rs.getString("status")+ " "+rs.getString("msg"));
 				System.out.println("- main RS - State:"+rs.getString("state")+" Id:" + rs.getString("id")+" Type:"+rs.getString("type")+" Prio:"+rs.getString("prio")+" Console:"+rs.getString("console")+" Status:"+rs.getString("status")+ " Msg30:"+rs.getString("msg30"));
-				//				swHits = true;  
 				swTiming = false;  
-
-				//				if (rs.getString("id").equalsIgnoreCase("syssts")) {
-				//					continue;
-				//				}
-
-				//				if (!rs.getString("type").equalsIgnoreCase("R") && !rs.getString("type").equalsIgnoreCase("S") && !rs.getString("type").equalsIgnoreCase("I")) continue;
 
 				zD = rs.getTimestamp("rptdat");
 				Lsec = (zTs.getTime() / 1000 - zD.getTime() / 1000); 
 				Lchktim = rs.getTime("chktim").getTime();
 				Lrptdat = rs.getTime("rptdat").getTime();
-
-				//				if (rs.getString("chkday").startsWith("*ALL") || rs.getString("chkday").startsWith(DOW.name())) {
-				//					swShDay = true;
-				//				} else swShDay = false;
 
 				swShDay = false;
 				if (rs.getString("chkday").startsWith("*ALL") || rs.getString("chkday").startsWith(DOW.name().substring(0, 2) )) {
@@ -308,13 +291,14 @@ public class SendMail30 {
 						else rs.updateString("msg30", "S");
 						rs.updateTimestamp("msgdat30", new java.sql.Timestamp((new Date(System.currentTimeMillis())).getTime()));
 						try { rs.updateRow(); } catch(NullPointerException npe2) {}
+
+					if (sendMail()) conn.commit();
+					else			conn.rollback();
+
 					}
 
 				}
 			}
-
-			if (sendMail()) conn.commit();
-			else			conn.rollback();
 
 			rs.close(); 
 			stmt.close();
@@ -373,6 +357,7 @@ public class SendMail30 {
 	}
 
 	static boolean checkInterest(String id, int prioi) {
+		listTo = new HashSet<String>();
 		String[] tab = new String [1];
 		boolean ok = false;
 		String prio;

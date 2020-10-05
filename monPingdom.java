@@ -24,7 +24,7 @@ public class monPingdom {
 	static String hosturl;
 	static String tabbar = "                                                                                               ";
 	static InetAddress inet;
-	static String version = "monPingdom (2020-08-27)";
+	static String version = "monPingdom (2020-09-16)";
 	static String jvhost   = "localhost";
 	static String jvport   = "1956";
 	static int port ;
@@ -127,7 +127,7 @@ public class monPingdom {
 			//			System.setProperty("https.protocols", "SSLv3");
 			URL url = new URL("https://"+host+":"+wport+webfile); 
 			//			URLConnection con = url.openConnection();  // new
-			HttpURLConnection con = (HttpURLConnection) url.openConnection();
+			HttpsURLConnection con = (HttpsURLConnection) url.openConnection();
 			if (swShow)	System.out.println("-- OK, got connection");
 			con.setReadTimeout(5000);
 			con.setConnectTimeout(5000);
@@ -135,6 +135,10 @@ public class monPingdom {
 			con.setRequestMethod("GET");
 			//			con.setRequestProperty("Content-Type", "application/json");
 			con.setRequestProperty("Authorization", "Bearer "+auth);
+			con.connect();
+			
+			if (swShow) System.out.println(new Date()+" -- Req-Limit-Short: "+con.getHeaderField("Req-Limit-Short"));
+			if (swShow) System.out.println(new Date()+" -- Req-Limit-Long : "+con.getHeaderField("Req-Limit-Long"));
 
 			if (con.getResponseCode() != 200) {
 				throw new RuntimeException("Failed : HTTP error code: "
@@ -184,7 +188,7 @@ public class monPingdom {
 			SendMsg jm = new SendMsg(jvhost, port);
 			if (swShow)	System.out.println(jm.open());
 			else jm.open();
-			jmsg.setId("monPingdom-"+t_id);
+			jmsg.setId("Pingdom-"+t_id);
 			if (STS) jmsg.setRptsts("OK");
 			else jmsg.setRptsts("ERR");
 			jmsg.setBody(t_desc);
@@ -247,10 +251,10 @@ public class monPingdom {
 			//		System.out.println("Fom: " +fom+ "  Tom: " +tom );
 			sts = in.substring(fom, tom);
 			t_id=na;
-			t_desc="Name: "+na+"   Hostname: "+hn+"   Status: "+sts;
-			if (swShow)	System.out.println("Name: "+na+"   Hostname: "+hn+"   Status: "+sts);
+			t_desc="Host: "+hn+" Status: "+sts;
+			if (swShow)	System.out.println("Name: "+na+"  Host: "+hn+"  Status: "+sts);
 			if (swRun) {
-				if (sts.startsWith("up"))	sendSTS(true);
+				if (sts.toLowerCase().startsWith("up"))	sendSTS(true);
 				else sendSTS(false);
 			}
 

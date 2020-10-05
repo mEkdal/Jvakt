@@ -19,7 +19,7 @@ public class DW2Jvakt  {
 
 		// Displays help
 		if (args.length == 0) {
-			System.out.println("\n*** DW2Jvakt 1.2 Date 2020-02-28 ***" +
+			System.out.println("\n*** DW2Jvakt 2020-09-18 ***" +
 					"\n*** by Michael Ekdal Perstorp Sweden. ***");
 			System.out.println("\n\nThe parameters and their meaning are:\n"+
 					"\n-q \tThe name of the AS400 message queue, like \" /qsys.lib/itoctools.lib/xxx.msgq\" "+
@@ -187,7 +187,10 @@ public class DW2Jvakt  {
 						jmsg.setRptsts(sts);
 						jmsg.setBody(words[1]);
 
-						if (swPurge) jmsg.setType("D");
+						if (swPurge) {
+							jmsg.setType("D");
+							jmsg.setRptsts("OK");
+						}
 						else jmsg.setType("I");
 						
 						jmsg.setAgent(agent);

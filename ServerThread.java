@@ -28,6 +28,7 @@ class ServerThread extends Thread {
 //			String line;
 //			Message jm = new Message();
 			while((line = in.readLine()) != null ) {
+//				System.out.println("ServerThread #0: " + line.length() + " "+line );				
 				swData = false;
 				if (line.length() == 0) break;
 				if (line.startsWith("SendMsg")) continue ;
