@@ -19,7 +19,7 @@ public class DW2Jvakt  {
 
 		// Displays help
 		if (args.length == 0) {
-			System.out.println("\n*** DW2Jvakt 2020-09-18 ***" +
+			System.out.println("\n*** DW2Jvakt 2020-10-24 ***" +
 					"\n*** by Michael Ekdal Perstorp Sweden. ***");
 			System.out.println("\n\nThe parameters and their meaning are:\n"+
 					"\n-q \tThe name of the AS400 message queue, like \" /qsys.lib/itoctools.lib/xxx.msgq\" "+
@@ -130,12 +130,14 @@ public class DW2Jvakt  {
 							msg.contains("is mounted") || msg.contains("LOG0010") || msg.contains("SYSSTS:") ||   
 							msg.contains("TBM1205") || msg.contains("ITO9806") || msg.contains("CPF1251") || msg.contains("ITO9906") ||
 							msg.contains("CPD2706") ||
-							msg.contains("Next tape is") || msg.contains("ITO1206") || msg.contains("EDH30") || msg.contains("CPF1393") ) { 
+							msg.contains("Next tape is") || msg.contains("ITO1206") || msg.contains("EDH30") || msg.contains("CPF1393") ||  
+							msg.contains("CPF1817")  || msg.contains("CPI0973")    ||
+							msg.contains("backup OK") || msg.contains("running okay") || msg.contains("is mounted")) { 
 						sev = 30; sts = "INFO"; } 
 					// OK 30
-					if (msg.contains("CPF1817")  || msg.contains("CPI0973")    ||
-							msg.contains("backup OK") || msg.contains("running okay") || msg.contains("is mounted") ) {
-						sev = 30; sts = "OK"; } 
+//					if (msg.contains("CPF1817")  || msg.contains("CPI0973")    ||
+//							msg.contains("backup OK") || msg.contains("running okay") || msg.contains("is mounted") ) {
+//						sev = 30; sts = "OK"; } 
 					// ERR 30 
 					if (msg.contains("Err:") || msg.contains("EDH18") || msg.contains("Wrn:") || 
 							msg.contains("not ready.") || msg.contains("RNQ") || msg.contains("CPA4278")    || msg.contains("TBM1202") || msg.contains("TBM1203") ||

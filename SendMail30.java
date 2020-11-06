@@ -22,6 +22,10 @@ public class SendMail30 {
 	static boolean swTiming;
 	static boolean swShDay; // set when the scheduled day is active
 	static boolean swDormant = false;
+
+	static boolean swOK = false; 
+	static boolean swINFO = false; 
+
 	static java.sql.Date zDate;
 	static java.sql.Timestamp zD;
 	static java.sql.Timestamp zTs;
@@ -85,7 +89,7 @@ public class SendMail30 {
 
 	public static void main(String[] args ) throws IOException, UnknownHostException {
 
-		String version = "SendMail30 (2020-SEP-18)";
+		String version = "SendMail30 (2020-OCT-26)";
 		String database = "jVakt";
 		String dbuser   = "jVakt";
 		String dbpassword = "unknown";
@@ -129,7 +133,7 @@ public class SendMail30 {
 		String	mode 	 =  prop.getProperty("mode");
 		if (!mode.equalsIgnoreCase("active"))  swDormant = true;
 		input.close();
-//		listTo = new HashSet<String>();
+		//		listTo = new HashSet<String>();
 
 		//		String[] toAddr = toEmailW.split("\\,");
 		//		for(int i=0 ; i<toAddr.length;i++) {
@@ -203,7 +207,7 @@ public class SendMail30 {
 
 			s = new String("select * from status " + 
 					"WHERE state='A' " +
-					" and (msg30='M' or msg30='T' or msg30='R' or msg30='S')" +
+					" and (msg30='M' or msg30='T' or msg30='R')" +
 					";"); 
 
 			//			System.out.println(s);
@@ -236,7 +240,7 @@ public class SendMail30 {
 					else if (nu.getHour() == cal.get(Calendar.HOUR_OF_DAY) && nu.getMinute() == cal.get(Calendar.MINUTE) && nu.getSecond() > cal.get(Calendar.SECOND) ) {
 						swShDay = true;	// System.out.println("Sekunden swShDay: "+swShDay);
 					}
-					
+
 					// check chktimto
 					cal.setTime(rs.getTime("chktimto"));
 					if (nu.getHour() > cal.get(Calendar.HOUR_OF_DAY) ) {
@@ -248,7 +252,7 @@ public class SendMail30 {
 					else if (nu.getHour() == cal.get(Calendar.HOUR_OF_DAY)  && nu.getMinute() == cal.get(Calendar.MINUTE) && nu.getSecond() > cal.get(Calendar.SECOND) ) {
 						swShDay = false;	
 					}
-					
+
 				} 
 				if (rs.getInt("prio") <= 10) swShDay = true; // always handle prio 10 and below.
 				//				System.out.println("swShDay: "+swShDay);
@@ -259,41 +263,103 @@ public class SendMail30 {
 
 					if (   checkInterest(rs.getString("id"),rs.getInt("prio"))   ) {
 
-						if (rs.getString("msg30").equalsIgnoreCase("M") && rs.getInt("prio") < 30 ) { 
+						boolean swPrio = false; 
+						boolean swMsg30M = false; 
+						boolean swMsg30R = false; 
+						boolean swMsg30S = false; 
+						boolean swMsg30D = false; 
+						boolean swMsg30T = false; 
+						boolean swStatusERR = false; 
+						boolean swStatusOK = false; 
+						boolean swStatusINFO = false; 
+						boolean swTypeD = false; 
+
+						if (rs.getInt("prio") < 30) swPrio=true;
+						if (rs.getString("msg30").equalsIgnoreCase("M")) swMsg30M=true;
+						if (rs.getString("msg30").equalsIgnoreCase("R")) swMsg30R=true;
+						if (rs.getString("msg30").equalsIgnoreCase("S")) swMsg30S=true;
+						if (rs.getString("msg30").equalsIgnoreCase("D")) swMsg30D=true;
+						if (rs.getString("msg30").equalsIgnoreCase("T")) swMsg30T=true;
+						if (rs.getString("status").equalsIgnoreCase("ERR")) swStatusERR=true;
+						if (rs.getString("status").equalsIgnoreCase("OK")) swStatusOK=true;
+						if (rs.getString("status").equalsIgnoreCase("INFO")) swStatusINFO=true;
+						if (rs.getString("type").equalsIgnoreCase("D")) swTypeD=true;
+
+						System.out.println("swPrio:"+swPrio+" swMsg30M:"+swMsg30M+" swMsg30R:"+swMsg30R+" swMsg30S:"+swMsg30S+" swMsg30T:"+swMsg30T+" swStatusERR:"+swStatusERR+" swStatusOK:"+swStatusOK+" swStatusINFO:"+swStatusINFO+" swTypeD:"+swTypeD);
+
+						if (swMsg30S) { 
+							System.out.println("-- Already got an S in msg30, continues...");
+							continue; 
+						}
+
+						if (swMsg30M && swPrio && swStatusERR) { 
 							serrors++;
 							sbody = sbody +rowStr+boxStrB+ rs.getString("id")+boxEnd +boxStrB+ rs.getString("body")+boxEnd +rowEnd;
 						}
-						else if (rs.getString("msg30").equalsIgnoreCase("M") && rs.getInt("prio") >= 30 ) { 
+						else if (swMsg30M && !swPrio && swStatusERR ) { 
 							errors++;
 							ebody = ebody +rowStr+boxStrB+ rs.getString("id")+boxEnd +boxStrB+ rs.getString("body")+boxEnd+rowEnd;
 						}
-						else if (rs.getString("msg30").equalsIgnoreCase("R") || 
-								(rs.getString("type").equalsIgnoreCase("D")    && rs.getString("msg30").equalsIgnoreCase("S")) || 
-								(rs.getString("status").equalsIgnoreCase("OK") && rs.getString("msg30").equalsIgnoreCase("S")) 
+						//						else if ( swMsg30R || 
+						//								( swTypeD  && swMsg30S  ) || 
+						//								((swStatusOK || swStatusINFO) && (swMsg30S || swMsg30M))
+						//								) 
+						else if ( swMsg30R || 
+								(swStatusINFO && swMsg30M )
 								) 
 						{
-							resolved++;
+							if (swStatusOK) {
+								swOK=true;
+								resolved++;
+							}
+							if (swStatusINFO) {
+								swINFO=true;
+								infos++;
+							}
+
 							rbody = rbody +rowStr+boxStrB+ rs.getString("id")+boxEnd +boxStrB+ rs.getString("body")+boxEnd+rowEnd;
 						}
-						else if (rs.getString("msg30").equalsIgnoreCase("S")) { 
-							System.out.println("-- Already got an S in msg30, going on...");
-							continue; 
-						}
+						//						else if (swMsg30S) { 
+						//							System.out.println("-- Already got an S in msg30, going on...");
+						//							continue; 
+						//						}
 						else {
 							warnings++;
 							wbody = wbody +rowStr+boxStrB+ rs.getString("id")+boxEnd +boxStrB+ "The Jvakt agent did not report in due time."+boxEnd+rowEnd;
 						}
+
 						swMail = true;	
-						if (rs.getString("msg30").equalsIgnoreCase("R") ||
-						   (rs.getString("type").equalsIgnoreCase("D")    && rs.getString("msg30").equalsIgnoreCase("S")) || 
-						   (rs.getString("status").equalsIgnoreCase("OK") && rs.getString("msg30").equalsIgnoreCase("S")) )
+
+//						if ( swMsg30R ||
+//								( swTypeD  && swMsg30S ) || 
+//								( swStatusOK && (swMsg30S || swMsg30M))
+//								) {
+						if ( swMsg30R ) {
+							System.out.println("-- Set blank in msg30");
 							rs.updateString("msg30", " ");
-						else rs.updateString("msg30", "S");
+						}
+						else if (swStatusINFO && swMsg30M)
+						{
+							System.out.println("-- Set D in msg30");
+							rs.updateString("msg30", "D");
+						}
+						else {
+							System.out.println("-- Set S in msg30");
+							rs.updateString("msg30", "S");
+						}
+
 						rs.updateTimestamp("msgdat30", new java.sql.Timestamp((new Date(System.currentTimeMillis())).getTime()));
+
 						try { rs.updateRow(); } catch(NullPointerException npe2) {}
 
-					if (sendMail()) conn.commit();
-					else			conn.rollback();
+						if (sendMail()) {
+							System.out.println("-- commit");
+							conn.commit();
+						}
+						else	 {
+							System.out.println("-- rollback");
+							conn.rollback();
+						}
 
 					}
 
@@ -375,7 +441,7 @@ public class SendMail30 {
 			if ( prio.compareTo(prioCsv) < 0  )	continue; 
 			if (id.toLowerCase().indexOf(tab[0].toLowerCase()) >= 0 ) {
 				listTo.add(tab[1]);
-//				System.out.println("** YES. Added: "+ tab[1]);
+				//				System.out.println("** YES. Added: "+ tab[1]);
 				ok = true;
 			}
 		}
@@ -388,6 +454,7 @@ public class SendMail30 {
 
 		subject = "* NEW status * -->   ";
 		body = tblStr;
+		String subjectTxt;
 
 		if (sbody.length() > 0) {
 			subject = subject + "Errors: " + serrors + "  ";
@@ -402,8 +469,13 @@ public class SendMail30 {
 			body = body + rowStr+hdrStrY+"TIME-OUT"+hdrEnd+hdrStrY+""+hdrEnd+hdrStrY+""+hdrEnd+rowEnd+	wbody ;
 		}
 		if (rbody.length() > 0) { 
-			subject = subject + "Resolved: " + resolved;
-			body = body + rowStr+hdrStrG+"RESOLVED" +hdrEnd+hdrStrG+""+hdrEnd+hdrStrG+""+hdrEnd+rowEnd+	rbody ;
+			if (swOK) subject =  subject + "Resolved: " + resolved+ "  ";
+			if (swINFO) subject = subject + "Info: " + infos+ "  ";
+			if (swOK ) subjectTxt="RESOLVED";
+			else if (swOK && swINFO ) subjectTxt="RESOLVED&INFO";
+			else subjectTxt="INFO";
+			//			subject = subject + "Resolved: " + resolved;
+			body = body + rowStr+hdrStrG+subjectTxt+hdrEnd+hdrStrG+""+hdrEnd+hdrStrG+""+hdrEnd+rowEnd+	rbody ;
 		}
 		body = body + tblEnd;
 
@@ -435,8 +507,14 @@ public class SendMail30 {
 			System.out.println( body );
 			Session session = Session.getInstance(props, auth);
 			if (EmailUtil.sendEmail(session, toEmail,subject, body, fromEmail)) {
-				System.out.println("return true"); return true; } 
-			else { System.out.println("RETURN FALSE"); return false; }
+				System.out.println("return true");
+				sbody = ""; ebody = ""; wbody = ""; rbody = "";
+				return true; 
+			} 
+			else { System.out.println("RETURN FALSE"); 
+			sbody = ""; ebody = ""; wbody = ""; rbody = "";
+			return false; 
+			}
 
 		}
 		//		System.out.println("RETURN true");

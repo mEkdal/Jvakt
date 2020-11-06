@@ -110,7 +110,7 @@ public class ManFiles {
 
 		if (swHelp) {
 			System.out
-			.println("\n*** Jvakt.ManFiles (build 2020-JUN-02) ***"
+			.println("\n*** Jvakt.ManFiles (build 2020-OCT-12) ***"
 					+ "\n*** by Michael Ekdal, Sweden. ***");
 			System.out
 			.println("\nThe parameters and their meaning are:\n"
@@ -123,7 +123,7 @@ public class ManFiles {
 					+ "\n-sdir    \tThe name of the source  directory, like \"-sdir c:\\Temp\" "
 					+ "\n-tdir    \tThe name of the target  directory, like \"-tdir c:\\Temp2\" "
 					+ "\n-adir    \tThe name of the archive directory, like \"-adir c:\\Temp3\" "
-					+ "\n-sub     \tThe subdirectories are seached.(default) "
+					+ "\n-sub     \tThe subdirectories are searched.(default) "
 					+ "\n-nosub   \tThe subdirectories are NOT searched. "
 					+ "\n-copy    \tCopy the files "
 					+ "\n-move    \tMove the files "
@@ -138,9 +138,9 @@ public class ManFiles {
 					+ "\n-noded   \tNo delete of empty sub-directories. (default)"
 					+ "\n-repl    \tReplace target files. (default)"
 					+ "\n-norepl  \tDo NOT Replace target file."
-					+ "\n-nrunq   \tUsed with -norepl to create a new unique file on tagret."
+					+ "\n-nrunq   \tUsed with -norepl to create a new unique file on target."
 					+ "\n-append  \tAppend an existing target file"
-					+ "\n-nfile   \tName of new file. Used with append to merge a number of related files."
+					+ "\n-nfile   \tName of the new file. Used with append to merge a number of related files."
 					+ "\n-unique  \tThe moved or copied file is sufixed with the unique string _YYYYMMDDHHMMSS. like (_20100111113539)"
 					+ "\n-flat    \tFiles are copied or moved to the -sdir without the original structure"
 					+ "\n-noflat  \tFiles are copied or moved to the -sdir with the original structure (default)"
@@ -168,7 +168,7 @@ public class ManFiles {
 					+ "\n         \t i.e. \"print /d:\\\\ptp165\\PBEdicom\\\" (The selected filename is used as a parameter to the command)"
 					+ "\n-cmd2    \tThe command part2 to use on files."
 					+ "\n-countc  \tShows the number of children in each traversed directory."
-					+ "\n-jvakt  \tA switch to enable report to Jvakt. Default is no connection to Jvakt. The file Jvakt.properties must be provided" 
+					+ "\n-jvakt  \tA switch to enable a report OK or ERR to Jvakt. Default is no reporting to Jvakt. The file Jvakt.properties must be provided" 
 					+ "\n-id     \tUsed as identifier in the Jvakt monitoring system. Mandatory if -jvakt switch is used." 
 					+ "\n-config \tThe directory where to find the Jvakt.properties file. like \"-config c:\\Temp\". Optional. Default is the current directory." 
 					+ "\n-loop    \tExecutes every second in a never ending loop. -noloop is the default value."

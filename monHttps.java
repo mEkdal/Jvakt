@@ -29,7 +29,7 @@ public class monHttps {
 	static String hosturl;
 	static String tabbar = "                                                                                               ";
 	static InetAddress inet;
-	static String version = "monHttps (2020-09-10)";
+	static String version = "monHttps (2020-10-14)";
 	static String database = "jVakt";
 	static String dbuser   = "jVakt";
 	static String dbpassword = "xz";
@@ -42,6 +42,7 @@ public class monHttps {
 	static String agent = null;
 	static String webfile = "";
 	static String webcontent = "400";
+	static boolean swWebcontent = false;
 	static Date now;
 
 	static String config = null;
@@ -74,7 +75,7 @@ public class monHttps {
 					"\n-host   \tCheck a single host." +
 					"\n-port   \tDefault is 443." +
 					"\n-web    \tlike /index.html" +
-					"\n-webcontent \tstring in the response to check for." +
+					"\n-webcontent \tstring in the response to check for (optional)." +
 					"\n-show   \tShow the response from the server."
 					);
 
@@ -117,7 +118,10 @@ public class monHttps {
 			if (args[i].equalsIgnoreCase("-show")) swShow = true;
 			if (args[i].equalsIgnoreCase("-host")) { swSingle = true; host = args[++i]; }
 			if (args[i].equalsIgnoreCase("-config")) config = args[++i];
-			if (args[i].equalsIgnoreCase("-webcontent")) webcontent = args[++i];
+			if (args[i].equalsIgnoreCase("-webcontent")) { 
+				webcontent = args[++i];
+				swWebcontent = true;
+			}
 		}
 		if (config != null ) dir = new File(config);
 		if (config == null ) 	configF = new File("Jvakt.properties");
@@ -170,6 +174,9 @@ public class monHttps {
 					t_desc = tab[5];
 					state = false;
 
+					if (webcontent.length()>0) swWebcontent = true;
+					else swWebcontent = false;
+
 					checkHttp();
 
 					if (swRun)  {
@@ -191,7 +198,7 @@ public class monHttps {
 		try {
 			hosturl ="https://"+host+":"+wport+webfile;
 			if (swShow)	System.out.println("-- URL    : https://"+host+":"+wport+webfile);
-			if (swShow)	System.out.println("-- OK text: " +webcontent);
+			if (swShow && swWebcontent)	System.out.println("-- OK text: " +webcontent);
 			//			System.setProperty("https.protocols", "SSLv3");
 			URL url = new URL("https://"+host+":"+wport+webfile); 
 			//			URLConnection con = url.openConnection();  // new
@@ -223,22 +230,23 @@ public class monHttps {
 			}			
 
 
-			if (swShow)	System.out.println("-- OK get in-stream");
-			BufferedReader httpin = new BufferedReader(
-					new InputStreamReader(con.getInputStream()));
+			if (swWebcontent) {	
+				if (swShow)	System.out.println("-- OK. Trying to get in-stream");
+				BufferedReader httpin = new BufferedReader(
+						new InputStreamReader(con.getInputStream()));
 
-			String inputLine;
-			if (swShow)	System.out.println("-- start read lines");
-			while ((inputLine = httpin.readLine()) != null  && !state) {
-				if (swShow)	System.out.println(inputLine);
-				if (inputLine.toLowerCase().indexOf(webcontent.toLowerCase()) >= 0) {
-					state = true;
-					if (swShow)	System.out.println("-- OK text found: "+ webcontent );
+				String inputLine;
+				if (swShow)	System.out.println("-- start read lines");
+				while ((inputLine = httpin.readLine()) != null  && !state) {
+					if (swShow)	System.out.println(inputLine);
+					if (inputLine.toLowerCase().indexOf(webcontent.toLowerCase()) >= 0) {
+						state = true;
+						if (swShow)	System.out.println("-- OK text found: "+ webcontent );
+					}
 				}
-			}
-			httpin.close();
-
-
+				httpin.close();
+			} 
+			else state = true; 
 
 		} 
 		catch (Exception e) { System.out.println(e); state = false;   }
@@ -254,7 +262,7 @@ public class monHttps {
 		if (t_desc == null) t_desc = " ";
 		if (hosturl.length()>85) hosturl=hosturl.substring(0,85);
 		hosturl = hosturl + tabbar.substring(0,85-hosturl.length());
-		
+
 		if (swExpire) {
 			t_desc = expire +" - "+ t_desc;
 			state = false;

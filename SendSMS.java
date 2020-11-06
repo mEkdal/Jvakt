@@ -23,7 +23,7 @@ public class SendSMS {
 	static Connection conn = null;
 	//	static boolean swDelete;
 	static boolean swTiming;
-	static boolean swShDay; // set when the scheduled day is active
+	static boolean swShDay; // set when the scheduled day is active 
 	static boolean swDormant = false;
 	static java.sql.Date zDate;
 	static java.sql.Timestamp zD;
@@ -73,7 +73,7 @@ public class SendSMS {
 
 	public static void main(String[] args ) throws IOException, UnknownHostException {
 
-		String version = "SendSMS (2020-MAY-07)";
+		String version = "SendSMS (2020-OCT-26)";
 		String database = "jVakt";
 		String dbuser   = "jVakt";
 		String dbpassword = "xz";
@@ -173,7 +173,7 @@ public class SendSMS {
 
 			s = new String("select * from status " + 
 					"WHERE state='A' " +
-					" and (sms='M' or sms='T' or sms='R' or sms='S')" +
+					" and (sms='M' or sms='T' or sms='R')" +
 					" and prio < 30" +
 					";"); 
 
@@ -229,32 +229,28 @@ public class SendSMS {
 				System.out.println("swShDay: "+swShDay);
 
 				if (swShDay) {
+					if (rs.getString("sms").equalsIgnoreCase("S")) { 
+						System.out.println("-- Already got an S in sms, continues...");
+						continue; 
+					}
+					
 					body = rs.getString("id")+" "+rs.getString("body");
+					
 					if (rs.getString("sms").equalsIgnoreCase("M") ) { 
 						System.out.println("Error " + body);
-						//						serrors++; 
 						error = true;
 					}
-					else if (rs.getString("sms").equalsIgnoreCase("R") || 
-							(rs.getString("type").equalsIgnoreCase("D")    && rs.getString("sms").equalsIgnoreCase("S")) || 
-							(rs.getString("status").equalsIgnoreCase("OK") && rs.getString("sms").equalsIgnoreCase("S")) 
-							) 
-					{
+					else if (rs.getString("sms").equalsIgnoreCase("R")) {
 						System.out.println("Resolved " + body);
-						//						resolved++;
 						resolved = true;
 					}
-					else if (rs.getString("sms").equalsIgnoreCase("S")) continue;
 					else {
 						body = rs.getString("id")+" The Jvakt agent did not report in due time.";
 						System.out.println("Timeout " + body);
-						//						warnings++;
 						warning = true;
 					}
-					if (rs.getString("sms").equalsIgnoreCase("R") ||
-					   (rs.getString("type").equalsIgnoreCase("D")    && rs.getString("sms").equalsIgnoreCase("S")) || 
-					   (rs.getString("status").equalsIgnoreCase("OK") && rs.getString("sms").equalsIgnoreCase("S"))  
-					   )
+					
+					if (rs.getString("sms").equalsIgnoreCase("R"))
 						 rs.updateString("sms", " ");
 					else rs.updateString("sms", "S");
 					rs.updateTimestamp("smsdat", new java.sql.Timestamp((new Date(System.currentTimeMillis())).getTime()));

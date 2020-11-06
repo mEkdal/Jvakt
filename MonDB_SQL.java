@@ -32,7 +32,7 @@ public class MonDB_SQL
 	static String url;
 	static String stmt;
 	static String state = "ERR";
-	static String version = "monDB_Oracle (2020-02-25)";
+	static String version = "monDB_SQL (2020-02-25)";
 
 
 	static String id;

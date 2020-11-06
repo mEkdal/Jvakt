@@ -34,7 +34,7 @@ public class Message {
 		this.rptsts = tab[0];
 		if (this.rptsts.toUpperCase().startsWith("ERR"))  this.rptsts = "ERR";   
 		else if (this.rptsts.toUpperCase().startsWith("OK"))   this.rptsts = "OK";   
-		else this.rptsts = "INFO ";   
+		else this.rptsts = "INFO";   
 		return true;  
 	}
 	public boolean setBody( String body )     { 

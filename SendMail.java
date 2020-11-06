@@ -81,7 +81,7 @@ public class SendMail {
 	
 	public static void main(String[] args ) throws IOException, UnknownHostException {
 
-		String version = "SendMail (2020-MAY-07)";
+		String version = "SendMail (2020-OCT-26)";
 		String database = "jVakt";
 		String dbuser   = "jVakt";
 		String dbpassword = "xz";
@@ -199,8 +199,6 @@ public class SendMail {
 		DayOfWeek DOW = nu.getDayOfWeek(); 
 		Statement stmt = null;
 		String s;
-//		boolean swHits;
-//		String cause = "";
 		zDate = new java.sql.Date((new Date(System.currentTimeMillis())).getTime());
 		zTs = new java.sql.Timestamp((new Date(System.currentTimeMillis())).getTime()); 
 		
@@ -209,20 +207,12 @@ public class SendMail {
 
 			Class.forName("org.postgresql.Driver").newInstance();
 			DBUrl = "jdbc:postgresql://"+dbhost+":"+dbport+"/"+database;
-//			System.out.println(DBUrl);
-//			System.out.println("dbuser= " + dbuser +"  dbpassword "+ dbpassword);
 			conn = DriverManager.getConnection(DBUrl,dbuser,dbpassword);
-//			conn.setAutoCommit(true);
 			conn.setAutoCommit(false);
 
-			//			s = new String("select * from status " + 
-			//					"WHERE (state='A' or  state='D') " +
-			//					" and (msg='M' or msg='T' or msg='R')" +
-			//					" and prio < 3" +
-			//					";"); 
 			s = new String("select * from status " + 
 					"WHERE state='A' " +
-					" and (msg='M' or msg='T' or msg='R' or msg='S')" +
+					" and (msg='M' or msg='T' or msg='R')" +
 					" and prio < 30" +
 					";"); 
 
@@ -231,40 +221,24 @@ public class SendMail {
 			stmt = conn.createStatement(ResultSet.CONCUR_UPDATABLE,ResultSet.TYPE_FORWARD_ONLY,ResultSet.CLOSE_CURSORS_AT_COMMIT ); 
 			stmt.setFetchSize(1000);
 			ResultSet rs = stmt.executeQuery(s);
-//			swHits = false;  // is there already a record?
 			while (rs.next()) {
 				System.out.println("- main RS - State:"+rs.getString("state")+" Id:" + rs.getString("id")+" Type:"+rs.getString("type")+" Prio:"+rs.getString("prio")+" Console:"+rs.getString("console")+" Status:"+rs.getString("status")+ " Msg:"+rs.getString("msg"));
-//				swHits = true;  
 				swTiming = false;  
-
-//				if (rs.getString("id").equalsIgnoreCase("syssts")) {
-//					continue;
-//				}
-
-//				if (!rs.getString("type").equalsIgnoreCase("R") && !rs.getString("type").equalsIgnoreCase("S") && !rs.getString("type").equalsIgnoreCase("I")) continue;
 
 				zD = rs.getTimestamp("rptdat");
 				Lsec = (zTs.getTime() / 1000 - zD.getTime() / 1000); 
 				Lchktim = rs.getTime("chktim").getTime();
 				Lrptdat = rs.getTime("rptdat").getTime();
 
-				//				if (rs.getString("chkday").startsWith("*ALL") || rs.getString("chkday").startsWith(DOW.name())) {
-				//					swShDay = true;
-				//				} else swShDay = false;
-
 				swShDay = false;
 				if (rs.getString("chkday").startsWith("*ALL") || rs.getString("chkday").startsWith(DOW.name().substring(0, 2) )) {
-//					sqlt =  rs.getTime("chktim");
 					cal.setTime(rs.getTime("chktim"));
-//					if (nu.getHour() > rs.getTime("chktim").getHours() ) {
 					if (nu.getHour() > cal.get(Calendar.HOUR_OF_DAY) ) {
 						swShDay = true; System.out.println("Timmen swShDay: "+swShDay);
 					}
-//					else if (nu.getHour() == rs.getTime("chktim").getHours() && nu.getMinute() > rs.getTime("chktim").getMinutes() ) {
 					else if (nu.getHour() == cal.get(Calendar.HOUR_OF_DAY) && nu.getMinute() > cal.get(Calendar.MINUTE) ) {
 						swShDay = true;	System.out.println("Minuten swShDay: "+swShDay);
 					}
-//					else if (nu.getHour() == rs.getTime("chktim").getHours() && nu.getMinute() == rs.getTime("chktim").getMinutes() && nu.getSecond() > rs.getTime("chktim").getSeconds() ) {
 					else if (nu.getHour() == cal.get(Calendar.HOUR_OF_DAY) && nu.getMinute() == cal.get(Calendar.MINUTE) && nu.getSecond() > cal.get(Calendar.SECOND) ) {
 						swShDay = true;	System.out.println("Sekunden swShDay: "+swShDay);
 					}
@@ -288,44 +262,37 @@ public class SendMail {
 				//				swDelete = false;
 
 				if (swShDay) {
+					if (rs.getString("msg").equalsIgnoreCase("S")) { 
+						System.out.println("-- Already got an S in msg, continues...");
+						continue; 
+					}
+					
 					if (rs.getString("msg").equalsIgnoreCase("M") && rs.getInt("prio") < 30 ) { 
-//						cause = "Problem :\t";
 						serrors++;
-//						sbody = sbody +rowStr+boxStrM+ rs.getString("id")+boxEnd +boxStrM+ rs.getString("body")+boxEnd +boxStrM+ rs.getString("agent")+boxEnd+rowEnd;
-//						sbody = sbody +rowStr+boxStrB+ rs.getString("id")+boxEnd +boxStrB+ rs.getString("body")+boxEnd +boxStrB+ rs.getString("agent")+boxEnd+rowEnd;
 						sbody = sbody +rowStr+boxStrB+ rs.getString("id")+boxEnd +boxStrB+ rs.getString("body")+boxEnd +rowEnd;
 					}
 					else if (rs.getString("msg").equalsIgnoreCase("M") && rs.getInt("prio") >= 30 ) { 
-//						cause = "Problem :\t";
 						errors++;
-//						ebody = ebody +rowStr+boxStrR+ rs.getString("id")+boxEnd +boxStrR+ rs.getString("body")+boxEnd+boxStrR+ rs.getString("agent")+boxEnd+rowEnd;
-//						ebody = ebody +rowStr+boxStrB+ rs.getString("id")+boxEnd +boxStrB+ rs.getString("body")+boxEnd+boxStrB+ rs.getString("agent")+boxEnd+rowEnd;
 						ebody = ebody +rowStr+boxStrB+ rs.getString("id")+boxEnd +boxStrB+ rs.getString("body")+boxEnd+rowEnd;
 					}
-					else if (rs.getString("msg").equalsIgnoreCase("R") || 
-							(rs.getString("type").equalsIgnoreCase("D")    && rs.getString("msg").equalsIgnoreCase("S")) || 
-							(rs.getString("status").equalsIgnoreCase("OK") && rs.getString("msg").equalsIgnoreCase("S"))  
-							)
-					{
-//						cause = "Resolved:\t";
+//					else if (rs.getString("msg").equalsIgnoreCase("R") || 
+//							(rs.getString("type").equalsIgnoreCase("D")    && rs.getString("msg").equalsIgnoreCase("S")) || 
+//							(rs.getString("status").equalsIgnoreCase("OK") && rs.getString("msg").equalsIgnoreCase("S"))  
+//							)
+					else if (rs.getString("msg").equalsIgnoreCase("R"))	{
 						resolved++;
-//						rbody = rbody +rowStr+boxStrG+ rs.getString("id")+boxEnd +boxStrG+ rs.getString("body")+boxEnd+boxStrG+ rs.getString("agent")+boxEnd+rowEnd;
-//						rbody = rbody +rowStr+boxStrB+ rs.getString("id")+boxEnd +boxStrB+ rs.getString("body")+boxEnd+boxStrB+ rs.getString("agent")+boxEnd+rowEnd;
 						rbody = rbody +rowStr+boxStrB+ rs.getString("id")+boxEnd +boxStrB+ rs.getString("body")+boxEnd+rowEnd;
 					}
-					else if (rs.getString("msg").equalsIgnoreCase("S")) continue;
 					else {
-//						cause = "Time out:\t";
 						warnings++;
-//						wbody = wbody +rowStr+boxStrY+ rs.getString("id")+boxEnd +boxStrY+ rs.getString("body")+boxEnd+boxStrY+ rs.getString("agent")+boxEnd+rowEnd;
-//						wbody = wbody +rowStr+boxStrB+ rs.getString("id")+boxEnd +boxStrB+ rs.getString("body")+boxEnd+boxStrB+ rs.getString("agent")+boxEnd+rowEnd;
 						wbody = wbody +rowStr+boxStrB+ rs.getString("id")+boxEnd +boxStrB+ "The Jvakt agent did not report in due time."+boxEnd+rowEnd;
 					}
 					swMail = true;
-					if (rs.getString("msg").equalsIgnoreCase("R") || 
-					   (rs.getString("type").equalsIgnoreCase("D")    && rs.getString("msg").equalsIgnoreCase("S")) || 
-					   (rs.getString("status").equalsIgnoreCase("OK") && rs.getString("msg").equalsIgnoreCase("S"))  
-					   )
+//					if (rs.getString("msg").equalsIgnoreCase("R") || 
+//					   (rs.getString("type").equalsIgnoreCase("D")    && rs.getString("msg").equalsIgnoreCase("S")) || 
+//					   (rs.getString("status").equalsIgnoreCase("OK") && rs.getString("msg").equalsIgnoreCase("S"))  
+//					   )
+					if (rs.getString("msg").equalsIgnoreCase("R"))
 						 rs.updateString("msg", " ");
 					else rs.updateString("msg", "S");
 					rs.updateTimestamp("msgdat", new java.sql.Timestamp((new Date(System.currentTimeMillis())).getTime()));

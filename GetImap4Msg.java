@@ -47,7 +47,7 @@ public class GetImap4Msg {
 
 	public static void main(String[] args) throws IOException, FileNotFoundException {
 
-		String version = "GetImap4Msg # ( 2020-04-28 )";
+		String version = "GetImap4Msg # ( 2020-10-12 )";
 
 		for (int i=0; i<args.length; i++) {
 			if (args[i].equalsIgnoreCase("-config")) config = args[++i];
@@ -155,8 +155,8 @@ public class GetImap4Msg {
 				body = null;
 				swHtml = false;
 				Object o = null;
-				//				if (messages[i].isMimeType("text/plain") || messages[i].isMimeType("text/html") || messages[i].isMimeType("multipart/alternative") ) {
-				if (messages[i].isMimeType("text/plain") || messages[i].isMimeType("text/html")  ) {
+				//				if (messages[i].isMimeType("text/plain") || messages[i].isMimeType("text/html") || messages[i].isMimeType("multipart/alternative")  || messages[i].isMimeType("multipart/mixed")  ) {
+				if (messages[i].isMimeType("text/plain") || messages[i].isMimeType("text/html") ) {
 					try {
 						o = messages[i].getContent();
 						body = (String)o;
@@ -215,6 +215,24 @@ public class GetImap4Msg {
 
 				// Msg från UPS huvudkontoret  
 				if (from.indexOf("UPS-BY892") >= 0) {
+					
+					if (messages[i].getContentType().startsWith("multipart")) {
+						System.out.println("*** UPS-BY892 multipart ");
+						Multipart mp = (Multipart)messages[i].getContent();
+						System.out.println("***Count> " + mp.getCount());
+
+						for (int j=0, n=mp.getCount(); j<n; j++) {
+							Part part = mp.getBodyPart(j);
+							System.out.println("*** Attachment Descript : "+part.getDescription());
+							System.out.println("*** Attachment ContentType : "+part.getContentType());
+							if (part.getContentType().contains("text/plain")) {
+								body = part.getContent().toString();
+								System.out.println("*** Attachment Content : "+body);
+							}
+						}									
+					}
+				
+					
 					if (subject.indexOf("Powerfail") >= 0  
 							) {
 						swSerious = true;
@@ -225,20 +243,39 @@ public class GetImap4Msg {
 						swSerious = true;
 						sendJv("MAIL_From_UPS-BY892" , "OK" , "T",  subject );
 					}
-					else if (subject.indexOf("Heartbeat") >= 0  
+					else if (subject.indexOf("Heartbeat") >= 0 || body.indexOf("Heartbeat") >= 0 
 							) {
-						sendJv("MAIL_From_UPS-BY892_Heartbeat" , "OK" , "T",  subject );
+						sendJv("MAIL_From_UPS-BY892_Heartbeat" , "OK" , "T",  subject + " " + body);
 						if (imaprw.startsWith("Y")) {
 							messages[i].setFlag(Flags.Flag.DELETED, true); // markera mailet för deletion
 							System.out.println("* Mark as DELETED ");
 						}
 					}
-					else sendJv("MAIL_From_UPS-BY892_Info" , "INFO" , "I",  subject );
+					else sendJv("MAIL_From_UPS-BY892_Info" , "INFO" , "I",  subject + " " + body );
 					msgFixat = true;
 				}
 
 				// Msg från UPS berget  
 				if (from.indexOf("UPS-BGT") >= 0) {
+					
+					if (messages[i].getContentType().startsWith("multipart")) {
+						System.out.println("*** UPS-BGT multipart ");
+						Multipart mp = (Multipart)messages[i].getContent();
+						System.out.println("***Count> " + mp.getCount());
+
+						for (int j=0, n=mp.getCount(); j<n; j++) {
+							Part part = mp.getBodyPart(j);
+							System.out.println("*** Attachment Descript : "+part.getDescription());
+							System.out.println("*** Attachment ContentType : "+part.getContentType());
+							if (part.getContentType().contains("text/plain")) {
+								body = part.getContent().toString();
+								//								if (body.indexOf("00331 FFI")  >=0) swUnomaly = false; // don't send error n this types  
+//								if (body.indexOf("significant")>=0)	body = body.substring(body.indexOf("significant"));
+								System.out.println("*** Attachment Content : "+body);
+							}
+						}									
+					}
+					
 					if (subject.indexOf("Powerfail") >= 0  
 							) {
 						swSerious = true;
@@ -249,9 +286,9 @@ public class GetImap4Msg {
 						swSerious = true;
 						sendJv("MAIL_From_UPS-BGT" , "OK" , "T",  subject );
 					}
-					else if (subject.indexOf("Heartbeat") >= 0  
+					else if (subject.indexOf("Heartbeat") >= 0 || body.indexOf("Heartbeat") >= 0 
 							) {
-						sendJv("MAIL_From_UPS-BGT_Heartbeat" , "OK" , "T",  subject );
+						sendJv("MAIL_From_UPS-BGT_Heartbeat" , "OK" , "T",  subject + " " + body);
 						if (imaprw.startsWith("Y")) {
 							messages[i].setFlag(Flags.Flag.DELETED, true); // markera mailet för deletion
 							System.out.println("* Mark as DELETED ");
@@ -296,6 +333,10 @@ public class GetImap4Msg {
 							sendJv("MAIL_From_ID_PROVE" , "OK" , "S",  subject + " " + body);
 						} 
 						msgFixat = true;
+						if (imaprw.startsWith("Y")) {
+							messages[i].setFlag(Flags.Flag.DELETED, true); // markera mailet för deletion
+							System.out.println("* Mark as DELETED ");
+						}
 					}
 				}
 

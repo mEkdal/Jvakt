@@ -13,7 +13,7 @@ import java.time.*;
 import java.time.LocalDateTime;
 
 public class CheckStatus {
-
+ 
 	static String DBUrl = "jdbc:postgresql://localhost:5433/Jvakt";
 	static Connection conn = null;
 	static boolean swUpdate;
@@ -31,7 +31,7 @@ public class CheckStatus {
 	static int errors = 0;
 	static int warnings = 0;
 	static int infos = 0;
-	static String version = "CheckStatus (2020-SEP-20)";
+	static String version = "CheckStatus (2020-OCT-26)";
 	static String database = "jVakt";
 	static String dbuser   = "jVakt";
 	static String dbpassword = "xz";
@@ -260,7 +260,7 @@ public class CheckStatus {
 								rs.getTimestamp("rptdat").getTime() < mi.getTime() )    // mi is the date and time of midnight
 						)
 				{
-					System.out.println(LocalDateTime.now()+" TOUT: " + " " + rs.getString("id"));
+					System.out.println(LocalDateTime.now()+" TOUT: " + " " + rs.getString("id")+"  msg:"+rs.getString("msg"));
 
 					if (!rs.getString("console").equalsIgnoreCase("C")) {
 //						rs.updateString("console", "C");
@@ -304,7 +304,6 @@ public class CheckStatus {
 						StmtUpdate.setTimestamp(2, new java.sql.Timestamp((new Date(System.currentTimeMillis())).getTime()));
 						StmtUpdate.executeUpdate();
 						StmtUpdate.close();
-						
 					}
 					if (rs.getString("msg30").startsWith(" ")) {
 						System.out.println(LocalDateTime.now()+" TOut: Set msg30 to T " + rs.getString("id"));
@@ -317,7 +316,6 @@ public class CheckStatus {
 						StmtUpdate.setTimestamp(2, new java.sql.Timestamp((new Date(System.currentTimeMillis())).getTime()));
 						StmtUpdate.executeUpdate();
 						StmtUpdate.close();
-						
 					}
 					System.out.println(LocalDateTime.now()+" timing #3.a :  " + rs.getString("id")+"  MSG:"+rs.getString("msg"));
 //					if (swUpdate) try { rs.updateRow(); } catch(NullPointerException npe2) {}
@@ -327,7 +325,7 @@ public class CheckStatus {
 						trigPlugin(rs.getString("id"), rs.getString("status"), "P", rs.getString("body")); 
 					}
 				} // If status is OK the console tag will be removed for S,R and T, and if console=C or msg isn't " " or sms isn't " "
-				else	 if ((rs.getString("type").equalsIgnoreCase("R") || rs.getString("type").equalsIgnoreCase("S") || rs.getString("type").equalsIgnoreCase("T")) && 
+				else	 if ((rs.getString("type").equalsIgnoreCase("R") || rs.getString("type").equalsIgnoreCase("S") || rs.getString("type").equalsIgnoreCase("T") || rs.getString("type").equalsIgnoreCase("D")) && 
 						rs.getString("status").equalsIgnoreCase("OK") &&  
 						(rs.getString("console").equalsIgnoreCase("C") || !rs.getString("msg").startsWith(" ") || !rs.getString("sms").startsWith(" ") || !rs.getString("msg30").startsWith(" ") )
 						) {
@@ -388,7 +386,7 @@ public class CheckStatus {
 						StmtUpdate.close();
 
 					}
-					if (rs.getString("msg30").startsWith("M") || rs.getString("msg30").startsWith("T")) {
+					if (rs.getString("msg30").startsWith("M") || rs.getString("msg30").startsWith("T") || rs.getString("msg30").startsWith("D")) {
 						System.out.println(LocalDateTime.now()+" OK: Set msg30 to blank" + " " + rs.getString("id"));
 //						rs.updateString("msg30", " ");
 						

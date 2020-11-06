@@ -10,7 +10,7 @@ import java.time.LocalDateTime;
 //import org.postgresql.util.PSQLException;
 
 class DBupdate {
-/* DBupdate ( 2020-SEP-19 )  */
+/* DBupdate ( 2020-OCT-17 ) */
 	static Connection conn = null;
 	Statement stmt = null;
 	PreparedStatement pStmt = null;
@@ -181,6 +181,7 @@ class DBupdate {
 
 							if (rs.getString("msg30").startsWith("M")) rs.updateString("msg30", " ");
 							else if (rs.getString("msg30").startsWith("T")) rs.updateString("msg30", " ");
+							else if (rs.getString("msg30").startsWith("D")) rs.updateString("msg30", " ");
 							else if (rs.getString("msg30").startsWith("S")) rs.updateString("msg30", "R");
 
 							if (m.getType().toUpperCase().startsWith("I")) rs.updateInt("prio", m.getPrio());
@@ -212,6 +213,7 @@ class DBupdate {
 
 							if (rs.getString("msg30").startsWith("M")) rs.updateString("msg30", " ");
 							else if (rs.getString("msg30").startsWith("T")) rs.updateString("msg30", " ");
+							else if (rs.getString("msg30").startsWith("D")) rs.updateString("msg30", " ");
 							else if (rs.getString("msg30").startsWith("S")) rs.updateString("msg30", "R");
 
 							if (rs.getString("type").startsWith("I")) rs.updateString("type", "D");
@@ -298,7 +300,7 @@ class DBupdate {
 						else                                          st.setInt(10,1); 
 						if (sType.toUpperCase().equals("R")) st.setInt(11,1); // acceptable errors 
 						else 								 st.setInt(11,0); // acceptable errors 
-						st.setString(12,"M"); // msg 
+						st.setString(12," "); // msg 
 						st.setTime(13,null ); // msgdat 
 						if (m.getType().equalsIgnoreCase("I"))   {
 							st.setString(14,"C" ); // console
@@ -311,9 +313,9 @@ class DBupdate {
 						st.setString(16," "); // info
 						st.setString(17," "); // plugin
 						st.setString(18,m.getAgent() ); 
-						st.setString(19,"M"); // sms 
+						st.setString(19," "); // sms 
 						st.setTime(20,null ); // smsdat 
-						st.setString(21,"M"); // msg30 
+						st.setString(21," "); // msg30 
 						st.setTime(22,null ); // msgdat30 
 						cal.set(1970, 01, 01, 23, 59, 59); // only HH:MM:SS is used
 						st.setTime(23, new java.sql.Time( cal.getTime().getTime())); // chktimto 23:59:59 
@@ -429,7 +431,7 @@ class DBupdate {
 				}
 			
 			// 2020-09-15
-			if (dbwrites>dbwritesMax) {
+			if (dbwrites>dbwritesMax && dbwritesMax>0) {
 				System.out.println(LocalDateTime.now()+" #C2 closing DB connection" );
 				swDB = false;
 				dbwrites=0;
