@@ -53,6 +53,7 @@ public class SendMail30 {
 	static String hdrStrY = "<TH BGCOLOR=\"#FFFF00\"><FONT SIZE=3>"; // Yellow
 	static String hdrStrR = "<TH BGCOLOR=\"#FF6600\"><FONT SIZE=3>"; // Red
 	static String hdrStrM = "<TH BGCOLOR=\"#FF00FF\"><FONT SIZE=3>"; // Magenta
+	static String hdrStrB = "<TH BGCOLOR=\"#CCEEFF\"><FONT SIZE=3>"; // Light blue
 	static String hdrEnd = "</TH>";
 
 	static String rowStr = "<TR>"; 
@@ -89,7 +90,7 @@ public class SendMail30 {
 
 	public static void main(String[] args ) throws IOException, UnknownHostException {
 
-		String version = "SendMail30 (2020-OCT-26)";
+		String version = "SendMail30 (2020-NOV-20)";
 		String database = "jVakt";
 		String dbuser   = "jVakt";
 		String dbpassword = "unknown";
@@ -469,13 +470,23 @@ public class SendMail30 {
 			body = body + rowStr+hdrStrY+"TIME-OUT"+hdrEnd+hdrStrY+""+hdrEnd+hdrStrY+""+hdrEnd+rowEnd+	wbody ;
 		}
 		if (rbody.length() > 0) { 
+			
 			if (swOK) subject =  subject + "Resolved: " + resolved+ "  ";
 			if (swINFO) subject = subject + "Info: " + infos+ "  ";
-			if (swOK ) subjectTxt="RESOLVED";
-			else if (swOK && swINFO ) subjectTxt="RESOLVED&INFO";
-			else subjectTxt="INFO";
+			
+			if (swOK ) {
+				subjectTxt="RESOLVED";
+				body = body + rowStr+hdrStrG+subjectTxt+hdrEnd+hdrStrG+""+hdrEnd+hdrStrG+""+hdrEnd+rowEnd+	rbody ;
+			}
+			else if (swOK && swINFO ) {
+				subjectTxt="RESOLVED&INFO";
+				body = body + rowStr+hdrStrG+subjectTxt+hdrEnd+hdrStrG+""+hdrEnd+hdrStrG+""+hdrEnd+rowEnd+	rbody ;
+			}
+			else {
+				subjectTxt="INFO";
+				body = body + rowStr+hdrStrB+subjectTxt+hdrEnd+hdrStrB+""+hdrEnd+hdrStrB+""+hdrEnd+rowEnd+	rbody ;
+			}
 			//			subject = subject + "Resolved: " + resolved;
-			body = body + rowStr+hdrStrG+subjectTxt+hdrEnd+hdrStrG+""+hdrEnd+hdrStrG+""+hdrEnd+rowEnd+	rbody ;
 		}
 		body = body + tblEnd;
 
