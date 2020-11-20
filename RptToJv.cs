@@ -7,7 +7,7 @@ namespace RptToJv
 	{
 		public static void Main(string[] args)
 		{
-			string version = "RptToJv C# (2020-SEP-13)";
+			string version = "RptToJv C# (2020-NOV-20)";
 			string host = "127.0.0.1";
 			int port = 1956;
 			string id = null;
