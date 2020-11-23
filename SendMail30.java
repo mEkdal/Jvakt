@@ -90,7 +90,7 @@ public class SendMail30 {
 
 	public static void main(String[] args ) throws IOException, UnknownHostException {
 
-		String version = "SendMail30 (2020-NOV-20)";
+		String version = "SendMail30 (2020-NOV-21)";
 		String database = "jVakt";
 		String dbuser   = "jVakt";
 		String dbpassword = "unknown";
@@ -459,15 +459,18 @@ public class SendMail30 {
 
 		if (sbody.length() > 0) {
 			subject = subject + "Errors: " + serrors + "  ";
-			body = body + rowStr+hdrStrM+"ERROR" +hdrEnd+hdrStrM+""+hdrEnd+hdrStrM+""+hdrEnd+rowEnd+	sbody ;
+//			body = body + rowStr+hdrStrM+"ERROR" +hdrEnd+hdrStrM+""+hdrEnd+hdrStrM+""+hdrEnd+rowEnd+	sbody ;
+			body = body + rowStr+hdrStrM+"ERROR" +hdrEnd+hdrStrM+""+hdrEnd+rowEnd+	sbody ;
 		}
 		if (ebody.length() > 0) {
 			subject = subject + "Warnings: " + errors + "  ";
-			body = body + rowStr+hdrStrR+"WARNING" +hdrEnd+hdrStrR+""+hdrEnd+hdrStrR+""+hdrEnd+rowEnd+	ebody ;
+//			body = body + rowStr+hdrStrR+"WARNING" +hdrEnd+hdrStrR+""+hdrEnd+hdrStrR+""+hdrEnd+rowEnd+	ebody ;
+			body = body + rowStr+hdrStrR+"WARNING" +hdrEnd+hdrStrR+""+hdrEnd+rowEnd+	ebody ;
 		}
 		if (wbody.length() > 0) {
 			subject = subject + "Time-outs: " + warnings + "  ";
-			body = body + rowStr+hdrStrY+"TIME-OUT"+hdrEnd+hdrStrY+""+hdrEnd+hdrStrY+""+hdrEnd+rowEnd+	wbody ;
+//			body = body + rowStr+hdrStrY+"TIME-OUT"+hdrEnd+hdrStrY+""+hdrEnd+hdrStrY+""+hdrEnd+rowEnd+	wbody ;
+			body = body + rowStr+hdrStrY+"TIME-OUT"+hdrEnd+hdrStrY+""+hdrEnd+rowEnd+	wbody ;
 		}
 		if (rbody.length() > 0) { 
 			
@@ -476,15 +479,18 @@ public class SendMail30 {
 			
 			if (swOK ) {
 				subjectTxt="RESOLVED";
-				body = body + rowStr+hdrStrG+subjectTxt+hdrEnd+hdrStrG+""+hdrEnd+hdrStrG+""+hdrEnd+rowEnd+	rbody ;
+//				body = body + rowStr+hdrStrG+subjectTxt+hdrEnd+hdrStrG+""+hdrEnd+hdrStrG+""+hdrEnd+rowEnd+	rbody ;
+				body = body + rowStr+hdrStrG+subjectTxt+hdrEnd+hdrStrG+""+hdrEnd+rowEnd+	rbody ;
 			}
 			else if (swOK && swINFO ) {
 				subjectTxt="RESOLVED&INFO";
-				body = body + rowStr+hdrStrG+subjectTxt+hdrEnd+hdrStrG+""+hdrEnd+hdrStrG+""+hdrEnd+rowEnd+	rbody ;
+//				body = body + rowStr+hdrStrY+subjectTxt+hdrEnd+hdrStrY+""+hdrEnd+hdrStrY+""+hdrEnd+rowEnd+	rbody ;
+				body = body + rowStr+hdrStrY+subjectTxt+hdrEnd+hdrStrY+""+hdrEnd+rowEnd+	rbody ;
 			}
 			else {
 				subjectTxt="INFO";
-				body = body + rowStr+hdrStrB+subjectTxt+hdrEnd+hdrStrB+""+hdrEnd+hdrStrB+""+hdrEnd+rowEnd+	rbody ;
+//				body = body + rowStr+hdrStrY+subjectTxt+hdrEnd+hdrStrY+""+hdrEnd+hdrStrY+""+hdrEnd+rowEnd+	rbody ;
+				body = body + rowStr+hdrStrY+subjectTxt+hdrEnd+hdrStrY+""+hdrEnd+rowEnd+	rbody ;
 			}
 			//			subject = subject + "Resolved: " + resolved;
 		}
