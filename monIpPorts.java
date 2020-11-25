@@ -8,7 +8,7 @@ import java.util.*;
 
 import java.net.*;
 
-public class monIpPorts {
+public class monIpPorts { 
 
 	static String state = "a";
 	static String t_sys;
@@ -22,7 +22,7 @@ public class monIpPorts {
 	static String host;
 	static String hostport;
 	static InetAddress inet;
-	static String version = "monIpPorts (2020-01-16)";
+	static String version = "monIpPorts (2020-11-25)";
 	static String database = "jVakt";
 	static String dbuser   = "jVakt";
 	static String dbpassword = "xz";
@@ -68,8 +68,9 @@ public class monIpPorts {
 
 			System.out.println("\n\nThe parameters and their meaning are:\n"+
 					"\n-config \tThe dir of the input files. Like: \"-dir c:\\Temp\" "+
-					"\n-run   \tTo actually update the status on the server side."+
-					"\n-host  \tCheck a single host."+          
+					"\n-run    \tTo actually update the status on the server side."+
+					"\n-host   \tCheck a single host."+          
+					"\n-port   \tThe port of a single host."+          
 					"\n-show   \tShow the response from the server."
 					);
 
@@ -92,18 +93,22 @@ public class monIpPorts {
 
 		System.out.println("\n"+new Date()+" *** Jvakt "+version+" ***\n");
 
-		if (swShow)	System.out.println(" config file: "+configF);
+		if (swShow) {
+			if (swSingle) System.out.println(" *** a Single check is made ***"); 
+			System.out.println(" config file: "+configF);
+		}
 
 		getProps();
 
 		System.setProperty("java.net.preferIPv6Addresses", "false");
 
 		if (swShow)	{
-		System.out.println(" Dir : "+dir);
-		System.out.println(" Suf : "+suf);
-		System.out.println(" Pos : "+pos);
-		System.out.println(" Host: "+host);
-		System.out.println();
+			System.out.println(" Dir : "+dir);
+			System.out.println(" Suf : "+suf);
+			System.out.println(" Pos : "+pos);
+			System.out.println(" Host: "+host);
+			System.out.println(" Port: "+wport);
+			System.out.println();
 		}
 
 		if (swSingle) {
