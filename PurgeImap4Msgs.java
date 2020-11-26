@@ -1,9 +1,12 @@
 package Jvakt;
 
 
-import javax.mail.*;
-import javax.mail.search.*;
-import javax.mail.search.SearchTerm;
+//import javax.mail.*;
+//import javax.mail.search.*;
+//import javax.mail.search.SearchTerm;
+import jakarta.mail.*;
+import jakarta.mail.search.*;
+import jakarta.mail.search.SearchTerm;
 import java.util.*;
 import java.io.*;
 import java.net.InetAddress;
@@ -54,7 +57,7 @@ public class PurgeImap4Msgs {
 
 	public static void main(String[] args) throws IOException, FileNotFoundException {
 
-		String version = "PurgeImap4Msgs # ( 2019-09-27 )";
+		String version = "PurgeImap4Msgs # ( 2020-11-26 )";
 
 		for (int i=0; i<args.length; i++) {
 			if (args[i].equalsIgnoreCase("-config")) config = args[++i];
@@ -145,7 +148,8 @@ public class PurgeImap4Msgs {
 			SearchTerm searchCondition = new SearchTerm() {
 				private static final long serialVersionUID = 5298994639594655420L;
 				@Override
-				public boolean match(javax.mail.Message message) {
+//				public boolean match(javax.mail.Message message) {
+				public boolean match(jakarta.mail.Message message) {
 					try {
 
 						if (Pfrom != null) {
@@ -205,7 +209,8 @@ public class PurgeImap4Msgs {
 			// Fetch all messages from inbox folder
 			//			javax.mail.Message[] messages = inbox.getMessages();
 			// Fetch unseen messages from inbox folder
-			javax.mail.Message[] messages = inbox.search(searchCondition);
+//			javax.mail.Message[] messages = inbox.search(searchCondition);
+			jakarta.mail.Message[] messages = inbox.search(searchCondition);
 			//			javax.mail.Message[] messages = inbox.search(new FlagTerm(new Flags(Flags.Flag.SEEN), false));
 
 			//	        System.out.println("\n------------ NewMessageCount " + inbox.getNewMessageCount() + " ------------");

@@ -1,8 +1,10 @@
 package Jvakt;
 
 
-import javax.mail.*;
-import javax.mail.search.*;
+import jakarta.mail.*;
+import jakarta.mail.search.*;
+//import javax.mail.*;
+//import javax.mail.search.*;
 import Jvakt.Message;
 import java.util.*;
 import java.io.*;
@@ -47,7 +49,7 @@ public class GetImap4Msg {
 
 	public static void main(String[] args) throws IOException, FileNotFoundException {
 
-		String version = "GetImap4Msg # ( 2020-10-12 )";
+		String version = "GetImap4Msg # ( 2020-11-26 )";
 
 		for (int i=0; i<args.length; i++) {
 			if (args[i].equalsIgnoreCase("-config")) config = args[++i];
@@ -126,7 +128,8 @@ public class GetImap4Msg {
 			// Fetch all messages from inbox folder
 			//			javax.mail.Message[] messages = inbox.getMessages();
 			// Fetch unseen messages from inbox folder
-			javax.mail.Message[] messages = inbox.search(new FlagTerm(new Flags(Flags.Flag.SEEN), false));
+			jakarta.mail.Message[] messages = inbox.search(new FlagTerm(new Flags(Flags.Flag.SEEN), false));
+//			javax.mail.Message[] messages = inbox.search(new FlagTerm(new Flags(Flags.Flag.SEEN), false));
 
 			//	        System.out.println("\n------------ NewMessageCount " + inbox.getNewMessageCount() + " ------------");
 			//	        System.out.println("------------ UnreadMessageCount " + inbox.getUnreadMessageCount() + " ------------");

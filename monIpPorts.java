@@ -8,7 +8,7 @@ import java.util.*;
 
 import java.net.*;
 
-public class monIpPorts { 
+public class monIpPorts {
 
 	static String state = "a";
 	static String t_sys;

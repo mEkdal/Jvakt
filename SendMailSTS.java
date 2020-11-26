@@ -10,9 +10,12 @@ import java.sql.Statement;
 //import java.sql.Timestamp;
 import java.util.*;
 //import java.time.*;
-import javax.mail.*;
-import javax.mail.Authenticator;
-import javax.mail.PasswordAuthentication;
+import jakarta.mail.*;
+import jakarta.mail.Authenticator;
+import jakarta.mail.PasswordAuthentication;
+//import javax.mail.*;
+//import javax.mail.Authenticator;
+//import javax.mail.PasswordAuthentication;
 
 public class SendMailSTS {
 
@@ -82,7 +85,7 @@ public class SendMailSTS {
 
 	public static void main(String[] args ) throws IOException, UnknownHostException {
 
-		String version = "SendMailSTS (2019-SEP-10)";
+		String version = "SendMailSTS (2020-NOV-26)";
 
 		String subject = "";
 		String body = "";

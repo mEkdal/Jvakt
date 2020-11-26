@@ -3,10 +3,13 @@ import java.io.*;
 import java.net.*;
 import java.sql.Connection;
 import java.util.*;
-import javax.mail.*;
-import javax.mail.Authenticator;
-import javax.mail.PasswordAuthentication;
-
+//import javax.mail.*;
+//import javax.mail.Authenticator;
+//import javax.mail.PasswordAuthentication;
+import jakarta.mail.*;
+import jakarta.mail.Authenticator;
+import jakarta.mail.PasswordAuthentication;
+ 
 public class SendMailSingle {
 
 	//	static String DBUrl = "jdbc:postgresql://localhost:5433/Jvakt";
@@ -52,7 +55,7 @@ public class SendMailSingle {
 
 	public static void main(String[] args ) throws IOException, UnknownHostException {
 
-		String version = "SendMailSingle 1.3 (2018-MAR-14)";
+		String version = "SendMailSingle (2020-NOV-26)";
 
 		//Declare recipient's & sender's e-mail id.
 		final String toEmail;
@@ -98,7 +101,7 @@ public class SendMailSingle {
 		System.out.println("-config file: "+configF);
 		Properties prop = new Properties();
 		InputStream input = null;
-		//		try {
+		//		try { 
 //		input = new FileInputStream(config + "jVakt.properties");
 		input = new FileInputStream(configF);
 		prop.load(input);

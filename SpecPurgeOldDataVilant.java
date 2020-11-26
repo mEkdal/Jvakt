@@ -11,9 +11,12 @@ import java.sql.Statement;
 //import java.sql.Timestamp;
 import java.util.*;
 import java.time.*;
-import javax.mail.*;
-import javax.mail.Authenticator;
-import javax.mail.PasswordAuthentication;
+import jakarta.mail.*;
+import jakarta.mail.Authenticator;
+import jakarta.mail.PasswordAuthentication;
+//import javax.mail.*;
+//import javax.mail.Authenticator;
+//import javax.mail.PasswordAuthentication;
 
 public class SpecPurgeOldDataVilant {
 
@@ -29,7 +32,7 @@ public class SpecPurgeOldDataVilant {
 
 	public static void main(String[] args ) throws IOException, UnknownHostException {
 
-		String version = "SpecPurgeOldDataVilant (2019-AUG-27)";
+		String version = "SpecPurgeOldDataVilant (2020-NOV-26)";
 		String database = "perstorp";
 		String dbuser   = "postgres";
 		String dbpassword = "postgres";
