@@ -110,8 +110,8 @@ public class ManFiles {
 
 		if (swHelp) {
 			System.out
-			.println("\n*** Jvakt.ManFiles (build 2020-OCT-12) ***"
-					+ "\n*** by Michael Ekdal, Sweden. ***");
+			.println("\n*** Jvakt.ManFiles (build 2020-DEC-03) ***"
+					+ "\n*** by Michael Ekdal, Sweden. ***"); 
 			System.out
 			.println("\nThe parameters and their meaning are:\n"
 					+ "\n-parfile \tThe name prefix of the parameter file (default is ManFiles). The suffix must end with .par"
@@ -144,12 +144,14 @@ public class ManFiles {
 					+ "\n-unique  \tThe moved or copied file is sufixed with the unique string _YYYYMMDDHHMMSS. like (_20100111113539)"
 					+ "\n-flat    \tFiles are copied or moved to the -sdir without the original structure"
 					+ "\n-noflat  \tFiles are copied or moved to the -sdir with the original structure (default)"
-					+ "\n-suf     \tA file suffix to look for. like \"-suf .log \" "
-					+ "\n-pref    \tA file prefix to look for. like \"-pref Z \" "
-					+ "\n-pos     \tA any string in the file name to look for. like \"-pos per\" "
-					+ "\n-inpath  \t(include) string in the path name. like \"-inpath INV\" "
-					+ "\n-expath  \t(exclude) string in the path name. like \"-expath INV\" "
-					+ "\n-exfile  \t(exclude) string in the file name. like \"-exfile TEMP01\" "
+					+ "\n-suf     \t(include) a file suffix to look for. like \"-suf .log \" "
+					+ "\n-pref    \t(include) a file prefix to look for. like \"-pref Z \" "
+					+ "\n-pos     \t(include) a any string in the file name to look for. like \"-pos per\" "
+					+ "\n-inpath  \t(include) a string in the path name. like \"-inpath INV\" "
+					+ "\n-expath  \t(exclude) a string in the path name. like \"-expath INV\" "
+					+ "\n         \t  To use more expath strings, separate them with a ; like stra;strb"
+					+ "\n-exfile  \t(exclude) a string(s) in the file name. like \"-exfile TEMP01\" "
+					+ "\n         \t  To use more exfile strings, separate them with a ; like flda;fldb"
 					+ "\n-fdat    \tSelect files from the date it was last changed . like (-fdat 20181101000000)"
 					+ "\n-tdat    \tSelect files to   the date it was last changed . like (-tdat 20181205140000)"
 					+ "\n-hou     \tHours since file last changed. like \"-hou 48\" (default=0) "
@@ -1046,16 +1048,22 @@ public class ManFiles {
 					okay = false;
 			}
 			if (okay && !exfile.equals("*")) {
-				if (f.indexOf(exfile) >= 0)
-					okay = false;
+//				if (f.indexOf(exfile) >= 0) okay = false;
+				String exfileTab[] = exfile.split(";");
+				for (int k = 0; k < exfileTab.length; k++) {
+					if (f.indexOf(exfileTab[k]) >= 0) okay = false;
+				}
 			}
 			if (okay && !inpath.equals("*")) {
 				if (dir.toString().toLowerCase().indexOf(inpath) < 0)
 					okay = false;
 			}
 			if (okay && !expath.equals("*")) {
-				if (dir.toString().toLowerCase().indexOf(expath) >= 0)
-					okay = false;
+//				if (dir.toString().toLowerCase().indexOf(expath) >= 0)	okay = false;
+				String expathTab[] = expath.split(";");
+				for (int k = 0; k < expathTab.length; k++) {
+					if (dir.toString().toLowerCase().indexOf(expathTab[k]) >= 0)	okay = false;
+				}
 			}
 			if (okay && scanstr!=null) {
 				try {okay = scanF(fi,scanstr,charset); }
