@@ -1,6 +1,6 @@
 package Jvakt;
 import java.io.*;
-import java.util.*;
+import java.util.*; 
 import java.net.*;
 import javax.net.ssl.HostnameVerifier;
 import javax.net.ssl.HttpsURLConnection;
@@ -29,7 +29,7 @@ public class monHttps {
 	static String hosturl;
 	static String tabbar = "                                                                                               ";
 	static InetAddress inet;
-	static String version = "monHttps (2020-10-14)";
+	static String version = "monHttps (2020-12-04)";
 	static String database = "jVakt";
 	static String dbuser   = "jVakt";
 	static String dbpassword = "xz";
@@ -284,7 +284,7 @@ public class monHttps {
 		jmsg.setId(t_id+"-monHttps-"+host);
 		if (STS) jmsg.setRptsts("OK");
 		else jmsg.setRptsts("ERR");
-		if (swExpire) t_desc = expire +" - "+ t_desc;
+//		if (swExpire) t_desc = expire +" - "+ t_desc;
 		jmsg.setBody(t_desc);
 		jmsg.setType("R");
 		jmsg.setAgent(agent);
