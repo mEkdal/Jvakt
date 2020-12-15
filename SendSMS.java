@@ -25,6 +25,7 @@ public class SendSMS {
 	static boolean swTiming;
 	static boolean swShDay; // set when the scheduled day is active 
 	static boolean swDormant = false;
+	static boolean swShowVer = true;
 	static java.sql.Date zDate;
 	static java.sql.Timestamp zD;
 	static java.sql.Timestamp zTs;
@@ -73,7 +74,7 @@ public class SendSMS {
 
 	public static void main(String[] args ) throws IOException, UnknownHostException {
 
-		String version = "SendSMS (2020-OCT-26)";
+		String version = "SendSMS (2020-DEC-08)";
 		String database = "jVakt";
 		String dbuser   = "jVakt";
 		String dbpassword = "xz";
@@ -89,11 +90,13 @@ public class SendSMS {
 
 		for (int i=0; i<args.length; i++) {
 			if (args[i].equalsIgnoreCase("-config")) config = args[++i];
+			if (args[i].equalsIgnoreCase("-nover")) swShowVer =false;
 		}
 
 		if (config == null ) 	configF = new File("Jvakt.properties");
 		else 					configF = new File(config,"Jvakt.properties");
-		System.out.println("----- Jvakt: "+new Date()+"    Version: "+version+"  -  config file: "+configF);
+
+		if (swShowVer) System.out.println("----- Jvakt: "+new Date()+"    Version: "+version+"  -  config file: "+configF);
 
 		prop = new Properties();
 		InputStream input = null;
@@ -145,7 +148,7 @@ public class SendSMS {
 		}
 
 		if (swDormant) {
-			System.out.println("*** Jvakt in DORMANT mode, SendSMS exiting *** ");
+			System.out.println(LocalDateTime.now()+" *** Jvakt in DORMANT mode, SendSMS exiting *** ");
 			System.exit(4);			
 		}
 
@@ -184,7 +187,7 @@ public class SendSMS {
 			ResultSet rs = stmt.executeQuery(s);
 			//			swHits = false;  // is there already a record?
 			while (rs.next()) {
-				System.out.println("- main RS - State:"+rs.getString("state")+" Id:" + rs.getString("id")+" Type:"+rs.getString("type")+" Prio:"+rs.getString("prio")+" Console:"+rs.getString("console")+" Status:"+rs.getString("status")+ " Sms:"+rs.getString("sms"));
+				System.out.println(LocalDateTime.now()+" - main RS - State:"+rs.getString("state")+" Id:" + rs.getString("id")+" Type:"+rs.getString("type")+" Prio:"+rs.getString("prio")+" Console:"+rs.getString("console")+" Status:"+rs.getString("status")+ " Sms:"+rs.getString("sms"));
 				//				swHits = true;  
 				swTiming = false;  
 				error = false;
@@ -201,15 +204,15 @@ public class SendSMS {
 					cal.setTime(rs.getTime("chktim"));
 					//					if (nu.getHour() > rs.getTime("chktim").getHours() ) {
 					if (nu.getHour() > cal.get(Calendar.HOUR_OF_DAY) ) {
-						swShDay = true; System.out.println("Timmen swShDay: "+swShDay);
+						swShDay = true; System.out.println(LocalDateTime.now()+" Timmen swShDay: "+swShDay);
 					}
 					//					else if (nu.getHour() == rs.getTime("chktim").getHours() && nu.getMinute() > rs.getTime("chktim").getMinutes() ) {
 					else if (nu.getHour() == cal.get(Calendar.HOUR_OF_DAY) && nu.getMinute() > cal.get(Calendar.MINUTE) ) {
-						swShDay = true;	System.out.println("Minuten swShDay: "+swShDay);
+						swShDay = true;	System.out.println(LocalDateTime.now()+" Minuten swShDay: "+swShDay);
 					}
 					//					else if (nu.getHour() == rs.getTime("chktim").getHours() && nu.getMinute() == rs.getTime("chktim").getMinutes() && nu.getSecond() > rs.getTime("chktim").getSeconds() ) {
 					else if (nu.getHour() == cal.get(Calendar.HOUR_OF_DAY) && nu.getMinute() == cal.get(Calendar.MINUTE) && nu.getSecond() > cal.get(Calendar.SECOND) ) {
-						swShDay = true;	System.out.println("Sekunden swShDay: "+swShDay);
+						swShDay = true;	System.out.println(LocalDateTime.now()+" Sekunden swShDay: "+swShDay);
 					}
 					
 					// check chktimto
@@ -226,27 +229,27 @@ public class SendSMS {
 					
 				} 
 				if (rs.getInt("prio") <= 10) swShDay = true; // always handle prio 10 and below.
-				System.out.println("swShDay: "+swShDay);
+				System.out.println(LocalDateTime.now()+" swShDay: "+swShDay);
 
 				if (swShDay) {
 					if (rs.getString("sms").equalsIgnoreCase("S")) { 
-						System.out.println("-- Already got an S in sms, continues...");
+						System.out.println(LocalDateTime.now()+" -- Already got an S in sms, continues...");
 						continue; 
 					}
 					
 					body = rs.getString("id")+" "+rs.getString("body");
 					
 					if (rs.getString("sms").equalsIgnoreCase("M") ) { 
-						System.out.println("Error " + body);
+						System.out.println(LocalDateTime.now()+" Error " + body);
 						error = true;
 					}
 					else if (rs.getString("sms").equalsIgnoreCase("R")) {
-						System.out.println("Resolved " + body);
+						System.out.println(LocalDateTime.now()+" Resolved " + body);
 						resolved = true;
 					}
 					else {
 						body = rs.getString("id")+" The Jvakt agent did not report in due time.";
-						System.out.println("Timeout " + body);
+						System.out.println(LocalDateTime.now()+" Timeout " + body);
 						warning = true;
 					}
 					
@@ -256,7 +259,7 @@ public class SendSMS {
 					rs.updateTimestamp("smsdat", new java.sql.Timestamp((new Date(System.currentTimeMillis())).getTime()));
 					try { rs.updateRow(); } catch(NullPointerException npe2) {}
 
-					System.out.println("After update");
+					System.out.println(LocalDateTime.now()+" After update");
 
 					if (sendSMS()) conn.commit();
 					else			conn.rollback();
@@ -287,7 +290,7 @@ public class SendSMS {
 	static boolean sendSMS() {
 
 		boolean swOK = false;
-		System.out.println("--- Sending Jvakt SMS ---\n");
+		System.out.println(LocalDateTime.now()+" --- Sending Jvakt SMS ---\n");
 
 		if (error) {
 			body = "ERROR: " + body;
@@ -311,11 +314,11 @@ public class SendSMS {
 
 			toSMS = toSMSW;
 			//				System.out.println("To:"+toEmailW+"   Subject: " + subject );
-			System.out.println("\n--- Sending SMS to: "+toSMS +"      Body: " + body );
+			System.out.println(LocalDateTime.now()+" --- Sending SMS to: "+toSMS +"      Body: " + body );
 
 			// Connect to Com-Server
 			try {
-				System.out.println("Connecting to: "+SMShost +":" + SMSporti );
+				System.out.println(LocalDateTime.now()+" Connecting to: "+SMShost +":" + SMSporti );
 //				sock = new Socket( SMShost, SMSporti );
 				sock = new Socket();
 				sock.connect(new InetSocketAddress(SMShost, SMSporti), 2000);
@@ -324,23 +327,23 @@ public class SendSMS {
 				isr = new InputStreamReader( sock.getInputStream() );
 			} catch( IOException e ) {
 				swOK = false;
-				System.out.println("IOExeption while connecting " + e);
+				System.out.println(LocalDateTime.now()+" IOExeption while connecting " + e);
 				break;
 			}
 			// Sending ( http://chadselph.github.io/smssplit/ )
 			try {
-				System.out.println("Sending \"AT+CMGF=1\\r\\n\"" );
+				System.out.println(LocalDateTime.now()+" Sending \"AT+CMGF=1\\r\\n\"" );
 				osw.write( "AT+CMGF=1\r\n" );   // SMS text mode
 				osw.flush();
 				ReceiveText();
-				if (reply.indexOf("OK") > 0 ) System.out.println("Received OK  "+reply);
+				if (reply.indexOf("OK") > 0 ) System.out.println(LocalDateTime.now()+" Received OK  "+reply);
 				//  	    	  System.out.println("Sending AT+CMGS="+toSMS +"\\r\\n" );
-				System.out.println("Sending AT+CMGS="+toSMS +"\\r" );
+				System.out.println(LocalDateTime.now()+" Sending AT+CMGS="+toSMS +"\\r" );
 				//		        osw.write( "AT+CMGS="+ toSMS + "\r\n" );
 				osw.write( "AT+CMGS="+ toSMS + "\r" );
 				osw.flush();
 				ReceiveText();
-				if (reply.indexOf(">") > 0 ) System.out.println("Received >  "+reply);
+				if (reply.indexOf(">") > 0 ) System.out.println(LocalDateTime.now()+" Received >  "+reply);
 				if (body.length() > 140 ) body = body.substring(0, 139);
 				body = body.replaceAll("_", "-"); // replace _ with - because SMS creates a �
 				body = body.replace('Å', 'A'); 
@@ -351,23 +354,23 @@ public class SendSMS {
 				body = body.replace('ö', 'o'); 
 				body = body.replaceAll("[^a-zA-Z0-9.:-]" , " ");
 				//	  	    	  System.out.println("Sending body: "+body +"\\r\\n" );
-				System.out.println("Sending body: "+body );
+				System.out.println(LocalDateTime.now()+" Sending body: "+body );
 				//			        osw.write( body + "\r\n" + "\u001A" );
 				osw.write( body +"\u001A" );
 				osw.flush();
 				ReceiveText();
 				if (reply.indexOf("+CMGS") > 0 ) {
-					System.out.println("Received +CMGS  "+reply);
+					System.out.println(LocalDateTime.now()+" Received +CMGS  "+reply);
 					swOK = true;
 				} else {
 					swOK = false;
-					System.out.println("Did not receive +CMGS ! "+reply);
+					System.out.println(LocalDateTime.now()+" Did not receive +CMGS ! "+reply);
 					break;					
 				}
 
 			} catch( IOException e ) {
 				swOK = false;
-				System.out.println("IOExeption while sending " + e);
+				System.out.println(LocalDateTime.now()+" IOExeption while sending " + e);
 				break;
 			}		      
 			// closing and disconnecting 
@@ -380,11 +383,11 @@ public class SendSMS {
 		}
 
 		if (swOK) {
-			System.out.println("\nRETURN true");
+			System.out.println(LocalDateTime.now()+" RETURN true");
 			return true;
 		}
 		else {
-			System.out.println("\nRETURN false");
+			System.out.println(LocalDateTime.now()+" RETURN false");
 			return false;
 		}
 
@@ -401,7 +404,7 @@ public class SendSMS {
 			s = "";
 			if (timeouts>10) {
 				// timeout in input stream
-				System.out.println("Aborting because of timeout in isr!");
+				System.out.println(LocalDateTime.now()+" Aborting because of timeout in isr!");
 				try {sendSTS(false);} catch (IOException e) { e.printStackTrace();}
 				System.exit(12);
 				//				break;
@@ -410,13 +413,13 @@ public class SendSMS {
 				if (isr.ready()) len = isr.read( c, 0, 100 );
 				else {
 					timeouts++;
-					System.out.println("isr is not ready, waiting...");
+					System.out.println(LocalDateTime.now()+" isr is not ready, waiting...");
 					try { Thread.sleep(1000); } catch (InterruptedException e) { e.printStackTrace();}
 					continue;
 				}
 				if( len < 0 ) {
 					timeouts++;
-					System.out.println("no reply, waiting...");
+					System.out.println(LocalDateTime.now()+" no reply, waiting...");
 					try { Thread.sleep(1000); } catch (InterruptedException e) { e.printStackTrace();}
 					continue;
 //					return;
@@ -427,15 +430,15 @@ public class SendSMS {
 				reply = s;
 			} catch (InterruptedIOException e) {
 				timeouts++;
-				System.out.println("ReceiverText InterruptedIOException in input stream: " + e);
+				System.out.println(LocalDateTime.now()+" ReceiverText InterruptedIOException in input stream: " + e);
 			} catch (IOException e) {
 				timeouts++;
-				System.out.println("ReceiverText IOException: " + e);
+				System.out.println(LocalDateTime.now()+" ReceiverText IOException: " + e);
 				//				break;
 			}
 
 			if( s.length() > 0 ) {
-				System.out.println(s);  
+				System.out.println(LocalDateTime.now()+" "+s);  
 				System.out.flush();
 				try { Thread.sleep(100); } catch (InterruptedException e) { e.printStackTrace();}
 				return;
@@ -467,7 +470,7 @@ public class SendSMS {
 			agent = inet.toString();
 			jmsg.setAgent(agent);
 
-			if (!jm.sendMsg(jmsg)) System.out.println("--- Rpt to Jvakt Failed for Jvakt-SendSMS ---");
+			if (!jm.sendMsg(jmsg)) System.out.println(LocalDateTime.now()+" --- Rpt to Jvakt Failed for Jvakt-SendSMS ---");
 			jm.close();
 	}
 

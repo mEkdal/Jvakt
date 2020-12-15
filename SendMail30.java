@@ -28,6 +28,7 @@ public class SendMail30 {
 
 	static boolean swOK = false; 
 	static boolean swINFO = false; 
+	static boolean swShowVer = true;
 
 	static java.sql.Date zDate;
 	static java.sql.Timestamp zD;
@@ -93,7 +94,7 @@ public class SendMail30 {
 
 	public static void main(String[] args ) throws IOException, UnknownHostException {
 
-		String version = "SendMail30 (2020-NOV-26)";
+		String version = "SendMail30 (2020-DEC-10)";
 		String database = "jVakt";
 		String dbuser   = "jVakt";
 		String dbpassword = "unknown";
@@ -106,11 +107,13 @@ public class SendMail30 {
 
 		for (int i=0; i<args.length; i++) {
 			if (args[i].equalsIgnoreCase("-config")) config = args[++i];
+			if (args[i].equalsIgnoreCase("-nover")) swShowVer =false;
 		}
 
 		if (config == null ) 	configF = new File("Jvakt.properties");
 		else 					configF = new File(config,"Jvakt.properties");
-		System.out.println("----- Jvakt: "+new Date()+"  Version: "+version+"  -  config file: "+configF);
+
+		if (swShowVer) System.out.println("----- Jvakt: "+new Date()+"  Version: "+version+"  -  config file: "+configF);
 
 		//Declare recipient's & sender's e-mail id.
 		Properties prop = new Properties();
@@ -165,7 +168,7 @@ public class SendMail30 {
 		}
 
 		if (swDormant) {
-			System.out.println("*** Jvakt in DORMANT mode, SendMail30 exiting *** ");
+			System.out.println(LocalDateTime.now()+" *** Jvakt in DORMANT mode, SendMail30 exiting *** ");
 			System.exit(4);			
 		}
 
@@ -221,7 +224,7 @@ public class SendMail30 {
 			ResultSet rs = stmt.executeQuery(s);
 			//			swHits = false;  // is there already a record?
 			while (rs.next()) {
-				System.out.println("- main RS - State:"+rs.getString("state")+" Id:" + rs.getString("id")+" Type:"+rs.getString("type")+" Prio:"+rs.getString("prio")+" Console:"+rs.getString("console")+" Status:"+rs.getString("status")+ " Msg30:"+rs.getString("msg30"));
+//				System.out.println(LocalDateTime.now()+" - main RS - State:"+rs.getString("state")+" Id:" + rs.getString("id")+" Type:"+rs.getString("type")+" Prio:"+rs.getString("prio")+" Console:"+rs.getString("console")+" Status:"+rs.getString("status")+ " Msg30:"+rs.getString("msg30"));
 				swTiming = false;  
 
 				zD = rs.getTimestamp("rptdat");
@@ -267,6 +270,8 @@ public class SendMail30 {
 
 					if (   checkInterest(rs.getString("id"),rs.getInt("prio"))   ) {
 
+						System.out.println(LocalDateTime.now()+" *** State:"+rs.getString("state")+" Id:" + rs.getString("id")+" Type:"+rs.getString("type")+" Prio:"+rs.getString("prio")+" Console:"+rs.getString("console")+" Status:"+rs.getString("status")+ " Msg30:"+rs.getString("msg30")+" "+rs.getString("body"));
+
 						boolean swPrio = false; 
 						boolean swMsg30M = false; 
 						boolean swMsg30R = false; 
@@ -289,10 +294,10 @@ public class SendMail30 {
 						if (rs.getString("status").equalsIgnoreCase("INFO")) swStatusINFO=true;
 						if (rs.getString("type").equalsIgnoreCase("D")) swTypeD=true;
 
-						System.out.println("swPrio:"+swPrio+" swMsg30M:"+swMsg30M+" swMsg30R:"+swMsg30R+" swMsg30S:"+swMsg30S+" swMsg30T:"+swMsg30T+" swStatusERR:"+swStatusERR+" swStatusOK:"+swStatusOK+" swStatusINFO:"+swStatusINFO+" swTypeD:"+swTypeD);
+						System.out.println(LocalDateTime.now()+" swPrio:"+swPrio+" swMsg30M:"+swMsg30M+" swMsg30R:"+swMsg30R+" swMsg30S:"+swMsg30S+" swMsg30T:"+swMsg30T+" swStatusERR:"+swStatusERR+" swStatusOK:"+swStatusOK+" swStatusINFO:"+swStatusINFO+" swTypeD:"+swTypeD);
 
 						if (swMsg30S) { 
-							System.out.println("-- Already got an S in msg30, continues...");
+							System.out.println(LocalDateTime.now()+" -- Already got an S in msg30, continues...");
 							continue; 
 						}
 
@@ -339,16 +344,16 @@ public class SendMail30 {
 //								( swStatusOK && (swMsg30S || swMsg30M))
 //								) {
 						if ( swMsg30R ) {
-							System.out.println("-- Set blank in msg30");
+							System.out.println(LocalDateTime.now()+" -- Set blank in msg30");
 							rs.updateString("msg30", " ");
 						}
 						else if (swStatusINFO && swMsg30M)
 						{
-							System.out.println("-- Set D in msg30");
+							System.out.println(LocalDateTime.now()+" -- Set D in msg30");
 							rs.updateString("msg30", "D");
 						}
 						else {
-							System.out.println("-- Set S in msg30");
+							System.out.println(LocalDateTime.now()+" -- Set S in msg30");
 							rs.updateString("msg30", "S");
 						}
 
@@ -357,11 +362,11 @@ public class SendMail30 {
 						try { rs.updateRow(); } catch(NullPointerException npe2) {}
 
 						if (sendMail()) {
-							System.out.println("-- commit");
+							System.out.println(LocalDateTime.now()+" -- commit");
 							conn.commit();
 						}
 						else	 {
-							System.out.println("-- rollback");
+							System.out.println(LocalDateTime.now()+" -- rollback");
 							conn.rollback();
 						}
 
@@ -377,11 +382,11 @@ public class SendMail30 {
 
 		}
 		catch (SQLException e) {
-			System.err.println("SQLExeption " + e);
+			System.err.println(LocalDateTime.now()+" SQLExeption " + e);
 			//			System.err.println(e.getMessage());
 		}
 		catch (Exception e) {
-			System.err.println("Exeption " + e);
+			System.err.println(LocalDateTime.now()+" Exeption " + e);
 			//			System.err.println(e.getMessage());
 		}
 		finally { 
@@ -423,7 +428,7 @@ public class SendMail30 {
 				}
 				in.close();
 			}
-		} catch (Exception e) { System.out.println(e);  }
+		} catch (Exception e) { System.out.println(LocalDateTime.now()+" "+e);  }
 	}
 
 	static boolean checkInterest(String id, int prioi) {
@@ -433,7 +438,7 @@ public class SendMail30 {
 		String prio;
 		String prioCsv;
 		//		int n = 0;
-		System.out.println("-- checking interest of: "+id);
+//		System.out.println(LocalDateTime.now()+" -- checking interest of: "+id);
 		for(Object object : listToS) { 
 			String element = (String) object;
 			tab = element.toLowerCase().split(";" , 3 );
@@ -461,24 +466,29 @@ public class SendMail30 {
 		String subjectTxt;
 
 		if (sbody.length() > 0) {
-			subject = subject + "Errors: " + serrors + "  ";
+//			subject = subject + "Errors: " + serrors + "  ";
+			subject = subject + "Error";
 //			body = body + rowStr+hdrStrM+"ERROR" +hdrEnd+hdrStrM+""+hdrEnd+hdrStrM+""+hdrEnd+rowEnd+	sbody ;
 			body = body + rowStr+hdrStrM+"ERROR" +hdrEnd+hdrStrM+""+hdrEnd+rowEnd+	sbody ;
 		}
 		if (ebody.length() > 0) {
-			subject = subject + "Warnings: " + errors + "  ";
+//			subject = subject + "Warnings: " + errors + "  ";
+			subject = subject + "Warning";
 //			body = body + rowStr+hdrStrR+"WARNING" +hdrEnd+hdrStrR+""+hdrEnd+hdrStrR+""+hdrEnd+rowEnd+	ebody ;
 			body = body + rowStr+hdrStrR+"WARNING" +hdrEnd+hdrStrR+""+hdrEnd+rowEnd+	ebody ;
 		}
 		if (wbody.length() > 0) {
-			subject = subject + "Time-outs: " + warnings + "  ";
+//			subject = subject + "Time-outs: " + warnings + "  ";
+			subject = subject + "Time-out";
 //			body = body + rowStr+hdrStrY+"TIME-OUT"+hdrEnd+hdrStrY+""+hdrEnd+hdrStrY+""+hdrEnd+rowEnd+	wbody ;
 			body = body + rowStr+hdrStrY+"TIME-OUT"+hdrEnd+hdrStrY+""+hdrEnd+rowEnd+	wbody ;
 		}
 		if (rbody.length() > 0) { 
 			
-			if (swOK) subject =  subject + "Resolved: " + resolved+ "  ";
-			if (swINFO) subject = subject + "Info: " + infos+ "  ";
+//			if (swOK) subject =  subject + "Resolved: " + resolved+ "  ";
+//			if (swINFO) subject = subject + "Info: " + infos+ "  ";
+			if (swOK) subject =  subject + "Resolved";
+			if (swINFO) subject = subject + "Info";
 			
 			if (swOK ) {
 				subjectTxt="RESOLVED";
@@ -490,8 +500,13 @@ public class SendMail30 {
 //				body = body + rowStr+hdrStrY+subjectTxt+hdrEnd+hdrStrY+""+hdrEnd+hdrStrY+""+hdrEnd+rowEnd+	rbody ;
 				body = body + rowStr+hdrStrY+subjectTxt+hdrEnd+hdrStrY+""+hdrEnd+rowEnd+	rbody ;
 			}
-			else {
+			else if (swINFO ) {
 				subjectTxt="INFO";
+//				body = body + rowStr+hdrStrY+subjectTxt+hdrEnd+hdrStrY+""+hdrEnd+hdrStrY+""+hdrEnd+rowEnd+	rbody ;
+				body = body + rowStr+hdrStrY+subjectTxt+hdrEnd+hdrStrY+""+hdrEnd+rowEnd+	rbody ;
+			}
+			else  {
+				subjectTxt="RESOLVED";    // Default. 
 //				body = body + rowStr+hdrStrY+subjectTxt+hdrEnd+hdrStrY+""+hdrEnd+hdrStrY+""+hdrEnd+rowEnd+	rbody ;
 				body = body + rowStr+hdrStrY+subjectTxt+hdrEnd+hdrStrY+""+hdrEnd+rowEnd+	rbody ;
 			}
@@ -507,7 +522,7 @@ public class SendMail30 {
 				if (n>0) toEmailW = toEmailW + ",";
 				n++;
 				//				String element = (String) object;
-				System.out.println(object);
+				System.out.println(LocalDateTime.now()+" "+object);
 				toEmailW = toEmailW + (String) object;
 			}
 
@@ -523,15 +538,15 @@ public class SendMail30 {
 			now = new Date();
 			subject = subject + " -- " + now;
 
-			System.out.println("To:"+toEmail +"   Subject: " + subject );
-			System.out.println( body );
+			System.out.println(LocalDateTime.now()+" To:"+toEmail +"   Subject: " + subject );
+			System.out.println(LocalDateTime.now()+" "+ body );
 			Session session = Session.getInstance(props, auth);
 			if (EmailUtil.sendEmail(session, toEmail,subject, body, fromEmail)) {
-				System.out.println("return true");
+				System.out.println(LocalDateTime.now()+" return true");
 				sbody = ""; ebody = ""; wbody = ""; rbody = "";
 				return true; 
 			} 
-			else { System.out.println("RETURN FALSE"); 
+			else { System.out.println(LocalDateTime.now()+" RETURN FALSE"); 
 			sbody = ""; ebody = ""; wbody = ""; rbody = "";
 			return false; 
 			}

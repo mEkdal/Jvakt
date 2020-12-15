@@ -25,6 +25,9 @@ public class SendMail {
 	static boolean swTiming;
 	static boolean swShDay; // set when the scheduled day is active
 	static boolean swDormant = false;
+	
+	static boolean swShowVer = true;
+
 	static java.sql.Date zDate;
 	static java.sql.Timestamp zD;
 	static java.sql.Timestamp zTs;
@@ -84,7 +87,7 @@ public class SendMail {
 	
 	public static void main(String[] args ) throws IOException, UnknownHostException {
 
-		String version = "SendMail (2020-NOV-26)";
+		String version = "SendMail (2020-DEC-08)";
 		String database = "jVakt";
 		String dbuser   = "jVakt";
 		String dbpassword = "xz";
@@ -101,11 +104,13 @@ public class SendMail {
 
 		for (int i=0; i<args.length; i++) {
 			if (args[i].equalsIgnoreCase("-config")) config = args[++i];
+			if (args[i].equalsIgnoreCase("-nover")) swShowVer =false;
 		}
  
 		if (config == null ) 	configF = new File("Jvakt.properties");
 		else 					configF = new File(config,"Jvakt.properties");
-		System.out.println("----- Jvakt: "+new Date()+"    Version: "+version+"  -  config file: "+configF);
+		
+		if (swShowVer) System.out.println("----- Jvakt: "+new Date()+"    Version: "+version+"  -  config file: "+configF);
 		
 		//Declare recipient's & sender's e-mail id.
 //		String toEmailW;
@@ -175,7 +180,7 @@ public class SendMail {
 		}
 
 		if (swDormant) {
-			System.out.println("*** Jvakt in DORMANT mode, SendMail exiting *** ");
+			System.out.println(new Date()+" *** Jvakt in DORMANT mode, SendMail exiting *** ");
 			System.exit(4);			
 		}
 
@@ -225,7 +230,7 @@ public class SendMail {
 			stmt.setFetchSize(1000);
 			ResultSet rs = stmt.executeQuery(s);
 			while (rs.next()) {
-				System.out.println("- main RS - State:"+rs.getString("state")+" Id:" + rs.getString("id")+" Type:"+rs.getString("type")+" Prio:"+rs.getString("prio")+" Console:"+rs.getString("console")+" Status:"+rs.getString("status")+ " Msg:"+rs.getString("msg"));
+				System.out.println(new Date()+" - main RS - State:"+rs.getString("state")+" Id:" + rs.getString("id")+" Type:"+rs.getString("type")+" Prio:"+rs.getString("prio")+" Console:"+rs.getString("console")+" Status:"+rs.getString("status")+ " Msg:"+rs.getString("msg"));
 				swTiming = false;  
 
 				zD = rs.getTimestamp("rptdat");
@@ -237,13 +242,13 @@ public class SendMail {
 				if (rs.getString("chkday").startsWith("*ALL") || rs.getString("chkday").startsWith(DOW.name().substring(0, 2) )) {
 					cal.setTime(rs.getTime("chktim"));
 					if (nu.getHour() > cal.get(Calendar.HOUR_OF_DAY) ) {
-						swShDay = true; System.out.println("Timmen swShDay: "+swShDay);
+						swShDay = true; System.out.println(new Date()+" Timmen swShDay: "+swShDay);
 					}
 					else if (nu.getHour() == cal.get(Calendar.HOUR_OF_DAY) && nu.getMinute() > cal.get(Calendar.MINUTE) ) {
-						swShDay = true;	System.out.println("Minuten swShDay: "+swShDay);
+						swShDay = true;	System.out.println(new Date()+" Minuten swShDay: "+swShDay);
 					}
 					else if (nu.getHour() == cal.get(Calendar.HOUR_OF_DAY) && nu.getMinute() == cal.get(Calendar.MINUTE) && nu.getSecond() > cal.get(Calendar.SECOND) ) {
-						swShDay = true;	System.out.println("Sekunden swShDay: "+swShDay);
+						swShDay = true;	System.out.println(new Date()+" Sekunden swShDay: "+swShDay);
 					}
 					
 					// check chktimto
@@ -260,13 +265,13 @@ public class SendMail {
 					
 				} 
 				if (rs.getInt("prio") <= 10) swShDay = true; // always handle prio 10 and below.
-				System.out.println("swShDay: "+swShDay);
+				System.out.println(new Date()+" swShDay: "+swShDay);
 
 				//				swDelete = false;
 
 				if (swShDay) {
 					if (rs.getString("msg").equalsIgnoreCase("S")) { 
-						System.out.println("-- Already got an S in msg, continues...");
+						System.out.println(new Date()+" -- Already got an S in msg, continues...");
 						continue; 
 					}
 					
@@ -412,12 +417,12 @@ public class SendMail {
 			now = new Date();
 			subject = subject + " -- " + now;
 
-			System.out.println("To:"+toEmail +"   Subject: " + subject );
-			System.out.println( body );
+			System.out.println(new Date()+" To:"+toEmail +"   Subject: " + subject );
+			System.out.println(new Date()+" "+ body );
 			Session session = Session.getInstance(props, auth);
 			if (EmailUtil.sendEmail(session, toEmail,subject, body, fromEmail)) {
-				System.out.println("return true"); return true; } 
-			else { System.out.println("RETURN FALSE"); return false; }
+				System.out.println(new Date()+" return true"); return true; } 
+			else { System.out.println(new Date()+" RETURN FALSE"); return false; }
 			
 		}
 //		System.out.println("RETURN true");

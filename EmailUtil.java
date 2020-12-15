@@ -1,5 +1,6 @@
 package Jvakt;
 
+import java.time.LocalDateTime;
 //import java.io.UnsupportedEncodingException;
 import java.util.Date;
 //import javax.mail.Message;
@@ -53,17 +54,17 @@ public class EmailUtil {
 	      msg.setSentDate(new Date());
 
 	      msg.setRecipients(Message.RecipientType.TO, InternetAddress.parse(toEmail, false));
-	      System.out.println("Message is ready");
+	      System.out.println(LocalDateTime.now()+" - Message is ready");
     	  Transport.send(msg);  
 
 	      
 	    }
 	    catch (Exception e) {
 	      e.printStackTrace();
-	      System.out.println("EMail failed!! \n "+e );
+	      System.out.println(LocalDateTime.now()+" - EMail failed!! \n "+e );
 	      return false;
 	    }
-		System.out.println("EMail Sent Successfully!!");
+		System.out.println(LocalDateTime.now()+" - EMail Sent Successfully!!");
 		return true;
 	}
 }
