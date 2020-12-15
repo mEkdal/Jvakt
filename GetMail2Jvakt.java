@@ -7,7 +7,7 @@ import jakarta.mail.search.*;
 import java.util.*;
 import java.io.*;
 import java.net.InetAddress;
-  
+   
 public class GetMail2Jvakt {
 
 	//	static boolean newMsgId = false;
@@ -207,13 +207,13 @@ public class GetMail2Jvakt {
 						}									
 					}
 					
-					if (subject.toLowerCase().indexOf("prio:") >= 0) {
+					if (subject.toLowerCase().indexOf("sms:") >= 0) {
 						subject = subject.substring(6);
 						swPrio = true;
 					}
 					
-					if (swPrio) sendJv("MAIL_2_Jvakt_prio" , "INFO" , "I",  subject + " - " + body);
-					else        sendJv("MAIL_2_Jvakt" ,      "INFO" , "I",  subject + " - " + body);
+					if (swPrio) sendJv("MAIL_2_Jvakt_prio" , "INFO" , "I",  subject );
+					else        sendJv("MAIL_2_Jvakt" ,      "INFO" , "I",  subject );
 //					if (imaprw.startsWith("Y")) {
 //							messages[i].setFlag(Flags.Flag.DELETED, true); // mark the mail for deletion
 //							System.out.println("* Mark as DELETED ");
