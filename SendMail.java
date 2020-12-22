@@ -87,7 +87,7 @@ public class SendMail {
 	
 	public static void main(String[] args ) throws IOException, UnknownHostException {
 
-		String version = "SendMail (2020-DEC-08)";
+		String version = "SendMail (2020-DEC-18)";
 		String database = "jVakt";
 		String dbuser   = "jVakt";
 		String dbpassword = "xz";
@@ -378,18 +378,22 @@ public class SendMail {
 		if (sbody.length() > 0) {
 			subject = subject + "Errors: " + serrors + "  ";
 			body = body + rowStr+hdrStrM+"ERROR" +hdrEnd+hdrStrM+""+hdrEnd+hdrStrM+""+hdrEnd+rowEnd+	sbody ;
+			System.out.println(new Date()+" "+ sbody );
 		}
 		if (ebody.length() > 0) {
 			subject = subject + "Warnings: " + errors + "  ";
 			body = body + rowStr+hdrStrR+"WARNING" +hdrEnd+hdrStrR+""+hdrEnd+hdrStrR+""+hdrEnd+rowEnd+	ebody ;
+			System.out.println(new Date()+" "+ ebody );
 		}
 		if (wbody.length() > 0) {
 			subject = subject + "Time-outs: " + warnings + "  ";
 			body = body + rowStr+hdrStrY+"TIME-OUT"+hdrEnd+hdrStrY+""+hdrEnd+hdrStrY+""+hdrEnd+rowEnd+	wbody ;
+			System.out.println(new Date()+" "+ wbody );
 		}
 		if (rbody.length() > 0) { 
 			subject = subject + "Resolved: " + resolved;
 			body = body + rowStr+hdrStrG+"RESOLVED" +hdrEnd+hdrStrG+""+hdrEnd+hdrStrG+""+hdrEnd+rowEnd+	rbody ;
+			System.out.println(new Date()+" "+ rbody );
 		}
 		body = body + tblEnd;
 
@@ -401,7 +405,7 @@ public class SendMail {
 				if (n>0) toEmailW = toEmailW + ",";
 				n++;
 //				String element = (String) object;
-				System.out.println(object);
+//				System.out.println(object);
 				toEmailW = toEmailW + (String) object;
 			}
 

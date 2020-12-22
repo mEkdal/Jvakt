@@ -7,9 +7,9 @@ import jakarta.mail.search.*;
 import java.util.*;
 import java.io.*;
 import java.net.InetAddress;
-   
-public class GetMail2Jvakt {
 
+public class GetMail2Jvakt {
+ 
 	//	static boolean newMsgId = false;
 	static boolean msgFixat = false;
 	static boolean swHtml = false;
@@ -18,14 +18,14 @@ public class GetMail2Jvakt {
 	static boolean swPrio = false;
 	static String mimeType;
 	static String msgId;
-//	static boolean swSunet = false;
+	//	static boolean swSunet = false;
 
 	static boolean swSerious = false;
 
-//	static boolean swSmq1PXP = false;
-//	static boolean swSmq2PCP = false;
-//	static boolean swUnomaly = false;
-//	static int Sm58PCPerr = 0;
+	//	static boolean swSmq1PXP = false;
+	//	static boolean swSmq2PCP = false;
+	//	static boolean swUnomaly = false;
+	//	static int Sm58PCPerr = 0;
 
 	static String from;
 	static String subject;
@@ -46,6 +46,9 @@ public class GetMail2Jvakt {
 	static String senders;
 	static String sender;
 	static List<String> listSenders;
+	static String exSubjects;
+	static String exSubject;
+	static List<String> listExsubjects;
 
 	static String config = null;
 	static File configF;
@@ -54,7 +57,7 @@ public class GetMail2Jvakt {
 
 	public static void main(String[] args) {
 
-		String version = "GetMail2Jvakt # ( 2020-12-15 )";
+		String version = "GetMail2Jvakt ( 2020-12-22 )";
 
 		for (int i=0; i<args.length; i++) {
 			if (args[i].equalsIgnoreCase("-config")) config = args[++i];
@@ -152,12 +155,12 @@ public class GetMail2Jvakt {
 				mimeType = messages[i].getContentType();
 				System.out.println("MimeType> " + mimeType);
 				System.out.println("Subject: " + subject);
-//				if (from.contains("postmaster@internal.perscorp.com")) continue;
+				//				if (from.contains("postmaster@internal.perscorp.com")) continue;
 				body = null;
 				swHtml = false;
 				Object o = null;
-//				if (messages[i].isMimeType("text/plain") || messages[i].isMimeType("text/html") || messages[i].isMimeType("multipart/alternative")  || messages[i].isMimeType("multipart/mixed")  ) {
-//				if (messages[i].isMimeType("text/plain") || messages[i].isMimeType("text/html") ) {
+				//				if (messages[i].isMimeType("text/plain") || messages[i].isMimeType("text/html") || messages[i].isMimeType("multipart/alternative")  || messages[i].isMimeType("multipart/mixed")  ) {
+				//				if (messages[i].isMimeType("text/plain") || messages[i].isMimeType("text/html") ) {
 				if (mimeType.toLowerCase().indexOf("text/plain")>=0 || mimeType.toLowerCase().indexOf("text/html")>=0) {
 					try {
 						o = messages[i].getContent();
@@ -179,46 +182,61 @@ public class GetMail2Jvakt {
 				msgFixat = false;
 				swOkSender = false;
 				swPrio = false;
-				
+
 				for(Object object : listSenders) { 
 					sender = (String)object;
 					sender = sender.trim().toLowerCase();
-					System.out.println(sender);
-					System.out.println(from);
 					if (from.toLowerCase().indexOf(sender) >= 0) swOkSender = true;
 					if (sender.compareTo("*")==0) swOkSender = true;
 				}
-				
+
+
 				if (swOkSender) {
-					
+					System.out.println(" - Sender "+from+" is accepted");
+
 					if (messages[i].getContentType().toLowerCase().startsWith("multipart")) {
-						System.out.println("*** multipart ");
+//						System.out.println("*** multipart ");
 						Multipart mp = (Multipart)messages[i].getContent();
-						System.out.println("*** Count> " + mp.getCount());
+//						System.out.println("*** Count> " + mp.getCount());
 
 						for (int j=0, n=mp.getCount(); j<n; j++) {
 							Part part = mp.getBodyPart(j);
-							System.out.println("*** Attachment Descript : "+part.getDescription());
-							System.out.println("*** Attachment ContentType : "+part.getContentType());
+//							System.out.println("*** Attachment Descript : "+part.getDescription());
+//							System.out.println("*** Attachment ContentType : "+part.getContentType());
 							if (part.getContentType().toLowerCase().contains("text/plain")) {
 								body = part.getContent().toString();
-								System.out.println("*** Attachment Content : \n"+body);
+//								System.out.println("*** Attachment Content : \n"+body);
 							}
 						}									
 					}
-					
-					if (subject.toLowerCase().indexOf("sms:") >= 0) {
-						subject = subject.substring(6);
-						swPrio = true;
+
+					for(Object object : listExsubjects) { 
+						exSubject = (String)object;
+						exSubject = exSubject.trim().toLowerCase();
+						if (subject.toLowerCase().indexOf(exSubject) >= 0) {
+							swOkSender = false;
+							System.out.println(" - but subject '"+exSubject+"' is exempted!");
+						}
+						if (body.toLowerCase().indexOf(exSubject) >= 0) {
+							swOkSender = false;
+							System.out.println(" - but body '"+exSubject+"' is exempted!");
+						}
 					}
-					
-					if (swPrio) sendJv("MAIL_2_Jvakt_prio" , "INFO" , "I",  subject );
-					else        sendJv("MAIL_2_Jvakt" ,      "INFO" , "I",  subject );
-//					if (imaprw.startsWith("Y")) {
-//							messages[i].setFlag(Flags.Flag.DELETED, true); // mark the mail for deletion
-//							System.out.println("* Mark as DELETED ");
-//					}
-//					msgFixat = true;
+
+					if (swOkSender) {
+						if (subject.toLowerCase().indexOf("sms:") >= 0) {
+							subject = subject.substring(6);
+							swPrio = true;
+						}
+
+						if (swPrio) sendJv("MAIL_2_Jvakt_prio" , "INFO" , "I",  subject );
+						else        sendJv("MAIL_2_Jvakt" ,      "INFO" , "I",  subject );
+						//					if (imaprw.startsWith("Y")) {
+						//							messages[i].setFlag(Flags.Flag.DELETED, true); // mark the mail for deletion
+						//							System.out.println("* Mark as DELETED ");
+						//					}
+						//					msgFixat = true;
+					}
 				}
 
 				if (msgFixat && imaprw.startsWith("Y")) { 
@@ -228,7 +246,7 @@ public class GetMail2Jvakt {
 
 				if (!msgFixat) {
 					System.out.println("* Mail ignored ");
-					messages[i].setFlag(Flags.Flag.SEEN, false); // markera mailet som oläst
+					messages[i].setFlag(Flags.Flag.SEEN, true); 
 				}
 
 				//************ analys stop ******
@@ -293,14 +311,26 @@ public class GetMail2Jvakt {
 			imaprw = prop.getProperty("imapRW");
 			imapFolder = prop.getProperty("imapFolder");
 			senders = prop.getProperty("senders");
-			
+
 			String[] senderAddr = senders.split("\\,");
-			
+
 			listSenders = new ArrayList<String>();  // Alla mailadresser.
+			System.out.println("-- Accepted senders --");
 			for(int i=0 ; i<senderAddr.length;i++) {
 				System.out.println(senderAddr[i]);
 				listSenders.add(senderAddr[i]);
 			}
+
+			exSubjects = prop.getProperty("exsubjects");
+			String[] exSubjectsStrings = exSubjects.split("\\,"); // All no-wanted subjects
+
+			listExsubjects = new ArrayList<String>();
+			System.out.println("-- exempted subjects --");
+			for(int i=0 ; i<exSubjectsStrings.length;i++) {
+				System.out.println(exSubjectsStrings[i]);
+				listExsubjects.add(exSubjectsStrings[i]);
+			}
+
 
 			//			int imapporti = Integer.parseInt(imapport);
 
