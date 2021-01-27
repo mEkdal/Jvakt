@@ -84,7 +84,7 @@ public class MonDB_SQL
 		if (args.length < 1) {
 			System.out.println("\n " +version);
 			System.out.println("\n\nThe parameters and their meaning are:\n"+
-					"\n-config \tThe dir of the input files. Like: \"-dir c:\\Temp\" "+
+					"\n-config \tThe dir of the input files. Like: \"-config c:\\Temp\" "+
 					"\n-run    \tTo actually update the status in Jvakt."+
 					"\n-host   \tThe host name or IP address of the SQL server." +
 					"\n-port   \tThe port number of the SQL server." +
@@ -95,7 +95,8 @@ public class MonDB_SQL
 					"\n-table  \tThe table to query." +
 					"\n-where  \tThe where statement of the query." +
 					"\n-show   \tShow the response from the server." + 
-					"\n-list   \tList the result from the query." 
+					"\n-list   \tList the result from the query." + 
+					"\n The returncode shows the number of hits made by the query."  
 					);
 			System.exit(4);
 		}
@@ -188,7 +189,7 @@ public class MonDB_SQL
 			}
 			System.out.println ();
 
-			// Iterate throught the rows in the result set and output
+			// Iterate through the rows in the result set and output
 			// the columns for each row.
 			antal = 0;
 			while (rs.next ()) {

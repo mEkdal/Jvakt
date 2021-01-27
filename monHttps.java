@@ -29,7 +29,7 @@ public class monHttps {
 	static String hosturl;
 	static String tabbar = "                                                                                               ";
 	static InetAddress inet;
-	static String version = "monHttps (2020-12-08)";
+	static String version = "monHttps (2021-01-25)";
 	static String database = "jVakt";
 	static String dbuser   = "jVakt";
 	static String dbpassword = "xz";
@@ -221,8 +221,13 @@ public class monHttps {
 				Date expiresOn= xc.getNotAfter();
 				Date now = new Date();
 				long days = (expiresOn.getTime()-now.getTime())/(1000*60*60*24);
-				if (days < 10) { 
+				if (days >= 0 && days < 10) { 
 					expire = " ** Warning ** Certificate expires soon - "+expiresOn+" - "+dn ;
+					if (swShow)	System.out.println(expire);
+					swExpire = true;
+				}
+				if (days < 0) { 
+					expire = " ** Warning ** Certificate has expired! - "+expiresOn+" - "+dn ;
 					if (swShow)	System.out.println(expire);
 					swExpire = true;
 				}

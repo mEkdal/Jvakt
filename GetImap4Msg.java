@@ -9,7 +9,7 @@ import Jvakt.Message;
 import java.util.*;
 import java.io.*;
 import java.net.InetAddress;
-
+  
 public class GetImap4Msg {
 
 	//	static boolean newMsgId = false;
@@ -49,7 +49,7 @@ public class GetImap4Msg {
 
 	public static void main(String[] args) throws IOException, FileNotFoundException {
 
-		String version = "GetImap4Msg # ( 2020-11-26 )";
+		String version = "GetImap4Msg # ( 2020-12-22 )";
 
 		for (int i=0; i<args.length; i++) {
 			if (args[i].equalsIgnoreCase("-config")) config = args[++i];
@@ -179,6 +179,13 @@ public class GetImap4Msg {
 				System.out.println("Body-> " + body);
 
 				msgFixat = false;
+
+				// Msg från Microsoft Defender   
+				if (from.indexOf("wdatpntf@microsoft.com") >= 0) {
+					sendJv("MAIL_From_MS_Defender" , "ERR" , "I",  subject + " -- Inform Martin S and check servicedesk mailbox for more info!");
+					msgFixat = true;
+					swSerious = true;
+				}
 
 				// Msg från Equallogic  
 				if (from.indexOf("PTPGroup") >= 0) {
