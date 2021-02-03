@@ -74,7 +74,7 @@ public class SendSMS {
 
 	public static void main(String[] args ) throws IOException, UnknownHostException {
 
-		String version = "SendSMS (2020-DEC-08)";
+		String version = "SendSMS (2021-JAN-29)";
 		String database = "jVakt";
 		String dbuser   = "jVakt";
 		String dbpassword = "xz";
@@ -187,7 +187,7 @@ public class SendSMS {
 			ResultSet rs = stmt.executeQuery(s);
 			//			swHits = false;  // is there already a record?
 			while (rs.next()) {
-				System.out.println(LocalDateTime.now()+" - main RS - State:"+rs.getString("state")+" Id:" + rs.getString("id")+" Type:"+rs.getString("type")+" Prio:"+rs.getString("prio")+" Console:"+rs.getString("console")+" Status:"+rs.getString("status")+ " Sms:"+rs.getString("sms"));
+				System.out.println("\n"+LocalDateTime.now()+" **** main RS - State:"+rs.getString("state")+" Id:" + rs.getString("id")+" Type:"+rs.getString("type")+" Prio:"+rs.getString("prio")+" Console:"+rs.getString("console")+" Status:"+rs.getString("status")+ " Sms:"+rs.getString("sms"));
 				//				swHits = true;  
 				swTiming = false;  
 				error = false;
@@ -304,13 +304,13 @@ public class SendSMS {
 
 
 		toSMSW = "";
+		swOK = false;
 		//		int n = 0;
 		for(Object object : listTo) { 
 			//				if (n>0) toSMSW = toEmailW + ",";
 			//			n++;
 			//			String element = (String) object;
 			toSMSW = (String) object;
-			swOK = false;
 
 			toSMS = toSMSW;
 			//				System.out.println("To:"+toEmailW+"   Subject: " + subject );
@@ -336,7 +336,9 @@ public class SendSMS {
 				osw.write( "AT+CMGF=1\r\n" );   // SMS text mode
 				osw.flush();
 				ReceiveText();
-				if (reply.indexOf("OK") > 0 ) System.out.println(LocalDateTime.now()+" Received OK  "+reply);
+//				if (reply.indexOf("OK") > 0 ) System.out.println(LocalDateTime.now()+" Received OK  "+reply);
+				if (reply.indexOf("O") > 0 ) System.out.println(LocalDateTime.now()+" Received OK  "+reply);
+//				if (reply.startsWith("O") )   System.out.println(LocalDateTime.now()+" Received OK  "+reply);
 				//  	    	  System.out.println("Sending AT+CMGS="+toSMS +"\\r\\n" );
 				System.out.println(LocalDateTime.now()+" Sending AT+CMGS="+toSMS +"\\r" );
 				//		        osw.write( "AT+CMGS="+ toSMS + "\r\n" );
@@ -359,17 +361,19 @@ public class SendSMS {
 				osw.write( body +"\u001A" );
 				osw.flush();
 				ReceiveText();
-				if (reply.indexOf("+CMGS") > 0 ) {
+//				if (reply.indexOf("+CMGS") > 0 ) {
+//				if (reply.startsWith("+")) {
+				if (reply.indexOf("+") > 0 ) {
 					System.out.println(LocalDateTime.now()+" Received +CMGS  "+reply);
 					swOK = true;
 				} else {
-					swOK = false;
+//					swOK = false;
 					System.out.println(LocalDateTime.now()+" Did not receive +CMGS ! "+reply);
 					break;					
 				}
 
 			} catch( IOException e ) {
-				swOK = false;
+//				swOK = false;
 				System.out.println(LocalDateTime.now()+" IOExeption while sending " + e);
 				break;
 			}		      
@@ -394,7 +398,7 @@ public class SendSMS {
 	}
 
 	static public void ReceiveText() {
-		try { Thread.sleep(1000); } catch (InterruptedException e) { e.printStackTrace();}
+		try { Thread.sleep(4000); } catch (InterruptedException e) { e.printStackTrace();}
 		String s;
 		int i, len, timeouts;
 		char c[] = new char[ 100 ];
@@ -410,17 +414,20 @@ public class SendSMS {
 				//				break;
 			}
 			try {
-				if (isr.ready()) len = isr.read( c, 0, 100 );
+				if (isr.ready()) {
+					try { Thread.sleep(100); } catch (InterruptedException e) { e.printStackTrace();}
+					len = isr.read( c, 0, 100 );
+				}
 				else {
 					timeouts++;
 					System.out.println(LocalDateTime.now()+" isr is not ready, waiting...");
-					try { Thread.sleep(1000); } catch (InterruptedException e) { e.printStackTrace();}
+					try { Thread.sleep(2000); } catch (InterruptedException e) { e.printStackTrace();}
 					continue;
 				}
 				if( len < 0 ) {
 					timeouts++;
 					System.out.println(LocalDateTime.now()+" no reply, waiting...");
-					try { Thread.sleep(1000); } catch (InterruptedException e) { e.printStackTrace();}
+					try { Thread.sleep(2000); } catch (InterruptedException e) { e.printStackTrace();}
 					continue;
 //					return;
 				}

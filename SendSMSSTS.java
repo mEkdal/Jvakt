@@ -76,7 +76,7 @@ public class SendSMSSTS {
 //	public static void main(String[] args ) throws IOException, UnknownHostException {
 	public static void main(String[] args ) {
 
-		String version = "SendSMSSTS (2019-NOV-08)";
+		String version = "SendSMSSTS (2021-JANV-29)";
 
 		for (int i=0; i<args.length; i++) {
 			if (args[i].equalsIgnoreCase("-config")) config = args[++i];
@@ -359,7 +359,10 @@ public class SendSMSSTS {
 				//				break;
 			}
 			try {
-				if (isr.ready()) len = isr.read( c, 0, 100 );
+				if (isr.ready()) {
+					try { Thread.sleep(100); } catch (InterruptedException e) { e.printStackTrace();}
+					len = isr.read( c, 0, 100 );
+				}
 				else {
 					timeouts++;
 					System.out.println("isr is not ready, waiting...");
