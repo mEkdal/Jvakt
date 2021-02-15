@@ -26,7 +26,7 @@ public class console2html {
 	static int errors = 0;
 	static int warnings = 0;
 	static int infos = 0;
-	static String version = "CheckStatus Date 2020-04-15";
+	static String version = "CheckStatus ( 2021-02-09 )";
 	static String database = "Jvakt";
 	static String dbuser   = "console";
 	static String dbpassword = "Jvakt";
@@ -63,7 +63,7 @@ public class console2html {
 	String tblStr = "<TABLE COLS=6 BORDER=8 cellpadding=\"5\" width=\"100%\"  >"; 
 	String tblEnd = "</TABLE>";
 //	String tblHdr = "<TH>Count</TH> <TH>Id</TH> <TH>Prio</TH> <TH>Type</TH> <TH>Condat</TH>  <TH>Status</TH>  <TH>Body - "+ now +" </TH> <TH>Agent</TH>"; 
-	String tblHdr = "<TH>Id</TH> <TH>Prio</TH> <TH>Type</TH> <TH>Condat</TH>  <TH>Status</TH>  <TH>Body - "+ now +" </TH> <TH>Agent</TH>"; 
+	String tblHdr = "<TH>Id</TH> <TH>Prio</TH> <TH>Type</TH> <TH>Credat</TH>  <TH>Status</TH>  <TH>Body - "+ now +" </TH> <TH>Agent</TH>"; 
 	String hdrStrG = "<TH BGCOLOR=\"#00FF00\"><FONT SIZE=5>"; // Green
 	String hdrStrY = "<TH BGCOLOR=\"#FFFF00\"><FONT SIZE=5>"; // Yellow
 	String hdrStrR = "<TH BGCOLOR=\"#FF6600\"><FONT SIZE=5>"; // Red
@@ -109,7 +109,8 @@ public class console2html {
 
 		for (int i = 1; i <= 9; i++) {
 			if (i==1) continue;  // not interested in showing count
-			if (i==6) continue;  // not interested in showing credat
+			if (i==5) continue;  // not interested in showing condat
+//			if (i==6) continue;  // not interested in showing credat
 		    value = rs.getString (i);
   		       
 		    if (rs.getInt("prio") < 30 && rs.getString("status").contentEquals("ERR")) System.out.println (boxStrM);
