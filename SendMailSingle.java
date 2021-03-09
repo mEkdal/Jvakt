@@ -55,7 +55,7 @@ public class SendMailSingle {
 
 	public static void main(String[] args ) throws IOException, UnknownHostException {
 
-		String version = "SendMailSingle (2020-NOV-26)";
+		String version = "SendMailSingle (2021-MAR-09)";
 
 		//Declare recipient's & sender's e-mail id.
 		final String toEmail;
@@ -68,6 +68,7 @@ public class SendMailSingle {
 		String to = null;
 		String subject = null;
 		String body = null;
+		String attach = null;
 //		String status= "default";
 //		String sub = "default";
 
@@ -80,6 +81,7 @@ public class SendMailSingle {
 			if (args[i].equalsIgnoreCase("-to")) to = args[++i];
 			else if (args[i].equalsIgnoreCase("-body")) body = args[++i];
 			else if (args[i].equalsIgnoreCase("-subject")) subject = args[++i];
+			else if (args[i].equalsIgnoreCase("-attach")) attach = args[++i];
 			else if (args[i].equalsIgnoreCase("-config")) config = args[++i];
 		}
 		System.out.println("----- Jvakt: "+new Date()+"  Version: "+version);
@@ -94,6 +96,7 @@ public class SendMailSingle {
 			System.out.println("-to 	 \t - Email address");
 			System.out.println("-subject \t - Subject");
 			System.out.println("-body	 \t - Body");
+			System.out.println("-attach	 \t - Filename (optional)");
 			System.out.println("-config	 \t - Folder of config files");
 			System.exit(4);
 		}
@@ -150,7 +153,8 @@ public class SendMailSingle {
 
 		if (swMail && !swDormant) {
 			Session session = Session.getInstance(props, auth);
-			EmailUtil.sendEmail(session, toEmail,subject, body, fromEmail);
+			if (attach == null) EmailUtil.sendEmail(session, toEmail,subject, body, fromEmail);
+			else                EmailUtil.sendEmail(session, toEmail,subject, body, fromEmail, attach);
 		}
 
 
