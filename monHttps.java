@@ -29,7 +29,7 @@ public class monHttps {
 	static String hosturl;
 	static String tabbar = "                                                                                               ";
 	static InetAddress inet;
-	static String version = "monHttps (2021-01-25)";
+	static String version = "monHttps (2021-03-16)";
 	static String database = "jVakt";
 	static String dbuser   = "jVakt";
 	static String dbpassword = "xz";
@@ -192,6 +192,7 @@ public class monHttps {
 
 	public static boolean checkHttp() {
 		// First set the default cookie manager.
+		
 		java.net.CookieManager cm = new java.net.CookieManager(null, CookiePolicy.ACCEPT_ALL);
 		java.net.CookieHandler.setDefault(cm);
 		// connect to port
@@ -208,9 +209,9 @@ public class monHttps {
 			con.setConnectTimeout(5000);
 			//			BufferedReader httpin = new BufferedReader(
 			//					new InputStreamReader(url.openStream()));
-
+			
 			con.connect();
-
+			
 			swExpire = false;
 			Certificate[] certs = con.getServerCertificates();
 			for(Certificate c:certs){
@@ -254,7 +255,11 @@ public class monHttps {
 			else state = true; 
 
 		} 
-		catch (Exception e) { if (swShow) System.out.println(e); state = false;   }
+		catch (Exception e) { 
+			if (swShow) System.out.println(e); 
+			state = false; 
+			t_desc =e.getMessage();
+		}
 		//		catch (UnknownHostException e) { System.out.println(e); state = false;   }
 		//		catch (Exception e) { 
 		//			System.out.println(e);

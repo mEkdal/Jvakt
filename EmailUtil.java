@@ -16,7 +16,7 @@ import jakarta.mail.internet.MimeMultipart;
 import jakarta.activation.DataSource;
 import jakarta.activation.FileDataSource;
 import jakarta.activation.DataHandler;
-
+ 
 public class EmailUtil {
 
 	public static boolean sendEmail(Session session, String toEmail, String subject, String body, String fromEmail){

@@ -9,7 +9,7 @@ import java.util.*;
 import jakarta.mail.*;
 import jakarta.mail.Authenticator;
 import jakarta.mail.PasswordAuthentication;
- 
+  
 public class SendMailSingle {
 
 	//	static String DBUrl = "jdbc:postgresql://localhost:5433/Jvakt";

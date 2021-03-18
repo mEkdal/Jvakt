@@ -32,7 +32,7 @@ public class CheckStatus {
 	static int errors = 0;
 	static int warnings = 0;
 	static int infos = 0;
-	static String version = "CheckStatus (2020-DEC-08)";
+	static String version = "CheckStatus (2021-MAR-17)";
 	static String database = "jVakt";
 	static String dbuser   = "jVakt";
 	static String dbpassword = "xz";
@@ -282,7 +282,17 @@ public class CheckStatus {
 					}
 					swTiming = true;
 					System.out.println(new Date()+" - timing #3: " + rs.getString("id")+"  MSG:"+rs.getString("msg"));
+// 2021-03-17
 					rs.updateString("status", "TOut");
+					rs.updateString("body", "Agent Timed-Out");
+					SQL_UPDATE ="UPDATE STATUS SET STATUS=?, BODY=? WHERE ID='"+rs.getString("id")+"' AND PRIO="+rs.getString("prio");
+					StmtUpdate = conn.prepareStatement(SQL_UPDATE);
+					StmtUpdate.setString(1, "TOut");
+					StmtUpdate.setString(2, "Agent Timed-Out");
+					StmtUpdate.executeUpdate();
+					StmtUpdate.close();
+// 2021-03-17
+					
 					if (rs.getString("msg").startsWith(" ")) {
 						System.out.println(new Date()+" - TOut: Set msg to T " + rs.getString("id"));
 //						rs.updateString("msg", "T");
@@ -525,7 +535,9 @@ public class CheckStatus {
 					System.out.println(new Date()+" - update console: row.count:"+count  + " - id:"+ rs2.getString("id")+ " - "+rs2.getString("prio") + " - " + rs2.getString("body") );
 					if (swTiming) {
 						rs2.updateString("status","TOut");
-						rs2.updateString("body", rs.getString("body"));
+//						rs2.updateString("body", rs.getString("body"));
+						rs2.updateString("body", "Agent Timed-Out");
+						
 					}
 					else {
 						if (!swShDay) rs2.updateString("status","INFO");    // Force INFO if chkday is out of range
@@ -562,7 +574,8 @@ public class CheckStatus {
 				//				else st.setString(7,rs.getString("status").toUpperCase() );// 
 				if (swTiming) {
 					st.setString(7,"TOut");
-					st.setString(8,rs.getString("body") );
+//					st.setString(8,rs.getString("body") );
+					st.setString(8,"Agent Timed-Out");
 				}
 				else {
 					if (!swShDay) st.setString(7,"INFO");    // Force INFO if chkday is out of range
