@@ -29,7 +29,7 @@ public class monHttps {
 	static String hosturl;
 	static String tabbar = "                                                                                               ";
 	static InetAddress inet;
-	static String version = "monHttps (2021-03-16)";
+	static String version = "monHttps (2021-03-19)";
 	static String database = "jVakt";
 	static String dbuser   = "jVakt";
 	static String dbpassword = "xz";
@@ -75,7 +75,7 @@ public class monHttps {
 					"\n-host   \tCheck a single host." +
 					"\n-port   \tDefault is 443." +
 					"\n-web    \tlike /index.html" +
-					"\n-webcontent \tstring in the response to check for (optional)." +
+					"\n-webcontent \tstring in the response to check for (optional)(RC 401 is accepted)." +
 					"\n-show   \tShow the response from the server."
 					);
 
@@ -238,6 +238,7 @@ public class monHttps {
 
 			if (swWebcontent) {	
 				if (swShow)	System.out.println("-- OK. Trying to get in-stream");
+				try {
 				BufferedReader httpin = new BufferedReader(
 						new InputStreamReader(con.getInputStream()));
 
@@ -251,6 +252,16 @@ public class monHttps {
 					}
 				}
 				httpin.close();
+				} catch (Exception e) { 
+					if (swShow) System.out.println(e);
+					if (e.toString().indexOf("HTTP response code: 401")>0) {
+						state = true; 
+						if (swShow) System.out.println(" -- Warning. Not authorized to access server. Still considered OK");
+					}
+					else state = false;
+					t_desc = t_desc+" * "+e.getMessage();
+					t_desc.trim();
+				}
 			} 
 			else state = true; 
 

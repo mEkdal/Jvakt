@@ -26,7 +26,7 @@ public class ManFiles {
 	static Date now;
 	static FileFilter ff;
 	static Long lhou, lmin, Lsec;
-	static int antal, antcopies, anterrors, antdeleted, antmoved, antarchived, antded, antempty,antalCMD, p;
+	static int antal, antcopies, anterrors, antdeleted, antmoved, antarchived, antded, antempty,antalCMD, p, JvLoops, sleepOrig;
 	static int antalT, antcopiesT, anterrorsT, antdeletedT, antmovedT, antarchivedT, antdedT, antemptyT, antalTCMD;
 	static BufferedWriter logg;
 	static List<String> listToS;
@@ -66,6 +66,7 @@ public class ManFiles {
 		scanstr = null;
 		charset = "UTF8";
 		swNrunq = false;
+		JvLoops = 60;
 
 		now = new Date();
 		System.out.println("\n*** Jvakt.ManFiles starting --- " + now);
@@ -110,8 +111,8 @@ public class ManFiles {
 
 		if (swHelp) {
 			System.out
-			.println("\n*** Jvakt.ManFiles (build 2020-DEC-03) ***"
-					+ "\n*** by Michael Ekdal, Sweden. ***"); 
+			.println("\n*** Jvakt.ManFiles (build 2021-APR-20) ***"
+					+ "\n*** by Michael Ekdal, Sweden. ***");
 			System.out
 			.println("\nThe parameters and their meaning are:\n"
 					+ "\n-parfile \tThe name prefix of the parameter file (default is ManFiles). The suffix must end with .par"
@@ -215,9 +216,26 @@ public class ManFiles {
 				logg.newLine();
 			}
 
-			// sleep for one second and then to it all over again.
+			if (swRunJvakt && swJvakt) {
+				if (anterrorsT == 0) {     
+					if (JvLoops>=60) {    // counts "loops" to make the OK lag at least 60 seconds.
+					 desc = "No error found in ManFiles";
+					 sendSTS(true);
+					 JvLoops=0;
+					}
+					else JvLoops=JvLoops+sleepOrig;
+				}
+				else {
+					desc = "Errors found in ManFiles! Check log files.";
+					sendSTS(false);
+				}
+			}
+			
+			// if not a loop, break out of the loop and finish the program.
 			if (!swLoop) break;
+
 			antalT=0;antdeletedT=0;antcopiesT=0;antmovedT=0;antarchivedT=0;anterrorsT=0;antemptyT=0;antdedT=0;antalTCMD=0;
+			// sleep for one second and then do it all over again.
 			try {
 				//				Thread.currentThread().sleep(1000);
 				Thread.sleep(sleep);
@@ -227,12 +245,6 @@ public class ManFiles {
 			}
 		}
 
-		if (swRunJvakt && swJvakt) {
-			desc = "Errors found in ManFiles: " + anterrorsT;
-			if (anterrorsT == 0) sendSTS(true);
-			else 				sendSTS(false);
-		}
-		
 		now = new Date();
 		System.out.println("\n*** Finished " + now);
 		if (swLogg && antalT>0 && !swParfile) {
@@ -464,7 +476,11 @@ public class ManFiles {
 			else if (args[i].equalsIgnoreCase("-jvakt")) swJvakt=true;
 			else if (args[i].equalsIgnoreCase("-config")) config = args[++i];
 			else if (args[i].equalsIgnoreCase("-id"))  id  = args[++i];
-			else if (args[i].equalsIgnoreCase("-sleep")) { sleep = Integer.valueOf(args[++i]); sleep = sleep *1000; }
+			else if (args[i].equalsIgnoreCase("-sleep")) { 
+				sleep = Integer.valueOf(args[++i]);
+				sleepOrig = sleep;
+				sleep = sleep *1000; 
+			}
 
 		}
 

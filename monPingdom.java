@@ -24,7 +24,7 @@ public class monPingdom {
 	static String hosturl;
 	static String tabbar = "                                                                                               ";
 	static InetAddress inet;
-	static String version = "monPingdom (2020-09-16)";
+	static String version = "monPingdom (2021-04-23)";
 	static String jvhost   = "localhost";
 	static String jvport   = "1956";
 	static int port ;
@@ -254,7 +254,7 @@ public class monPingdom {
 			t_desc="Host: "+hn+" Status: "+sts;
 			if (swShow)	System.out.println("Name: "+na+"  Host: "+hn+"  Status: "+sts);
 			if (swRun) {
-				if (sts.toLowerCase().startsWith("up"))	sendSTS(true);
+				if (sts.toLowerCase().startsWith("up") || sts.toLowerCase().startsWith("paused") || sts.toLowerCase().startsWith("unknown")) sendSTS(true);
 				else sendSTS(false);
 			}
 
