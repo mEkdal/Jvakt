@@ -85,7 +85,7 @@ public class SendMailSTS {
 
 	public static void main(String[] args ) throws IOException, UnknownHostException {
 
-		String version = "SendMailSTS (2020-NOV-26)";
+		String version = "SendMailSTS (2021-MAY-11)";
 
 		String subject = "";
 		String body = "";
@@ -139,19 +139,19 @@ public class SendMailSTS {
 //		String cause = "";
 
 		swServer = true;
-		try {
+//		try {
 			port = Integer.parseInt(jvport);
-			SendMsg jm = new SendMsg(jvhost, port);  // kollar om JvaktServer �r tillg�nglig.
+			SendMsg jm = new SendMsg(jvhost, port);  // kollar om JvaktServer är tillgänglig.
 //			System.out.println(jm.open());
 			if (jm.open().startsWith("DORMANT")) 	swDormant = true;
 			else 									swDormant = false;
 			jm.close();
-		} 
-		catch (IOException e1) {
-			swServer = false;
-			System.err.println(e1);
-			System.err.println(e1.getMessage());
-		}
+//		} 
+//		catch (IOException e1) {
+//			swServer = false;
+//			System.err.println(e1);
+//			System.err.println(e1.getMessage());
+//		}
 //		System.out.println("swServer :" + swServer);
 		
 		try {

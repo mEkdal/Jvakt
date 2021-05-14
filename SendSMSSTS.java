@@ -76,7 +76,7 @@ public class SendSMSSTS {
 //	public static void main(String[] args ) throws IOException, UnknownHostException {
 	public static void main(String[] args ) {
 
-		String version = "SendSMSSTS (2021-JANV-29)";
+		String version = "SendSMSSTS (2021-MAY-11)";
 
 		for (int i=0; i<args.length; i++) {
 			if (args[i].equalsIgnoreCase("-config")) config = args[++i];
@@ -103,19 +103,19 @@ public class SendSMSSTS {
 		//		String cause = "";
 
 		swServer = true;
-		try {
+//		try {
 			port = Integer.parseInt(jvport);
 			SendMsg jm = new SendMsg(jvhost, port);  // kollar om JvaktServer �r tillg�nglig.
 			//			System.out.println(jm.open());
 			if (jm.open().startsWith("DORMANT")) 	swDormant = true;
 			else 									swDormant = false;
 			jm.close();
-		} 
-		catch (IOException e1) {
-			swServer = false;
-			System.err.println(e1);
-			System.err.println(e1.getMessage());
-		}
+//		} 
+//		catch (IOException e1) {
+//			swServer = false;
+//			System.err.println(e1);
+//			System.err.println(e1.getMessage());
+//		}
 		//		System.out.println("swServer :" + swServer);
 
 		try {

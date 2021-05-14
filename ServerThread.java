@@ -9,7 +9,7 @@ class ServerThread extends Thread {
 //	List list;
 	Socket client;
 	DBupdate dt;
-	String version = "ServerThread (2019-08-22)";
+	String version = "ServerThread (2021-05-11)";
 	boolean swData;
 	String line;
 	Message jm = new Message();
@@ -28,7 +28,6 @@ class ServerThread extends Thread {
 //			String line;
 //			Message jm = new Message();
 			while((line = in.readLine()) != null ) {
-//				System.out.println("ServerThread #0: " + line.length() + " "+line );				
 				swData = false;
 				if (line.length() == 0) break;
 				if (line.startsWith("SendMsg")) continue ;
@@ -61,7 +60,7 @@ class ServerThread extends Thread {
 //			if (swData) dt.dbWrite(jm);  // update DB
 		}
 		catch (IOException e1) { 
-			System.out.println("ServerThread exeption:>> " + client.getInetAddress() + " " + e1 ); 
+//			System.out.println("ServerThread exeption:>> " + client.getInetAddress() + " " + e1 ); 
 			}
 		if (swData) dt.dbWrite(jm);  // update DB
 //		System.out.println("ServerThread Session:  DBupdate klar");

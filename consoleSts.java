@@ -81,7 +81,7 @@ public class consoleSts extends JFrame implements TableModelListener, WindowList
 		port = Integer.parseInt(jvport);
 
 		// funktion fr�n Jframe att s�tta rubrik
-		setTitle("Jvakt consoleSts 2.21  -  F1 = Help");
+		setTitle("Jvakt consoleSts 2.22  -  F1 = Help");
 		//	        setSize(5000, 5000);
 
 		// get the screen size as a java dimension
@@ -148,11 +148,11 @@ public class consoleSts extends JFrame implements TableModelListener, WindowList
 			else 							swDormant = false;
 			jm.close();
 		} 
-		catch (IOException e1) {
-			swServer = false;
-			System.err.println(e1);
-			//			System.err.println(e1.getMessage());
-		}
+//		catch (IOException e1) {
+//			swServer = false;
+//			System.err.println(e1);
+//			//			System.err.println(e1.getMessage());
+//		}
 		catch (NullPointerException npe2 )   {
 			swServer = false;
 //			System.out.println("-- Rpt Failed --" + npe2);
@@ -343,11 +343,11 @@ public class consoleSts extends JFrame implements TableModelListener, WindowList
 							else 							swDormant = false;
 							jm.close();
 						} 
-						catch (IOException e1) {
-							swServer = false;
-							System.err.println(e1);
-							//						System.err.println(e1.getMessage());
-						}
+//						catch (IOException e1) {
+//							swServer = false;
+//							System.err.println(e1);
+//							//						System.err.println(e1.getMessage());
+//						}
 						catch (NullPointerException npe2 )   {
 							swServer = false;
 //							System.out.println("-- Rpt Failed --" + npe2);

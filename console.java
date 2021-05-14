@@ -84,7 +84,7 @@ public class console extends JFrame implements TableModelListener, WindowListene
 		port = Integer.parseInt(jvport);
 
 		// funktion från Jframe att sätta rubrik
-		setTitle("Jvakt console 2.46  -  F1 = Help");
+		setTitle("Jvakt console 2.47  -  F1 = Help");
 		//	        setSize(5000, 5000);
 
 		// get the screen size as a java dimension
@@ -146,11 +146,11 @@ public class console extends JFrame implements TableModelListener, WindowListene
 			else 							swDormant = false;
 			jm.close();
 		} 
-		catch (IOException e1) {
-			swServer = false;
-			System.err.println(e1);
-			//			System.err.println(e1.getMessage());
-		}
+//		catch (IOException e1) {
+//			swServer = false;
+//			System.err.println(e1);
+//			//			System.err.println(e1.getMessage());
+//		}
 		catch (NullPointerException npe2 )   {
 			swServer = false;
 			System.out.println("-- Rpt Failed 1 --" + npe2);
@@ -324,11 +324,11 @@ public class console extends JFrame implements TableModelListener, WindowListene
 							else 							swDormant = false;
 							jm.close();
 						} 
-						catch (IOException e1) {
-							swServer = false;
-							System.err.println(e1);
-							//						System.err.println(e1.getMessage());
-						}
+//						catch (IOException e1) {
+//							swServer = false;
+//							System.err.println(e1);
+//							//						System.err.println(e1.getMessage());
+//						}
 						catch (NullPointerException npe2 )   {
 							swServer = false;
 							System.out.println("-- Rpt Failed 2 --" + npe2);
@@ -530,10 +530,10 @@ public class console extends JFrame implements TableModelListener, WindowListene
 						else            	  System.out.println("-- Rpt Failed 5 --");
 						jm.close();
 					} 
-					catch (IOException e1) {
-						System.err.println(e1);
-						System.err.println(e1.getMessage());
-					}
+//					catch (IOException e1) {
+//						System.err.println(e1);
+//						System.err.println(e1.getMessage());
+//					}
 					catch (Exception e2) {
 						System.err.println(e2);
 						System.err.println(e2.getMessage());
@@ -707,10 +707,10 @@ public class console extends JFrame implements TableModelListener, WindowListene
 						jm.close();
 					}
 				} 
-				catch (IOException e1) {
-					System.err.println(e1);
-					System.err.println(e1.getMessage());
-				}
+//				catch (IOException e1) {
+//					System.err.println(e1);
+//					System.err.println(e1.getMessage());
+//				}
 				catch (Exception e2) {
 					System.err.println(e2);
 					System.err.println(e2.getMessage());
@@ -750,10 +750,10 @@ public class console extends JFrame implements TableModelListener, WindowListene
 						else            	  System.out.println("-- Rpt Failed 4 --");
 						jm.close();
 					} 
-					catch (IOException e1) {
-						System.err.println(e1);
-						System.err.println(e1.getMessage());
-					}
+//					catch (IOException e1) {
+//						System.err.println(e1);
+//						System.err.println(e1.getMessage());
+//					}
 					catch (Exception e2) {
 						System.err.println(e2);
 						System.err.println(e2.getMessage());

@@ -65,7 +65,7 @@ public class SendSTS2txt {
 
 	public static void main(String[] args ) throws IOException, UnknownHostException {
 
-		String version = "SendSTS2txt (2019-SEP-09)";
+		String version = "SendSTS2txt (2021-MAY-11)";
 
 		for (int i=0; i<args.length; i++) {
 			if (args[i].equalsIgnoreCase("-config")) config = args[++i];
@@ -82,18 +82,18 @@ public class SendSTS2txt {
 		String s;
 
 		swServer = true;
-		try {
+//		try {
 			port = Integer.parseInt(jvport);
 			SendMsg jm = new SendMsg(jvhost, port);  // kollar om JvaktServer �r tillg�nglig.
 			if (jm.open().startsWith("DORMANT")) 	swDormant = true;
 			else 									swDormant = false;
 			jm.close();
-		} 
-		catch (IOException e1) {
-			swServer = false;
-			System.err.println(e1);
-			System.err.println(e1.getMessage());
-		}
+//		} 
+//		catch (IOException e1) {
+//			swServer = false;
+//			System.err.println(e1);
+//			System.err.println(e1.getMessage());
+//		}
 		
 		try {
 

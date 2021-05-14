@@ -70,7 +70,7 @@ public class ManFiles {
 
 		now = new Date();
 		System.out.println("\n*** Jvakt.ManFiles starting --- " + now);
-		
+
 		parseParameters(args);
 		swArgs = false;
 
@@ -219,9 +219,9 @@ public class ManFiles {
 			if (swRunJvakt && swJvakt) {
 				if (anterrorsT == 0) {     
 					if (JvLoops>=60) {    // counts "loops" to make the OK lag at least 60 seconds.
-					 desc = "No error found in ManFiles";
-					 sendSTS(true);
-					 JvLoops=0;
+						desc = "No error found in ManFiles";
+						sendSTS(true);
+						JvLoops=0;
 					}
 					else JvLoops=JvLoops+sleepOrig;
 				}
@@ -230,7 +230,7 @@ public class ManFiles {
 					sendSTS(false);
 				}
 			}
-			
+
 			// if not a loop, break out of the loop and finish the program.
 			if (!swLoop) break;
 
@@ -254,8 +254,8 @@ public class ManFiles {
 		}
 		//		if (antal>0) System.exit(0);
 		//		else 		System.exit(4);
-		
-		
+
+
 		if (antalT > 255) antalT = 255;
 		System.exit(antalT);
 	}
@@ -379,9 +379,9 @@ public class ManFiles {
 					if ( args[i+1].length() > 2 && args[i+1].startsWith("-")) break;
 					ssdir = ssdir+" "+args[++i];
 				}
-//				Character in need of escapes <([{\^-=$!|]})?*+.> 
+				//				Character in need of escapes <([{\^-=$!|]})?*+.> 
 				ssdir = ssdir.replaceAll("[\\*\\?\\<\\>\\|]" , " ");
-//				System.out.println("ssdir: "+ssdir);
+				//				System.out.println("ssdir: "+ssdir);
 				sdir = new File(ssdir);
 				origdir = sdir.toString();
 			} else if (args[i].equalsIgnoreCase("-tdir")) {
@@ -505,7 +505,7 @@ public class ManFiles {
 		//			System.out.println("**** Both -sdir and -parfile is missing!!");	
 		//			System.exit(12);
 		//		}
-		
+
 		if (swJvakt && id != null && swArgs ) {
 			swRunJvakt = swRun;
 			if (swParfile) swRunJvakt=true;
@@ -579,7 +579,8 @@ public class ManFiles {
 
 
 	// sends status to the Jvakt server
-	static protected void sendSTS( boolean STS) throws IOException {
+//	static protected void sendSTS( boolean STS) throws IOException {
+	static protected void sendSTS( boolean STS) {
 
 		System.out.println("\n--- " + id + "  --  " + desc);
 		System.out.println("--- Connecting to "+jvhost+":"+jvport);
@@ -587,25 +588,27 @@ public class ManFiles {
 		SendMsg jm = new SendMsg(jvhost, port);
 		//			try {
 		System.out.println(jm.open()); 
-		//			}
-		//			catch (java.net.ConnectException e ) {System.out.println("-- Rpt Failed -" + e);    return;}
-		//			catch (NullPointerException npe2 )   {System.out.println("-- Rpt Failed --" + npe2); return;}
+		if (!jm.open().startsWith("failed")) {
+			//			}
+			//			catch (java.net.ConnectException e ) {System.out.println("-- Rpt Failed -" + e);    return;}
+			//			catch (NullPointerException npe2 )   {System.out.println("-- Rpt Failed --" + npe2); return;}
 
-		//		if (!swSlut) jmsg.setId(id+"-CheckLogs-"+aFile);
-		//		else		 jmsg.setId(id+"-CheckLogs-"+aFile+"-JV");
-		// 	    jmsg.setId(id+"-CheckLogs-"+aFile);
-		if (STS) jmsg.setRptsts("OK");
-		else jmsg.setRptsts("ERR");
-		jmsg.setId(id);
-		jmsg.setType(jvtype);
-		jmsg.setId(id);
-		jmsg.setType("T");
-		jmsg.setBody(desc);
-		jmsg.setAgent(agent);
-		//		jm.sendMsg(jmsg);
-		if (jm.sendMsg(jmsg)) System.out.println("--- Rpt Delivered --  " + id + "  --  " + desc);
-		else           		  System.out.println("--- Rpt Failed ---");
-		jm.close();
+			//		if (!swSlut) jmsg.setId(id+"-CheckLogs-"+aFile);
+			//		else		 jmsg.setId(id+"-CheckLogs-"+aFile+"-JV");
+			// 	    jmsg.setId(id+"-CheckLogs-"+aFile);
+			if (STS) jmsg.setRptsts("OK");
+			else jmsg.setRptsts("ERR");
+			jmsg.setId(id);
+			jmsg.setType(jvtype);
+			jmsg.setId(id);
+			jmsg.setType("T");
+			jmsg.setBody(desc);
+			jmsg.setAgent(agent);
+			//		jm.sendMsg(jmsg);
+			if (jm.sendMsg(jmsg)) System.out.println("--- Rpt Delivered --  " + id + "  --  " + desc);
+			else           		  System.out.println("--- Rpt Failed ---");
+			jm.close();
+		}
 	}
 
 	static void getProps() {
@@ -1064,7 +1067,7 @@ public class ManFiles {
 					okay = false;
 			}
 			if (okay && !exfile.equals("*")) {
-//				if (f.indexOf(exfile) >= 0) okay = false;
+				//				if (f.indexOf(exfile) >= 0) okay = false;
 				String exfileTab[] = exfile.split(";");
 				for (int k = 0; k < exfileTab.length; k++) {
 					if (f.indexOf(exfileTab[k]) >= 0) okay = false;
@@ -1075,7 +1078,7 @@ public class ManFiles {
 					okay = false;
 			}
 			if (okay && !expath.equals("*")) {
-//				if (dir.toString().toLowerCase().indexOf(expath) >= 0)	okay = false;
+				//				if (dir.toString().toLowerCase().indexOf(expath) >= 0)	okay = false;
 				String expathTab[] = expath.split(";");
 				for (int k = 0; k < expathTab.length; k++) {
 					if (dir.toString().toLowerCase().indexOf(expathTab[k]) >= 0)	okay = false;

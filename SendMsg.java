@@ -10,13 +10,14 @@ public class SendMsg {
 	OutputStream sut;
 	PrintWriter ut;
 	int port;
-	String version = "SendMsg 1.5 Date 2019-DEC-02";
+	String version = "SendMsg 2021-MAY-11";
 
 	public SendMsg(String host, int port ) {
 		this.port = port;
 		this.host = host;
 	}        
-	public String open() throws IOException, UnknownHostException  {
+//	public String open() throws IOException, UnknownHostException  {
+	public String open() {
 		try {
 //		cs = new Socket(host, port);
 		cs = new Socket();
@@ -28,13 +29,16 @@ public class SendMsg {
 		sut = cs.getOutputStream();
 		ut = new PrintWriter(new OutputStreamWriter(sut));
 		ut.println(version);
-		ut.flush(); }
+		ut.flush(); 
+		return in.readLine(); 
+		}
 		catch ( Exception e ) {
+			System.err.println("Exeption i open SendMsg  "+e);
 			return "failed";	
 		}
-		return in.readLine(); 
 	}        
-	public boolean sendMsg(Message msg ) throws IOException, UnknownHostException  {
+//	public boolean sendMsg(Message msg ) throws IOException, UnknownHostException  {
+	public boolean sendMsg(Message msg ) {
 		String line = null;
 		try {
 //			System.out.println(msg.getType()+"<;>"+msg.getId()+"<;>"+msg.getRptsts()+"<;>"+msg.getBody()+"<;>"+msg.getAgent()+"<;>"+ Integer.toString(msg.getPrio())+"<;>");
@@ -51,16 +55,17 @@ public class SendMsg {
 		}
 	}
 
-	public boolean close() throws IOException, UnknownHostException  {
-//		try { Thread.currentThread().sleep(100); } catch (InterruptedException e) { e.printStackTrace();}
+//	public boolean close() throws IOException, UnknownHostException  {
+	public boolean close() {
 		try { Thread.sleep(100); } catch (InterruptedException e) { e.printStackTrace();}
 		try {
-		ut.close();
 		in.close();
+		ut.close();
 		cs.close(); 
+		return true;
 		} catch (Exception e) {
 //			System.err.println(e);
+			return false;
 		}
-		return true;
 	}
 }

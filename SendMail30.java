@@ -94,7 +94,7 @@ public class SendMail30 {
 
 	public static void main(String[] args ) throws IOException, UnknownHostException {
 
-		String version = "SendMail30 (2020-DEC-10)";
+		String version = "SendMail30 (2021-MAY-11)";
 		String database = "jVakt";
 		String dbuser   = "jVakt";
 		String dbpassword = "unknown";
@@ -154,18 +154,18 @@ public class SendMail30 {
 		//		  System.out.println(iterator.next());
 		//		}
 
-		try {
-			SendMsg jm = new SendMsg(jvhost, jvporti);  // kollar om JvaktServer �r tillgänglig.
+//		try {
+			SendMsg jm = new SendMsg(jvhost, jvporti);  // kollar om JvaktServer är tillgänglig.
 			//			System.out.println(jm.open());
 			if (jm.open().startsWith("DORMANT")) {
 				swDormant = true;
 			}
 			jm.close();
-		} 
-		catch (IOException e1) {
-			System.err.println(e1);
-			System.err.println(e1.getMessage());
-		}
+//		} 
+//		catch (IOException e1) {
+//			System.err.println(e1);
+//			System.err.println(e1.getMessage());
+//		}
 
 		if (swDormant) {
 			System.out.println(LocalDateTime.now()+" *** Jvakt in DORMANT mode, SendMail30 exiting *** ");

@@ -6,7 +6,7 @@ import java.util.Properties;
 public class RptToJv {
 	public static void main(String[] args ) throws IOException, UnknownHostException {
 
-		String version = "RptToJv (2019-NOV-26)";
+		String version = "RptToJv (2021-MAY-11)";
 		String host = "127.0.0.1";
 		int port = 1956; 
 		String id = null;
@@ -118,7 +118,7 @@ public class RptToJv {
 			}
 			else System.out.println("-- Rpt Failed --");
 		}
-		catch (java.net.ConnectException e ) {System.out.println("-- Rpt Failed --" + e); }
+//		catch (java.net.ConnectException e ) {System.out.println("-- Rpt Failed --" + e); }
 		catch (NullPointerException npe2 )   {System.out.println("-- Rpt Failed --" + npe2);}
 
 	}        

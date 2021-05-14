@@ -166,18 +166,18 @@ public class SendMail {
 //		  System.out.println(iterator.next());
 //		}
 		
-		try {
-			SendMsg jm = new SendMsg(jvhost, jvporti);  // kollar om JvaktServer �r tillg�nglig.
+//		try {
+			SendMsg jm = new SendMsg(jvhost, jvporti);  // kollar om JvaktServer är tillgänglig.
 //			System.out.println(jm.open());
 			if (jm.open().startsWith("DORMANT")) {
 				swDormant = true;
 			}
 			jm.close();
-		} 
-		catch (IOException e1) {
-			System.err.println(e1);
-			System.err.println(e1.getMessage());
-		}
+//		} 
+//		catch (IOException e1) {
+//			System.err.println(e1);
+//			System.err.println(e1.getMessage());
+//		}
 
 		if (swDormant) {
 			System.out.println(new Date()+" *** Jvakt in DORMANT mode, SendMail exiting *** ");

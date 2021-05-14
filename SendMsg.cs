@@ -45,16 +45,17 @@ namespace RptToJv
                 byte[] Out = Encoding.ASCII.GetBytes(version);
                 int bytesSent = cs.Send(Out);
                 int bytesRec = cs.Receive(bytes);
-                //Console.WriteLine("Echoed test = {0}",
-                //    Encoding.ASCII.GetString(bytes, 0, bytesRec));
+				//Console.WriteLine("Echoed test = {0}",
+				//    Encoding.ASCII.GetString(bytes, 0, bytesRec));
+				return System.Text.Encoding.UTF8.GetString(bytes);
 
-            }
-				catch (Exception e)
+			}
+			catch (Exception e)
 				{
 					Console.Error.WriteLine("Exeption i open i SendMsg  " + e);
                 return "failed";
 				}
-			return System.Text.Encoding.UTF8.GetString(bytes);
+            // return System.Text.Encoding.UTF8.GetString(bytes);
         }
 
 		public virtual bool sendMsg(Message msg)

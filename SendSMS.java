@@ -74,7 +74,7 @@ public class SendSMS {
 
 	public static void main(String[] args ) throws IOException, UnknownHostException {
 
-		String version = "SendSMS (2021-JAN-29)";
+		String version = "SendSMS (2021-MAY-11)";
 		String database = "jVakt";
 		String dbuser   = "jVakt";
 		String dbpassword = "xz";
@@ -134,18 +134,18 @@ public class SendSMS {
 		//		  System.out.println(iterator.next());
 		//		}
 
-		try {
+//		try {
 			SendMsg jm = new SendMsg(jvhost, jvporti);  // kollar om JvaktServer �r tillg�nglig.
 			//			System.out.println(jm.open());
 			if (jm.open().startsWith("DORMANT")) {
 				swDormant = true;
 			}
 			jm.close();
-		} 
-		catch (IOException e1) {
-			System.err.println(e1);
-			System.err.println(e1.getMessage());
-		}
+//		} 
+//		catch (IOException e1) {
+//			System.err.println(e1);
+//			System.err.println(e1.getMessage());
+//		}
 
 		if (swDormant) {
 			System.out.println(LocalDateTime.now()+" *** Jvakt in DORMANT mode, SendSMS exiting *** ");
