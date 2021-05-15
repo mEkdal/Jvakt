@@ -94,7 +94,7 @@ public class SendMail30 {
 
 	public static void main(String[] args ) throws IOException, UnknownHostException {
 
-		String version = "SendMail30 (2021-MAY-11)";
+		String version = "SendMail30 (2021-MAY-15)";
 		String database = "jVakt";
 		String dbuser   = "jVakt";
 		String dbpassword = "unknown";
@@ -281,7 +281,10 @@ public class SendMail30 {
 						boolean swStatusERR = false; 
 						boolean swStatusOK = false; 
 						boolean swStatusINFO = false; 
-						boolean swTypeD = false; 
+						boolean swTypeD = false;
+						swOK = false; 
+						swINFO = false; 
+
 
 						if (rs.getInt("prio") < 30) swPrio=true;
 						if (rs.getString("msg30").equalsIgnoreCase("M")) swMsg30M=true;
@@ -488,17 +491,17 @@ public class SendMail30 {
 //			if (swOK) subject =  subject + "Resolved: " + resolved+ "  ";
 //			if (swINFO) subject = subject + "Info: " + infos+ "  ";
 			if (swOK) subject =  subject + "Resolved";
-			if (swINFO) subject = subject + "Info";
+			if (swINFO) subject = subject + " Info";
 			
-			if (swOK ) {
+			if (swOK && swINFO ) {
+				subjectTxt="RESOLVED & INFO";
+//				body = body + rowStr+hdrStrY+subjectTxt+hdrEnd+hdrStrY+""+hdrEnd+hdrStrY+""+hdrEnd+rowEnd+	rbody ;
+				body = body + rowStr+hdrStrY+subjectTxt+hdrEnd+hdrStrY+""+hdrEnd+rowEnd+	rbody ;
+			}
+			else if (swOK ) {
 				subjectTxt="RESOLVED";
 //				body = body + rowStr+hdrStrG+subjectTxt+hdrEnd+hdrStrG+""+hdrEnd+hdrStrG+""+hdrEnd+rowEnd+	rbody ;
 				body = body + rowStr+hdrStrG+subjectTxt+hdrEnd+hdrStrG+""+hdrEnd+rowEnd+	rbody ;
-			}
-			else if (swOK && swINFO ) {
-				subjectTxt="RESOLVED&INFO";
-//				body = body + rowStr+hdrStrY+subjectTxt+hdrEnd+hdrStrY+""+hdrEnd+hdrStrY+""+hdrEnd+rowEnd+	rbody ;
-				body = body + rowStr+hdrStrY+subjectTxt+hdrEnd+hdrStrY+""+hdrEnd+rowEnd+	rbody ;
 			}
 			else if (swINFO ) {
 				subjectTxt="INFO";
