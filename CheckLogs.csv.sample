@@ -1,0 +1,23 @@
+# rows starting E; are strings to search for. At least one is neccesary to raise an error.
+# rows starting O; are strings that can turn off th error found in a row. Optional.
+# rows starting M; are strings must be found in the logfile, else an error is raised. Optional.
+
+E;Error
+E;warning
+E;critical
+E;ORA-
+O;ORA-00054
+E;Disconnected: Unable to authenticate
+E;Connection failed.
+E;Server unexpectedly closed network connection
+E;Server refused public-key signature despite accepting key
+E; 550 
+E;The system cannot find the file specified
+E;Password authentication failed
+E;Access denied
+E;Failed to connect to
+E;FTP port did not open
+E;Script: Failed
+E;The network path was not found
+M;Upload successful
+
