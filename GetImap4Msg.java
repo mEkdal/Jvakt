@@ -49,7 +49,7 @@ public class GetImap4Msg {
 
 	public static void main(String[] args) throws IOException, FileNotFoundException {
 
-		String version = "GetImap4Msg # ( 2020-12-22 )";
+		String version = "GetImap4Msg # ( 2021-06-11 )";
 
 		for (int i=0; i<args.length; i++) {
 			if (args[i].equalsIgnoreCase("-config")) config = args[++i];
@@ -206,6 +206,7 @@ public class GetImap4Msg {
 							subject.indexOf("Engine Speed (rpm) Over") >= 0 ||
 							subject.indexOf("Mains failure") >= 0 ||
 							subject.indexOf("Emergency stop") >= 0 ||
+							subject.indexOf("Motor start") >= 0 ||
 							subject.indexOf("Test with load, Baseload") >= 0 ||
 							subject.indexOf("Test  with load soft transfer") >= 0 ||
 							subject.indexOf("MCB Open") >= 0
@@ -589,8 +590,8 @@ public class GetImap4Msg {
 		// Sunet echo expected only to be found in the INBOX folder
 		if (imapFolder.endsWith("INBOX")) {
 			if (!swSunet) {
-				System.out.println("No mail from Sunet echo found.");
-				sendJv("MAIL_SUNET.SE_Echo" , "ERR" , "R", "No mail from Sunet echo found.");
+				System.out.println("No return mail from ping@sunet.se found.");
+				sendJv("MAIL_SUNET.SE_Echo" , "ERR" , "R", "No return mail from ping@sunet.se found.");
 			}
 			else {
 				System.out.println("Mail from Sunet echo found.");

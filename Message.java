@@ -2,7 +2,7 @@ package Jvakt;
 
 /**
  * @author  Michael Ekdal
- * @version 2020-JUL-23
+ * @version 2021-JUN-11
  */
 
 public class Message {
@@ -45,7 +45,7 @@ public class Message {
 		//	 body = body.replaceAll("\\xc3\\xa5]" , "a"); // � -> a
 		//	 body = body.replaceAll("[^a-zA-Z0-9:;_#/><������\"\\.\\!\\?\\*\\$\\)\\(\\-\\=\\{\\}\\]\\[]" , " ");
 		//	 body = body.replaceAll("[^a-zA-Z0-9:;_#/><������\"\\,\\.\\!\\?\\*\\$\\)\\(\\-\\=\\{\\}\\]\\[]" , " ");
-		body = body.replaceAll("[^a-zA-Z0-9:;_#/><åäöÅÄÖ\"\\,\\.\\!\\?\\*\\$\\)\\(\\-\\=\\{\\}\\]\\[]" , " ");
+		body = body.replaceAll("[^a-zA-Z0-9:;_%@#/><åäöÅÄÖ\"\\,\\.\\!\\?\\*\\$\\)\\(\\-\\=\\{\\}\\]\\[]" , " ");
 
 
 		//	 body = body.replaceAll("[^a-zA-Z0-9.:!?;*_$#)(//\"><-=������]" , " ");

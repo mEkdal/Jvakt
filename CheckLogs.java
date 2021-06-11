@@ -24,7 +24,7 @@ public class CheckLogs {
 	static String jvtype = "R";
 	static int port ;
 	static InetAddress inet;
-	static String version = "CheckLogs (2021-JUN-04)";
+	static String version = "CheckLogs (2021-JUN-09)";
 	static String agent = null;
 	static boolean swSlut = false;
 	static String charset = "UTF8";
@@ -324,7 +324,7 @@ public class CheckLogs {
 		if (swMust ) {
 			errors++;
 			swWarn=true;
-			t_desc = "Mandatory hits in log file is missing!";
+			t_desc = "Mandatory text strings in the log file are missing!";
 						sendSTS(swWarn);
 //			System.out.println("# 01");
 		}
