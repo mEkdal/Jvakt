@@ -2,7 +2,7 @@ package Jvakt;
 
 /**
  * @author  Michael Ekdal
- * @version 2021-JUL-04
+ * @version 2021-JUL-04 
  */
 
 public class Message {
