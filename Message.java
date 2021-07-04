@@ -2,7 +2,7 @@ package Jvakt;
 
 /**
  * @author  Michael Ekdal
- * @version 2021-JUN-11
+ * @version 2021-JUL-04
  */
 
 public class Message {
@@ -42,15 +42,9 @@ public class Message {
 		//	 if (body == null) { body = " "; }
 		if (body.length() > 255) body = body.substring(0, 255);
 		body = body.replaceAll("\\\\" , "/");
-		//	 body = body.replaceAll("\\xc3\\xa5]" , "a"); // � -> a
-		//	 body = body.replaceAll("[^a-zA-Z0-9:;_#/><������\"\\.\\!\\?\\*\\$\\)\\(\\-\\=\\{\\}\\]\\[]" , " ");
-		//	 body = body.replaceAll("[^a-zA-Z0-9:;_#/><������\"\\,\\.\\!\\?\\*\\$\\)\\(\\-\\=\\{\\}\\]\\[]" , " ");
 		body = body.replaceAll("[^a-zA-Z0-9:;_%@#/><åäöÅÄÖ\"\\,\\.\\!\\?\\*\\$\\)\\(\\-\\=\\{\\}\\]\\[]" , " ");
-
-
-		//	 body = body.replaceAll("[^a-zA-Z0-9.:!?;*_$#)(//\"><-=������]" , " ");
-		//	 body = body.replaceAll("[^\\S]" , " ");   // A non-whitespace character replaced with space
 		body = body.replaceAll(" {2,}", " "); // replace multiple spaces with one
+		body = body.trim();
 		String[] tab = body.split("<;>",2);
 		this.body = tab[0];
 		//		System.out.println("Body length>> " + this.body.length());

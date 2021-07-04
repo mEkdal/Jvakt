@@ -135,7 +135,7 @@ public class SendSMS {
 		//		}
 
 //		try {
-			SendMsg jm = new SendMsg(jvhost, jvporti);  // kollar om JvaktServer �r tillg�nglig.
+			SendMsg jm = new SendMsg(jvhost, jvporti);  // kollar om JvaktServer är tillgänglig.
 			//			System.out.println(jm.open());
 			if (jm.open().startsWith("DORMANT")) {
 				swDormant = true;

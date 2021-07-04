@@ -57,7 +57,7 @@ public class GetMail2Jvakt {
 
 	public static void main(String[] args) {
 
-		String version = "GetMail2Jvakt ( 2020-12-22 )";
+		String version = "GetMail2Jvakt ( 2021-07-04 )";
 
 		for (int i=0; i<args.length; i++) {
 			if (args[i].equalsIgnoreCase("-config")) config = args[++i];
@@ -229,8 +229,8 @@ public class GetMail2Jvakt {
 							swPrio = true;
 						}
 
-						if (swPrio) sendJv("MAIL_2_Jvakt_prio" , "INFO" , "I",  subject );
-						else        sendJv("MAIL_2_Jvakt" ,      "INFO" , "I",  subject );
+						if (swPrio) sendJv("MAIL_2_Jvakt_prio" , "INFO" , "I", "From: "+ from +" / "+ subject +" / "+ body );
+						else        sendJv("MAIL_2_Jvakt" ,      "INFO" , "I", "From: "+ from +" / "+ subject +" / "+ body );
 						//					if (imaprw.startsWith("Y")) {
 						//							messages[i].setFlag(Flags.Flag.DELETED, true); // mark the mail for deletion
 						//							System.out.println("* Mark as DELETED ");
