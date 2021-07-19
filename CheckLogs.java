@@ -24,7 +24,7 @@ public class CheckLogs {
 	static String jvtype = "R";
 	static int port ;
 	static InetAddress inet;
-	static String version = "CheckLogs (2021-JUN-09)";
+	static String version = "CheckLogs (2021-JUL-11)";
 	static String agent = null;
 	static boolean swSlut = false;
 	static String charset = "UTF8";
@@ -102,7 +102,7 @@ public class CheckLogs {
 					"\n-config \tThe directory where to find the Jvakt.properties file. like \"-config c:\\Temp\". Optional. Default is the current directory." +
 					"\n-charset \tDefault is UTF8. It could be UTF-16, UTF-32, ASCII, ISO8859_1...");
 
-			System.out.println("\n\n--- The following files must be present in the current directory or the -config directory ---\n"+
+			System.out.println("\n\n--- One or more of following files must be present in the current directory or the -config directory ---\n"+
 					"\nCheckLogs.csv   \tOne file replacing the three following files."+
 					"\n                \tLines starting with E; replaces the srch file."+
 					"\n                \tLines starting with O; replaces the okay file."+
@@ -307,6 +307,7 @@ public class CheckLogs {
 				prev_s = s;
 				errors++;
 				t_desc = s;
+				t_desc =aFile+": "+t_desc;
 				sendSTS(swWarn);
 			}
 			in.close();
@@ -347,8 +348,8 @@ public class CheckLogs {
 		}
 		else      {
 			swWarn=true;
-			//			t_desc = errors + " errors found in log file.";
-			sendSTS(swWarn);
+//			t_desc = errors + " errors found in the log file(s).";
+//			sendSTS(swWarn);
 //			System.out.println("# 03");
 		}
 
@@ -363,7 +364,7 @@ public class CheckLogs {
 		if (!swSlut) { 
 			if (jvtype.startsWith("I")) {
 				if (t_desc.length() > 200) t_desc = t_desc.substring(0, 200);
-				t_desc =t_desc+" : "+aFile;
+				t_desc =aFile+": "+t_desc;
 			}
 			//			t_desc =t_desc+" : "+aFile;
 		}
@@ -389,7 +390,7 @@ public class CheckLogs {
 				else {
 					if (jvtype.startsWith("I")) {
 						if (t_desc.length() > 200) t_desc = t_desc.substring(0, 200);
-						t_desc =t_desc+" : "+aFile;
+						t_desc =aFile+": "+t_desc;
 					}
 				}
 			} else {
