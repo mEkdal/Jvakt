@@ -57,7 +57,7 @@ public class GetMail2Jvakt {
 
 	public static void main(String[] args) {
 
-		String version = "GetMail2Jvakt ( 2021-07-04 )";
+		String version = "GetMail2Jvakt ( 2021-09-08 )";
 
 		for (int i=0; i<args.length; i++) {
 			if (args[i].equalsIgnoreCase("-config")) config = args[++i];
@@ -142,7 +142,7 @@ public class GetMail2Jvakt {
 				adr = messages[i].getFrom(); 
 				from = null;
 				if (adr != null) {
-					System.out.println("adr null ");
+//					System.out.println("adr null ");
 					for (int j = 0; j < adr.length; j++) {
 						from = adr[j].toString();
 					}
@@ -225,7 +225,7 @@ public class GetMail2Jvakt {
 
 					if (swOkSender) {
 						if (subject.toLowerCase().indexOf("sms:") >= 0) {
-							subject = subject.substring(6);
+							subject = subject.substring(5);
 							swPrio = true;
 						}
 

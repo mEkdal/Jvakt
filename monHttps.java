@@ -29,7 +29,7 @@ public class monHttps {
 	static String hosturl;
 	static String tabbar = "                                                                                               ";
 	static InetAddress inet;
-	static String version = "monHttps (2021-08-24)";
+	static String version = "monHttps (2021-09-10)";
 	static String database = "jVakt";
 	static String dbuser   = "jVakt";
 	static String dbpassword = "xz";
@@ -204,6 +204,7 @@ public class monHttps {
 			URL url = new URL("https://"+host+":"+wport+webfile); 
 			//			URLConnection con = url.openConnection();  // new
 			HttpsURLConnection con = (HttpsURLConnection) url.openConnection();
+			con.addRequestProperty("User-Agent", "Mozilla");
 			if (swShow)	System.out.println("-- OK connection");
 			con.setReadTimeout(5000);
 			con.setConnectTimeout(5000);

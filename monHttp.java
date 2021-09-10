@@ -18,7 +18,7 @@ public class monHttp {
 	static String hosturl;
 	static String tabbar="                                                                                                 ";
 	static InetAddress inet;
-	static String version = "monHttp (2020-05-01)";
+	static String version = "monHttp (2020-09-10)";
 	static String database = "jVakt";
 	static String dbuser   = "jVakt";
 	static String dbpassword = "xz";
@@ -158,6 +158,7 @@ public class monHttp {
 			if (swShow)	System.out.println("-- OK text: " +webcontent);
 			URL url = new URL("http://"+host+":"+wport+webfile); 
 			URLConnection con = url.openConnection();  // new
+			con.addRequestProperty("User-Agent", "Mozilla");
 			con.setReadTimeout(5000);
 			con.setConnectTimeout(5000);
 //			BufferedReader httpin = new BufferedReader(

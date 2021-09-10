@@ -1,0 +1,1 @@
+java -cp C:\Jvakt;C:\Jvakt\postgresql-42.2.10.jar Jvakt.Server -log -config C:\Jvakt
