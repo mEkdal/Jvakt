@@ -426,6 +426,7 @@ public class CheckStatus {
 //					if (swUpdate) try { rs.updateRow(); } catch(NullPointerException npe2) {}
 //					conn.commit();
 					updC(rs); // update or remove line from the console table
+//					System.out.println(new Date()+" - ssss");
 				}
 				conn.commit();
 			}

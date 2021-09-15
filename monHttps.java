@@ -29,7 +29,7 @@ public class monHttps {
 	static String hosturl;
 	static String tabbar = "                                                                                               ";
 	static InetAddress inet;
-	static String version = "monHttps (2021-09-10)";
+	static String version = "monHttps (2021-09-15)";
 	static String database = "jVakt";
 	static String dbuser   = "jVakt";
 	static String dbpassword = "xz";
@@ -44,6 +44,7 @@ public class monHttps {
 	static String webcontent = "400";
 	static boolean swWebcontent = false;
 	static Date now;
+	static long certAgeDays = 10;
 
 	static String config = null;
 	static File configF;
@@ -223,8 +224,9 @@ public class monHttps {
 				Date expiresOn= xc.getNotAfter();
 				Date now = new Date();
 				long days = (expiresOn.getTime()-now.getTime())/(1000*60*60*24);
-				if (days > 0 && days < 10) { 
-					expire = " ** Warning ** Certificate expires soon - "+expiresOn+" - "+dn ;
+				if (days > 0 && days < certAgeDays) { 
+//					expire = " ** Warning ** Certificate expires in "+days+" days > "+expiresOn+" < "+dn ;
+					expire = " ** Warning ** Certificate expire soon > "+expiresOn+" < "+dn ;
 					if (swShow)	System.out.println(expire);
 					swExpire = true;
 				}
@@ -327,6 +329,8 @@ public class monHttps {
 			jvport   = prop.getProperty("jvport");
 			jvhost   = prop.getProperty("jvhost");
 			port = Integer.parseInt(jvport);
+			String CertAgeDaysW   = prop.getProperty("CertAgeDays");
+			if (CertAgeDaysW != null) certAgeDays = Integer.parseInt(CertAgeDaysW);
 			if (swShow)	System.out.println(" jvport : " + jvport + "\n jvhost : "+jvhost) ;
 		} catch (IOException ex) {
 			ex.printStackTrace();
