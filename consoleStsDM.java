@@ -30,7 +30,7 @@ class consoleStsDM extends AbstractTableModel {
 	static Connection conn = null;
 	PreparedStatement prepStmt = null;
 
-	String version = "jVakt - consoleStsDM (2020-MAY-07)";
+	String version = "jVakt - consoleStsDM (2021-SEP-15)";
 	String database = "Jvakt";
 	String dbuser   = "console";
 	String dbpassword = "Jvakt";
@@ -156,7 +156,7 @@ class consoleStsDM extends AbstractTableModel {
 	public void setValueAt(Object value, int row, int col) {
 		// se till att objektet User sparar värdet med rätt set metod ( if (col == 2) .........
 		System.out.println("wD setValueAt " + value + " " + row + " "+ col);
-
+		String tmp;
 		consoleStsROW rad;
 
 		if ( row >= map.size()) { 
@@ -166,25 +166,37 @@ class consoleStsDM extends AbstractTableModel {
 		else rad = (consoleStsROW) map.get(row);
 		String oId   = rad.getId();
 		int    oPrio = rad.getPrio();
-
+		
 		if (col == 0) {
+			tmp =((String)value).trim().toUpperCase();
+			if (tmp.length()<1) tmp="I";
 			System.out.println("setState " + value + " -  " + row + " "+ col);
 			System.out.println("setState rad " + rad.getId());
-			rad.setState((String)value);
+			rad.setState(tmp);
 		} else if (col == 1) {
-			rad.setId((String)value); 
+			tmp =((String)value).trim();
+			if (tmp.length()<1) tmp=" ";
+			rad.setId(tmp); 
 		} else if (col == 2) {
 			rad.setPrio((Integer)value);
 		} else if (col == 3) {
-			rad.setType((String)value);
+			tmp =((String)value).trim().toUpperCase();
+			if (tmp.length()<1) tmp="T";
+			rad.setType(tmp);
 		} else if (col == 4) {
-			rad.setStatus((String)value);
+			tmp =((String)value).trim().toUpperCase();
+			if (tmp.length()<1) tmp="OK";
+			rad.setStatus(tmp);
 		} else if (col == 5) {
-			rad.setBody((String)value);            
+			tmp =((String)value).trim();
+			if (tmp.length()<1) tmp=" ";
+			rad.setBody(tmp);            
 		} else if (col == 6) {
 			rad.setRptdat((String)value);
 		} else if (col == 7) {
-			rad.setChkday((String)value);
+			tmp =((String)value).trim().toUpperCase();
+			if (tmp.length()<1) tmp="*ALL";
+			rad.setChkday(tmp);
 		} else if (col == 8) {
 			rad.setChktim((String)value);
 		} else if (col == 9) {
@@ -192,27 +204,43 @@ class consoleStsDM extends AbstractTableModel {
 		} else if (col == 10) {
 			rad.setAccerr((Integer)value);
 		} else if (col == 11) {
-			rad.setMsg((String)value);
+			tmp =((String)value).trim().toUpperCase();
+			if (tmp.length()<1) tmp=" ";
+			rad.setMsg(tmp);
 		} else if (col == 12) {
 			rad.setMsgdat((String)value);
 		} else if (col == 13) {
-			rad.setConsole((String)value);
+			tmp =((String)value).trim().toUpperCase();
+			if (tmp.length()<1) tmp=" ";
+			rad.setConsole(tmp);
 		} else if (col == 14) {
 			rad.setCondat((String)value);
 		} else if (col == 15) {
-			rad.setInfo((String)value);
+			tmp =((String)value).trim();
+			if (tmp.length()<1) tmp=" ";
+			rad.setInfo(tmp);
 		} else if (col == 16) {
-			rad.setPlugin((String)value);
+			tmp =((String)value).trim();
+			if (tmp.length()<1) tmp=" ";
+			rad.setPlugin(tmp);
 		} else if (col == 17) {
-			rad.setAgent((String)value);
+			tmp =((String)value).trim();
+			if (tmp.length()<1) tmp=" ";
+			rad.setAgent(tmp);
 		} else if (col == 18) {
-			rad.setSms((String)value);
+			tmp =((String)value).trim().toUpperCase();
+			if (tmp.length()<1) tmp=" ";
+			rad.setSms(tmp);
 		} else if (col == 19) {
 			rad.setSmsdat((String)value);
 		} else if (col == 20) {
-			rad.setMsg30((String)value);
-		} else if (col == 21) {
-			rad.setMsgdat30((String)value);
+			tmp =((String)value).trim().toUpperCase();
+			if (tmp.length()<1) tmp=" ";
+			rad.setMsg30(tmp);
+		} else if (col == 21) {			
+			tmp =((String)value).trim().toUpperCase();
+			if (tmp.length()<1) tmp=" ";
+			rad.setMsgdat30(tmp);
 		} else if (col == 22) {
 			rad.setChktimto((String)value);
 		}
