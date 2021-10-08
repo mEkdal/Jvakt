@@ -1,1 +1,2 @@
-java -cp C:\Jvakt;C:\Jvakt\postgresql-42.2.10.jar Jvakt.Server -log -config C:\Jvakt
+start "Activate" activate_dly.cmd
+java -cp C:\Jvakt\Jvakt.jar Jvakt.Server -log -config C:\Jvakt

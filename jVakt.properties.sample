@@ -41,5 +41,5 @@ dbwritesMax=10000
 # yes => A new entry is automaticaly created in the status table when a new id appears. If a no is used you have to create the entries in the status table by hand
 autocreate=yes
 # How many days to accept before warning of old https certificate. 10 is the default value if the line is missing.
-CertAgeDays = 100
+CertAgeDays = 15
 

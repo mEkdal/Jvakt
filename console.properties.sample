@@ -10,4 +10,7 @@ dbport = 5432
 jvhost = 127.0.0.1
 jvport = 1956
 # The command to start the history app, which runs a a completley separate process. 
-cmdHst = java -cp /JavaSrc;/JavaSrc/postgresql-42.1.3.jar\ Jvakt.consoleHst
+cmdHst = javaw -cp /Jvakt/Jvakt.jar Jvakt.consoleHst
+cmdSts = javaw -cp /Jvakt/Jvakt.jar Jvakt.consoleSts
+cmdStats = javaw -cp /Jvakt/Jvakt.jar Jvakt.StatisticsChart
+statsDir = c:/Jvakt/Stat

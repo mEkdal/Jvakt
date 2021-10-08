@@ -2,4 +2,4 @@
 @rem IPv4. Will try to establish a TCP connection to the port.  
 @rem The file monIpPorts-01.csv is read.  
 
-java -cp c:\JavaSrc Jvakt.monIpPorts -run -config D:\Jvakt-console\config
+java -cp C:\Jvakt\Jvakt.jar Jvakt.monIpPorts -run -config D:\Jvakt-console\config

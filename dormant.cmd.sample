@@ -1,3 +1,3 @@
 @rem (Base function) Sends a dormant message to the Jvakt server. 
 
-java -cp C:\JavaSrc Jvakt.RptToJv -host 127.0.0.1 -port 1956 -type Dormant -id Jvakt -config D:\Jvakt-console\config
+java -cp C:\Jvakt\Jvakt.jar Jvakt.RptToJv -host 127.0.0.1 -port 1956 -type Dormant -id Jvakt -config D:\Jvakt-console\config

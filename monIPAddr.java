@@ -2,6 +2,7 @@ package Jvakt;
 import java.io.*;
 import java.util.*;
 import java.net.*;
+import java.text.SimpleDateFormat;
 
 public class monIPAddr {
 
@@ -23,7 +24,7 @@ public class monIPAddr {
 	static String tabbar = "                                                                                         ";
 	static String status = null;
 	static InetAddress inet;
-	static String version = "monIPAddr (built 2020-05-27)";
+	static String version = "monIPAddr (built 2021-10-08)";
 	static String database = "jVakt";
 	static String dbuser   = "jVakt";
 	static String dbpassword = "xz";
@@ -41,6 +42,12 @@ public class monIPAddr {
 
 	static String cmd;
 	static String OS = System.getProperty("os.name").toLowerCase();
+	
+	static String stat = null;
+	static FileOutputStream statF;
+	static boolean swStat = false;
+	static OutputStreamWriter osw;
+	static BufferedWriter statCsv;
 
 	public static void main(String[] args) throws UnknownHostException, IOException {
 
@@ -76,6 +83,7 @@ public class monIPAddr {
 					"\n-host   \tCheck a single host." +
 					"\n-show   \tShow a verboose log." +
 					"\n-tracert\tTo make a traceroute when a check fails." +
+					"\n-stat   \tThe dir of the statistics files."+
 					"\n-sleep  \tIn seconds. Used with loop to sleep between checks. The default is one second."
 					);
 
@@ -91,6 +99,7 @@ public class monIPAddr {
 			if (args[i].equalsIgnoreCase("-loop")) swLoop = true;
 			if (args[i].equalsIgnoreCase("-show")) swShow = true;
 			if (args[i].equalsIgnoreCase("-tracert")) swTracert = true;
+			if (args[i].equalsIgnoreCase("-stat")) stat = args[++i];
 			if (args[i].equalsIgnoreCase("-sleep")) { sleep = Integer.valueOf(args[++i]); sleep = sleep *1000; }
 		}
 		now = new Date();
@@ -114,9 +123,25 @@ public class monIPAddr {
 			System.out.println(" Pos  : "+pos);
 			System.out.println(" Host : "+host);
 			System.out.println(" Loop : "+swLoop);
-			System.out.println(" Sleep: "+sleep+" ms\n");
+			System.out.println(" Sleep: "+sleep+" ms");
+			System.out.println(" stat directory: "+stat+"\n");
 		}
 
+		if (stat != null ) {
+			swStat = true;
+			if (swSingle) {
+				try {
+					statF = new FileOutputStream(stat+"/monIPAddr-A-single-check.csv",true); // append
+					osw = new OutputStreamWriter(statF, "Cp850");
+					statCsv = new BufferedWriter(osw);
+				} catch (Exception ex) {
+					System.out.println("-- Exeption when open the statistical file monIPAddr-A-single-check.csv !");
+					ex.printStackTrace();
+				}
+
+			}
+		}
+		
 		do {
 			if (swSingle) {
 				checkIPAddr();
@@ -150,7 +175,23 @@ public class monIPAddr {
 						if (tab.length == 5)	status = tab[4];
 						state = "OKAY";    
 
+						if (swStat) {
+							try {
+								statF = new FileOutputStream(stat+"/monIPAddr-"+t_id+".csv",true); // append
+								swStat = true;
+								osw = new OutputStreamWriter(statF, "Cp850");
+								statCsv = new BufferedWriter(osw);
+							} catch (Exception ex) {
+								System.out.println("-- Exeption when open file monIPAddr-"+t_id+".csv");
+								ex.printStackTrace();
+							}
+						}
+
 						checkIPAddr();
+						
+						if (swStat) {
+							try{ statCsv.close(); } catch (Exception ex) {}
+						}
 
 						// checks host2 to verify WAN is up. Else host is considered okay
 						if (state.equals("FAILED") && host2 != null) { 
@@ -177,12 +218,19 @@ public class monIPAddr {
 			//			if (swLoop) try {Thread.currentThread().sleep(1000);} catch (InterruptedException e) {e.printStackTrace();} // sleep 1 second
 			if (swLoop) try {Thread.sleep(sleep);} catch (InterruptedException e) {e.printStackTrace();} 
 		} while(swLoop);
-
+		
+		if (swStat && swSingle) statCsv.close();
+	
 	}
 
 	public static boolean checkIPAddr() {
+		Date innan;
+		Date efter;
+		long delay;
+
 		// connect to host
 		swEcho=false; 
+		innan = new Date();
 		try {
 			if (t_id == null) t_id = "";
 			if (t_desc==null) t_desc=" ";
@@ -215,6 +263,30 @@ public class monIPAddr {
 			}
 			catch (Exception e) { state = "FAILED"; /*System.out.println("-- exeption state: "+state);*/  }
 		}
+		efter = new Date();
+		delay = efter.getTime() - innan.getTime();
+		delay++;    // add an extra millisecond to compensate for extremely fast connections  
+		if (delay>=5000 || !state.equals("OKAY")) delay = 0;   // a response delay over 5000ms is a failure or state is failed
+		if (swStat) {
+			if (swShow)	System.out.println("-- Response time: "+delay+" ms" );
+			now = new Date();
+//			String dat = new String("yyyy-MM-dd'T'HH:mm:ss");
+			String dat = new String("yyyy-MM-dd HH:mm:ss");
+			SimpleDateFormat dat_form;
+			dat_form = new SimpleDateFormat(dat);
+			String dattime = dat_form.format(now);
+			try {
+				statCsv.append(dattime+";"+delay );  
+				statCsv.newLine();
+			} catch (IOException ex) {
+				System.out.println("-- IOexeption when appending statistics file monHttp-"+t_id+".csv !");
+				ex.printStackTrace();
+			}
+			catch (Exception ex) {
+				System.out.println("-- cannot append statistics file monHttp-"+t_id+".csv, maybe it is locked by another process?" );
+				ex.printStackTrace();
+			}
+		}
 
 		now = new Date();
 		if (t_desc==null) t_desc=" ";
@@ -227,13 +299,14 @@ public class monIPAddr {
 			}
 			return true; 
 		}
+		
 		System.out.println(now+" -- Connection failed (echo and ping) "+host+" "+t_desc );
 		if (swTracert) {
 			if (OS.indexOf("win") >= 0) cmd = "tracert -4 -d -h 20 -w 1000 " + host;  // Windows
 			else cmd = "traceroute " + host;									  // 
 			runCMD(cmd); 
 		}
-
+		
 		return false; 
 	}
 

@@ -2,6 +2,7 @@ package Jvakt;
 import java.io.*;
 import java.util.*;
 import java.net.*;
+import java.text.SimpleDateFormat;
 
 public class monHttp {
 
@@ -18,7 +19,7 @@ public class monHttp {
 	static String hosturl;
 	static String tabbar="                                                                                                 ";
 	static InetAddress inet;
-	static String version = "monHttp (2020-09-10)";
+	static String version = "monHttp (2021-10-08)";
 	static String database = "jVakt";
 	static String dbuser   = "jVakt";
 	static String dbpassword = "xz";
@@ -36,10 +37,16 @@ public class monHttp {
 	static String config = null;
 	static File configF;
 
+	static String stat = null;
+	static FileOutputStream statF;
+	static boolean swStat = false;
+	static OutputStreamWriter osw;
+	static BufferedWriter statCsv;
+
 	public static void main(String[] args) throws UnknownHostException, IOException {
 
 		String[] tab = new String [1];
-//		String tdat;
+		//		String tdat;
 		String s;
 		File[] listf;
 		DirFilter df;
@@ -48,7 +55,7 @@ public class monHttp {
 		String suf = ".csv";
 		String pos = "monHttp-";
 		boolean swRun = false;
-	    now = new Date();
+		now = new Date();
 
 
 		if (args.length < 1) {
@@ -64,21 +71,23 @@ public class monHttp {
 					"\n-port   \tDefault is 80." +
 					"\n-web    \tlike /index.html" +
 					"\n-webcontent \tstring in the response to check for." +
+					"\n-stat   \tThe dir of the statistics files."+
 					"\n-show   \tShow the response from the server."
-);
+					);
 
 			System.exit(4);
 		}
 
 		// reads command line arguments
 		for ( int i = 0; i < args.length; i++) {
-//			if (args[i].equalsIgnoreCase("-dir")) dir = new File(args[++i]);
+			//			if (args[i].equalsIgnoreCase("-dir")) dir = new File(args[++i]);
 			if (args[i].equalsIgnoreCase("-port")) wport = Integer.parseInt(args[++i]);
 			if (args[i].equalsIgnoreCase("-web")) webfile = args[++i];
 			if (args[i].equalsIgnoreCase("-run")) swRun = true;
 			if (args[i].equalsIgnoreCase("-show")) swShow = true;
 			if (args[i].equalsIgnoreCase("-host")) { swSingle = true; host = args[++i]; }
 			if (args[i].equalsIgnoreCase("-config")) config = args[++i];
+			if (args[i].equalsIgnoreCase("-stat")) stat = args[++i];
 			if (args[i].equalsIgnoreCase("-webcontent")) webcontent = args[++i];
 
 		}
@@ -86,27 +95,43 @@ public class monHttp {
 		if (config == null ) 	configF = new File("Jvakt.properties");
 		else 					configF = new File(config,"Jvakt.properties");
 
+		if (stat != null ) {
+			swStat = true;
+			if (swSingle) {
+				try {
+					statF = new FileOutputStream(stat+"/monHttp-A-single-check.csv",true); // append
+					osw = new OutputStreamWriter(statF, "Cp850");
+					statCsv = new BufferedWriter(osw);			
+				} catch (Exception ex) {
+					System.out.println("-- Exeption when open the statistical file monHttp-A-single-check.csv !");
+					ex.printStackTrace();
+				}
+
+			}
+		}
+
 		System.out.println("\n"+now+" *** Jvakt "+version+" ***\n");
 
-		if (swShow)	System.out.println(" config file: "+configF);
 
 		getProps();
 
 		System.setProperty("java.net.preferIPv6Addresses", "false");
 
 		if (swShow)	{
-		System.out.println(" Dir : "+dir);
-		System.out.println(" Suf : "+suf);
-		System.out.println(" Pos : "+pos);
-		System.out.println(" Host: "+host+"\n");
+			System.out.println(" Dir : "+dir);
+			System.out.println(" Suf : "+suf);
+			System.out.println(" Pos : "+pos);
+			System.out.println(" Host: "+host+"\n");
+			System.out.println(" config file   : "+configF);
+			System.out.println(" stat directory: "+stat+"\n");
 		}
 
 		if (swSingle) {
 			checkHttp();
 		} else {
 
-//			if (pos != null) df = new DirFilter(suf, pos);
-//			else             df = new DirFilter(suf);
+			//			if (pos != null) df = new DirFilter(suf, pos);
+			//			else             df = new DirFilter(suf);
 
 			df = new DirFilter(suf, pos);
 
@@ -134,7 +159,23 @@ public class monHttp {
 					t_desc = tab[5];
 					state = false;
 
+					if (swStat) {
+						try {
+							statF = new FileOutputStream(stat+"/monHttp-"+t_id+".csv",true); // append
+							swStat = true;
+							osw = new OutputStreamWriter(statF, "Cp850");
+							statCsv = new BufferedWriter(osw);
+						} catch (Exception ex) {
+							System.out.println("-- Exeption when open file monHttp-"+t_id+".csv");
+							ex.printStackTrace();
+						}
+					}
+
 					checkHttp();
+
+					if (swStat) {
+						try{ statCsv.close(); } catch (Exception ex) {}
+					}
 
 					if (swRun)  {
 						if (state) 	sendSTS(true);
@@ -145,13 +186,19 @@ public class monHttp {
 				in.close();
 			}
 		}
+		if (swStat && swSingle) statCsv.close();
 	}
 
 	public static boolean checkHttp() {
+		Date innan;
+		Date efter;
+		long delay;
+
 		// First set the default cookie manager.
 		java.net.CookieManager cm = new java.net.CookieManager(null, CookiePolicy.ACCEPT_ALL);
 		java.net.CookieHandler.setDefault(cm);
 		// connect to port
+		innan = new Date();
 		try {
 			hosturl ="http://"+host+":"+wport+webfile;
 			if (swShow)	System.out.println("-- URL    : http://"+host+":"+wport+webfile);
@@ -161,13 +208,13 @@ public class monHttp {
 			con.addRequestProperty("User-Agent", "Mozilla");
 			con.setReadTimeout(5000);
 			con.setConnectTimeout(5000);
-//			BufferedReader httpin = new BufferedReader(
-//					new InputStreamReader(url.openStream()));
+			//			BufferedReader httpin = new BufferedReader(
+			//					new InputStreamReader(url.openStream()));
 			BufferedReader httpin = new BufferedReader(
 					new InputStreamReader(con.getInputStream()));
 
 			String inputLine; 
-			
+
 			while ((inputLine = httpin.readLine()) != null  && !state) {
 				if (swShow)	System.out.println(inputLine);
 				if (inputLine.toLowerCase().indexOf(webcontent.toLowerCase()) >= 0) {
@@ -178,14 +225,40 @@ public class monHttp {
 			httpin.close();
 			if (!state) { 
 				if (swShow)	System.out.println("-- OK text: "+ webcontent + " NOT found! "); 
-				}
+			}
 
 		} catch (Exception e) { System.out.println(e); state = false;   }
+		efter = new Date();
+		delay = efter.getTime() - innan.getTime();
+		delay++;    // add an extra millisecond to compensate for extremely fast connections  
+		if (delay>=5000) delay = 0;   // a response delay over 5000ms is a failure
 
-//		try { Thread.currentThread(); Thread.sleep(1000); } catch (Exception e) {} ;
+		//		try { Thread.currentThread(); Thread.sleep(1000); } catch (Exception e) {} ;
 		if (t_desc == null) t_desc = " ";
 		if (hosturl.length()>85) hosturl=hosturl.substring(0,85);
 		hosturl = hosturl + tabbar.substring(0,85-hosturl.length());
+
+		if (!state) delay=0;
+		if (swStat) {
+			if (swShow)	System.out.println("-- Response time: "+delay+" ms" );
+			now = new Date();
+			String dat = new String("yyyy-MM-dd HH:mm:ss");
+			SimpleDateFormat dat_form;
+			dat_form = new SimpleDateFormat(dat);
+			String dattime = dat_form.format(now);
+			try {
+				statCsv.append(dattime+";"+delay );  
+				statCsv.newLine();
+			} catch (IOException ex) {
+				System.out.println("-- IOexeption when appending statistics file monHttp-"+t_id+".csv !");
+				ex.printStackTrace();
+			}
+			catch (Exception ex) {
+				System.out.println("-- cannot append statistics file monHttp-"+t_id+".csv, maybe it is locked by another process?" );
+				ex.printStackTrace();
+			}
+		}
+
 
 		if (state) {System.out.println(new Date()+" -- Connection succcessful - "+hosturl+t_desc); return true; }
 		else 	   {System.out.println(new Date()+" -- Connection failed      - "+hosturl+t_desc); return false; }
@@ -203,7 +276,7 @@ public class monHttp {
 		jmsg.setBody(t_desc);
 		jmsg.setType("R");
 		jmsg.setAgent(agent);
-//		jm.sendMsg(jmsg);
+		//		jm.sendMsg(jmsg);
 		if (jm.sendMsg(jmsg));
 		else            	  System.out.println("-- Rpt Failed --");
 		jm.close();

@@ -7,6 +7,7 @@ import java.util.*;
 //import org.icmp4j.IcmpPingUtil;
 
 import java.net.*;
+import java.text.SimpleDateFormat;
 
 public class monIpPorts {
 
@@ -22,7 +23,7 @@ public class monIpPorts {
 	static String host;
 	static String hostport;
 	static InetAddress inet;
-	static String version = "monIpPorts (2020-11-25)";
+	static String version = "monIpPorts (2021-10-08)";
 	static String database = "jVakt";
 	static String dbuser   = "jVakt";
 	static String dbpassword = "xz";
@@ -39,7 +40,13 @@ public class monIpPorts {
 	static File configF;
 
 	static String 		tabbar = "                                                                                         ";
+	static Date now;
 
+	static String stat = null;
+	static FileOutputStream statF;
+	static boolean swStat = false;
+	static OutputStreamWriter osw;
+	static BufferedWriter statCsv;
 
 	public static void main(String[] args) throws UnknownHostException, IOException {
 
@@ -70,7 +77,8 @@ public class monIpPorts {
 					"\n-config \tThe dir of the input files. Like: \"-dir c:\\Temp\" "+
 					"\n-run    \tTo actually update the status on the server side."+
 					"\n-host   \tCheck a single host."+          
-					"\n-port   \tThe port of a single host."+          
+					"\n-port   \tThe port of a single host."+
+					"\n-stat   \tThe dir of the statistics files."+
 					"\n-show   \tShow the response from the server."
 					);
 
@@ -84,6 +92,7 @@ public class monIpPorts {
 			if (args[i].equalsIgnoreCase("-run")) swRun = true;
 			if (args[i].equalsIgnoreCase("-host")) { swSingle = true; host = args[++i]; }
 			if (args[i].equalsIgnoreCase("-config")) config = args[++i];
+			if (args[i].equalsIgnoreCase("-stat")) stat = args[++i];
 			if (args[i].equalsIgnoreCase("-show")) swShow = true;
 
 		}
@@ -91,6 +100,21 @@ public class monIpPorts {
 		if (config == null ) 	configF = new File("Jvakt.properties");
 		else 					configF = new File(config,"Jvakt.properties");
 
+		if (stat != null ) {
+			swStat = true;
+			if (swSingle) {
+				try {
+					statF = new FileOutputStream(stat+"/monIpPorts-A-single-check.csv",true); // append
+					osw = new OutputStreamWriter(statF, "Cp850");
+					statCsv = new BufferedWriter(osw);			
+				} catch (Exception ex) {
+					System.out.println("-- Exeption when open the statistical file monIpPorts-A-single-check.csv !");
+					ex.printStackTrace();
+				}
+
+			}
+		}		
+		
 		System.out.println("\n"+new Date()+" *** Jvakt "+version+" ***\n");
 
 		if (swShow) {
@@ -108,7 +132,8 @@ public class monIpPorts {
 			System.out.println(" Pos : "+pos);
 			System.out.println(" Host: "+host);
 			System.out.println(" Port: "+wport);
-			System.out.println();
+			System.out.println(" config file   : "+configF);
+			System.out.println(" stat directory: "+stat+"\n");
 		}
 
 		if (swSingle) {
@@ -141,7 +166,23 @@ public class monIpPorts {
 					wport = Integer.parseInt(tab[2]);
 					t_desc = tab[3];
 
+					if (swStat) {
+						try {
+							statF = new FileOutputStream(stat+"/monIpPorts-"+t_id+".csv",true); // append
+							swStat = true;
+							osw = new OutputStreamWriter(statF, "Cp850");
+							statCsv = new BufferedWriter(osw);
+						} catch (Exception ex) {
+							System.out.println("-- Exeption when open file monIpPorts-"+t_id+".csv");
+							ex.printStackTrace();
+						}
+					}
+					
 					checkIpPort();
+
+					if (swStat) {
+						try{ statCsv.close(); } catch (Exception ex) {}
+					}
 
 					if (swRun)  {
 						if (state.equals("OKAY")) 	sendSTS(true);
@@ -153,12 +194,17 @@ public class monIpPorts {
 			}
 			//   	    		if (con != null) try { con.close(); } catch(Exception e) {}
 		}
-
+		if (swStat && swSingle) statCsv.close();
 	}
 
 	public static boolean checkIpPort() {
+		Date innan;
+		Date efter;
+		long delay;
+
 		// connect to port
 		state = "OKAY";
+		innan = new Date();
 		try {
 			//			System.out.print(new Date()+" --- Connection to: " + host + ":" + wport);
 			cs = new Socket();
@@ -179,6 +225,33 @@ public class monIpPorts {
 			}
 		}  catch (Exception e) { System.out.println("Close failed:" + e);   }
 
+		efter = new Date();
+		delay = efter.getTime() - innan.getTime();
+		delay++;    // add an extra millisecond to compensate for extremely fast connections  
+		if (delay>=5000 || !state.equals("OKAY")) {
+			if (swShow)	System.out.println("-- Delay value set to 0" );
+			delay = 0;   // a response delay over 5000ms is a failure
+		}
+		if (swStat) {
+			if (swShow)	System.out.println("-- Response time: "+delay+" ms" );
+//			if (swShow)	System.out.println("-- Response time: "+delay+"ms     State:"+state.equals("OKAY")+"  Innan:"+innan.getTime()+"  Efter:"+efter.getTime() );
+			now = new Date();
+			String dat = new String("yyyy-MM-dd HH:mm:ss");
+			SimpleDateFormat dat_form;
+			dat_form = new SimpleDateFormat(dat);
+			String dattime = dat_form.format(now);
+			try {
+				statCsv.append(dattime+";"+delay );  
+				statCsv.newLine();
+			} catch (IOException ex) {
+				System.out.println("-- IOexeption when appending statistics file monHttp-"+t_id+".csv !");
+				ex.printStackTrace();
+			}
+			catch (Exception ex) {
+				System.out.println("-- cannot append statistics file monHttp-"+t_id+".csv, maybe it is locked by another process?" );
+				ex.printStackTrace();
+			}
+		}
 
 		if (t_desc == null) t_desc = " ";
 		hostport = host+":"+wport;

@@ -1,3 +1,5 @@
 
 @rem (Special function) Reads a As400 message queue and sends one message per row to Jvakt.
-java -cp C:\JavaSrc;C:\JavaSrc\JT400.jar;C:\JavaSrc\postgresql-9.4.1211.jar Jvakt.DW2Jvakt -ah as400.domain.com -jh jvakt.domain.com -jp 1956 -q /qsys.lib/userlib.lib/jvakt.msgq
+@rem -cp C:\JavaSrc;C:\JavaSrc\JT400.jar;C:\JavaSrc\postgresql-9.4.1211.jar Jvakt.DW2Jvakt -ah as400.domain.com -jh jvakt.domain.com -jp 1956 -q /qsys.lib/userlib.lib/jvakt.msgq
+java -cp C:\Jvakt\Jvakt.jar Jvakt.DW2Jvakt -ah as400.domain.com -jh jvakt.domain.com -jp 1956 -q /qsys.lib/userlib.lib/jvakt.msgq
+

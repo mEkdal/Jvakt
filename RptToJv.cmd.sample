@@ -1,7 +1,7 @@
 @rem Sends a message to the Jvalt server.
 @rem   
 
-java -cp "C:\JavaSrc" Jvakt.RptToJv -host 127.0.0.1 -port 1956 -type i -id AAAAAA -ok -body "Test 1"
+java -cp C:\Jvakt\Jvakt.jar Jvakt.RptToJv -host 127.0.0.1 -port 1956 -type i -id AAAAAA -ok -body "Test 1"
 
 @rem -host    - default is 127.0.0.1
 @rem -port    - default is 1956

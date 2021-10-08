@@ -9,6 +9,7 @@ import javax.net.ssl.SSLSession;
 import javax.net.ssl.TrustManager;
 import javax.net.ssl.X509TrustManager;
 import java.security.cert.X509Certificate;
+import java.text.SimpleDateFormat;
 import java.security.cert.Certificate;
 import java.security.cert.CertificateException;
 
@@ -29,7 +30,7 @@ public class monHttps {
 	static String hosturl;
 	static String tabbar = "                                                                                               ";
 	static InetAddress inet;
-	static String version = "monHttps (2021-09-15)";
+	static String version = "monHttps (2021-09-24)";
 	static String database = "jVakt";
 	static String dbuser   = "jVakt";
 	static String dbpassword = "xz";
@@ -48,6 +49,12 @@ public class monHttps {
 
 	static String config = null;
 	static File configF;
+
+	static String stat = null;
+	static FileOutputStream statF;
+	static boolean swStat = false;
+	static OutputStreamWriter osw;
+	static BufferedWriter statCsv;
 
 	public static void main(String[] args) throws UnknownHostException, IOException, Exception {
 
@@ -77,6 +84,7 @@ public class monHttps {
 					"\n-port   \tDefault is 443." +
 					"\n-web    \tlike /index.html" +
 					"\n-webcontent \tstring in the response to check for (optional)(RC 401 is accepted)." +
+					"\n-stat   \tThe dir of the statistics files."+
 					"\n-show   \tShow the response from the server."
 					);
 
@@ -119,6 +127,7 @@ public class monHttps {
 			if (args[i].equalsIgnoreCase("-show")) swShow = true;
 			if (args[i].equalsIgnoreCase("-host")) { swSingle = true; host = args[++i]; }
 			if (args[i].equalsIgnoreCase("-config")) config = args[++i];
+			if (args[i].equalsIgnoreCase("-stat")) stat = args[++i];
 			if (args[i].equalsIgnoreCase("-webcontent")) { 
 				webcontent = args[++i];
 				swWebcontent = true;
@@ -128,6 +137,20 @@ public class monHttps {
 		if (config == null ) 	configF = new File("Jvakt.properties");
 		else 					configF = new File(config,"Jvakt.properties");
 
+		if (stat != null ) {
+			swStat = true;
+			if (swSingle) {
+				try {
+					statF = new FileOutputStream(stat+"/monHttps-A-single-check.csv",true); // append
+					osw = new OutputStreamWriter(statF, "Cp850");
+					statCsv = new BufferedWriter(osw);			
+				} catch (Exception ex) {
+					System.out.println("-- Exeption when open the statistical file monHttps-A-single-check.csv !");
+					ex.printStackTrace();
+				}
+
+			}
+		}
 
 		System.out.println("\n"+now+" *** Jvakt "+version+" ***\n");
 		if (swShow)	System.out.println(" config file: "+configF);
@@ -139,7 +162,8 @@ public class monHttps {
 			System.out.println(" Dir : "+dir);
 			System.out.println(" Suf : "+suf);
 			System.out.println(" Pos : "+pos);
-			System.out.println(" Host: "+host+"\n");
+			System.out.println(" Host: "+host);
+			System.out.println(" stat directory: "+stat+"\n");
 		}
 
 		if (swSingle) {
@@ -178,7 +202,23 @@ public class monHttps {
 					if (webcontent.length()>0) swWebcontent = true;
 					else swWebcontent = false;
 
+					if (swStat) {
+						try {
+							statF = new FileOutputStream(stat+"/monHttps-"+t_id+".csv",true); // append
+							swStat = true;
+							osw = new OutputStreamWriter(statF, "Cp850");
+							statCsv = new BufferedWriter(osw);
+						} catch (Exception ex) {
+							System.out.println("-- Exeption when open file monHttps-"+t_id+".csv");
+							ex.printStackTrace();
+						}
+					}
+
 					checkHttp();
+
+					if (swStat) {
+						try{ statCsv.close(); } catch (Exception ex) {}
+					}
 
 					if (swRun)  {
 						if (state) 	sendSTS(true);
@@ -189,13 +229,19 @@ public class monHttps {
 				in.close();
 			}
 		}
+		if (swStat && swSingle) statCsv.close();
 	}
 
 	public static boolean checkHttp() {
+		Date innan;
+		Date efter;
+		long delay;
+
 		// First set the default cookie manager.
-		
+
 		java.net.CookieManager cm = new java.net.CookieManager(null, CookiePolicy.ACCEPT_ALL);
 		java.net.CookieHandler.setDefault(cm);
+		innan = new Date();
 		// connect to port
 		try {
 			hosturl ="https://"+host+":"+wport+webfile;
@@ -211,9 +257,9 @@ public class monHttps {
 			con.setConnectTimeout(5000);
 			//			BufferedReader httpin = new BufferedReader(
 			//					new InputStreamReader(url.openStream()));
-			
+
 			con.connect();
-			
+
 			swExpire = false;
 			Certificate[] certs = con.getServerCertificates();
 			for(Certificate c:certs){
@@ -225,7 +271,7 @@ public class monHttps {
 				Date now = new Date();
 				long days = (expiresOn.getTime()-now.getTime())/(1000*60*60*24);
 				if (days > 0 && days < certAgeDays) { 
-//					expire = " ** Warning ** Certificate expires in "+days+" days > "+expiresOn+" < "+dn ;
+					//					expire = " ** Warning ** Certificate expires in "+days+" days > "+expiresOn+" < "+dn ;
 					expire = " ** Warning ** Certificate expire soon > "+expiresOn+" < "+dn ;
 					if (swShow)	System.out.println(expire);
 					swExpire = true;
@@ -242,19 +288,19 @@ public class monHttps {
 			if (swWebcontent) {	
 				if (swShow)	System.out.println("-- OK. Trying to get in-stream");
 				try {
-				BufferedReader httpin = new BufferedReader(
-						new InputStreamReader(con.getInputStream()));
+					BufferedReader httpin = new BufferedReader(
+							new InputStreamReader(con.getInputStream()));
 
-				String inputLine;
-				if (swShow)	System.out.println("-- start read lines");
-				while ((inputLine = httpin.readLine()) != null  && !state) {
-					if (swShow)	System.out.println(inputLine);
-					if (inputLine.toLowerCase().indexOf(webcontent.toLowerCase()) >= 0) {
-						state = true;
-						if (swShow)	System.out.println("-- OK text found: "+ webcontent );
+					String inputLine;
+					if (swShow)	System.out.println("-- start read lines");
+					while ((inputLine = httpin.readLine()) != null  && !state) {
+						if (swShow)	System.out.println(inputLine);
+						if (inputLine.toLowerCase().indexOf(webcontent.toLowerCase()) >= 0) {
+							state = true;
+							if (swShow)	System.out.println("-- OK text found: "+ webcontent );
+						}
 					}
-				}
-				httpin.close();
+					httpin.close();
 				} catch (Exception e) { 
 					if (swShow) System.out.println(e);
 					if (e.toString().indexOf("HTTP response code: 401")>0) {
@@ -274,6 +320,11 @@ public class monHttps {
 			state = false; 
 			t_desc =e.getMessage();
 		}
+		efter = new Date();
+		delay = efter.getTime() - innan.getTime();
+		delay++;    // add an extra millisecond to compensate for extremely fast connections  
+		if (delay>=5000) delay = 0;   // a response delay over 5000ms is a failure
+
 		//		catch (UnknownHostException e) { System.out.println(e); state = false;   }
 		//		catch (Exception e) { 
 		//			System.out.println(e);
@@ -287,7 +338,28 @@ public class monHttps {
 		if (hosturl.length()>85) hosturl=hosturl.substring(0,85);
 		hosturl = hosturl + tabbar.substring(0,85-hosturl.length());
 
-		if (swExpire) {
+		if (!state) delay=0;
+		if (swStat) {
+			if (swShow)	System.out.println("-- Response time: "+delay+" ms" );
+			now = new Date();
+			String dat = new String("yyyy-MM-dd HH:mm:ss");
+			SimpleDateFormat dat_form;
+			dat_form = new SimpleDateFormat(dat);
+			String dattime = dat_form.format(now);
+			try {
+				statCsv.append(dattime+";"+delay );  
+				statCsv.newLine();
+			} catch (IOException ex) {
+				System.out.println("-- IOexeption when appending statistics file monHttps-"+t_id+".csv !");
+				ex.printStackTrace();
+			}
+			catch (Exception ex) {
+				System.out.println("-- cannot append statistics file monHttps-"+t_id+".csv, maybe it is locked by another process?" );
+				ex.printStackTrace();
+			}
+		}
+
+		if (swExpire) {     // If the certificate has expired fail the connection
 			t_desc = expire +" - "+ t_desc;
 			state = false;
 		}
@@ -308,7 +380,7 @@ public class monHttps {
 		jmsg.setId(t_id+"-monHttps-"+host);
 		if (STS) jmsg.setRptsts("OK");
 		else jmsg.setRptsts("ERR");
-//		if (swExpire) t_desc = expire +" - "+ t_desc;
+		//		if (swExpire) t_desc = expire +" - "+ t_desc;
 		jmsg.setBody(t_desc);
 		jmsg.setType("R");
 		jmsg.setAgent(agent);

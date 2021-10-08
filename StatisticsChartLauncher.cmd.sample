@@ -1,0 +1,4 @@
+@rem Launces the statistics chart renderer.
+
+start javaw -cp C:\Jvakt\Jvakt.jar Jvakt.StatisticsChartLauncher > c:\Jvakt\Logs\Jvakt.StatisticsChartLauncher.log 2> c:\Jvakt\Logs\Jvakt.StatisticsChartLauncherE.log
+
