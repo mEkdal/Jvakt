@@ -59,7 +59,7 @@ public class StatisticsChartLauncher extends JFrame {
 	private  String cmd; 
 
 	public StatisticsChartLauncher() {
-		super("Jvakt.StatisticsChartLauncher 2021-10-08");
+		super("Jvakt.StatisticsChartLauncher 2021-10-14");
 		setLayout(new FlowLayout());
 
 		getProps();
@@ -194,6 +194,7 @@ public class StatisticsChartLauncher extends JFrame {
 		now  = new Date();
 		then = new Date();
 		then.setTime(now.getTime()-86400000);   // subtract 24 hours 
+		now.setTime(now.getTime()+86400000);   // add 24 hours 
 
 		tom = dat_form.format(now);
 		from= dat_form.format(then);

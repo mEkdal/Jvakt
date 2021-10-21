@@ -52,6 +52,7 @@ public class StatisticsChart extends ApplicationFrame
 		now  = new Date();
 		then = new Date();
 		then.setTime(now.getTime()-86400000);
+		now.setTime(now.getTime()+86400000);   // add 24 hours 
 
 		tom = dat_form.format(now);
 		from= dat_form.format(then);
@@ -60,10 +61,10 @@ public class StatisticsChart extends ApplicationFrame
 //		System.out.println("Then  :"+then);
 		
 		if (args.length < 1) {
-			System.out.println("\n\nStatisticsChart 2021-10-08. The parameters and their meaning are:\n"+
+			System.out.println("\n\nStatisticsChart 2021-10-14. The parameters and their meaning are:\n"+
 					"\n-statf  \tThe input file to analyze. Like: \"-dir c:\\Temp\\monHttp-test.csv\" "+
-					"\n-from   \tDate and time in format yyyy-MM-dd HH:mm:ss. The default is 24 hours back in time."+
-					"\n-to     \tDate and time in format yyyy-MM-dd HH:mm:ss. The default is the actual time."
+					"\n-from   \tDate and time in format yyyy-MM-dd HH:mm:ss. The default is 24 hours in the past."+
+					"\n-to     \tDate and time in format yyyy-MM-dd HH:mm:ss. The default is 24 hours in the future."
 					);
 
 			System.exit(4);

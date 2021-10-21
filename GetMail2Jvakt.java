@@ -9,23 +9,25 @@ import java.io.*;
 import java.net.InetAddress;
 
 public class GetMail2Jvakt {
- 
+
 	//	static boolean newMsgId = false;
 	static boolean msgFixat = false;
 	static boolean swHtml = false;
 	static boolean swHelp = false;
 	static boolean swOkSender = false;
 	static boolean swPrio = false;
+	static boolean swMailcheck = true;
+	static boolean swDormant = false;
+	static boolean swId = false;
 	static String mimeType;
 	static String msgId;
+	static String t_id;
+
 	//	static boolean swSunet = false;
 
 	static boolean swSerious = false;
-
-	//	static boolean swSmq1PXP = false;
-	//	static boolean swSmq2PCP = false;
-	//	static boolean swUnomaly = false;
-	//	static int Sm58PCPerr = 0;
+	static boolean swShow = false;
+	static boolean swRun = true;
 
 	static String from;
 	static String subject;
@@ -36,6 +38,7 @@ public class GetMail2Jvakt {
 	static String jvhost   = "localhost";
 	static String jvport   = "1956";
 	static int port ;
+	static String jvrc   = "";
 	static String uname;
 	static String pwd;
 	static String imaphost;
@@ -57,27 +60,61 @@ public class GetMail2Jvakt {
 
 	public static void main(String[] args) {
 
-		String version = "GetMail2Jvakt ( 2021-09-08 )";
+		String version = "GetMail2Jvakt ( 2021-10-20 )";
 
 		for (int i=0; i<args.length; i++) {
 			if (args[i].equalsIgnoreCase("-config")) config = args[++i];
 			if (args[i].equalsIgnoreCase("-help")) swHelp = true;
 			if (args[i].equalsIgnoreCase("-?")) swHelp = true;
+			if (args[i].equalsIgnoreCase("-norun")) swRun = false;
+			if (args[i].equalsIgnoreCase("-nomailcheck")) swMailcheck = false;
+			if (args[i].equalsIgnoreCase("-id")) swId = true;
+			if (args[i].equalsIgnoreCase("-show")) swShow = true;
+
 		}
 
 		if (swHelp) {
 			System.out.println("--- GetMail2Jvakt --- ");
 			System.out.println("by Michael Ekdal Perstorp Sweden.\n");
-			System.out.println("Analyses mail directed to the Jvakt mailbox");
+			System.out.println("Analyses mail directed to the Jvakt mailbox and shows them in the Jvakt console.");
+
+			System.out.println("\n\nThe parameters and their meaning are:\n"+
+					"\n-config 		\tThe directory of the input files. Like: \"-dir c:\\Temp\" "+
+					"\n-norun  		\tTo turn of the status update in Jvakt." +
+					"\n-nomailcheck \tDo not read an analyze the mails. Only log-on the mail server to verify it is possible." +
+					"\n-id          \tCreates an ID in the Jvakt server showing the status of the mail server. OK when able to log-on, ERR when not." +
+					"\n-show   		\tA verbose log showing the response from the server."
+					);
+
 			System.exit(4);
 		}
 
 		if (config == null ) 	configF = new File("Jvakt.properties");
 		else 					configF = new File(config,"Jvakt.properties");
-		System.out.println("----- Jvakt: "+new Date()+"  Version: "+version);
+		System.out.println("\n----- Jvakt: "+new Date()+"  Version: "+version);
 		System.out.println("-config file: "+configF);
 
 		Properties props = new Properties();
+		getProps();  // get Jvakt properties
+
+
+		if (swRun) {
+			SendMsg jm = new SendMsg(jvhost, port);  // kollar om JvaktServer är tillgänglig.
+			jvrc = jm.open();
+			System.out.println(jvrc);
+			if (jvrc.toLowerCase().startsWith("dormant")) swDormant = true;
+			if (jvrc.toLowerCase().startsWith("failed")) {
+				swRun = false;
+				swDormant = true;
+				System.out.println("----- Access to  Jvakt failed! \"run\" set to false !!");
+			}
+			jm.close();
+		}
+
+//		if (swDormant) {
+//			System.out.println(new Date()+" *** Jvakt in DORMANT mode, GetMail2Jvakt exiting *** ");
+//			System.exit(4);			
+//		}
 
 		String provider = "imap";  // plain
 		int    imapPort = 993; // secure
@@ -86,7 +123,7 @@ public class GetMail2Jvakt {
 
 		try {
 
-			getProps();  // get Jvakt properties
+
 			imapPort = Integer.parseInt(imapport);
 			// Connect to the imap4 server
 			if (imapssl.startsWith("N")) {
@@ -110,152 +147,173 @@ public class GetMail2Jvakt {
 			} catch (Exception e) {
 				System.out.println("Connection to " + imaphost+":"+imapport+"  User "+uname+"  Pass "+pwd+" failed!");
 				System.out.println(e);
+				if (swId) sendJv("GetMail2Jvakt_"+imaphost+"_"+uname , "ERR" , "T", "Connection to imap4 server "+imaphost+" user "+uname+" failed!" );
 				System.exit(8);
 			}
 			System.out.println("Connection to imap4 server established.");
+			if (swId) sendJv("GetMail2Jvakt_"+imaphost+"_"+uname , "OK" , "T", "Connection to imap4 server "+imaphost+" user "+uname+" established." );
 
-			// Open the folder
-			System.out.println("Open folder: " + imapFolder);
-			Folder inbox = store.getFolder(imapFolder);
-			if (inbox == null) {
-				System.out.println("Mailbox folder "+imapFolder+" not found!");
-				System.exit(1);
-			}
-
-			if (imaprw.startsWith("Y")) inbox.open(Folder.READ_WRITE);  // remove the marked messages from the server
-			else 						inbox.open(Folder.READ_ONLY);
-
-			// Get the messages from the server
-			// Fetch all messages from inbox folder
-			//			javax.mail.Message[] messages = inbox.getMessages();
-			// Fetch unseen messages from inbox folder
-			jakarta.mail.Message[] messages = inbox.search(new FlagTerm(new Flags(Flags.Flag.SEEN), false));
-
-			//	        System.out.println("\n------------ NewMessageCount " + inbox.getNewMessageCount() + " ------------");
-			//	        System.out.println("------------ UnreadMessageCount " + inbox.getUnreadMessageCount() + " ------------");
-
-			System.out.println("Number of mails: " +messages.length);
-
-			for (int i = 0; i < messages.length; i++) {
-				subject = messages[i].getSubject();
-				if (subject == null) subject = "null.";
-				adr = messages[i].getFrom(); 
-				from = null;
-				if (adr != null) {
-//					System.out.println("adr null ");
-					for (int j = 0; j < adr.length; j++) {
-						from = adr[j].toString();
-					}
-				} else {
-					from = "unknown";
-				}
-				System.out.println("From: " + from );
-				//	        if (from == null) subject = "null.";  2013-05-23
-				if (from == null) from = "null.";
-				mimeType = messages[i].getContentType();
-				System.out.println("MimeType> " + mimeType);
-				System.out.println("Subject: " + subject);
-				//				if (from.contains("postmaster@internal.perscorp.com")) continue;
-				body = null;
-				swHtml = false;
-				Object o = null;
-				//				if (messages[i].isMimeType("text/plain") || messages[i].isMimeType("text/html") || messages[i].isMimeType("multipart/alternative")  || messages[i].isMimeType("multipart/mixed")  ) {
-				//				if (messages[i].isMimeType("text/plain") || messages[i].isMimeType("text/html") ) {
-				if (mimeType.toLowerCase().indexOf("text/plain")>=0 || mimeType.toLowerCase().indexOf("text/html")>=0) {
-					try {
-						o = messages[i].getContent();
-						body = (String)o;
-					} catch (IOException e) {
-						body = "";
-					}
-					if (messages[i].isMimeType("text/html")) swHtml = true;  
-				}
-				if (body == null) body = "null.";
-
-				//********************************
-				//************** analys start *****
-
-				System.out.println("From-> " + from);
-				System.out.println("Subject-> " + subject);
-				System.out.println("Body-> " + body);
-
-				msgFixat = false;
-				swOkSender = false;
-				swPrio = false;
-
-				for(Object object : listSenders) { 
-					sender = (String)object;
-					sender = sender.trim().toLowerCase();
-					if (from.toLowerCase().indexOf(sender) >= 0) swOkSender = true;
-					if (sender.compareTo("*")==0) swOkSender = true;
+			if (swRun) {
+				// Open the folder
+				System.out.println("Open folder: " + imapFolder);
+				Folder inbox = store.getFolder(imapFolder);
+				if (inbox == null) {
+					System.out.println("Mailbox folder "+imapFolder+" not found!");
+					System.exit(1);
 				}
 
+				if (imaprw.startsWith("Y") && swRun && swMailcheck) {
+					System.out.println("Opens "+imapFolder+" READ_WRITE");
+					inbox.open(Folder.READ_WRITE);  // remove the marked messages from the server
+				}
+				else {
+					System.out.println("Opens "+imapFolder+" READ_ONLY");
+					inbox.open(Folder.READ_ONLY);
+				}
 
-				if (swOkSender) {
-					System.out.println(" - Sender "+from+" is accepted");
+				// Get the messages from the server
+				// Fetch all messages from inbox folder
+				//			javax.mail.Message[] messages = inbox.getMessages();
+				// Fetch unseen messages from inbox folder
+				jakarta.mail.Message[] messages = null;
+				messages = inbox.search(new FlagTerm(new Flags(Flags.Flag.SEEN), false));
 
-					if (messages[i].getContentType().toLowerCase().startsWith("multipart")) {
-//						System.out.println("*** multipart ");
-						Multipart mp = (Multipart)messages[i].getContent();
-//						System.out.println("*** Count> " + mp.getCount());
+				//	        System.out.println("\n------------ NewMessageCount " + inbox.getNewMessageCount() + " ------------");
+				//	        System.out.println("------------ UnreadMessageCount " + inbox.getUnreadMessageCount() + " ------------");
 
-						for (int j=0, n=mp.getCount(); j<n; j++) {
-							Part part = mp.getBodyPart(j);
-//							System.out.println("*** Attachment Descript : "+part.getDescription());
-//							System.out.println("*** Attachment ContentType : "+part.getContentType());
-							if (part.getContentType().toLowerCase().contains("text/plain")) {
-								body = part.getContent().toString();
-//								System.out.println("*** Attachment Content : \n"+body);
+				System.out.println("Number of mails: " +messages.length);
+
+				if (swMailcheck) {
+					for (int i = 0; i < messages.length; i++) {
+						subject = messages[i].getSubject();
+						if (subject == null) subject = "null.";
+						adr = messages[i].getFrom(); 
+						from = null;
+						if (adr != null) {
+							//					System.out.println("adr null ");
+							for (int j = 0; j < adr.length; j++) {
+								from = adr[j].toString();
 							}
-						}									
-					}
-
-					for(Object object : listExsubjects) { 
-						exSubject = (String)object;
-						exSubject = exSubject.trim().toLowerCase();
-						if (subject.toLowerCase().indexOf(exSubject) >= 0) {
-							swOkSender = false;
-							System.out.println(" - but subject '"+exSubject+"' is exempted!");
+						} else {
+							from = "unknown";
 						}
-						if (body.toLowerCase().indexOf(exSubject) >= 0) {
-							swOkSender = false;
-							System.out.println(" - but body '"+exSubject+"' is exempted!");
+						System.out.println("From: " + from );
+						//	        if (from == null) subject = "null.";  2013-05-23
+						if (from == null) from = "null.";
+						mimeType = messages[i].getContentType();
+						System.out.println("MimeType> " + mimeType);
+						System.out.println("Subject: " + subject);
+						//				if (from.contains("postmaster@internal.perscorp.com")) continue;
+						body = null;
+						swHtml = false;
+						Object o = null;
+						//				if (messages[i].isMimeType("text/plain") || messages[i].isMimeType("text/html") || messages[i].isMimeType("multipart/alternative")  || messages[i].isMimeType("multipart/mixed")  ) {
+						//				if (messages[i].isMimeType("text/plain") || messages[i].isMimeType("text/html") ) {
+						if (mimeType.toLowerCase().indexOf("text/plain")>=0 || mimeType.toLowerCase().indexOf("text/html")>=0) {
+							try {
+								o = messages[i].getContent();
+								body = (String)o;
+							} catch (IOException e) {
+								body = "";
+							}
+							if (messages[i].isMimeType("text/html")) swHtml = true;  
 						}
-					}
+						if (body == null) body = "null.";
 
-					if (swOkSender) {
-						if (subject.toLowerCase().indexOf("sms:") >= 0) {
-							subject = subject.substring(5);
-							swPrio = true;
+						//********************************
+						//************** analyse start *****
+
+						System.out.println("From-> " + from);
+						System.out.println("Subject-> " + subject);
+						System.out.println("Body-> " + body);
+
+						msgFixat = false;
+						swOkSender = false;
+						swPrio = false;
+
+						for(Object object : listSenders) { 
+							sender = (String)object;
+							sender = sender.trim().toLowerCase();
+							if (from.toLowerCase().indexOf(sender) >= 0) swOkSender = true;
+							if (sender.compareTo("*")==0) swOkSender = true;
 						}
 
-						if (swPrio) sendJv("MAIL_2_Jvakt_prio" , "INFO" , "I", "From: "+ from +" / "+ subject +" / "+ body );
-						else        sendJv("MAIL_2_Jvakt" ,      "INFO" , "I", "From: "+ from +" / "+ subject +" / "+ body );
-						//					if (imaprw.startsWith("Y")) {
-						//							messages[i].setFlag(Flags.Flag.DELETED, true); // mark the mail for deletion
-						//							System.out.println("* Mark as DELETED ");
-						//					}
-						//					msgFixat = true;
+
+						if (swOkSender) {
+							System.out.println(" - Sender "+from+" is accepted");
+
+							if (messages[i].getContentType().toLowerCase().startsWith("multipart")) {
+								//						System.out.println("*** multipart ");
+								Multipart mp = (Multipart)messages[i].getContent();
+								//						System.out.println("*** Count> " + mp.getCount());
+
+								for (int j=0, n=mp.getCount(); j<n; j++) {
+									Part part = mp.getBodyPart(j);
+									//							System.out.println("*** Attachment Descript : "+part.getDescription());
+									//							System.out.println("*** Attachment ContentType : "+part.getContentType());
+									if (part.getContentType().toLowerCase().contains("text/plain")) {
+										body = part.getContent().toString();
+										//								System.out.println("*** Attachment Content : \n"+body);
+									}
+								}									
+							}
+
+							for(Object object : listExsubjects) { 
+								exSubject = (String)object;
+								exSubject = exSubject.trim().toLowerCase();
+								if (subject.toLowerCase().indexOf(exSubject) >= 0) {
+									swOkSender = false;
+									System.out.println(" - but subject '"+exSubject+"' is exempted!");
+								}
+								if (body.toLowerCase().indexOf(exSubject) >= 0) {
+									swOkSender = false;
+									System.out.println(" - but body '"+exSubject+"' is exempted!");
+								}
+							}
+
+							if (swOkSender) {
+								if (subject.toLowerCase().indexOf("sms:") >= 0) {
+									subject = subject.substring(5);
+									swPrio = true;
+								}
+
+								if (swRun) {
+									if (swPrio) sendJv("MAIL_2_Jvakt_prio" , "INFO" , "I", "From: "+ from +" / "+ subject +" / "+ body );
+									else        sendJv("MAIL_2_Jvakt" ,      "INFO" , "I", "From: "+ from +" / "+ subject +" / "+ body );
+								}
+
+								//					if (imaprw.startsWith("Y")) {
+								//							messages[i].setFlag(Flags.Flag.DELETED, true); // mark the mail for deletion
+								//							System.out.println("* Mark as DELETED ");
+								//					}
+								//					msgFixat = true;
+							}
+						}
+
+						if (msgFixat && imaprw.startsWith("Y") && swRun) { 
+							System.out.println("* Mark as SEEN ");
+							messages[i].setFlag(Flags.Flag.SEEN, true); // markera mailet som sett
+						}
+
+						if (!msgFixat && swRun) {
+							System.out.println("* Mail ignored ");
+							messages[i].setFlag(Flags.Flag.SEEN, true); 
+						}
+
+						//************ analyse stop ******
+						//*******************************
 					}
 				}
-
-				if (msgFixat && imaprw.startsWith("Y")) { 
-					System.out.println("* Mark as SEEN ");
-					messages[i].setFlag(Flags.Flag.SEEN, true); // markera mailet som sett
+				// Close the connection
+				if (imaprw.startsWith("Y") && swRun && swMailcheck ) {
+					System.out.println("Close Mailbox folder "+imapFolder+" with option true");
+					inbox.close(true);  // remove the marked messages from the server
 				}
-
-				if (!msgFixat) {
-					System.out.println("* Mail ignored ");
-					messages[i].setFlag(Flags.Flag.SEEN, true); 
+				else {
+					System.out.println("Close Mailbox folder "+imapFolder+" with option false");
+					inbox.close(false);
 				}
-
-				//************ analys stop ******
-				//*******************************
 			}
-
-			// Close the connection
-			if (imaprw.startsWith("Y")) inbox.close(true);  // remove the marked messages from the server
-			else 						inbox.close(false);
 			store.close();
 
 		}

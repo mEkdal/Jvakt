@@ -19,7 +19,7 @@ public class monHttp {
 	static String hosturl;
 	static String tabbar="                                                                                                 ";
 	static InetAddress inet;
-	static String version = "monHttp (2021-10-08)";
+	static String version = "monHttp (2021-10-14) ";
 	static String database = "jVakt";
 	static String dbuser   = "jVakt";
 	static String dbpassword = "xz";
@@ -31,7 +31,8 @@ public class monHttp {
 	static int wport = 80 ;
 	static String agent = null;
 	static String webfile = "";
-	static String webcontent = "400";
+	//	static String webcontent = "400";
+	static String webcontent = "";
 	static Date now;
 
 	static String config = null;
@@ -192,6 +193,7 @@ public class monHttp {
 	public static boolean checkHttp() {
 		Date innan;
 		Date efter;
+		Date cacheexpiration; 
 		long delay;
 
 		// First set the default cookie manager.
@@ -208,6 +210,12 @@ public class monHttp {
 			con.addRequestProperty("User-Agent", "Mozilla");
 			con.setReadTimeout(5000);
 			con.setConnectTimeout(5000);
+			if (swShow) {
+				if (con.getExpiration() > 0) {
+					cacheexpiration = new Date(con.getExpiration());
+					System.out.println("-- Cache expiration "+cacheexpiration);
+				} else System.out.println("-- Cache expiration 0");
+			}
 			//			BufferedReader httpin = new BufferedReader(
 			//					new InputStreamReader(url.openStream()));
 			BufferedReader httpin = new BufferedReader(
@@ -217,7 +225,7 @@ public class monHttp {
 
 			while ((inputLine = httpin.readLine()) != null  && !state) {
 				if (swShow)	System.out.println(inputLine);
-				if (inputLine.toLowerCase().indexOf(webcontent.toLowerCase()) >= 0) {
+				if (inputLine.toLowerCase().indexOf(webcontent.toLowerCase()) >= 0 ) {
 					state = true;
 					if (swShow)	System.out.println("-- OK text: "+ webcontent + " found! ");
 				}
@@ -226,7 +234,6 @@ public class monHttp {
 			if (!state) { 
 				if (swShow)	System.out.println("-- OK text: "+ webcontent + " NOT found! "); 
 			}
-
 		} catch (Exception e) { System.out.println(e); state = false;   }
 		efter = new Date();
 		delay = efter.getTime() - innan.getTime();
@@ -239,8 +246,8 @@ public class monHttp {
 		hosturl = hosturl + tabbar.substring(0,85-hosturl.length());
 
 		if (!state) delay=0;
+		if (swShow)	System.out.println("-- Response time: "+delay+" ms" );
 		if (swStat) {
-			if (swShow)	System.out.println("-- Response time: "+delay+" ms" );
 			now = new Date();
 			String dat = new String("yyyy-MM-dd HH:mm:ss");
 			SimpleDateFormat dat_form;

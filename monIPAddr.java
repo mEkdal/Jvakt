@@ -24,7 +24,7 @@ public class monIPAddr {
 	static String tabbar = "                                                                                         ";
 	static String status = null;
 	static InetAddress inet;
-	static String version = "monIPAddr (built 2021-10-08)";
+	static String version = "monIPAddr (built 2021-10-14)";
 	static String database = "jVakt";
 	static String dbuser   = "jVakt";
 	static String dbpassword = "xz";
@@ -267,8 +267,8 @@ public class monIPAddr {
 		delay = efter.getTime() - innan.getTime();
 		delay++;    // add an extra millisecond to compensate for extremely fast connections  
 		if (delay>=5000 || !state.equals("OKAY")) delay = 0;   // a response delay over 5000ms is a failure or state is failed
+		if (swShow)	System.out.println("-- Response time: "+delay+" ms" );
 		if (swStat) {
-			if (swShow)	System.out.println("-- Response time: "+delay+" ms" );
 			now = new Date();
 //			String dat = new String("yyyy-MM-dd'T'HH:mm:ss");
 			String dat = new String("yyyy-MM-dd HH:mm:ss");

@@ -23,7 +23,7 @@ public class monIpPorts {
 	static String host;
 	static String hostport;
 	static InetAddress inet;
-	static String version = "monIpPorts (2021-10-08)";
+	static String version = "monIpPorts (2021-10-14)";
 	static String database = "jVakt";
 	static String dbuser   = "jVakt";
 	static String dbpassword = "xz";
@@ -232,8 +232,8 @@ public class monIpPorts {
 			if (swShow)	System.out.println("-- Delay value set to 0" );
 			delay = 0;   // a response delay over 5000ms is a failure
 		}
+		if (swShow)	System.out.println("-- Response time: "+delay+" ms" );
 		if (swStat) {
-			if (swShow)	System.out.println("-- Response time: "+delay+" ms" );
 //			if (swShow)	System.out.println("-- Response time: "+delay+"ms     State:"+state.equals("OKAY")+"  Innan:"+innan.getTime()+"  Efter:"+efter.getTime() );
 			now = new Date();
 			String dat = new String("yyyy-MM-dd HH:mm:ss");

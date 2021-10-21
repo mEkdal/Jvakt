@@ -30,7 +30,7 @@ public class monHttps {
 	static String hosturl;
 	static String tabbar = "                                                                                               ";
 	static InetAddress inet;
-	static String version = "monHttps (2021-09-24)";
+	static String version = "monHttps (2021-10-14)";
 	static String database = "jVakt";
 	static String dbuser   = "jVakt";
 	static String dbpassword = "xz";
@@ -42,7 +42,8 @@ public class monHttps {
 	static int wport = 443 ;
 	static String agent = null;
 	static String webfile = "";
-	static String webcontent = "400";
+	//	static String webcontent = "400";
+	static String webcontent = "";
 	static boolean swWebcontent = false;
 	static Date now;
 	static long certAgeDays = 10;
@@ -235,6 +236,7 @@ public class monHttps {
 	public static boolean checkHttp() {
 		Date innan;
 		Date efter;
+		Date cacheexpiration; 
 		long delay;
 
 		// First set the default cookie manager.
@@ -255,6 +257,13 @@ public class monHttps {
 			if (swShow)	System.out.println("-- OK connection");
 			con.setReadTimeout(5000);
 			con.setConnectTimeout(5000);
+			con.setConnectTimeout(5000);
+			if (swShow) {
+				if (con.getExpiration() > 0) {
+					cacheexpiration = new Date(con.getExpiration());
+					System.out.println("-- Cache expiration "+cacheexpiration);
+				} else System.out.println("-- Cache expiration 0");
+			}
 			//			BufferedReader httpin = new BufferedReader(
 			//					new InputStreamReader(url.openStream()));
 
@@ -323,7 +332,10 @@ public class monHttps {
 		efter = new Date();
 		delay = efter.getTime() - innan.getTime();
 		delay++;    // add an extra millisecond to compensate for extremely fast connections  
-		if (delay>=5000) delay = 0;   // a response delay over 5000ms is a failure
+		if (delay>=5000) {
+			System.out.println("-- Delay over 5000 ms, connection failed!");
+			delay = 0;   // a response delay over 5000ms is a failure
+		}
 
 		//		catch (UnknownHostException e) { System.out.println(e); state = false;   }
 		//		catch (Exception e) { 
@@ -339,8 +351,8 @@ public class monHttps {
 		hosturl = hosturl + tabbar.substring(0,85-hosturl.length());
 
 		if (!state) delay=0;
+		if (swShow)	System.out.println("-- Response time: "+delay+" ms" );
 		if (swStat) {
-			if (swShow)	System.out.println("-- Response time: "+delay+" ms" );
 			now = new Date();
 			String dat = new String("yyyy-MM-dd HH:mm:ss");
 			SimpleDateFormat dat_form;
