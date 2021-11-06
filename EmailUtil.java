@@ -80,17 +80,17 @@ public class EmailUtil {
 			msg.setSentDate(new Date());
 
 			msg.setRecipients(Message.RecipientType.TO, InternetAddress.parse(toEmail, false));
-			System.out.println(LocalDateTime.now()+" - Message is ready");
+			System.out.println(LocalDateTime.now()+" - Message with attachment is ready");
 			Transport.send(msg);  
 
 
 		}
 		catch (Exception e) {
 			e.printStackTrace();
-			System.out.println(LocalDateTime.now()+" - EMail failed!! \n "+e );
+			System.out.println(LocalDateTime.now()+" - EMail with attachment failed!!\n "+e );
 			return false;
 		}
-		System.out.println(LocalDateTime.now()+" - EMail Sent Successfully!!");
+		System.out.println(LocalDateTime.now()+" - EMail with attachment Sent Successfully!!");
 		return true;
 	}
 

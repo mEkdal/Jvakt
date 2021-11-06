@@ -1,0 +1,49 @@
+
+# ID of checkpoint ; M or O (Mandatory or Optional mail) ; D or S ( mark mail as Deleted or Seen ) ; G or B ( mail regardeed as Good/Bad ) ; Sender (part of) ; Subject (part of); Body (part of) 
+
+MAIL_SUNET.SE_Echo;M;D;G;@sunet.se;Echo from Tester;; 
+
+MAIL_From_MS_Defender;O;S;B;wdatpntf@microsoft.com;;; 
+
+MAIL_From_PGroup;O;S;B;PGroup;;; 
+
+MAIL_From_Diesel_Generator;O;S;G;UPS_Notification;Motos is stopped;; 
+MAIL_From_Diesel_Generator;O;S;G;UPS_Notification;Auto mode Ready;; 
+MAIL_From_Diesel_Generator;O;S;B;UPS_Notification;;; 
+
+MAIL_From_UPS-BY892;O;S;G;UPS-BY892;Heartbeat;; 
+MAIL_From_UPS-BY892;O;S;G;UPS-BY892;Power restored;; 
+MAIL_From_UPS-BY892;O;S;B;UPS-BY892;;; 
+
+MAIL_From_UPS-BGT;O;S;G;UPS-BY892;Heartbeat;; 
+MAIL_From_UPS-BGT;O;S;G;UPS-BY892;Power restored;; 
+MAIL_From_UPS-BGT;O;S;B;UPS-BY892;;; 
+
+# Bartender license server mail 
+MAIL_From_BarTender;O;S;G;BarTender;;found the Seagull License Server; 
+MAIL_From_BarTender;O;S;G;BarTender;;successfully connected; 
+MAIL_From_BarTender;O;S;B;BarTender;;; 
+
+# Bartender license server mail ( text in mails are misspelled )
+MAIL_From_Barender;O;S;G;Barender;;found the Seagull License Server; 
+MAIL_From_Barender;O;S;G;Barender;;successfully connected; 
+MAIL_From_Barender;O;S;B;Barender;;; 
+
+MAIL_From_ID_PROVE;O;S;B;Mail2DW@domain.com;;error; 
+
+MAIL_from_UPS_HQ;O;S;B;SOCOMEC UPS Mail Service;;; 
+
+MAIL_SAP_PXP_from_Vilant;O;S;B;sappxp@domain.com;ITbase;RFC_RECEIVER_STATIC_ERROR; 
+MAIL_SAP_PXP_from_Vilant;O;S;B;sappxp@domain.com;ITbase;_VILANT_; 
+
+# SMQ1 checks
+#MAIL_From_SAP_PXP;O;S;B;;PCP;; 
+
+# SMQ2 checks
+#MAIL_From_SAP_PCP_SMQ2;O;S;B;;Job PTP CHECK SMQ2;; 
+
+# SM58 checks
+#MAIL_From_SAP_PCP_SM58;O;S;B;;Job PTP CHECK SM58;; 
+
+MAIL_From_Tester;O;S;G;Tester;;Bilaga 01; 
+
