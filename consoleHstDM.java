@@ -12,7 +12,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.*;
-
+ 
 class consoleHstDM extends AbstractTableModel {
 
 	static final long serialVersionUID = 50L;
@@ -62,7 +62,7 @@ class consoleHstDM extends AbstractTableModel {
 	}
 
 	public Object getValueAt(int row, int col) {
-		// se till att objektet User hämtar värdet med rätt get metod ( if (col == 2) .........
+		// se till att objektet User hï¿½mtar vï¿½rdet med rï¿½tt get metod ( if (col == 2) .........
 
 		if ( row >= map.size()) return null;
 
@@ -118,7 +118,7 @@ class consoleHstDM extends AbstractTableModel {
 
 
 	public void setValueAt(Object value, int row, int col) {
-		// se till att objektet User sparar värdet med rätt set metod ( if (col == 2) .........
+		// se till att objektet User sparar vï¿½rdet med rï¿½tt set metod ( if (col == 2) .........
 		// 	System.out.println("wD setValueAt " + value + " " + row + " "+ col);
 
 		consoleHstROW rad;

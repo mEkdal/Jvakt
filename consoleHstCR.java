@@ -46,7 +46,8 @@ class consoleHstCR extends JLabel implements TableCellRenderer
 			
 			if (vStatus.startsWith("T") ) setBackground(java.awt.Color.orange); 
 			if (vPrio >= 30 && !vStatus.startsWith("INFO") && !vStatus.startsWith("T")  && !vStatus.startsWith(" ") ) setBackground(java.awt.Color.pink); 
-			if (vPrio < 30  && !vStatus.startsWith("T") ) setBackground(java.awt.Color.magenta); 
+//			if (vPrio < 30  && !vStatus.startsWith("T") ) setBackground(java.awt.Color.magenta); 
+			if (vPrio < 30  ) setBackground(java.awt.Color.magenta); 
 
 			if (vStatus.startsWith(" ") ) setBackground(java.awt.Color.lightGray); 
 			if (vStatus.startsWith("OK") ) setBackground(java.awt.Color.green); 

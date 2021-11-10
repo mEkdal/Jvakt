@@ -29,7 +29,7 @@ import javax.swing.border.*;
 //implementerar TableModelListener för att använda denna class som lyssnare till Jtables datamodellclass via metoden tableChanged.
 //implementerar WindowListener för att använda denna class som lyssnare till Jframe med metoden windowClosing; och där tömma data till filer.
 public class consoleHst extends JFrame implements TableModelListener, WindowListener {
-
+ 
 	// Skapar diverse variabler
 	static final long serialVersionUID = 42L;
 	private JPanel topPanel;
@@ -81,7 +81,7 @@ public class consoleHst extends JFrame implements TableModelListener, WindowList
 		port = Integer.parseInt(jvport);
 
 		// funktion från Jframe att sätta rubrik
-		setTitle("Jvakt consoleHst 2.23  -  F1 = Help");
+		setTitle("Jvakt consoleHst 2.24  -  F1 = Help");
 		//	        setSize(5000, 5000);
 
 		// get the screen size as a java dimension

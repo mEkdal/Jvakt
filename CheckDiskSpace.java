@@ -2,6 +2,9 @@ package Jvakt;
 
 import java.net.InetAddress;
 import java.util.Properties;
+
+import javax.swing.filechooser.FileSystemView;
+
 import java.io.*;
 import java.util.*;
 
@@ -22,13 +25,12 @@ public class CheckDiskSpace {
 	static String jvtype = "R";
 	static int port ;
 	static InetAddress inet;
-	static String version = "CheckDiskSpace (2020-MAR-31)";
+	static String version = "CheckDiskSpace (2021-NOV-10)";
 	static String agent = null;
 
 	static String drive[] = new String[20];
 	static String pct[] = new String[20];
 	static String gig[] = new String[20];
-
 
 	static String config = null;
 	static File configF;
@@ -36,12 +38,16 @@ public class CheckDiskSpace {
 
 	static boolean swJvakt = false;
 
+	static File[] paths;
+	static FileSystemView fsv = FileSystemView.getFileSystemView();
+
 	public static void main(String[] args) throws IOException {
 
-		int errors = 0;
+//		int errors = 0;
 		boolean swWarn = false;
+		boolean swFinns = false;
 		long totalSpace; //total disk space in bytes.
-		long usableSpace; ///unallocated / free disk space in bytes.
+//		long usableSpace; ///unallocated / free disk space in bytes.
 		long freeSpace; //unallocated / free disk space in bytes.
 		long freePct;                          //unallocated / free disk space in %.
 		long totalSpaceG; //total disk space in bytes.
@@ -54,14 +60,15 @@ public class CheckDiskSpace {
 					"\n-jvakt  \tA switch to enable report to Jvakt. Default is no connection to Jvakt." +
 					"\n-id     \tUsed as identifier in the Jvakt monitoring system." +
 					"\n-config \tThe directory where to find the Jvakt.properties file. like \"-config c:\\Temp\". Optional. Default is the current directory."+
-					"\n-drv    \tThree values is mandatory: drive min-percentage min-gigabyte. e.g -drv D: 10 150 -drv F: 12 120 " +
+					"\n-drv    \tThree values is mandatory: drive min-percentage min-gigabyte. e.g -drv D: 10 150 -drv F: 12 120 (optional)" +
+					"\n        \tAutomatically found drives are checked against the default values 10 % and 10 GB" +
 					"\n\nReturncode is 0 when OK else 12.  "
 					);
 
 			System.exit(4);
 		}
 		
-		// reads command line arguments
+		// Gets command line arguments
 		int j=0;
 		for ( int i = 0; i < args.length; i++) {
 			if (args[i].equalsIgnoreCase("-id"))  id  = args[++i];
@@ -76,9 +83,44 @@ public class CheckDiskSpace {
 			}
 		}
 		System.out.println("\n---"+ new Date()+" "+version + " by Michael Ekdal Sweden.\n");
-//		System.out.println("number of drives found: "+j);
+		
+		paths = File.listRoots();  // Get all drives into paths 
 
-		if (swJvakt) {
+//		  ** Part where the drives found and saved into the drive array ** 
+
+		// spin through all drives
+		for(File path:paths)
+		{
+		    
+		    if (fsv.isFloppyDrive(path)) continue;  								// Skip if it's a floppy
+		    if (fsv.getSystemTypeDescription(path).indexOf("CD ") >= 0) continue;  	// Skip if it's a CD or DVD
+
+		    // Check if the drive is already entered via the command line arguments. No need to check it twice.
+		    swFinns = false;
+		    for ( int i = 0; i <= j-1; i++) {
+			 if (drive[i].compareToIgnoreCase(path.toString().substring(0, 2)) == 0  ) {
+				 swFinns = true;   // Found the drive already entered via command line parameters
+				 break;
+			 }
+		    }
+		    if (swFinns) {
+		    	continue;   // Check if the next drive is new
+		    }
+		    
+		    // Enter the newly found drive to the tables with default values.
+			drive[j] = path.toString().substring(0, 2);   
+			pct[j] = "10";
+			gig[j] = "10";
+			j++;
+		    
+		}
+		
+		System.out.println("\nNumber of drives found: "+j);
+
+//		  ** Section two where the drives are checked for available disk ** 
+		
+		// Get the properties needed to find the Jvakt server, if Jvakt server are to be used
+		if (swJvakt) {    
 						if (config == null ) 	configF = new File("Jvakt.properties");
 						else 					configF = new File(config,"Jvakt.properties");
 			System.out.println("---- Jvakt: "+new Date()+"  Version: "+version);
@@ -86,16 +128,21 @@ public class CheckDiskSpace {
 			getProps();
 		}
 
+		// Check the drives for available space
 		for (int i=0; i<drive.length; i++) {
 			if (drive[i]==null) break;
 			swWarn = false;
 			File file = new File(drive[i]);
-			totalSpace = file.getTotalSpace(); //total disk space in bytes.
-			usableSpace = file.getUsableSpace(); ///unallocated / free disk space in bytes.
-			freeSpace = file.getFreeSpace(); //unallocated / free disk space in bytes.
+			totalSpace = file.getTotalSpace(); // total disk space in bytes.
+//			usableSpace = file.getUsableSpace(); // unallocated / free disk space in bytes.
+			freeSpace = file.getFreeSpace(); // unallocated / free disk space in bytes.
 
 			if (totalSpace==0) continue;      // Non existing drive probably
 
+//			System.out.println(" pct : " + pct[i]);
+//			System.out.println(" gig : " + gig[i]);
+
+			
 //			System.out.println(" === bytes "+drive[i]+" ===");
 //			System.out.println("Total size : " + totalSpace + " bytes");
 //			System.out.println("Space free : " + usableSpace + " bytes");
@@ -114,16 +161,16 @@ public class CheckDiskSpace {
 			if (freePct <  Long.parseLong(pct[i] )) {
 				t_desc = "Low on space "+drive[i] + " "+ freePct +" % is less than " + pct[i] + " %";
 				System.out.println(t_desc);
-				errors++; swWarn = true;
+				swWarn = true;
 				sendSTS(swWarn);
 			}
 			if (freeSpaceG <  Long.parseLong(gig[i] )) {
 				t_desc = "Low on space "+drive[i] + " "+ freeSpaceG +" GB is less than " + gig[i] + " GB";
 				System.out.println(t_desc);
-				errors++; swWarn = true;
+				swWarn = true;
 				sendSTS(swWarn);
 			}
-
+			System.out.println();
 		}
 
 
