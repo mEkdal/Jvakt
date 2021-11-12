@@ -70,7 +70,7 @@ public class SearchMail {
 		if (swHelp || args.length==0) {
 			System.out.println("--- " + version + " ---");
 			System.out.println("by Michael Ekdal Perstorp Sweden.\n");
-			System.out.println("Search for a specific mail identified by the command line parameters");
+			System.out.println("Search for specific mails identified by the rows in he csv files");
 
 			System.out
 			.println("\nThe parameters and their meaning are:\n"

@@ -51,8 +51,9 @@ public class console extends JFrame implements TableModelListener, WindowListene
 	private  String jvhost = "127.0.0.1";
 	private  String jvport = "1956";
 	private  int port = 1956; 
-	private  String cmdHst = "java -cp console.jar;postgresql.jar Jvakt.consoleHst";
-	private  String cmdSts = "java -cp console.jar;postgresql.jar Jvakt.consoleSts";
+	private  String cmdHst  = "java -cp console.jar;postgresql.jar Jvakt.consoleHst";
+	private  String cmdSts  = "java -cp console.jar;postgresql.jar Jvakt.consoleSts";
+	private  String cmdStat = "java -cp console.jar;postgresql.jar Jvakt.StatisticsChartLauncher";
 
 	private  int deselectCount = 0; 
 	private  int jvconnectCount = 0; 
@@ -84,7 +85,7 @@ public class console extends JFrame implements TableModelListener, WindowListene
 		port = Integer.parseInt(jvport);
 
 		// funktion från Jframe att sätta rubrik
-		setTitle("Jvakt console 2.48  -  F1 = Help"); 
+		setTitle("Jvakt console 2.50  -  F1 = Help"); 
 		//	        setSize(5000, 5000);
 
 		// get the screen size as a java dimension
@@ -414,6 +415,7 @@ public class console extends JFrame implements TableModelListener, WindowListene
 		table.getActionMap().put("delRow", delRow());
 		table.getActionMap().put("strHst", strHst());
 		table.getActionMap().put("strSts", strSts());
+		table.getActionMap().put("strStat", strStat());
 		table.getActionMap().put("clearSel", clearSel());
 		table.getActionMap().put("increaseH", increaseH());
 		table.getActionMap().put("decreaseH", decreaseH());
@@ -445,12 +447,12 @@ public class console extends JFrame implements TableModelListener, WindowListene
 		table.getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(keyStroke, "showLine");
 		keyStroke = KeyStroke.getKeyStroke(KeyEvent.VK_F8, 0);
 		table.getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(keyStroke, "toggleDormant");
-		keyStroke = KeyStroke.getKeyStroke(KeyEvent.VK_F9, 0);
-		table.getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(keyStroke, "strHst");
+//		keyStroke = KeyStroke.getKeyStroke(KeyEvent.VK_F9, 0);
+//		table.getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(keyStroke, "strHst");
 		keyStroke = KeyStroke.getKeyStroke(KeyEvent.VK_F9, 0); 
 		table.getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(keyStroke, "getInfo");
 		keyStroke = KeyStroke.getKeyStroke(KeyEvent.VK_F10, 0);
-		table.getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(keyStroke, "strHst");
+		table.getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(keyStroke, "strStat");
 		keyStroke = KeyStroke.getKeyStroke(KeyEvent.VK_F11, 0);
 		table.getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(keyStroke, "strHst");
 		keyStroke = KeyStroke.getKeyStroke(KeyEvent.VK_F12, 0);
@@ -468,7 +470,7 @@ public class console extends JFrame implements TableModelListener, WindowListene
 				//					                 JOptionPane.showMessageDialog(TestTableKeyBinding.this.table, "Action Triggered.");
 				//				System.out.println("ShowHelp");
 				JOptionPane.showMessageDialog(getContentPane(),
-						"F1 : Help \nF3 : Increase font size \nF4 : Decrease font size \nF5 : History \nF6 : Status table \nF7 : Show row \nF8 : Toggle System active / dormant \nF9 : Enter info text  \n\nDEL : delete rows \nESC : Unselect\n" +
+						"F1 : Help \nF3 : Increase font size \nF4 : Decrease font size \nF5 : History \nF6 : Status table \nF7 : Show row \nF8 : Toggle System active / dormant \nF9 : Enter info text \nF10 : Statistics  \n\nDEL : delete rows \nESC : Unselect\n" +
 								"\nThis app shows the filtered reports/messages sent to the Jvakt server. OK messages of types 'R', 'T' and 'S' remains in the database." + 
 								"\nThe upper bar acts a button to stop/start the automatic update. \nIt will also show the status of the server and database." + 
 								"\n\nFields: " + 
@@ -809,7 +811,29 @@ public class console extends JFrame implements TableModelListener, WindowListene
 		return save;
 	}
 	//	************
+	private AbstractAction strStat()  {
+		AbstractAction save = new AbstractAction() {
+			static final long serialVersionUID = 49L;
+
+			@Override
+			public void actionPerformed(ActionEvent e)  {
+				//				System.out.println("-- Start consoleHst: " + cmdHst);
+
+				try {
+					//			       Runtime.getRuntime().exec("java -cp \"/Users/septpadm/OneDrive - Perstorp Group/JavaSrc;/Users/septpadm/OneDrive - Perstorp Group/JavaSrc/postgresql-42.1.3.jar\" Jvakt.consoleHst");
+					Runtime.getRuntime().exec(cmdStat);
+				} catch (IOException e1) {
+					System.err.println(e1);
+					System.err.println(e1.getMessage());
+				}
+
+			}
+		};
+		return save;
+	}
 	//************
+	
+	
 	private AbstractAction strSts()  {
 		AbstractAction save = new AbstractAction() {
 			static final long serialVersionUID = 50L;
@@ -854,6 +878,7 @@ public class console extends JFrame implements TableModelListener, WindowListene
 			jvhost   = prop.getProperty("jvhost");
 			cmdHst   = prop.getProperty("cmdHst");
 			cmdSts   = prop.getProperty("cmdSts");
+			cmdStat   = prop.getProperty("cmdStat");
 			input.close();
 		} catch (IOException ex) {
 			// ex.printStackTrace();
