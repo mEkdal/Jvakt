@@ -47,6 +47,8 @@ public class console extends JFrame implements TableModelListener, WindowListene
 	private Boolean swServer = true; 
 	private Boolean swDormant = true; 
 
+	private Boolean swPropFile = true;
+
 	//	private  String host = "193.234.149.176";
 	private  String jvhost = "127.0.0.1";
 	private  String jvport = "1956";
@@ -85,7 +87,7 @@ public class console extends JFrame implements TableModelListener, WindowListene
 		port = Integer.parseInt(jvport);
 
 		// funktion från Jframe att sätta rubrik
-		setTitle("Jvakt console 2.50  -  F1 = Help"); 
+		setTitle("Jvakt console 2.51  -  F1 = Help"); 
 		//	        setSize(5000, 5000);
 
 		// get the screen size as a java dimension
@@ -389,6 +391,9 @@ public class console extends JFrame implements TableModelListener, WindowListene
 			bu1.setBackground(Color.yellow);
 			txt = "Auto Update OFF.";
 			//		              bu1.setText("Auto Update OFF");
+		}
+		if (!swPropFile) {
+			txt = txt + "  No console.properties file found. ";
 		}
 		if (!swDBopen) {
 			bu1.setBackground(Color.RED);
@@ -881,6 +886,9 @@ public class console extends JFrame implements TableModelListener, WindowListene
 			cmdStat   = prop.getProperty("cmdStat");
 			input.close();
 		} catch (IOException ex) {
+			swPropFile = false;
+			System.out.println("The console.properties file was not found! Am using default values!  ");
+			System.err.println(ex);
 			// ex.printStackTrace();
 		}    	
 	}

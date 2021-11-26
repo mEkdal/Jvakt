@@ -1,0 +1,4 @@
+@rem (Base function) Monitor access to web server by use of http and checking the response.
+@rem The file monHttp-01.csv is read.
+
+java -cp C:\Jvakt\Jvakt.jar Jvakt.monWinServices -run -config c:\Jvakt -id MickePC -in PostgreSQL >> c:\Jvakt\Logs\monWinServices.log 2>> c:\Jvakt\Logs\monWinServicesE.log
