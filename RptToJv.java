@@ -4,9 +4,10 @@ import java.net.*;
 import java.util.Properties;
 
 public class RptToJv {
-	public static void main(String[] args ) throws IOException, UnknownHostException {
+//	public static void main(String[] args ) throws IOException, UnknownHostException {
+	public static void main(String[] args )  {
 
-		String version = "RptToJv (2021-MAY-11)";
+		String version = "RptToJv (2021-NOV-30)";
 		String host = "127.0.0.1";
 		int port = 1956; 
 		String id = null;
@@ -23,6 +24,7 @@ public class RptToJv {
 
 		String config = null;
 		File configF;
+		boolean swTest = false;
 
 		for (int i=0; i<args.length; i++) {
 			if (args[i].equalsIgnoreCase("-config")) config = args[++i];
@@ -66,9 +68,10 @@ public class RptToJv {
 			else if (args[i].equalsIgnoreCase("-err")) status = "ERR";
 			else if (args[i].equalsIgnoreCase("-info")) status = "INFO";
 			else if (args[i].equalsIgnoreCase("-prio")) prio = args[++i];
+			else if (args[i].equalsIgnoreCase("-test")) swTest = true;
 		}
 
-		if (args.length < 1 || id == null) {
+		if (args.length < 1 || (id == null && !swTest)) {
 			System.out.println("\n"+version);
 			System.out.println("by Michael Ekdal Perstorp Sweden.\n");
 			System.out.println("-host \t - default is 127.0.0.1");
@@ -81,10 +84,11 @@ public class RptToJv {
 			System.out.println("-body \t - Any descriptive text");
 			System.out.println("-prio \t - default is 30");
 			System.out.println("-type \t - R, S, T, I, D");
+			System.out.println("-test \t - test the connection without updating the server side status.");
 			System.exit(4);
 		}
 
-		if (id == null) {
+		if (id == null && !swTest) {
 			System.out.println(">>> Failure! The -id switch must contain a value! <<<");
 			System.exit(8);
 		}
@@ -104,7 +108,7 @@ public class RptToJv {
 		try {
 			reply = jm.open();
 			System.out.println("Status: open "+reply);
-			if (!reply.equalsIgnoreCase("failed")) {
+			if (!reply.equalsIgnoreCase("failed") && !swTest) {
 				jmsg.setId(id);
 				jmsg.setRptsts(status);
 				jmsg.setBody(body);
@@ -116,7 +120,10 @@ public class RptToJv {
 				else            	  System.out.println("-- Rpt Failed --");
 				jm.close();
 			}
-			else System.out.println("-- Rpt Failed --");
+			else {
+				if (reply.equalsIgnoreCase("failed")) System.out.println("-- Rpt Failed --");
+				else System.out.println("-- Test to Jvakt server succeeded - "+reply);
+			}
 		}
 //		catch (java.net.ConnectException e ) {System.out.println("-- Rpt Failed --" + e); }
 		catch (NullPointerException npe2 )   {System.out.println("-- Rpt Failed --" + npe2);}
