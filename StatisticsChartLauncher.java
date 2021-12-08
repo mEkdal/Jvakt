@@ -18,6 +18,7 @@ import java.util.Date;
 import java.util.Properties;
 import java.util.concurrent.TimeUnit;
 
+import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JFileChooser;
 import javax.swing.JFormattedTextField;
@@ -59,8 +60,11 @@ public class StatisticsChartLauncher extends JFrame {
 	private  String cmd; 
 
 	public StatisticsChartLauncher() {
-		super("Jvakt.StatisticsChartLauncher 2021-10-14");
+		super("Jvakt.StatisticsChartLauncher 2021-12-06");
 		setLayout(new FlowLayout());
+		
+		ImageIcon img = new ImageIcon("console.png");
+		setIconImage(img.getImage());
 
 		getProps();
 

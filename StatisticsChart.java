@@ -12,6 +12,7 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Vector;
 
+import javax.swing.ImageIcon;
 import javax.swing.JPanel;
 import org.jfree.chart.*;
 //import org.jfree.chart.axis.CategoryAxis;
@@ -61,7 +62,7 @@ public class StatisticsChart extends ApplicationFrame
 //		System.out.println("Then  :"+then);
 		
 		if (args.length < 1) {
-			System.out.println("\n\nStatisticsChart 2021-10-14. The parameters and their meaning are:\n"+
+			System.out.println("\n\nStatisticsChart 2021-11-06. The parameters and their meaning are:\n"+
 					"\n-statf  \tThe input file to analyze. Like: \"-dir c:\\Temp\\monHttp-test.csv\" "+
 					"\n-from   \tDate and time in format yyyy-MM-dd HH:mm:ss. The default is 24 hours in the past."+
 					"\n-to     \tDate and time in format yyyy-MM-dd HH:mm:ss. The default is 24 hours in the future."
@@ -95,6 +96,9 @@ public class StatisticsChart extends ApplicationFrame
 		JPanel jpanel = createDemoPanel();
 		jpanel.setPreferredSize(new Dimension(1700, 800));
 		setContentPane(jpanel);
+		ImageIcon img = new ImageIcon("console.png");
+		setIconImage(img.getImage());
+
 	}
 
 	public static JPanel createDemoPanel()
