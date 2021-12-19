@@ -10,7 +10,7 @@ import java.time.LocalDateTime;
 //import org.postgresql.util.PSQLException;
 
 class DBupdate {
-/* DBupdate ( 2020-OCT-17 ) */
+/* DBupdate ( 2021-DEC-19 ) */
 	static Connection conn = null;
 	Statement stmt = null;
 	PreparedStatement pStmt = null;
@@ -249,9 +249,11 @@ class DBupdate {
 //							if (!rs.getString("plugin").startsWith(" ") && !rs.getString("plugin").startsWith("")) {
 							if (rs.getString("plugin").length() > 4 ) {
 								System.out.println(LocalDateTime.now()+" #4 plugin " + rs.getString("plugin") + " " + rs.getString("id")+ " " + rs.getString("prio")+ " " + status + " \"" + m.getBody() +"\"");
-								p =  Runtime.getRuntime().exec(rs.getString("plugin") + " " + rs.getString("id")+ " " + rs.getString("prio")+ " " + status + " \"" + m.getBody() +"\"");
-								pList.add(p);
-								System.out.println(LocalDateTime.now()+" #4 plugin started");
+//                              The plugin functionality disabled because of security concerns.  # 2021-12-19 Ekdal
+//								p =  Runtime.getRuntime().exec(rs.getString("plugin") + " " + rs.getString("id")+ " " + rs.getString("prio")+ " " + status + " \"" + m.getBody() +"\"");
+//								pList.add(p);
+//                              The plugin functionality disabled because of security concerns.  # 2021-12-19 Ekdal
+								System.out.println(LocalDateTime.now()+" #4 plugin NOT started. The functionality is disabled");
 							}
 						}
 
