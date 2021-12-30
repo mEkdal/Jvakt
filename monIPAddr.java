@@ -24,12 +24,12 @@ public class monIPAddr {
 	static String tabbar = "                                                                                         ";
 	static String status = null;
 	static InetAddress inet;
-	static String version = "monIPAddr (built 2021-10-14)";
-	static String database = "jVakt";
-	static String dbuser   = "jVakt";
-	static String dbpassword = "xz";
-	static String dbhost   = "localhost";
-	static String dbport   = "5433";
+	static String version = "monIPAddr (built 2021-DEC-30)";
+//	static String database = "jVakt";
+//	static String dbuser   = "jVakt";
+//	static String dbpassword = "";
+//	static String dbhost   = "localhost";
+//	static String dbport   = "5433";
 	static String jvhost   = "localhost";
 	static String jvport   = "1956";
 	static int port ;

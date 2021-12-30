@@ -28,10 +28,10 @@ class consoleHstDM extends AbstractTableModel {
 	static String DBUrl = "jdbc:postgresql://localhost:5433/Jvakt";
 	static Connection conn = null;
 
-	String version = "jVakt - consoleHstDM 1.3 (2018-DEC-16)";
+	String version = "jVakt - consoleHstDM ( 2021-DEC-30)";
 	String database = "Jvakt";
 	String dbuser   = "console";
-	String dbpassword = "Jvakt";
+	String dbpassword = "";
 	String dbhost   = "localhost";
 	String dbport   = "5433";
 
@@ -296,6 +296,11 @@ class consoleHstDM extends AbstractTableModel {
 			database = prop.getProperty("database");
 			dbuser   = prop.getProperty("dbuser");
 			dbpassword = prop.getProperty("dbpassword");
+			if (dbpassword.startsWith("==y")) {
+			    byte[] decodedBytes = Base64.getDecoder().decode(dbpassword.substring(3));
+			    String decodedString = new String(decodedBytes);
+			    dbpassword=decodedString;
+			}
 			dbhost   = prop.getProperty("dbhost");
 			dbport   = prop.getProperty("dbport");
 			jvport   = prop.getProperty("jvport");

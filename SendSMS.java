@@ -74,10 +74,10 @@ public class SendSMS {
 
 	public static void main(String[] args ) throws IOException, UnknownHostException {
 
-		String version = "SendSMS (2021-MAY-11)";
+		String version = "SendSMS (2021-DEC-30)";
 		String database = "jVakt";
 		String dbuser   = "jVakt";
-		String dbpassword = "xz";
+		String dbpassword = "";
 		String dbhost   = "localhost";
 		String dbport   = "5433";
 //		String jvhost   = "localhost";
@@ -106,6 +106,11 @@ public class SendSMS {
 		database = prop.getProperty("database");
 		dbuser   = prop.getProperty("dbuser");
 		dbpassword = prop.getProperty("dbpassword");
+		if (dbpassword.startsWith("==y")) {
+		    byte[] decodedBytes = Base64.getDecoder().decode(dbpassword.substring(3));
+		    String decodedString = new String(decodedBytes);
+		    dbpassword=decodedString;
+		}
 		dbhost   = prop.getProperty("dbhost");
 		dbport   = prop.getProperty("dbport");
 		jvport   = prop.getProperty("jvport");

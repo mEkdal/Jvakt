@@ -30,12 +30,12 @@ public class monHttps {
 	static String hosturl;
 	static String tabbar = "                                                                                               ";
 	static InetAddress inet;
-	static String version = "monHttps (2021-10-14)";
-	static String database = "jVakt";
-	static String dbuser   = "jVakt";
-	static String dbpassword = "xz";
-	static String dbhost   = "localhost";
-	static String dbport   = "5433";
+	static String version = "monHttps (2021-DEC-30)";
+//	static String database = "jVakt";
+//	static String dbuser   = "jVakt";
+//	static String dbpassword = "xz";
+//	static String dbhost   = "localhost";
+//	static String dbport   = "5433";
 	static String jvhost   = "localhost";
 	static String jvport   = "1956";
 	static int port ;

@@ -10,7 +10,7 @@ import java.time.LocalDateTime;
 //import org.postgresql.util.PSQLException;
 
 class DBupdate {
-/* DBupdate ( 2021-DEC-19 ) */
+/* DBupdate ( 2021-DEC-29 ) */
 	static Connection conn = null;
 	Statement stmt = null;
 	PreparedStatement pStmt = null;
@@ -35,7 +35,7 @@ class DBupdate {
 
 	String database = "jVakt";
 	String dbuser   = "jVakt";
-	String dbpassword = "xz";
+	String dbpassword = "";
 	String dbhost   = "localhost";
 	String dbport   = "5433";
 	String autocreate = "yes";
@@ -68,6 +68,11 @@ class DBupdate {
 			database = prop.getProperty("database");
 			dbuser   = prop.getProperty("dbuser");
 			dbpassword = prop.getProperty("dbpassword");
+			if (dbpassword.startsWith("==y")) {
+			    byte[] decodedBytes = Base64.getDecoder().decode(dbpassword.substring(3));
+			    String decodedString = new String(decodedBytes);
+			    dbpassword=decodedString;
+			}
 			dbhost   = prop.getProperty("dbhost");
 			dbport   = prop.getProperty("dbport");
 			autocreate  = prop.getProperty("autocreate");

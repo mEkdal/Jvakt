@@ -26,10 +26,10 @@ public class console2html {
 	static int errors = 0;
 	static int warnings = 0;
 	static int infos = 0;
-	static String version = "CheckStatus ( 2021-02-09 )";
+	static String version = "CheckStatus ( 2021-12-30 )";
 	static String database = "Jvakt";
 	static String dbuser   = "console";
-	static String dbpassword = "Jvakt";
+	static String dbpassword = "";
 	static String dbhost   = "localhost";
 	static String dbport   = "5433";
 	static String jvhost   = "localhost";
@@ -190,6 +190,11 @@ public class console2html {
     	database = prop.getProperty("database");
     	dbuser   = prop.getProperty("dbuser");
     	dbpassword = prop.getProperty("dbpassword");
+		if (dbpassword.startsWith("==y")) {
+		    byte[] decodedBytes = Base64.getDecoder().decode(dbpassword.substring(3));
+		    String decodedString = new String(decodedBytes);
+		    dbpassword=decodedString;
+		}
     	dbhost   = prop.getProperty("dbhost");
     	dbport   = prop.getProperty("dbport");
     	jvport   = prop.getProperty("jvport");

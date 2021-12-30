@@ -55,13 +55,14 @@ public class SendMailSingle {
 
 	public static void main(String[] args ) throws IOException, UnknownHostException {
 
-		String version = "SendMailSingle (2021-MAR-09)";
+		String version = "SendMailSingle (2021-DEC-30)";
 
 		//Declare recipient's & sender's e-mail id.
 		final String toEmail;
 		final String fromEmail;	
 		final String uname;
 		final String pwd;
+		      String pwdW;
 		final String smtphost;
 		final String smtpport;
 
@@ -111,7 +112,13 @@ public class SendMailSingle {
 		// get the property value and print it out
 		fromEmail= prop.getProperty("fromEmail");
 		uname    = prop.getProperty("smtpuser");
-		pwd      = prop.getProperty("smtppwd");
+		pwdW     = prop.getProperty("smtppwd");
+		if (pwdW.startsWith("==y")) {
+		    byte[] decodedBytes = Base64.getDecoder().decode(pwdW.substring(3));
+		    String decodedString = new String(decodedBytes);
+		    pwdW=decodedString;
+		}
+		pwd=pwdW;
 		smtphost = prop.getProperty("smtphost");
 		smtpport = prop.getProperty("smtpport");
 		

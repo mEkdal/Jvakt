@@ -32,10 +32,10 @@ public class CheckStatus {
 	static int errors = 0;
 	static int warnings = 0;
 	static int infos = 0;
-	static String version = "CheckStatus (2021-MAR-17)";
+	static String version = "CheckStatus (2021-DEC-29)";
 	static String database = "jVakt";
 	static String dbuser   = "jVakt";
-	static String dbpassword = "xz";
+	static String dbpassword = "";
 	static String dbhost   = "localhost";
 	static String dbport   = "5433";
 	static String jvhost   = "localhost";
@@ -45,7 +45,8 @@ public class CheckStatus {
 	static Calendar cal = Calendar.getInstance();
 	static String currentID;
 
-	public static void main(String[] args ) throws IOException, UnknownHostException {
+//	public static void main(String[] args ) throws IOException, UnknownHostException {
+	public static void main(String[] args ) {
 
 		String config = null;
 		File configF;
@@ -69,6 +70,11 @@ public class CheckStatus {
 			database = prop.getProperty("database");
 			dbuser   = prop.getProperty("dbuser");
 			dbpassword = prop.getProperty("dbpassword");
+			if (dbpassword.startsWith("==y")) {
+			    byte[] decodedBytes = Base64.getDecoder().decode(dbpassword.substring(3));
+			    String decodedString = new String(decodedBytes);
+			    dbpassword=decodedString;
+			}
 			dbhost   = prop.getProperty("dbhost");
 			dbport   = prop.getProperty("dbport");
 			jvport   = prop.getProperty("jvport");
@@ -435,12 +441,12 @@ public class CheckStatus {
 			conn.close();
 		}
 		catch (SQLException e) {
-			System.out.println(new Date()+" - CurrentID = " + currentID);
+			System.out.println(new Date()+" SQLExeption - CurrentID = " + currentID);
 			System.err.println(e);
 			System.err.println(e.getMessage());
 		}
 		catch (Exception e) {
-			System.out.println(new Date()+" - CurrentID = " + currentID);
+			System.out.println(new Date()+" Exeption - CurrentID = " + currentID);
 			System.err.println(e);
 			System.err.println(e.getMessage());
 		}

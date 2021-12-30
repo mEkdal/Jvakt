@@ -57,7 +57,7 @@ public class PurgeImap4Msgs {
 
 	public static void main(String[] args) throws IOException, FileNotFoundException {
 
-		String version = "PurgeImap4Msgs # ( 2020-11-26 )";
+		String version = "PurgeImap4Msgs # ( 2021-DEC-30 )";
 
 		for (int i=0; i<args.length; i++) {
 			if (args[i].equalsIgnoreCase("-config")) config = args[++i];
@@ -282,6 +282,11 @@ public class PurgeImap4Msgs {
 			port = Integer.parseInt(jvport);
 			uname    = prop.getProperty("imapuser");
 			pwd      = prop.getProperty("imappwd");
+			if (pwd.startsWith("==y")) {
+			    byte[] decodedBytes = Base64.getDecoder().decode(pwd.substring(3));
+			    String decodedString = new String(decodedBytes);
+			    pwd=decodedString;
+			}
 			imaphost = prop.getProperty("imaphost");
 			imapport = prop.getProperty("imapport");
 			imapssl = prop.getProperty("imapSSL");

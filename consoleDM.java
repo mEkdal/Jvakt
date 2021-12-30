@@ -29,10 +29,10 @@ class consoleDM extends AbstractTableModel {
 	static String DBUrl = "jdbc:postgresql://localhost:5433/Jvakt";
 	static Connection conn = null;
 
-	String version = "jVakt - consoleDM 2018-DEC-16";
+	String version = "jVakt - consoleDM 2021-DEC-30";
 	String database = "Jvakt";
 	String dbuser   = "console";
-	String dbpassword = "Jvakt";
+	String dbpassword = "";
 	String dbhost   = "localhost";
 	String dbport   = "5433";
 
@@ -63,7 +63,7 @@ class consoleDM extends AbstractTableModel {
 	}
 
 	public Object getValueAt(int row, int col) {
-		// se till att objektet User hämtar värdet med rätt get metod ( if (col == 2) .........
+		// se till att objektet User hï¿½mtar vï¿½rdet med rï¿½tt get metod ( if (col == 2) .........
 
 		if ( row >= map.size()) return null;
 
@@ -133,7 +133,7 @@ class consoleDM extends AbstractTableModel {
 	}
 
 	public void setValueAt(Object value, int row, int col) {
-		// se till att objektet User sparar värdet med rätt set metod ( if (col == 2) .........
+		// se till att objektet User sparar vï¿½rdet med rï¿½tt set metod ( if (col == 2) .........
 		// 	System.out.println("wD setValueAt " + value + " " + row + " "+ col);
 
 		consoleROW rad;
@@ -308,6 +308,11 @@ class consoleDM extends AbstractTableModel {
     	database = prop.getProperty("database");
     	dbuser   = prop.getProperty("dbuser");
     	dbpassword = prop.getProperty("dbpassword");
+		if (dbpassword.startsWith("==y")) {
+		    byte[] decodedBytes = Base64.getDecoder().decode(dbpassword.substring(3));
+		    String decodedString = new String(decodedBytes);
+		    dbpassword=decodedString;
+		}
     	dbhost   = prop.getProperty("dbhost");
     	dbport   = prop.getProperty("dbport");
     	jvport   = prop.getProperty("jvport");

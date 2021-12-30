@@ -59,7 +59,7 @@ public class SearchMail {
 
 	public static void main(String[] args) throws IOException, FileNotFoundException {
 
-		String version = "SearchMail 2021-11-06 ";
+		String version = "SearchMail 2021-DEC-30 ";
 
 		for (int i=0; i<args.length; i++) {
 			if (args[i].equalsIgnoreCase("-config")) config = args[++i];
@@ -427,6 +427,11 @@ public class SearchMail {
 			port = Integer.parseInt(jvport);
 			uname    = prop.getProperty("smtpuser");
 			pwd      = prop.getProperty("smtppwd");
+			if (pwd.startsWith("==y")) {
+			    byte[] decodedBytes = Base64.getDecoder().decode(pwd.substring(3));
+			    String decodedString = new String(decodedBytes);
+			    pwd=decodedString;
+			}
 			imaphost = prop.getProperty("imaphost");
 			imapport = prop.getProperty("imapport");
 			imapssl = prop.getProperty("imapSSL");

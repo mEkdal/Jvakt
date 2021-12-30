@@ -87,10 +87,10 @@ public class SendMail {
 	
 	public static void main(String[] args ) throws IOException, UnknownHostException {
 
-		String version = "SendMail (2020-DEC-18)";
+		String version = "SendMail (2021-DEC-30)";
 		String database = "jVakt";
 		String dbuser   = "jVakt";
-		String dbpassword = "xz";
+		String dbpassword = "";
 		String dbhost   = "localhost";
 		String dbport   = "5433";
 		String jvhost   = "localhost";
@@ -135,6 +135,11 @@ public class SendMail {
 		database = prop.getProperty("database");
 		dbuser   = prop.getProperty("dbuser");
 		dbpassword = prop.getProperty("dbpassword");
+		if (dbpassword.startsWith("==y")) {
+		    byte[] decodedBytes = Base64.getDecoder().decode(dbpassword.substring(3));
+		    String decodedString = new String(decodedBytes);
+		    dbpassword=decodedString;
+		}
 		dbhost   = prop.getProperty("dbhost");
 		dbport   = prop.getProperty("dbport");
 		jvport   = prop.getProperty("jvport");
@@ -144,6 +149,11 @@ public class SendMail {
 		fromEmail= prop.getProperty("fromEmail");
 		uname    = prop.getProperty("smtpuser");
 		pwd      = prop.getProperty("smtppwd");
+		if (pwd.startsWith("==y")) {
+		    byte[] decodedBytes = Base64.getDecoder().decode(pwd.substring(3));
+		    String decodedString = new String(decodedBytes);
+		    pwd=decodedString;
+		}
 		smtphost = prop.getProperty("smtphost");
 		smtpport = prop.getProperty("smtpport");
 		int smtpporti = Integer.parseInt(smtpport);

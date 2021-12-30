@@ -44,7 +44,7 @@ public class SendSMSSTS {
 
 	static String database = "jVakt";
 	static String dbuser   = "jVakt";
-	static String dbpassword = "xz";
+	static String dbpassword = "";
 	static String dbhost   = "localhost";
 	static String dbport   = "5433";
 	static String jvhost   = "localhost";
@@ -76,7 +76,7 @@ public class SendSMSSTS {
 //	public static void main(String[] args ) throws IOException, UnknownHostException {
 	public static void main(String[] args ) {
 
-		String version = "SendSMSSTS (2021-MAY-11)";
+		String version = "SendSMSSTS (2021-DEC-30)";
 
 		for (int i=0; i<args.length; i++) {
 			if (args[i].equalsIgnoreCase("-config")) config = args[++i];
@@ -232,6 +232,11 @@ public class SendSMSSTS {
 			database = prop.getProperty("database");
 			dbuser   = prop.getProperty("dbuser");
 			dbpassword = prop.getProperty("dbpassword");
+			if (dbpassword.startsWith("==y")) {
+			    byte[] decodedBytes = Base64.getDecoder().decode(dbpassword.substring(3));
+			    String decodedString = new String(decodedBytes);
+			    dbpassword=decodedString;
+			}
 			dbhost   = prop.getProperty("dbhost");
 			dbport   = prop.getProperty("dbport");
 			jvport   = prop.getProperty("jvport");
