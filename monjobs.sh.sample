@@ -1,0 +1,25 @@
+#!/usr/bin/bash
+
+# * * * * * /home/jvakt/Jvakt/basejobs.sh    (cron)
+
+# (Base function) Monitor access to web server by use of http and checking the response.
+# The file monHttp-01.csv is read.
+
+java -cp /home/jvakt/Jvakt/Jvakt.jar Jvakt.monHttp -run -config /home/jvakt/Jvakt -stat /home/jvakt/Jvakt/Stat >> /home/jvakt/Jvakt/Logs/monHttp.log 2>> /home/jvakt/Jvakt/Logs/monHttpE.log
+
+# (Base function) Monitor access to web server by use of http and checking the response.
+# The file monHttps-01.csv is read.
+
+java -cp /home/jvakt/Jvakt/Jvakt.jar Jvakt.monHttps -run -config /home/jvakt/Jvakt -stat /home/jvakt/Jvakt/Stat >> /home/jvakt/Jvakt/Logs/monHttps.log 2>> /home/jvakt/Jvakt/Logs/monHttpsE.log
+
+# (Base function) Monitor the response of a port at an IP-address.
+# IPv4. Will try to establish a TCP connection to the port.  
+# The file monIpPorts-01.csv is read.  
+
+java -cp /home/jvakt/Jvakt/Jvakt.jar Jvakt.monIpPorts -run -noshow -config /home/jvakt/Jvakt -stat /home/jvakt/Jvakt/Stat >> /home/jvakt/Jvakt/Logs/monIpPorts.log 2>> /home/jvakt/Jvakt/Logs/monIpPortsE.log
+
+# (Base function) Monitor access Checks the response of an IP-address.
+# IPv4. Will try to establish a TCP connection to port 7 (Echo) and will use ICMP (ping) as a fallback. 
+# The file monIPAddr-01.csv is read.  
+
+java -cp /home/jvakt/Jvakt/Jvakt.jar Jvakt.monIPAddr -run -config /home/jvakt/Jvakt -stat /home/jvakt/Jvakt/Stat  >> /home/jvakt/Jvakt/Logs/monIPAddr.log 2>> /home/jvakt/Jvakt/Logs/monIPAddrE.log

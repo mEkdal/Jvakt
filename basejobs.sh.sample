@@ -1,0 +1,24 @@
+#!/usr/bin/bash
+# * * * * * /home/jvakt/Jvakt/basejobs.sh       (cron)
+
+# (Base function) This CMD file executes a number of steps.
+
+# CheckStatus checks the Status table for timeouts and errors. It sets the mail switch and updates the Console table.  
+java -cp /home/jvakt/Jvakt/Jvakt.jar Jvakt.CheckStatus -config /home/jvakt/Jvakt >> /home/jvakt/Jvakt/Logs/CheckStatus.log 2>> /home/jvakt/Jvakt/Logs/CheckStatusE.log
+
+# console2html creates a HTML file from the Console table.
+java -cp /home/jvakt/Jvakt/Jvakt.jar Jvakt.console2html -config /home/jvakt/Jvakt > /home/jvakt/Jvakt/Logs/console.work 2> /home/jvakt/Jvakt/Logs/consoleE.log
+# move /Y console.work console.html
+# copy /Y console.html D:\Jvakt-console
+
+# SendMail sends mail decided by the CheckStatus step. The Status tabled is read and updated regarding mail issues.
+# The prio of the must be below 30 and the "toEmail"" variabe in the jVakt.properties file is used.
+java -cp /home/jvakt/Jvakt/Jvakt.jar Jvakt.SendMail -config /home/jvakt/Jvakt >> /home/jvakt/Jvakt/Logs/SendMail.log 2> /home/jvakt/Jvakt/Logs/SendMailE.log
+
+# SendMail30 sends mail decided by the CheckStatus step. The Status table is read and updated regarding mail issues.
+# The prio must be 30 and above. It is used for lesser important issues to be able to mail interested parties.
+# The file SendMail30-01.csv is read.
+java -cp /home/jvakt/Jvakt/Jvakt.jar Jvakt.SendMail30 -config /home/jvakt/Jvakt >> /home/jvakt/Jvakt/Logs/SendMail30.log 2> /home/jvakt/Jvakt/Logs\SendMail30E.log
+
+# GetMail2Jvakt gets mail and shows it in the Jvakt server.
+java -cp /home/jvakt/Jvakt/Jvakt.jar Jvakt.GetMail2Jvakt -config /home/jvakt/Jvakt/Mail/ToJvakt -delete -id >> /home/jvakt/Jvakt/Logs\GetMail2Jvakt.log 2> /home/jvakt/Jvakt/Logs\GetMail2JvaktE.log

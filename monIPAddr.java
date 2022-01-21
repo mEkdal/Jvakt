@@ -24,7 +24,7 @@ public class monIPAddr {
 	static String tabbar = "                                                                                         ";
 	static String status = null;
 	static InetAddress inet;
-	static String version = "monIPAddr (built 2021-DEC-30)";
+	static String version = "monIPAddr (built 2022-JAN-20)";
 //	static String database = "jVakt";
 //	static String dbuser   = "jVakt";
 //	static String dbpassword = "";
@@ -247,14 +247,14 @@ public class monIPAddr {
 				state = "OKAY"; 
 				swEcho=true;  
 			}
-		} catch (Exception e) { state = "FAILED"; /*System.out.println("-- exeption state: "+state);*/  }
+		} catch (Exception e) { state = "FAILED"; /*System.out.println("-- exception state: "+state);*/  }
 
 		if (state.equals("FAILED")) { // make a second attempt by use of ICMP 
 			try {
 				state = "OKAY";
 
 				if (OS.indexOf("win") >= 0) cmd = "ping -n 1 -l 8 -w 5000 " + host;   // Windows
-				else if (OS.indexOf("nix") >= 0) cmd = "ping -c 1 -W 5 " + host;      // Linux or Unix
+				else if (OS.indexOf("nux") >= 0 || OS.indexOf("nix") >= 0) cmd = "ping -c 1 -W 5 " + host;      // Linux or Unix
 				else cmd = "ping " + host;											  // 
 
 				if (!runCMD(cmd)) { 

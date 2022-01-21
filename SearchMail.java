@@ -34,7 +34,7 @@ public class SearchMail {
 	static List<String> listToS;
 	//	static String parFile = "SearchMail";
 	static String element;
-	static char[] parStatus; // Mark with a F when the a parameter line is matcged with a mail
+	static char[] parStatus; // Mark with a F when the a parameter line is matched with a mail
 
 	static String from;
 	static String subject;

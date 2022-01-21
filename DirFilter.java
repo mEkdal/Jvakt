@@ -13,8 +13,8 @@ class DirFilter implements FilenameFilter {
  public boolean accept(File dir, String name) {
 // System.out.println("DifFilter name: " + name); 
 // System.out.println("DifFilter dir: " + dir);  
-   String f   = new File(dir + "\\" + name).getName();
-   long   lm  = new File(dir + "\\" + name).lastModified();
+   String f   = new File(dir + "/" + name).getName();
+   long   lm  = new File(dir + "/" + name).lastModified();
           f   = f.toLowerCase();
           afn = afn.toLowerCase();
 

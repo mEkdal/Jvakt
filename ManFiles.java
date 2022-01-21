@@ -111,7 +111,7 @@ public class ManFiles {
 
 		if (swHelp) {
 			System.out
-			.println("\n*** Jvakt.ManFiles (build 2021-APR-20) ***"
+			.println("\n*** Jvakt.ManFiles (build 2022-JAN-21) ***"
 					+ "\n*** by Michael Ekdal, Sweden. ***");
 			System.out
 			.println("\nThe parameters and their meaning are:\n"
@@ -1002,7 +1002,7 @@ public class ManFiles {
 			String changed;
 			SimpleDateFormat dat_form;			
 			//			
-			fi = new File(dir + "\\" + name);
+			fi = new File(dir + "/" + name);
 			String f = fi.getName();
 			long lm = fi.lastModified();
 			//

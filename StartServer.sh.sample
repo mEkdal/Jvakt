@@ -1,0 +1,7 @@
+#!/usr/bin/bash
+
+# @reboot /home/jvakt/Jvakt/StartServer.sh    (cron)
+
+#start "Activate" activate_dly.cmd
+
+java -cp /home/jvakt/Jvakt/Jvakt.jar Jvakt.Server -log -config /home/jvakt/Jvakt >> /home/jvakt/Jvakt/Logs/Server.log  2> /home/jvakt/Jvakt/Logs/ServerE.log 

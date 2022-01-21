@@ -19,7 +19,7 @@ public class monHttp {
 	static String hosturl;
 	static String tabbar="                                                                                                 ";
 	static InetAddress inet;
-	static String version = "monHttp (2021-DEC-30) ";
+	static String version = "monHttp (2022-JAN-20) ";
 //	static String database = "jVakt";
 //	static String dbuser   = "jVakt";
 //	static String dbpassword = "";
@@ -49,6 +49,7 @@ public class monHttp {
 		String[] tab = new String [1];
 		//		String tdat;
 		String s;
+//		String[] children;
 		File[] listf;
 		DirFilter df;
 		File dir = new File(".");
@@ -137,20 +138,27 @@ public class monHttp {
 			df = new DirFilter(suf, pos);
 
 			listf = dir.listFiles(df);
+//			children = dir.list(df);
 
-			if (swShow)	System.out.println("-- Number of files found:"+ listf.length);
+			if (swShow) {
+			             System.out.println("-- Number of files found:"+ listf.length);
+//			             System.out.println("-- Number of files found:"+ children.length);
+			}
 
 			for (int i = 0; i < listf.length; i++) {
+//			for (int i = 0; i < children.length; i++) {
 
-				if (swShow)	System.out.println("-- Checking: "+listf[i]+"\n");
+				if (swShow)	System.out.println("-- Checking 1: "+listf[i]+"\n");
+//				if (swShow)	System.out.println("-- Checking: "+dir+"/"+children[i]+"\n");
 
 				BufferedReader in = new BufferedReader(new FileReader(listf[i]));
+//				BufferedReader in = new BufferedReader(new FileReader(new File(dir, children[i])));
 
 				while ((s = in.readLine()) != null) {
 					if (s.length() == 0) continue; 
 					if (s.startsWith("#")) continue; 
 
-					// splittar rad från fil
+					// split the row from the file
 					tab = s.split(";" , 6);
 					t_id = tab[0];
 					host = tab[1];
