@@ -120,7 +120,7 @@ public class ManFiles {
 					+ "\n         \tThe files must reside in the current directory."
 					+ "\n         \tNOTE: -sdir and -tdir can contain maximum one consecutive space in the string."
 					+ "\n         \tNOTE: Spaces can be substituted with a ? if more than one space are needed."
-					+ "\n         \tNOTE: No single or dubble quotes are allowed anyware in the file."
+					+ "\n         \tNOTE: No single or double quotes are allowed anywhere in the file."
 					+ "\n-sdir    \tThe name of the source  directory, like \"-sdir c:\\Temp\" "
 					+ "\n-tdir    \tThe name of the target  directory, like \"-tdir c:\\Temp2\" "
 					+ "\n-adir    \tThe name of the archive directory, like \"-adir c:\\Temp3\" "

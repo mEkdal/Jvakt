@@ -9,9 +9,9 @@ dbport = 5432
 # host name and port of Jvakt server process
 jvhost = 127.0.0.1
 jvport = 1956
-# The command to start the history app, which runs a a completley separate process. 
-cmdHst = javaw -cp /Jvakt/Jvakt.jar Jvakt.consoleHst
-cmdSts = javaw -cp /Jvakt/Jvakt.jar Jvakt.consoleSts
-cmdStat = javaw -cp /Jvakt/Jvakt.jar Jvakt.StatisticsChartLauncher
-cmdStats = javaw -cp /Jvakt/Jvakt.jar Jvakt.StatisticsChart
-statsDir = c:/Jvakt/Stat
+# The commands to start the history and status app, which runs in completely separate processes. (Note the front slash! Don't use backslash.)
+cmdHst = javaw -cp Jvakt.jar Jvakt.consoleHst
+cmdSts = javaw -cp Jvakt.jar Jvakt.consoleSts
+cmdStat = javaw -cp Jvakt.jar Jvakt.StatisticsChartLauncher
+cmdStats = javaw -cp Jvakt.jar Jvakt.StatisticsChart
+statsDir = //ubuntu1/jvStats

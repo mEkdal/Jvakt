@@ -24,3 +24,7 @@ java -cp C:\Jvakt\Jvakt.jar Jvakt.SendMail30 -config D:\Jvakt-console\config >> 
 @rem GetMail2Jvakt gets mail .
 @rem  -cp C:\Jvakt;C:\Jvakt\jakarta.mail-2.0.0.jar;C:\Jvakt\jakarta.activation-api-2.0.0.jar Jvakt.GetMail2Jvakt -config C:\Jvakt\Mail\ToJvakt >> C:\Jvakt\Logs\GetMail2Jvakt.log 2> C:\Jvakt\Logs\GetMail2JvaktE.log
 java -cp C:\Jvakt\Jvakt.jar Jvakt.GetMail2Jvakt -config C:\Jvakt\Mail\ToJvakt >> C:\Jvakt\Logs\GetMail2Jvakt.log 2> C:\Jvakt\Logs\GetMail2JvaktE.log
+
+@rem SendSMS sends SMS text messages decided by the CheckStatus step. The Status table is read and updated regarding SMS issues.
+@rem The prio of the must be below 30 and the "toSMS"" variabe in the jVakt.properties file is used to know which phones send SMS to.
+java -cp C:\Jvakt\Jvakt.jar Jvakt.SendSMS -config D:\Jvakt-console\config >> C:\Jvakt\Logs\SendSMS.log 2> C:\Jvakt\Logs\SendSMSE.log

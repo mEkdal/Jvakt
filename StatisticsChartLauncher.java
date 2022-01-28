@@ -60,7 +60,7 @@ public class StatisticsChartLauncher extends JFrame {
 	private  String cmd; 
 
 	public StatisticsChartLauncher() {
-		super("Jvakt.StatisticsChartLauncher 2021-12-06");
+		super("Jvakt.StatisticsChartLauncher 2022-01-24");
 		setLayout(new FlowLayout());
 		
 		ImageIcon img = new ImageIcon("console.png");
@@ -108,8 +108,18 @@ public class StatisticsChartLauncher extends JFrame {
 		button.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent event) {
-				cmd= cmdStats+" -statF \""+textField.getText()+"\" -from \""+fomTextField.getText()+"\" -to \""+tomTextField.getText()+"\"";
+				
+				String statF = textField.getText();
+				String from  = fomTextField.getText();
+				String tom   = tomTextField.getText();
+				statF = statF.replace(' ','?');
+				from = from.replace(' ','?');
+				tom = tom.replace(' ','?');
 
+				cmd= cmdStats+" -statF "+statF+" -from "+from+" -to "+tom;
+//				cmd= cmdStats+" -statF \""+textField.getText()+"\" -from \""+fomTextField.getText()+"\" -to \""+tomTextField.getText()+"\"";
+				System.out.println("cmd >> " +cmd);
+				
 				if (cmdStats == null) {
 					JOptionPane.showMessageDialog(StatisticsChartLauncher.this,"Property \"cmdStats\" in command.properties file not found!");
 					System.out.println("cmdStats in command.properties file not found");
@@ -224,6 +234,7 @@ public class StatisticsChartLauncher extends JFrame {
 			// get the property value and print it out
 			cmdStats   = prop.getProperty("cmdStats");
 			statsDir   = prop.getProperty("statsDir");
+			System.out.println("* statsDir  -> " + statsDir );
 			input.close();
 		} catch (IOException ex) {
 			// ex.printStackTrace();

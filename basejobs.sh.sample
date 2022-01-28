@@ -1,7 +1,7 @@
 #!/usr/bin/bash
 # * * * * * /home/jvakt/Jvakt/basejobs.sh       (cron)
 
-# (Base function) This CMD file executes a number of steps.
+# (Base function) This sh file executes a number of steps.
 
 # CheckStatus checks the Status table for timeouts and errors. It sets the mail switch and updates the Console table.  
 java -cp /home/jvakt/Jvakt/Jvakt.jar Jvakt.CheckStatus -config /home/jvakt/Jvakt >> /home/jvakt/Jvakt/Logs/CheckStatus.log 2>> /home/jvakt/Jvakt/Logs/CheckStatusE.log
@@ -11,14 +11,25 @@ java -cp /home/jvakt/Jvakt/Jvakt.jar Jvakt.console2html -config /home/jvakt/Jvak
 # move /Y console.work console.html
 # copy /Y console.html D:\Jvakt-console
 
-# SendMail sends mail decided by the CheckStatus step. The Status tabled is read and updated regarding mail issues.
+# SendSMS sends SMS text messages decided by the CheckStatus step. The Status table is read and updated regarding SMS issues.
+# The prio of the must be below 30 and the "toSMS"" variabe in the jVakt.properties file is used to know which phones send SMS to.
+java -cp /home/jvakt/Jvakt/Jvakt.jar Jvakt.SendSMS -config /home/jvakt/Jvakt >> /home/jvakt/Jvakt/Logs/SendSMS.log 2> /home/jvakt/Jvakt/Logs\SendSMSE.log
+
+# SendMail sends mail decided by the CheckStatus step. The Status table is read and updated regarding mail issues.
 # The prio of the must be below 30 and the "toEmail"" variabe in the jVakt.properties file is used.
 java -cp /home/jvakt/Jvakt/Jvakt.jar Jvakt.SendMail -config /home/jvakt/Jvakt >> /home/jvakt/Jvakt/Logs/SendMail.log 2> /home/jvakt/Jvakt/Logs/SendMailE.log
 
 # SendMail30 sends mail decided by the CheckStatus step. The Status table is read and updated regarding mail issues.
 # The prio must be 30 and above. It is used for lesser important issues to be able to mail interested parties.
 # The file SendMail30-01.csv is read.
-java -cp /home/jvakt/Jvakt/Jvakt.jar Jvakt.SendMail30 -config /home/jvakt/Jvakt >> /home/jvakt/Jvakt/Logs/SendMail30.log 2> /home/jvakt/Jvakt/Logs\SendMail30E.log
+java -cp /home/jvakt/Jvakt/Jvakt.jar Jvakt.SendMail30 -config /home/jvakt/Jvakt >> /home/jvakt/Jvakt/Logs/SendMail30.log 2> /home/jvakt/Jvakt/Logs/SendMail30E.log
 
-# GetMail2Jvakt gets mail and shows it in the Jvakt server.
-java -cp /home/jvakt/Jvakt/Jvakt.jar Jvakt.GetMail2Jvakt -config /home/jvakt/Jvakt/Mail/ToJvakt -delete -id >> /home/jvakt/Jvakt/Logs\GetMail2Jvakt.log 2> /home/jvakt/Jvakt/Logs\GetMail2JvaktE.log
+# GetMail2Jvakt gets mails directed to Jvakt and shows them in the Jvakt server console.
+java -cp /home/jvakt/Jvakt/Jvakt.jar Jvakt.GetMail2Jvakt -config /home/jvakt/Jvakt/Mail/ToJvakt -delete -id >> /home/jvakt/Jvakt/Logs/GetMail2Jvakt.log 2> /home/jvakt/Jvakt/Logs/GetMail2JvaktE.log
+
+# SearchMail searches for reports from sources sending info and warnings as mail to the Jvakt server.
+java -cp /home/jvakt/Jvakt/Jvakt.jar Jvakt.SearchMail -config /home/jvakt/Jvakt/Mail/SearchMail >> /home/jvakt/Jvakt/Logs/SearchMail.log 2> /home/jvakt/Jvakt/Logs/SearchMailE.log
+
+# SendMailSingle sends mail decided by the CheckStatus step. The Status tabled is read and updated regarding mail issues.
+java -cp /home/jvakt/Jvakt/Jvakt.jar Jvakt.SendMailSingle -config /home/jvakt/Jvakt/Mail/SearchMail -to ping@sunet.se  -subject "Echo from Perstorp" -body "--- This is an automatic monitoring mail ---" -Zattach /home/jvakt/Jvakt/testing.txt >> /home/jvakt/Jvakt/Logs/SendMailSingle.log 2> /home/jvakt/Jvakt/Logs/SendMailSingleE.log
+

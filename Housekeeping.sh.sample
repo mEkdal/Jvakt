@@ -1,0 +1,10 @@
+#!/usr/bin/bash
+# 0 4 * * * /home/jvakt/Jvakt/Housekeeping.sh      (cron)
+
+# (Base function) purges old rows from history
+export PGPASSWORD=pw
+psql -h ubuntu1 -d Jvakt -U Jvakt -c "select * from consolehst where credat < now()::date - 31;" > /home/jvakt/Jvakt/Logs/Housekeeping.log
+psql -h ubuntu1 -d Jvakt -U Jvakt -c "delete from consolehst where credat < now()::date - 31;"  >> /home/jvakt/Jvakt/Logs/Housekeeping.log
+psql -h ubuntu1 -d Jvakt -U Jvakt -c "select * from status where type = 'D';" >> /home/jvakt/Jvakt/Logs/Housekeeping.log
+psql -h ubuntu1 -d Jvakt -U Jvakt -c "delete from status where type = 'D';" >> /home/jvakt/Jvakt/Logs/Housekeeping.log
+

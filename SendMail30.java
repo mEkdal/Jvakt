@@ -94,7 +94,7 @@ public class SendMail30 {
 
 	public static void main(String[] args ) throws IOException, UnknownHostException {
 
-		String version = "SendMail30 (2021-DEC-30)";
+		String version = "SendMail30 (2022-JAN-22)";
 		String database = "jVakt";
 		String dbuser   = "jVakt";
 		String dbpassword = "";
@@ -423,7 +423,7 @@ public class SendMail30 {
 
 		listf = dir.listFiles(df);
 
-		//		System.out.println("-- Antal filer:"+ listf.length);
+		System.out.println("-- Number of SendMail30*.csv files found: "+ listf.length);
 		try {
 			BufferedReader in;
 

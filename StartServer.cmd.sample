@@ -1,2 +1,5 @@
+@rem Send the activate_dly.sh script to the background. It will activate Jvakt.Server which starts in dormant mode by default.
 start "Activate" activate_dly.cmd
+
+@rem Start Jvakt.Server which receive reports from agents and monitors and update the database.
 java -cp C:\Jvakt\Jvakt.jar Jvakt.Server -log -config C:\Jvakt

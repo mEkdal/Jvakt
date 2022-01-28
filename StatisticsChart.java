@@ -62,7 +62,7 @@ public class StatisticsChart extends ApplicationFrame
 //		System.out.println("Then  :"+then);
 		
 		if (args.length < 1) {
-			System.out.println("\n\nStatisticsChart 2021-11-06. The parameters and their meaning are:\n"+
+			System.out.println("\n\nStatisticsChart 2022-01-24. The parameters and their meaning are:\n"+
 					"\n-statf  \tThe input file to analyze. Like: \"-dir c:\\Temp\\monHttp-test.csv\" "+
 					"\n-from   \tDate and time in format yyyy-MM-dd HH:mm:ss. The default is 24 hours in the past."+
 					"\n-to     \tDate and time in format yyyy-MM-dd HH:mm:ss. The default is 24 hours in the future."
@@ -73,9 +73,22 @@ public class StatisticsChart extends ApplicationFrame
 	
 		// reads command line arguments
 		for ( int i = 0; i < args.length; i++) {
-			if (args[i].equalsIgnoreCase("-from")) from = args[++i];
-			if (args[i].equalsIgnoreCase("-to"))   tom = args[++i];
-			if (args[i].equalsIgnoreCase("-statf")) statF = args[++i];
+//			if (args[i].equalsIgnoreCase("-from")) from = args[++i];
+//			if (args[i].equalsIgnoreCase("-to"))   tom = args[++i];
+//			if (args[i].equalsIgnoreCase("-statf")) statF = args[++i];
+			if (args[i].equalsIgnoreCase("-from")) {
+				from = args[++i];
+				from = from.replace('?',' ');
+			}
+			if (args[i].equalsIgnoreCase("-to"))  {
+				tom = args[++i];
+				tom = tom.replace('?',' ');
+			}
+			if (args[i].equalsIgnoreCase("-statf")) { 
+				statF = args[++i];
+				statF = statF.replace('?',' ');
+			}
+
 		}
 
 		System.out.println("statF: " + statF);

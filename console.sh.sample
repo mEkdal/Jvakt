@@ -1,0 +1,5 @@
+#!/usr/bin/bash
+
+# Starts the Jvakt.console  GUI
+java -cp /home/jvakt/Jvakt/Jvakt.jar Jvakt.console
+

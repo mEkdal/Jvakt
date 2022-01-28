@@ -1,0 +1,10 @@
+#!/usr/bin/bash
+
+# (Base function) Sends an activate message to the Jvakt server after a timeout of 20 minutes. 
+# The time out gives the agents and monitors a chance to report in.
+# This sh file is triggered from the StartServer.sh. 
+# The Jvakt.Server always starts in dormant mode and need to be activated after a while.
+
+sleep 20m
+
+java -cp /home/jvakt/Jvakt/Jvakt.jar Jvakt.RptToJv -host 127.0.0.1 -port 1956 -type Active -id Jvakt -config /home/jvakt/Jvakt/
