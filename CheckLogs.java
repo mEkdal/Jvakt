@@ -14,17 +14,18 @@ public class CheckLogs {
 	static String t_id;
 	static String t_ip;
 	static String t_desc;
+	static String t_desc_prev="";
 
 	static String id;
 	static BufferedReader in;
 	static String aFile;
 
-	static String jvhost   = "localhost"; 
-	static String jvport   = "1956";
+	static String jvhost = "localhost"; 
+	static String jvport = "1956";
 	static String jvtype = "R";
 	static int port ;
 	static InetAddress inet;
-	static String version = "CheckLogs (2021-AUG-23)";
+	static String version = "CheckLogs (2022-JAN-31)";
 	static String agent = null;
 	static boolean swSlut = false;
 	static String charset = "UTF8";
@@ -38,14 +39,20 @@ public class CheckLogs {
 	static DirFilter df;
 	static File dir = null;
 	static String suf = null;
-	static String pos = ".";
+//	static String pos = ".";
+	static String pos = null;
 	static File[] listf;
 	static String[] etab; 
 	static String[] tokay; 
 	static String[] tmust;
+	static String[] etabSplit; 
+	static String[] tokaySplit; 
+	static String[] tmustSplit;
 	static int ecount = 0;
 	static int tcount = 0;
 	static int mcount = 0;
+
+	static BufferedReader inokay;
 
 	public static void main(String[] args) throws IOException {
 
@@ -58,9 +65,10 @@ public class CheckLogs {
 		String tdat;
 		//		String c;
 		String s;
-		String prev_s = "";
+		//		String prev_s = "";
 		boolean swWarn;
 		boolean swMust = true;
+		boolean swDummy = false;
 		File newnamn;
 		File oldnamn;
 		//		String sys = ".";
@@ -69,8 +77,7 @@ public class CheckLogs {
 		PrintStream ut;
 		boolean swRename = false;
 		boolean swPsav = false;
-
-
+		boolean swCsav = false;
 
 		// reads command line arguments
 		for ( int i = 0; i < args.length; i++) {
@@ -80,6 +87,7 @@ public class CheckLogs {
 			if (args[i].equalsIgnoreCase("-id"))  id  = args[++i];
 			if (args[i].equalsIgnoreCase("-ren")) swRename=true;
 			if (args[i].equalsIgnoreCase("-psav")) swPsav=true;
+			if (args[i].equalsIgnoreCase("-csav")) swCsav=true;
 			if (args[i].equalsIgnoreCase("-jvakt")) swJvakt=true;
 			if (args[i].equalsIgnoreCase("-jvtype")) jvtype  = args[++i];
 			if (args[i].equalsIgnoreCase("-config")) config = args[++i];
@@ -90,12 +98,13 @@ public class CheckLogs {
 		if (args.length < 1) {
 
 			System.out.println("\nThe parameters and their meaning are:\n"+
-					"\n-dir    \tThe directory to scan, like \"-dir c:\\Temp\". UTF-8 is assumed. "+
+					"\n-dir    \tThe directory to scan, like \"-dir c:\\Temp\". Charset UTF8 is assumed. "+
 					"\n-suf    \tThe suffix of the files you want to include in the scan, like \"-suf .log\" "+
-					"\n-pos    \tAn optional string that must be contained in the file names." +
-					"\n-psav   \tA switch that saves the position of the scanned fil until next scan. No rename. Optional." +
-					"\n-ren    \tA switch that makes the scanned file be renamed instead of saving position. Optional." +
-					"\n\n--- the following switches is needed if Jvakt is to be used ---" +
+					"\n-pos    \tAn optional string that must be contained in the file names. Optional." +
+					"\n-csav   \tSaves the position of the scanned fil in the -config directory. Optional." +
+					"\n-psav   \tSaves the position of the scanned fil in the logfiles directory. Optional." +
+					"\n-ren    \tThe scanned files be renamed. Optional." +
+					"\n\n--- the following switches is needed if Jvakt is to be used. Optional. ---" +
 					"\n-jvakt  \tA switch to enable report to Jvakt. Default is no connection to Jvakt." +
 					"\n-jvtype \tThe type of the Jvakt report. Optional.  The default is \"R\"" +
 					"\n-id     \tUsed as identifier in the Jvakt monitoring system." +
@@ -106,10 +115,10 @@ public class CheckLogs {
 					"\nCheckLogs.csv   \tOne file replacing the three following files."+
 					"\n                \tLines starting with E; replaces the srch file."+
 					"\n                \tLines starting with O; replaces the okay file."+
-					"\n                \tLines starting with M; replaces the must file."+
+					"\n                \tLines starting with M; replaces the must file.\n"+
 					"\nCheckLogs.srch  \t(deprecated) Strings considered errors if found in the log file. e.g. ORA-"+
 					"\nCheckLogs.okay  \t(deprecated) Strings considered okay even when triggered by the CheckLogs.srch file. e.g. ORA-01013. May be empty." +
-					"\nCheckLogs.must  \t(deprecated) Strings mandatory to be found in the log file. May be empty."+
+					"\nCheckLogs.must  \t(deprecated) Strings mandatory to be found in the log file. May be empty.\n"+
 					"\n\nErrorlevel is set the number of errors found, else 0."
 					);
 
@@ -132,77 +141,7 @@ public class CheckLogs {
 		today = new Date();
 		tdat = formatter.format(today);
 
-		if (pos != null) df = new DirFilter(suf, pos);
-		else             df = new DirFilter(suf);
-
-		// Importing error strings to search for.
-		BufferedReader inokay;
-		ecount = 0;
-		etab = new String[1000];
-		try {
-		if (config != null ) {
-			configF = new File(config);
-			inokay = new BufferedReader(new FileReader(configF.toString()+"/CheckLogs.srch"));
-			s = configF.toString()+"/CheckLogs.srch";
-		}
-		else {
-			inokay = new BufferedReader(new FileReader("CheckLogs.srch"));
-			s = "CheckLogs.srch";
-		}
-		System.out.println("--- Importing strings considered error... File: "+s);
-		while((s = inokay.readLine())!= null) {
-			if (s.length() == 0) continue; 
-			if (s.startsWith("#")) continue; 
-			etab[ecount++] = s.toUpperCase();
-//			System.out.println( etab[ecount - 1]);
-		}          
-		inokay.close();
-		} catch (Exception e) { }
-
-		// Importing strings approved despite hits.
-		tcount = 0;
-		tokay = new String[1000];
-		try {
-		if (config != null ) {
-			inokay = new BufferedReader(new FileReader(configF.toString()+"/CheckLogs.okay"));
-			s = configF.toString()+"/CheckLogs.okay";
-		}
-		else {
-			inokay = new BufferedReader(new FileReader("CheckLogs.okay"));
-			s = "CheckLogs.okay";
-		}
-		System.out.println("--- Importing strings considered okay... File: "+s);
-		while((s = inokay.readLine())!= null) {
-			if (s.length() == 0) continue; 
-			if (s.startsWith("#")) continue; 
-			tokay[tcount++] = s.toUpperCase();
-//			System.out.println( tokay[tcount - 1]);
-		}          
-		inokay.close();
-		} catch (Exception e) { }
-
-		// Importing strings mandatory present to make the check to be okay.
-		mcount = 0;
-		tmust = new String[100];
-		try {
-		if (config != null ) {
-			inokay = new BufferedReader(new FileReader(configF.toString()+"/CheckLogs.must"));
-			s = configF.toString()+"/CheckLogs.must";
-		}
-		else {
-			inokay = new BufferedReader(new FileReader("CheckLogs.must"));
-			s = "CheckLogs.must";
-		}
-		System.out.println("--- Importing mandatory strings... File: "+s);
-		while((s = inokay.readLine())!= null) {
-			if (s.length() == 0) continue; 
-			if (s.startsWith("#")) continue; 
-			tmust[mcount++] = s.toUpperCase();
-//			System.out.println( tmust[mcount - 1]);
-		}          
-		inokay.close();
-		} catch (Exception e) { }
-		
+		getSetup();
 		getCsv();
 
 		if (mcount == 0 ) swMust = false;
@@ -210,33 +149,46 @@ public class CheckLogs {
 			System.out.println("*****  CheckLogs is aborting! **  No error strings imported!  *****");
 			System.exit(12);
 		}
+		if (swCsav && config == null ) {
+			System.out.println("*****  CheckLogs is aborting! **  No -config provided!  *****");
+			System.exit(12);
+		}
+
+		if (suf != null && pos != null) df = new DirFilter(suf, pos);
+		else if (suf != null)           df = new DirFilter(suf);
+		else if (pos != null)           df = new DirFilter(null, pos);
+
 		
-
-//		for (int i = 0; i < ecount; i++) {
-//			System.out.println("--- Ecount: "+etab[i]);
-//		}
-//		for (int i = 0; i < tcount; i++) {
-//			System.out.println("--- Tcount: "+tokay[i]);
-//		}
-//		for (int i = 0; i < mcount; i++) {
-//			System.out.println("--- Mcount: "+tmust[i]);
-//		}
-
-		listf = dir.listFiles(df); 
+		if (suf != null || pos != null) listf = dir.listFiles(df);
+		else listf = dir.listFiles();
+		
 		System.out.println(tdat+"-- Number of files to scan: "+ listf.length);
 
 		for (int i = 0; i < listf.length; i++) {
 
-			System.out.println(tdat+"-- Checking: "+listf[i]);
+			if (listf[i].isDirectory()) continue;
+			
+			if (swDummy) {
+				getSetup();
+				getCsv();
+				swDummy = false;
+			}
+
+			//			System.out.println("\n  -- ecount: "+ecount);
+
+			System.out.println("\n"+tdat+"-- Checking: "+listf[i]);
 			oldnamn = new File(listf[i].toString());
 			aFile   = oldnamn.getName();
+			if (mcount > 0 ) swMust = true;
 
-			if (swPsav) {
+			if (swPsav || swCsav) {
 				fis = new FileInputStream(oldnamn);
 				//				in = new BufferedReader( new FileReader(oldnamn) );
 
 				try{  // read last position if present.
-					inokay = new BufferedReader(new FileReader(listf[i]+".position"));
+					if (swPsav) inokay = new BufferedReader(new FileReader(listf[i]+".position"));
+					else        inokay = new BufferedReader(new FileReader(configF+"/"+aFile+".position"));
+
 					if ((s = inokay.readLine())!= null) posprev = Integer.parseInt(s);
 					else posprev=0;
 					if ((s = inokay.readLine())!= null) strprev = s;
@@ -247,7 +199,7 @@ public class CheckLogs {
 					strprev=null;
 				}
 				System.out.println(tdat+"-- posprev: "+ posprev);                    	   
-			}
+			} 
 			else if (swRename) { // Create new file name if the file is supposed to be renamed.
 				posprev = 0;
 				strprev = null;
@@ -276,59 +228,103 @@ public class CheckLogs {
 
 			position = 0;
 			while ((s = in.readLine()) != null) {
-				position++;
-				if ( position == 1 && !s.equals(strprev)) { posprev = 0; } // If it's a new logfile start from the beginning 
-				if ( position == 1 ) { strprev = s; } // Store first row 
-				if ( position <= posprev  ) continue; // read next line if scanned previously. 
+				
+				if (swPsav || swCsav) {
+					position++;
+					if ( position == 1 && !s.equals(strprev)) { posprev = 0; } // If it's a new logfile start from the beginning 
+					if ( position == 1 ) { strprev = s; } // Store first row 
+					if ( position <= posprev  ) continue; // read next line if scanned previously. 
+				}
 
+				// check if any scan string is present in the line.
 				swWarn = false;
-				for ( int k = 0; k < ecount ; k++) {  // check if any scan string is present in the line.
-					if (s.toUpperCase().indexOf(etab[k]) >= 0) { 
+				for ( int k = 0; k < ecount ; k++) {
+//					System.out.println("etab[k] " +etab[k]);
+					if (etab[k].contains("-*dummy-entry*-")) break;
+					etabSplit = etab[k].split("&");
+//					System.out.println("etabSplit.length " +etabSplit.length);
+					int eTabWarn= 0;
+					for ( int j = 0; j < etabSplit.length ; j++) { 
+//						System.out.println("etabSplit[j] "+j+" "+etabSplit[j]+ "  s "+s);
+						if (s.toUpperCase().indexOf(etabSplit[j]) >= 0) { 
+							eTabWarn++;
+						}
+					}
+//					System.out.println("swWarn " +swWarn+"  eTabWarn " +eTabWarn+" etabSplit.length " +etabSplit.length);
+					if (eTabWarn == etabSplit.length) {
+						etab[k] = "-*dummy-entry*-";     // only warn on first hit
+						swDummy = true;
 						swWarn = true;
-						//						s = s.substring(s.toUpperCase().indexOf(etab[k]));
-						etab[k] = "-*dummy-entry*-";
 					}
 				}
 
-				for ( int k = 0; k < tcount ; k++) {  // reset warning flag if hit is okay.
-					if (s.toUpperCase().indexOf(tokay[k]) >= 0) swWarn = false;
+				 // reset warning flag if hit is okay.
+				for ( int k = 0; k < tcount ; k++) { 
+					tokaySplit = tokay[k].split("&");
+					int tokayWarn= 0;
+					for ( int j = 0; j < tokaySplit.length ; j++) { 
+			        	if (s.toUpperCase().indexOf(tokaySplit[j]) >= 0) {
+			        		tokayWarn++;
+			    		}
+					}
+					if (tokayWarn == tokaySplit.length) {
+						swWarn = false;
+					}
 				}
-//				System.out.println("Mcount :  "+mcount);
-				for ( int k = 0; k < mcount ; k++) {  // raise warning if string are missing.
+				
+//								System.out.println("Mcount :  "+mcount);
+				// raise warning if string are missing.
+				for ( int k = 0; k < mcount ; k++) {  
 //					System.out.println("Must-check :  "+s+"  "+tmust[k]);
-					if (s.toUpperCase().indexOf(tmust[k]) >= 0) swMust = false;
+					tmustSplit = tmust[k].split("&");
+					int tmustWarn= 0;
+//					System.out.println("tmustSplit.length " +tmustSplit.length+" tmustWarn:"+tmustWarn);
+					for ( int j = 0; j < tmustSplit.length ; j++) { 
+						if (s.toUpperCase().indexOf(tmustSplit[j]) >= 0) tmustWarn++;
+					}
+					if (tmustWarn == tmustSplit.length) {
+						swMust = false;
+					}
 				}
 
+				//				System.out.println(" swWarn = "+swWarn);
 				if (!swWarn) continue;
 
 				//				c = null;
 				if (s.length() > 256) s = s.substring(0, 255);
-				if (s.compareTo(prev_s) == 0)  continue;
-				prev_s = s;
+				//				if (s.compareTo(prev_s) == 0)  continue;
+				//				prev_s = s;
 				errors++;
 				t_desc = s;
 				t_desc =aFile+": "+t_desc;
-				sendSTS(swWarn);
+				if (t_desc.compareTo(t_desc_prev) !=0) {    // Lessen number of duplicate messages in Jvakt
+					sendSTS(swWarn); 
+					t_desc_prev = t_desc;
+				} 
+				else {
+					System.out.println(" Message ignored:  "+t_desc);
+				}
+
 			}
 			in.close();
 
-			if (swPsav) {
+			if (swPsav || swCsav) {
 				if ( position < posprev  ) { position=0; System.out.println("Re-seting position!"); } // store position in file
-				ut = new PrintStream(new FileOutputStream(new String(listf[i]+".position"), false));
+				//				ut = new PrintStream(new FileOutputStream(new String(listf[i]+".position"), false));
+				if (swPsav) ut = new PrintStream(new FileOutputStream(new String(listf[i]+".position"), false));
+				else        ut = new PrintStream(new FileOutputStream(new String(configF+"/"+aFile+".position"), false));
+
 				ut.println(position);
 				ut.println(strprev);
 				ut.close();
 			}
-		}
-//		System.out.println("swMust:  "+swMust);
-//		if (swMust && aFile != null ) {
-		if (swMust ) {
-			errors++;
-			swWarn=true;
-//			t_desc = "Mandatory text strings in the log file are missing!";
-			t_desc = "Mandatory text strings are missing from the log file "+aFile+"!";
-						sendSTS(swWarn);
-//			System.out.println("# 01");
+
+			if (swMust ) {
+				errors++;
+				swWarn=true;
+				t_desc = "Mandatory text strings are missing from the log file "+aFile+"!";
+				sendSTS(swWarn);
+			}
 		}
 
 		swSlut = true;
@@ -339,19 +335,19 @@ public class CheckLogs {
 				if (swMust) {
 					errors++;
 					swWarn=true;
-					t_desc = " No logfiles found to scan! and Missing hits in must file!";
+					t_desc = " No logfiles found to scan! and missing must hits!";
 				}
 				else t_desc = " No logfiles found to scan!";
 			} else t_desc = "No errors found"; 
 
 			sendSTS(swWarn);
-//			System.out.println("# 02");
+			//			System.out.println("# 02");
 		}
 		else      {
 			swWarn=true;
-//			t_desc = errors + " errors found in the log file(s).";
-//			sendSTS(swWarn);
-//			System.out.println("# 03");
+			t_desc = errors + " errors found in the log file(s).";
+			sendSTS(swWarn);
+			//			System.out.println("# 03");
 		}
 
 		System.out.println("-- Number of errors found: "+ errors);
@@ -395,15 +391,16 @@ public class CheckLogs {
 					}
 				}
 			} else {
-				if (jvtype.startsWith("I")) {
-					jmsg.setId(id+"_info");
+				jmsg.setId(id+"_info");
+				if (!STS) {
 					jmsg.setRptsts("INFO");
 				}
 				else {
 					jmsg.setRptsts("ERR");
-					jmsg.setId(id);
+					//					jmsg.setId(id);
 				}
-				jmsg.setType(jvtype);
+				//				jmsg.setType(jvtype);
+				jmsg.setType("I");
 			}
 			jmsg.setBody(t_desc);
 			jmsg.setAgent(agent);
@@ -467,7 +464,7 @@ public class CheckLogs {
 				if (s.length() == 0) continue; 
 				if (s.startsWith("#")) continue; 
 
-//				System.out.println("-- Row: "+s);
+				//				System.out.println("-- Row: "+s);
 				// splittar rad från fil
 				tab = s.split(";" , 2); 
 				if (tab[0].startsWith("E")) etab[ecount++] = tab[1].toUpperCase();
@@ -477,7 +474,83 @@ public class CheckLogs {
 			}
 			in.close();
 		}
+	}
 
+	static void getSetup()  {
+
+		String s;
+		// Importing error strings to search for.
+		ecount = 0;
+		etab = new String[1000];
+		try {
+			if (config != null ) {
+				configF = new File(config);
+				inokay = new BufferedReader(new FileReader(configF.toString()+"/CheckLogs.srch"));
+				s = configF.toString()+"/CheckLogs.srch";
+			}
+			else {
+				inokay = new BufferedReader(new FileReader("CheckLogs.srch"));
+				s = "CheckLogs.srch";
+			}
+			System.out.println("--- Importing strings considered error... File: "+s);
+			while((s = inokay.readLine())!= null) {
+				if (s.length() == 0) continue; 
+				if (s.startsWith("#")) continue; 
+				etab[ecount++] = s.toUpperCase();
+				//			System.out.println( etab[ecount - 1]);
+			}          
+			inokay.close();
+		} catch (Exception e) {	
+			System.out.println("\n-- Not found: CheckLogs.srch"); 
+		}
+
+		// Importing strings approved despite hits.
+		tcount = 0;
+		tokay = new String[1000];
+		try {
+			if (config != null ) {
+				inokay = new BufferedReader(new FileReader(configF.toString()+"/CheckLogs.okay"));
+				s = configF.toString()+"/CheckLogs.okay";
+			}
+			else {
+				inokay = new BufferedReader(new FileReader("CheckLogs.okay"));
+				s = "CheckLogs.okay";
+			}
+			System.out.println("--- Importing strings considered okay... File: "+s);
+			while((s = inokay.readLine())!= null) {
+				if (s.length() == 0) continue; 
+				if (s.startsWith("#")) continue; 
+				tokay[tcount++] = s.toUpperCase();
+				//			System.out.println( tokay[tcount - 1]);
+			}          
+			inokay.close();
+		} catch (Exception e) {
+			System.out.println("-- Not found: CheckLogs.okay"); 
+		}
+
+		// Importing strings mandatory present to make the check to be okay.
+		mcount = 0;
+		tmust = new String[100];
+		try {
+			if (config != null ) {
+				inokay = new BufferedReader(new FileReader(configF.toString()+"/CheckLogs.must"));
+				s = configF.toString()+"/CheckLogs.must";
+			}
+			else {
+				inokay = new BufferedReader(new FileReader("CheckLogs.must"));
+				s = "CheckLogs.must";
+			}
+			System.out.println("--- Importing mandatory strings... File: "+s);
+			while((s = inokay.readLine())!= null) {
+				if (s.length() == 0) continue; 
+				if (s.startsWith("#")) continue; 
+				tmust[mcount++] = s.toUpperCase();
+				//			System.out.println( tmust[mcount - 1]);
+			}          
+			inokay.close();
+		} catch (Exception e) { 
+			System.out.println("-- Not found: CheckLogs.must");
+		}
 
 	}
 
