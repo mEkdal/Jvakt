@@ -32,10 +32,13 @@ public class PropUpdateJv {
 			if (args[i].equalsIgnoreCase("-config")) config = args[++i];
 			if (args[i].equalsIgnoreCase("-filename")) fileName = args[++i];
 			if (args[i].equalsIgnoreCase("-encode")) swEncode = true;
-//			if (args[i].equalsIgnoreCase("-decode")) swDecode = true;
+			if (args[i].equalsIgnoreCase("-decode")) swDecode = true;
 			if (args[i].equalsIgnoreCase("-mode")) { 
 				swMode = true;
 				newmode = args[++i];
+				if (newmode.compareToIgnoreCase("active") != 0 && newmode.compareToIgnoreCase("dormant") != 0) {
+					newmode="active";
+				}
 			}
 			if (args[i].equalsIgnoreCase("-help")) swHelp = true;
 			if (args[i].equalsIgnoreCase("-?")) swHelp = true;
@@ -52,6 +55,7 @@ public class PropUpdateJv {
 					+ "\n-filename \tThe full filename of the file to update. The default value is \"Jvakt.properties\""
 					+ "\n-mode     \tChange the mode value in the properties file to active or dormant. Like \"-mode dormant\""
 					+ "\n-encode   \tUsed to encode the passwords found in the properties file."
+					+ "\n-decode   \tUsed to decode the passwords found in the properties file."
 					);
 			System.exit(4);
 		}
@@ -74,16 +78,15 @@ public class PropUpdateJv {
 
 		while ((s = in.readLine()) != null) {
 			swComment=false;
-			System.out.println(s);
-			System.out.println("swComment " +swComment);
+//			System.out.println(s.indexOf('#') +" "+s);
 
+			s = s.trim();
 			if (s.length() == 0) swComment=true; 
 			if (s.startsWith("#")) swComment=true; 
-			if (s.indexOf('#') ==1) swComment=true;
+			if (s.indexOf('#') >= 0 && s.indexOf('#') < 3) swComment=true; // Some non UTF8 file don't start with # but "garbage"
+//			System.out.println("swComment " +swComment);
 
 			if (!swComment) {
-				System.out.println(s);
-				System.out.println("swComment " +swComment);
 				tab = s.split("=" , 2);
 				propname = tab[0].trim();
 				propvalue = tab[1].trim();
