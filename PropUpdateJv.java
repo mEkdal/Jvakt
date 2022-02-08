@@ -25,7 +25,7 @@ public class PropUpdateJv {
 	
 	public static void main(String[] args ) throws IOException, UnknownHostException {
 
-		String version = "PropUpdateJv # 2021-12-29";
+		String version = "PropUpdateJv # 2022-02-08";
 
 
 		for (int i=0; i<args.length; i++) {
@@ -74,12 +74,16 @@ public class PropUpdateJv {
 
 		while ((s = in.readLine()) != null) {
 			swComment=false;
-//			System.out.println(s);
+			System.out.println(s);
+			System.out.println("swComment " +swComment);
 
 			if (s.length() == 0) swComment=true; 
 			if (s.startsWith("#")) swComment=true; 
+			if (s.indexOf('#') ==1) swComment=true;
 
 			if (!swComment) {
+				System.out.println(s);
+				System.out.println("swComment " +swComment);
 				tab = s.split("=" , 2);
 				propname = tab[0].trim();
 				propvalue = tab[1].trim();
