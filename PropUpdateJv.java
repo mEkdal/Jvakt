@@ -1,6 +1,7 @@
 package Jvakt;
 import java.io.*;
 import java.net.*;
+import java.nio.charset.StandardCharsets;
 import java.util.*;
 //import java.time.*;
 
@@ -22,10 +23,12 @@ public class PropUpdateJv {
 	static Boolean swDecode = false;
 	static Boolean swHelp = false;
 	static BufferedWriter out;
-	
+	static String charset = "UTF8";
+	static int line = 0;
+
 	public static void main(String[] args ) throws IOException, UnknownHostException {
 
-		String version = "PropUpdateJv # 2022-02-08";
+		String version = "PropUpdateJv # 2022-02-09";
 
 
 		for (int i=0; i<args.length; i++) {
@@ -33,6 +36,7 @@ public class PropUpdateJv {
 			if (args[i].equalsIgnoreCase("-filename")) fileName = args[++i];
 			if (args[i].equalsIgnoreCase("-encode")) swEncode = true;
 			if (args[i].equalsIgnoreCase("-decode")) swDecode = true;
+			if (args[i].equalsIgnoreCase("-charset")) charset = args[++i];
 			if (args[i].equalsIgnoreCase("-mode")) { 
 				swMode = true;
 				newmode = args[++i];
@@ -56,41 +60,86 @@ public class PropUpdateJv {
 					+ "\n-mode     \tChange the mode value in the properties file to active or dormant. Like \"-mode dormant\""
 					+ "\n-encode   \tUsed to encode the passwords found in the properties file."
 					+ "\n-decode   \tUsed to decode the passwords found in the properties file."
+					+ "\n-charset  \tDefault input file charset is UTF8. It could be UTF-16, UTF_16BE, UTF_16LE, UTF-32, ASCII, ISO8859_1..."
+					+ "\n          \tThe output file charset will always be UTF8!"
+					+ "\n          \thttps://docs.oracle.com/javase/8/docs/technotes/guides/intl/encoding.doc.html"
 					);
 			System.exit(4);
 		}
 
-		
-		
+
+
 		if (config == null ) 	configF = new File(fileName);
 		else 					configF = new File(config,fileName);
 		System.out.println("----- Jvakt: "+new Date()+"  Version: "+version);
 		System.out.println("-config file: "+configF);
 
-		BufferedReader in = new BufferedReader(new FileReader(configF));
+		//		BufferedReader in = new BufferedReader(new FileReader(configF));
+		FileInputStream fis = new FileInputStream(configF); 
+		//		InputStreamReader isr = new InputStreamReader(fis, "UTF8"); 
+		//		InputStreamReader isr = new InputStreamReader(fis,StandardCharsets.UTF_16LE); 
+		InputStreamReader isr = new InputStreamReader(fis,charset); 
+		//		System.out.println("Encoding "+isr.getEncoding());
+		BufferedReader in = new BufferedReader(isr);
 
 		configFo = new File(configF +".new.properties");
 
-	  	FileOutputStream fis = new FileOutputStream(configFo, false);
-		OutputStreamWriter osw = new OutputStreamWriter(fis, "UTF8");
-	    out = new BufferedWriter(osw);
+		FileOutputStream fos = new FileOutputStream(configFo, false);
+		OutputStreamWriter osw = new OutputStreamWriter(fos, "UTF8");
+		out = new BufferedWriter(osw);
 
 
 		while ((s = in.readLine()) != null) {
+			line++;
 			swComment=false;
-//			System.out.println(s.indexOf('#') +" "+s);
-
 			s = s.trim();
-			if (s.length() == 0) swComment=true; 
-			if (s.startsWith("#")) swComment=true; 
-			if (s.indexOf('#') >= 0 && s.indexOf('#') < 3) swComment=true; // Some non UTF8 file don't start with # but "garbage"
-//			System.out.println("swComment " +swComment);
+
+//			System.out.println(s.length() +"  -  "+s);
+
+			if (line==1) {
+				if (s.length() >= 2) { 
+					if (s.substring(0,1).matches("[^a-zA-Z0-9:;_%@#/><åäöÅÄÖ\"\\,\\.\\!\\?\\*\\$\\)\\(\\-\\=\\{\\}\\]\\[]") &&
+						s.substring(1,2).matches("[^a-zA-Z0-9:;_%@#/><åäöÅÄÖ\"\\,\\.\\!\\?\\*\\$\\)\\(\\-\\=\\{\\}\\]\\[]") 	
+							)  {
+						System.out.println("Length:"+s.length() +"  Data:"+s);
+						System.out.println("1==>"+s.substring(0, 1));
+						System.out.println("2==>"+s.substring(1, 2));
+						System.out.println("3==>"+s.substring(2, 3)); 
+						System.out.println("\nFailure in file syntax!");
+						System.out.println("\nAre you sure the input file Encoding is "+isr.getEncoding()+"?");
+						System.exit(12);
+					
+					}
+				}
+			}
+
+			if (s.length() <= 4) {
+				swComment=true; 
+				//				System.out.println(s.indexOf('#') +"  #1 "+s);
+			}
+			else if (s.startsWith("#")) {
+				swComment=true; 
+				//				System.out.println(s.indexOf('#') +"  #2 "+s);
+			}
+			else if (s.indexOf('#') >= 0 && s.indexOf('#') <= 1) {
+				swComment=true; // UTF8-BOM files start with one character of "garbage" 
+				//				System.out.println(s.indexOf('#') +"  #3 "+s);
+			}
+			//			System.out.println("swComment " +swComment);
 
 			if (!swComment) {
-				tab = s.split("=" , 2);
-				propname = tab[0].trim();
-				propvalue = tab[1].trim();
-//				System.out.println("propname:"+propname+"  propvalue:"+propvalue);
+				try {
+					tab = s.split("=" , 2);
+					propname = tab[0].trim();
+					propvalue = tab[1].trim();
+				} catch (Exception e) {
+					System.out.println(s);
+					System.out.println("\nFailure in file syntax!");
+					System.out.println("\nAre you sure the input file Encoding is "+isr.getEncoding()+"?");
+					System.out.println("\n"+e);
+					System.exit(12);
+				} 
+				//				System.out.println("propname:"+propname+"  propvalue:"+propvalue);
 				if (propname.equalsIgnoreCase("mode") && swMode) {
 					System.out.println("SET "+propname+" to "+newmode);
 					s=propname+" = "+newmode;
@@ -104,8 +153,8 @@ public class PropUpdateJv {
 				}
 				if (propname.equalsIgnoreCase("dbpassword") && swDecode && propvalue.startsWith("==y")) {
 					System.out.println("Decode "+propname);
-				    byte[] decodedBytes = Base64.getDecoder().decode(propvalue.substring(3));
-				    String decodedString = new String(decodedBytes);
+					byte[] decodedBytes = Base64.getDecoder().decode(propvalue.substring(3));
+					String decodedString = new String(decodedBytes);
 					s=propname+" = "+decodedString;
 				}
 				// encode or decode smtppwd
@@ -117,8 +166,8 @@ public class PropUpdateJv {
 				}
 				if (propname.equalsIgnoreCase("smtppwd") && swDecode && propvalue.startsWith("==y")) {
 					System.out.println("Decode "+propname);
-				    byte[] decodedBytes = Base64.getDecoder().decode(propvalue.substring(3));
-				    String decodedString = new String(decodedBytes);
+					byte[] decodedBytes = Base64.getDecoder().decode(propvalue.substring(3));
+					String decodedString = new String(decodedBytes);
 					s=propname+" = "+decodedString;
 				}
 
