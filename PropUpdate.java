@@ -38,9 +38,14 @@ public class PropUpdate {
 		} catch (IOException ex) {
     		ex.printStackTrace();
     	}
+		
+//		System.exit(0);
+		
 		OutputStream output = null;
+//		FileWriter output = null;
 		try {
 		output = new FileOutputStream(configF);
+//		output = new FileWriter(configF);
 		// get the property value and print it out
 		System.out.println("New mode: " + newmode);
 		prop.setProperty("mode",newmode);

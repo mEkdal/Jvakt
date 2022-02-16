@@ -5,6 +5,12 @@ import java.util.Properties;
 import java.io.*;
 import java.util.*;
 import java.text.*;
+//import java.nio.charset.StandardCharsets;
+//import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import org.apache.commons.codec.binary.Hex;
+
 
 
 public class CheckLogs {
@@ -25,7 +31,7 @@ public class CheckLogs {
 	static String jvtype = "R";
 	static int port ;
 	static InetAddress inet;
-	static String version = "CheckLogs (2022-JAN-31)";
+	static String version = "CheckLogs (2022-FEB-10)";
 	static String agent = null;
 	static boolean swSlut = false;
 	static String charset = "UTF8";
@@ -35,6 +41,12 @@ public class CheckLogs {
 	static FileInputStream fis;
 
 	static boolean swJvakt = false;
+	
+	static Boolean swUTF8BOM = false;
+	static Boolean swUTF16BEBOM = false;
+	static Boolean swUTF16LEBOM = false;
+	static Boolean swCharset = false;
+	static int currI;
 
 	static DirFilter df;
 	static File dir = null;
@@ -79,6 +91,8 @@ public class CheckLogs {
 		boolean swPsav = false;
 		boolean swCsav = false;
 
+		System.out.println("--- "+version + " by Michael Ekdal Sweden.\n");
+		
 		// reads command line arguments
 		for ( int i = 0; i < args.length; i++) {
 			if (args[i].equalsIgnoreCase("-dir")) dir = new File(args[++i]);
@@ -91,12 +105,14 @@ public class CheckLogs {
 			if (args[i].equalsIgnoreCase("-jvakt")) swJvakt=true;
 			if (args[i].equalsIgnoreCase("-jvtype")) jvtype  = args[++i];
 			if (args[i].equalsIgnoreCase("-config")) config = args[++i];
-			if (args[i].equalsIgnoreCase("-charset")) charset = args[++i];
+			if (args[i].equalsIgnoreCase("-charset")) {
+				charset = args[++i];
+				System.out.println("-- Will use charset "+charset);
+				swCharset = true;
+			}
 		}
 
-		System.out.println("--- "+version + " by Michael Ekdal Sweden.\n");
 		if (args.length < 1) {
-
 			System.out.println("\nThe parameters and their meaning are:\n"+
 					"\n-dir    \tThe directory to scan, like \"-dir c:\\Temp\". Charset UTF8 is assumed. "+
 					"\n-suf    \tThe suffix of the files you want to include in the scan, like \"-suf .log\" "+
@@ -174,6 +190,11 @@ public class CheckLogs {
 				swDummy = false;
 			}
 
+			if (!swCharset) {
+				currI = i;
+				checkFileForBOM();
+			}
+			
 			//			System.out.println("\n  -- ecount: "+ecount);
 
 			System.out.println("\n"+tdat+"-- Checking: "+listf[i]);
@@ -554,5 +575,53 @@ public class CheckLogs {
 
 	}
 
+	static void checkFileForBOM() {
+		
+		byte[] bom = new byte[3];
+
+		Path path = Paths.get(listf[currI].getPath());
+
+		try {
+			InputStream is = new FileInputStream(path.toFile()); 
+
+			is.read(bom);
+			
+	          String content = new String(Hex.encodeHex(bom));
+//	          System.out.println("content "+content);
+	          if ("00".equalsIgnoreCase(content.substring(0, 2))) {
+	        	  System.out.println("\n** Found out the input file probably is UCS-2 BE without BOM. Trying -charset UTF-16");
+	        	  swUTF16BEBOM = true;
+	        	  charset = "UTF-16";
+	          }
+	          if ("feff".equalsIgnoreCase(content.substring(0, 4))) {
+	        	  System.out.println("\n** Found the input file to be UCS-2 BE BOM. Using -charset UTF-16");
+	        	  swUTF16BEBOM = true;
+	        	  charset = "UTF-16";
+	          }
+	          if ("00".equalsIgnoreCase(content.substring(2, 4))) {
+	        	  System.out.println("\n** Found out the input file probably is UCS-2 LE without BOM. Trying -charset UTF-16");
+	        	  swUTF16LEBOM = true;
+	        	  charset = "UTF-16";
+	          }
+	          if ("fffe".equalsIgnoreCase(content.substring(0, 4))) {
+	        	  System.out.println("\n** Found the input file to be UCS-2 LE BOM. Using -charset UTF-16");
+	        	  swUTF16LEBOM = true;
+	        	  charset = "UTF-16";
+	          }
+	          if ("efbbbf".equalsIgnoreCase(content.substring(0, 6))) {
+	        	  System.out.println("\n** Found the input file to be UCS8 BOM. Using -charset UTF8");
+	        	  swUTF8BOM = true;
+	        	  charset = "UTF8";
+	          }
+			
+			
+			is.close();
+		} catch (FileNotFoundException fnfe) {
+			System.out.println("File not found "+configF.getPath()+"\n"+fnfe);
+		}
+		catch (IOException ioe) {
+			System.out.println("IO error "+configF.getPath()+"\n"+ioe);
+		}
+	}
 
 }
