@@ -24,21 +24,21 @@ public class MonAS400msgq  {
 	public static void main(String[] args) throws IOException {
 
 		now = new Date();
-		String version = "2021-01-26";
+		String version = "2022-02-24";
 
 		// Displays help
 		if (args.length == 0) {
 			System.out.println("\n*** MonAS400msgq "+version+" ***" +
 					"\n*** by Michael Ekdal Perstorp Sweden. ***");
 			System.out.println("\n\nThe parameters and their meaning are:\n"+
-					"\n-q \tThe name of the AS400 message queue, like \" /qsys.lib/itoctools.lib/xxx.msgq\" "+
-					"\n-ah \tHostname of the AS400 server."+
-					"\n-us \tThe AS400 user."+
-					"\n-pw \tThe AS400 password."+
-					"\n-config \tThe dir of the input files. Like: \"-config c:\\Temp\" "+
-					"\n-jh \tHostname of the Jvakt server."+
-					"\n-jp \tThe port of the Jvakt server."+
-					"\n-dormant \tAll reports will be forced to be 30 or higher.");
+					"\n-q       \tThe name of the AS400 message queue, like \" /qsys.lib/itoctools.lib/xxx.msgq\" "+
+					"\n-ah      \tHostname of the AS400 server."+
+					"\n-us      \tThe AS400 user."+
+					"\n-pw      \tThe AS400 password."+
+					"\n-config  \tThe dir of the input files. Like: \"-config c:\\Temp\" "+
+					"\n-jh      \tHostname of the Jvakt server."+
+					"\n-jp      \tThe port of the Jvakt server."+
+					"\n-dormant \tAll reports will be forced to be 30 or higher. No autoreply will be made.");
 
 			System.exit(12);
 		}
@@ -49,8 +49,6 @@ public class MonAS400msgq  {
 		String aspw = null;
 		String agent = "";
 		InetAddress inet;
-
-		//		String asport = null;
 
 		String jvhost = "127.0.0.1";
 		String jport = "1956";
@@ -64,12 +62,6 @@ public class MonAS400msgq  {
 		int severity;
 		String[] words;
 		String s = "";
-		//		String[] allwords;
-		//		boolean swFirst = true;
-		//		boolean swLoop = false;
-		//		boolean swSyslogOK = false;
-		//		boolean swInteresting = true;
-		//		boolean swPurge = false;
 		boolean swAutoreply = false;
 		boolean swDormant = false;
 		int sev;
@@ -101,7 +93,6 @@ public class MonAS400msgq  {
 
 		// Read filter file
 		if (config == null ) {
-			//			System.out.println("config is missing");
 			configF = new File("MonAS400msgq.csv");
 		}
 		else {
@@ -139,8 +130,14 @@ public class MonAS400msgq  {
 		if (args.length == 0) System.exit(4);
 
 		// As400
-		as400    = new AS400(ashost,asuser,aspw);
-		MessageQueue queue = new MessageQueue(as400, msgq);
+		System.out.println(" AS400 connecting to host " + ashost);
+		as400    = new AS400(ashost,asuser,aspw); 
+		System.out.println(" Connected to system " + as400.getSystemName());
+		//		System.out.println(" CCSID " + as400.getCcsid());
+
+		System.out.println(" Connecting to Msgq " + msgq );
+		MessageQueue queue = new MessageQueue(as400, msgq); 
+		System.out.println(" Connected  to Msgq " + queue.getPath());
 
 		QueuedMessage msge = null;
 
@@ -173,9 +170,7 @@ public class MonAS400msgq  {
 			msgId = msge.getID();
 			//			System.out.println("GetType "+msge.getType());
 			if (msgId.length()<1)  { System.out.println("msgId empty"); continue; }
-//			System.out.println("* Msge: "+msgId + " "+severity+ " " + jobName + " - " + msg );
-			//			Calendar dd = msge.getDate(); 
-			//			System.out.println("Datum "+dd.get(Calendar.YEAR)+"-"+dd.get(Calendar.MONTH)+"-"+dd.get(Calendar.DAY_OF_MONTH));
+			//			System.out.println("* Msge: "+msgId + " "+severity+ " " + jobName + " - " + msg );
 
 			msgL = jobName+" "+msgId+" "+msg;
 
@@ -198,7 +193,7 @@ public class MonAS400msgq  {
 
 					System.out.println(new Date()+" - id:" + msgId + " sev:"+sev+" sts:"+sts+ " job:" + jobName + " msg:" + msg + " * String: " + words[0] );
 
-					if (msge.getType() == msge.INQUIRY && rpy.length()>0) {
+					if (!swDormant && msge.getType() == msge.INQUIRY && rpy.length()>0) {
 						try { queue.reply(msgkey, rpy, false); } catch( Exception e ) { e.printStackTrace();}
 						msg="Autoreply "+rpy+" -> "+msg;
 						swAutoreply = true;
@@ -208,13 +203,20 @@ public class MonAS400msgq  {
 				}
 			}
 
-			if (sev < 0 ) continue; // no Jvakt. continue with next message.
+			if (sev < 0 ) continue; // no Jvakt update. continue with the next message.
 
 
 			try {
 				Message jmsg = new Message();
 				SendMsg jm = new SendMsg(jvhost, jvport);
-				System.out.println(jm.open());
+				String openResponse = jm.open();
+				System.out.println("Open connection to Jvakt server "+jvhost+":"+jvport+" Response: "+openResponse);
+				while (openResponse.startsWith("failed")) {
+					System.out.println("Connection to Jvakt server "+jvhost+":"+jvport+" failed");
+					try { Thread.sleep(60000); } catch (InterruptedException e) { e.printStackTrace();}
+					openResponse = jm.open();
+				}
+
 				jmsg.setId(ashost+"-"+jobName+"-"+msgId);
 				jmsg.setPrio(sev);
 				jmsg.setRptsts(sts);
@@ -229,9 +231,9 @@ public class MonAS400msgq  {
 				jm.close();
 				System.out.println("-- Read next entry in the message queue --");
 			}
-			catch( Exception e ) { e.printStackTrace(); }
-			}
-
+			catch( Exception e ) { e.printStackTrace(); System.exit(12);}
 		}
+
 	}
+}
 
