@@ -1,12 +1,20 @@
+/**
+ * This is class receives the Message and updates the DB via the inctance DPUpdate . 
+ * It will communicate with the agents and update the DB. 
+ * @author 		Michael Ekdal
+ * @version 	2021-05-11
+ */
+
 package Jvakt;
 import java.io.*;
 import java.net.*;
-//import java.util.*;
-//import java.sql.*;
 
 class ServerThread extends Thread {
+	/**
+	 * The class is started in a new thread by the Server class.
+	 * It receives the Message object via the session and sends it to DBupdate to update the DB.
+	 */
 
-//	List list;
 	Socket client;
 	DBupdate dt;
 	String version = "ServerThread (2021-05-11)";
@@ -60,9 +68,9 @@ class ServerThread extends Thread {
 //			if (swData) dt.dbWrite(jm);  // update DB
 		}
 		catch (IOException e1) { 
-//			System.out.println("ServerThread exeption:>> " + client.getInetAddress() + " " + e1 ); 
+//			System.out.println("ServerThread exception:>> " + client.getInetAddress() + " " + e1 ); 
 			}
 		if (swData) dt.dbWrite(jm);  // update DB
-//		System.out.println("ServerThread Session:  DBupdate klar");
+//		System.out.println("ServerThread Session:  DBupdate done!");
 	}        
 }

@@ -20,15 +20,11 @@ public class monIpPorts {
 	static boolean swFound;
 	static boolean swSingle = false;
 	static boolean swShow = false;
+	static boolean swNegative = false;
 	static String host;
 	static String hostport;
 	static InetAddress inet;
-	static String version = "monIpPorts (2021-DEC-30)";
-//	static String database = "jVakt";
-//	static String dbuser   = "jVakt";
-//	static String dbpassword = "";
-//	static String dbhost   = "localhost";
-//	static String dbport   = "5433";
+	static String version = "monIpPorts (2022-MAR-09)";
 	static String jvhost   = "localhost";
 	static String jvport   = "1956";
 	static int port ;
@@ -41,6 +37,7 @@ public class monIpPorts {
 
 	static String 		tabbar = "                                                                                         ";
 	static Date now;
+	static String pn;
 
 	static String stat = null;
 	static FileOutputStream statF;
@@ -127,13 +124,14 @@ public class monIpPorts {
 		System.setProperty("java.net.preferIPv6Addresses", "false");
 
 		if (swShow)	{
-			System.out.println(" Dir : "+dir);
-			System.out.println(" Suf : "+suf);
-			System.out.println(" Pos : "+pos);
-			System.out.println(" Host: "+host);
-			System.out.println(" Port: "+wport);
-			System.out.println(" config file   : "+configF);
-			System.out.println(" stat directory: "+stat+"\n");
+			System.out.println(" Config: "+config);
+			System.out.println(" Dir   : "+dir);
+			System.out.println(" Suf   : "+suf);
+			System.out.println(" Pos   : "+pos);
+			System.out.println(" Host  : "+host);
+			System.out.println(" Port  : "+wport);
+			System.out.println(" Config file   : "+configF);
+			System.out.println(" Stat directory: "+stat+"\n");
 		}
 
 		if (swSingle) {
@@ -160,11 +158,17 @@ public class monIpPorts {
 					if (s.startsWith("#")) continue; 
 
 					// splittar rad från fil
-					tab = s.split(";" , 4);
+					swNegative = false;
+					tab = s.split(";" , 5);
 					t_id = tab[0];
 					host = tab[1];
 					wport = Integer.parseInt(tab[2]);
 					t_desc = tab[3];
+					if (tab.length == 5) {
+						if (tab[4].toLowerCase().trim().startsWith("neg")) swNegative = true;
+					}
+					if (swShow) System.out.println("t_id:"+t_id+" host:"+host+" t_desc:"+t_desc+" swNegative:"+swNegative);
+
 
 					if (swStat) {
 						try {
@@ -258,8 +262,11 @@ public class monIpPorts {
 		if (hostport.length()>50) hostport=hostport.substring(0,50);
 		hostport = hostport + tabbar.substring(0,50-hostport.length());
 
-		if (state.equals("OKAY")) { System.out.println(new Date()+" --- Connection succcessful - "+hostport+t_desc); return true; }
-		System.out.println(new Date()+" --- Connection failed      - "+hostport+t_desc);
+		if (swNegative) pn = "N";
+		else pn = "P";
+
+		if (state.equals("OKAY")) { System.out.println(new Date()+" ("+pn+") Connection succcessful - "+hostport+t_desc); return true; }
+		System.out.println(new Date()+" ("+pn+") Connection failed      - "+hostport+t_desc);
 		return false;
 	}
 
@@ -270,13 +277,21 @@ public class monIpPorts {
 		if (swShow)	System.out.println(jm.open());
 		else jm.open();
 		jmsg.setId(t_id+"-monIpPort-"+host+":"+wport);
-		if (STS) jmsg.setRptsts("OK");
-		else jmsg.setRptsts("ERR");
+		if ((STS && !swNegative) || (!STS && swNegative)) {
+			if (swShow) System.out.println("("+pn+") Reported OK to Jvakt server --");
+			jmsg.setRptsts("OK"); 
+		}
+		else {
+			if (swShow) System.out.println("("+pn+") Reported ERR to Jvakt server --");
+			jmsg.setRptsts("ERR");
+		}
+		if (swNegative) t_desc="("+pn+") "+t_desc;
 		jmsg.setBody(t_desc);
 		jmsg.setType("R");
 		jmsg.setAgent(agent);
 		if (jm.sendMsg(jmsg)) ;
 		else            	  System.out.println("-- Rpt Failed --");
+
 		jm.close();
 	}
 

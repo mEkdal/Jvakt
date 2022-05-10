@@ -139,7 +139,7 @@ class consoleStsDM extends AbstractTableModel {
 
 
 	public boolean isCellEditable(int row, int col) {
-		if (editable && (col==0||col==1||col==2||col==3||col==4||col==7||col==8||col==10||col==11||col==13||col==15||col==16||col==18||col==20||col==22)) return true;
+		if (editable && (col==0||col==1||col==2||col==3||col==4||col==5||col==7||col==8||col==10||col==11||col==13||col==15||col==16||col==18||col==20||col==22)) return true;
 		else return false;
 	}
 
@@ -246,8 +246,8 @@ class consoleStsDM extends AbstractTableModel {
 		}
 
 		fireTableCellUpdated(row, col);
-		//col==0||col==2||col==3||col==4||col==7||col==8||col==10||col==15||col==22		
-		String updateTable = "UPDATE status SET state=?, id=?, prio=?, type=?, status=?, chkday=?, chktim=?, accerr=?, info=?, plugin=?, chktimto=?,msg=?,sms=?,msg30=?,console=?  "
+		//col==0||col==2||col==3||col==4||col==5||col==7||col==8||col==10||col==15||col==22		
+		String updateTable = "UPDATE status SET state=?, id=?, prio=?, type=?, status=?, body=?, chkday=?, chktim=?, accerr=?, info=?, plugin=?, chktimto=?,msg=?,sms=?,msg30=?,console=?  "
 				+ " WHERE ID = ? and prio = ? ";
 		try {
 			prepStmt = conn.prepareStatement(updateTable);
@@ -256,41 +256,42 @@ class consoleStsDM extends AbstractTableModel {
 			prepStmt.setInt(   3, rad.getPrio());
 			prepStmt.setString(4, rad.getType());
 			prepStmt.setString(5, rad.getStatus());
-			prepStmt.setString(6, rad.getChkday());
+			prepStmt.setString(6, rad.getBody());
+			prepStmt.setString(7, rad.getChkday());
 			if (rad.getChktim() != null) {
 				tab = rad.getChktim().split(":" , 6);
 				tab[2] = tab[2].substring(0, 2);
 				cal.set(1970, 01, 01, Integer.valueOf(tab[0]), Integer.valueOf(tab[1]), Integer.valueOf(tab[2])); // only HH:MM:SS is used
 //				prepStmt.setTime(7, new java.sql.Time(Integer.valueOf(tab[0]),Integer.valueOf(tab[1]),Integer.valueOf(tab[2]))); 
-				prepStmt.setTime(7, new java.sql.Time( cal.getTime().getTime()));  
+				prepStmt.setTime(8, new java.sql.Time( cal.getTime().getTime()));  
 			}
 			else {
 				cal.set(1970, 01, 01, 6, 0, 0); // only HH:MM:SS is used
 			//	prepStmt.setTime(7, new java.sql.Time(6,0,0)); 
-				prepStmt.setTime(7, new java.sql.Time( cal.getTime().getTime())); // chktim 06:00:00
+				prepStmt.setTime(8, new java.sql.Time( cal.getTime().getTime())); // chktim 06:00:00
 
 			}
-			prepStmt.setInt(   8, Integer.valueOf(rad.getAccerr())); 
-			prepStmt.setString(9, rad.getInfo());
-			prepStmt.setString(10, rad.getPlugin());
+			prepStmt.setInt(   9, Integer.valueOf(rad.getAccerr())); 
+			prepStmt.setString(10, rad.getInfo());
+			prepStmt.setString(11, rad.getPlugin());
 
 			if (rad.getChktimto() != null) {
 				tab = rad.getChktimto().split(":" , 6);
 				tab[2] = tab[2].substring(0, 2);
 				cal.set(1970, 01, 01, Integer.valueOf(tab[0]), Integer.valueOf(tab[1]), Integer.valueOf(tab[2])); // only HH:MM:SS is used
-				prepStmt.setTime(11, new java.sql.Time( cal.getTime().getTime()));  
+				prepStmt.setTime(12, new java.sql.Time( cal.getTime().getTime()));  
 			}
 			else {
 				cal.set(1970, 01, 01, 23, 59, 59); // only HH:MM:SS is used
-				prepStmt.setTime(11, new java.sql.Time( cal.getTime().getTime())); // chktim 06:00:00
+				prepStmt.setTime(12, new java.sql.Time( cal.getTime().getTime())); // chktim 06:00:00
 			}
-			prepStmt.setString(12, rad.getMsg());
-			prepStmt.setString(13, rad.getSms());
-			prepStmt.setString(14, rad.getMsg30());
-			prepStmt.setString(15, rad.getConsole());
+			prepStmt.setString(13, rad.getMsg());
+			prepStmt.setString(14, rad.getSms());
+			prepStmt.setString(15, rad.getMsg30());
+			prepStmt.setString(16, rad.getConsole());
 			
-			prepStmt.setString(16, oId);
-			prepStmt.setInt(   17, oPrio);
+			prepStmt.setString(17, oId);
+			prepStmt.setInt(   18, oPrio);
 
 			System.out.println("Rows updated : "+prepStmt.executeUpdate());
 

@@ -1,3 +1,12 @@
+/**
+ * This is class receives the Message and updates the DB. 
+ * It is created by the Server class in a single instance only.
+ * The dbWrite method is synchronized thus only one DP access at the time is made.
+ *  
+ * @author 		Michael Ekdal
+ * @version 	2022-MAR-09
+ */
+
 package Jvakt;
 import java.io.*;
 //import java.net.*;
@@ -10,7 +19,6 @@ import java.time.LocalDateTime;
 //import org.postgresql.util.PSQLException;
 
 class DBupdate {
-/* DBupdate ( 2021-DEC-29 ) */
 	static Connection conn = null;
 	Statement stmt = null;
 	PreparedStatement pStmt = null;
@@ -133,7 +141,7 @@ class DBupdate {
 					if (!swPerm) {
 						swDormant = false; System.out.println(LocalDateTime.now()+" -> Active");
 					}
-					swPerm = false;    // swPerm denies change to Active only once. 
+					swPerm = false;    // swPerm denies change to Active only once. More tries to activate will succeed
 				}
 				else {
 
@@ -368,10 +376,15 @@ class DBupdate {
 							if (swLogg)
 								System.out.println(LocalDateTime.now()+" #8 s for update: "+s);
 						} else {  // delete 
+//							s = new String("select * from console " + 
+//									"WHERE id ilike '" + m.getId() + 
+//									"' AND ( body ilike '" + m.getBody() +"' OR body ilike '" + sBody +
+//									"' ) and prio='" + Integer.toString(m.getPrio()) +
+//									"';");
 							s = new String("select * from console " + 
 									"WHERE id ilike '" + m.getId() + 
 									"' AND body ilike '" + m.getBody() +
-									"' and prio='" + Integer.toString(m.getPrio()) +
+									"' AND prio='" + Integer.toString(m.getPrio()) +
 									"';");
 							if (swLogg)
 								System.out.println(LocalDateTime.now()+" #9 s for delete: "+s);

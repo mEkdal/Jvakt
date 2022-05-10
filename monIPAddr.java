@@ -18,18 +18,15 @@ public class monIPAddr {
 	static boolean swEcho = false;
 	static boolean swShow = false;
 	static boolean swTracert = false;
+	static boolean swNegative = false;
+
 	static String host;
 	static String host2;
 	static String hostport;
 	static String tabbar = "                                                                                         ";
 	static String status = null;
 	static InetAddress inet;
-	static String version = "monIPAddr (built 2022-JAN-20)";
-//	static String database = "jVakt";
-//	static String dbuser   = "jVakt";
-//	static String dbpassword = "";
-//	static String dbhost   = "localhost";
-//	static String dbport   = "5433";
+	static String version = "monIPAddr (built 2022-APR-30)";
 	static String jvhost   = "localhost";
 	static String jvport   = "1956";
 	static int port ;
@@ -42,6 +39,7 @@ public class monIPAddr {
 
 	static String cmd;
 	static String OS = System.getProperty("os.name").toLowerCase();
+	static String pn;
 	
 	static String stat = null;
 	static FileOutputStream statF;
@@ -66,15 +64,17 @@ public class monIPAddr {
 			System.out.println("\n *** " +version + " *** \n");
 			System.out.println("Input file names must contain monIPAddr and end with .csv. e.g. monIPAddr-01.csv ");
 			System.out.println("Will try to establish a TCP connection to port 7 (Echo) and will use ICMP (ping) as a fallback.");
-			System.out.println("Fields: ID ; host ; description ; wan router ; status");
-			System.out.println("\nwan router: If ip address to WAN router is entered it must respond to ping for the test to ve valid.");
+			System.out.println("Fields: ID ; host ; description ; wan router ; status ; negative");
+			System.out.println("\nwan router: If ip address to WAN router is entered it must respond to ping for the test to be valid.");
 			System.out.println("     I.e. the status will be OK if the WAN is down. This to ensure not all addresses behind a WAN is marked failed when the WAN is lost.");
 			System.out.println("\nstatus: if the test is of lesser importance, enter the status code INFO in the fifth field, Default valus is ERR when failed test");
+			System.out.println("\nnegative: if the host is meant to be unreachable, enter the code NEG sixth field. This will make Jvakt to treat it as OK");
 			System.out.println("\nRow in the file example: ");
 			System.out.println("either: WSI_PLC_A209;10.100.9.2;Vilant truck system Penta");
 			System.out.println("or:     WSI_PLC_A209;10.100.9.2;Vilant truck system Penta;10.4.2.1");
 			System.out.println("or:     WSI_PLC_A209;10.100.9.2;Vilant truck system Penta;10.4.2.1;INFO");
 			System.out.println("or:     WSI_PLC_A209;10.100.9.2;Vilant truck system Penta;;INFO");
+			System.out.println("or:     WSI_PLC_A209;10.100.9.2;Vilant truck system Penta;;;neg");
 
 			System.out.println("\n\nThe parameters and their meaning are:\n"+
 					"\n-config \tThe dir of the input files. Like: \"-dir c:\\Temp\" "+
@@ -104,8 +104,8 @@ public class monIPAddr {
 		}
 		now = new Date();
 		System.out.println("\n"+now+" *** Jvakt "+version+" ***\n");
+		if (config != null ) dir = new File(config);
 		if (swRun) {
-			if (config != null ) dir = new File(config);
 			if (config == null ) 	configF = new File("Jvakt.properties");
 			else 					configF = new File(config,"Jvakt.properties");
 			if (swShow)	System.out.println(" config file: "+configF);
@@ -118,12 +118,14 @@ public class monIPAddr {
 		now = new Date();
 
 		if (swShow)	{
-			System.out.println(" Dir  : "+dir);
-			System.out.println(" Suf  : "+suf);
-			System.out.println(" Pos  : "+pos);
-			System.out.println(" Host : "+host);
-			System.out.println(" Loop : "+swLoop);
-			System.out.println(" Sleep: "+sleep+" ms");
+			System.out.println(" Config : "+config);
+			System.out.println(" Dir    : "+dir);
+			System.out.println(" Suf    : "+suf);
+			System.out.println(" Pos    : "+pos);
+			System.out.println(" Host   : "+host);
+			System.out.println(" Run    : "+swRun);
+			System.out.println(" Loop   : "+swLoop);
+			System.out.println(" Sleep  : "+sleep+" ms");
 			System.out.println(" stat directory: "+stat+"\n");
 		}
 
@@ -167,12 +169,26 @@ public class monIPAddr {
 						// splittar rad från fil
 						host2 = null;
 						status = null;
-						tab = s.split(";" , 5);
+						swNegative = false;
+						tab = s.split(";" , 6);
 						t_id   = tab[0];
 						host   = tab[1];
 						t_desc = tab[2];
-						if (tab.length == 4)	host2  = tab[3];
-						if (tab.length == 5)	status = tab[4];
+						if (tab.length >= 4) {
+							host2  = tab[3];
+							host2.trim();
+							if (host2.length()<2)   host2 = null;
+						}
+						if (tab.length >= 5) {
+							status = tab[4];
+							status.trim();
+							if (status.length()<2)  status = null;
+						}
+						if (tab.length == 6) {
+							if (tab[5].toLowerCase().trim().startsWith("neg")) swNegative = true;
+						}
+						if (swShow) System.out.println("t_id:"+t_id+" host:"+host+" t_desc:"+t_desc+" host2:"+host2+" status:"+status+" swNegative:"+swNegative);
+
 						state = "OKAY";    
 
 						if (swStat) {
@@ -292,15 +308,20 @@ public class monIPAddr {
 		if (t_desc==null) t_desc=" ";
 		if (host.length()>50) host=host.substring(0,40);
 		host = host + tabbar.substring(0,40-host.length());
+		
+		if (swNegative) pn = "N";
+		else pn = "P";
+
 		if (state.equals("OKAY")) { 
 			if (!swLoop) {
-				if (swEcho) System.out.println(now+" -- Connection succcessful (echo)     "+host+" "+t_desc );
-				else        System.out.println(now+" -- Connection succcessful (ping)     "+host+" "+t_desc );
+				if (swEcho) System.out.println(now+" ("+pn+") Connection succcessful (echo)     "+host+" "+t_desc );
+				else        System.out.println(now+" ("+pn+") Connection succcessful (ping)     "+host+" "+t_desc );
 			}
 			return true; 
 		}
 		
-		System.out.println(now+" -- Connection failed (echo and ping) "+host+" "+t_desc );
+		System.out.println(now+" ("+pn+") Connection failed (echo and ping) "+host+" "+t_desc );
+		
 		if (swTracert) {
 			if (OS.indexOf("win") >= 0) cmd = "tracert -4 -d -h 20 -w 1000 " + host;  // Windows
 			else cmd = "traceroute " + host;									  // 
@@ -318,11 +339,17 @@ public class monIPAddr {
 		jm.open();
 		jmsg.setId(t_id+"-monIPAddr-"+host);
 		//		System.out.println("-- id --"+t_id+"-monIPAddr-"+host);
-		if (STS) jmsg.setRptsts("OK");
+		if ((STS && !swNegative) || (!STS && swNegative)) {
+//			if (STS) jmsg.setRptsts("OK");
+			if (swShow) System.out.println("("+pn+") Reported OK to Jvakt server --");
+			jmsg.setRptsts("OK"); 
+		}
 		else {
+			if (swShow) System.out.println("("+pn+") Reported ERR to Jvakt server --");
 			if (status == null)	jmsg.setRptsts("ERR");
 			else jmsg.setRptsts(status);
 		}
+		if (swNegative) t_desc="("+pn+") "+t_desc;
 		jmsg.setBody(t_desc);
 		jmsg.setType("R");
 		jmsg.setAgent(agent);

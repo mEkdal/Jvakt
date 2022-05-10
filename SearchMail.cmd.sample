@@ -1,5 +1,5 @@
 
-@rem SearchMail searches for mails and reposrts to the Jvakt server.
+@rem SearchMail searches for mails and reports to the Jvakt server.
 java -cp C:\Jvakt\Jvakt.jar Jvakt.SearchMail -config C:\Jvakt\Mail\SearchMail > C:\Jvakt\Logs\SearchMail.log 2> C:\Jvakt\Logs\SearchMailE.log
 
 @rem SendMailSingle sends mail decided by the CheckStatus step. The Status tabled is read and updated regarding mail issues.

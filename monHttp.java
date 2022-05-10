@@ -15,25 +15,21 @@ public class monHttp {
 	static boolean swFound;
 	static boolean swSingle = false;
 	static boolean swShow = false;
+	static boolean swNegative = false;
 	static String host;
 	static String hosturl;
 	static String tabbar="                                                                                                 ";
 	static InetAddress inet;
-	static String version = "monHttp (2022-JAN-20) ";
-//	static String database = "jVakt";
-//	static String dbuser   = "jVakt";
-//	static String dbpassword = "";
-//	static String dbhost   = "localhost";
-//	static String dbport   = "5433";
+	static String version = "monHttp (2022-MAR-04) ";
 	static String jvhost   = "localhost";
 	static String jvport   = "1956";
 	static int port ;
 	static int wport = 80 ;
 	static String agent = null;
 	static String webfile = "";
-	//	static String webcontent = "400";
 	static String webcontent = "";
 	static Date now;
+	static String pn;
 
 	static String config = null;
 	static File configF;
@@ -47,9 +43,7 @@ public class monHttp {
 	public static void main(String[] args) throws UnknownHostException, IOException {
 
 		String[] tab = new String [1];
-		//		String tdat;
 		String s;
-//		String[] children;
 		File[] listf;
 		DirFilter df;
 		File dir = new File(".");
@@ -132,40 +126,36 @@ public class monHttp {
 			checkHttp();
 		} else {
 
-			//			if (pos != null) df = new DirFilter(suf, pos);
-			//			else             df = new DirFilter(suf);
-
 			df = new DirFilter(suf, pos);
 
 			listf = dir.listFiles(df);
-//			children = dir.list(df);
 
 			if (swShow) {
 			             System.out.println("-- Number of files found:"+ listf.length);
-//			             System.out.println("-- Number of files found:"+ children.length);
 			}
 
 			for (int i = 0; i < listf.length; i++) {
-//			for (int i = 0; i < children.length; i++) {
 
 				if (swShow)	System.out.println("-- Checking 1: "+listf[i]+"\n");
-//				if (swShow)	System.out.println("-- Checking: "+dir+"/"+children[i]+"\n");
 
 				BufferedReader in = new BufferedReader(new FileReader(listf[i]));
-//				BufferedReader in = new BufferedReader(new FileReader(new File(dir, children[i])));
 
 				while ((s = in.readLine()) != null) {
 					if (s.length() == 0) continue; 
 					if (s.startsWith("#")) continue; 
-
+					swNegative = false;
 					// split the row from the file
-					tab = s.split(";" , 6);
+					tab = s.split(";" , 7);
 					t_id = tab[0];
 					host = tab[1];
 					wport = Integer.parseInt(tab[2]);
 					webfile = tab[3];
 					webcontent = tab[4];
 					t_desc = tab[5];
+					if (tab.length > 6) {
+						if (tab[6].toLowerCase().trim().startsWith("neg")) swNegative = true;
+					}
+					
 					state = false;
 
 					if (swStat) {
@@ -211,7 +201,7 @@ public class monHttp {
 		innan = new Date();
 		try {
 			hosturl ="http://"+host+":"+wport+webfile;
-			if (swShow)	System.out.println("-- URL    : http://"+host+":"+wport+webfile);
+			if (swShow)	System.out.println("\n-- URL    : http://"+host+":"+wport+webfile);
 			if (swShow)	System.out.println("-- OK text: " +webcontent);
 			URL url = new URL("http://"+host+":"+wport+webfile); 
 			URLConnection con = url.openConnection();  // new
@@ -224,8 +214,6 @@ public class monHttp {
 					System.out.println("-- Cache expiration "+cacheexpiration);
 				} else System.out.println("-- Cache expiration 0");
 			}
-			//			BufferedReader httpin = new BufferedReader(
-			//					new InputStreamReader(url.openStream()));
 			BufferedReader httpin = new BufferedReader(
 					new InputStreamReader(con.getInputStream()));
 
@@ -242,7 +230,7 @@ public class monHttp {
 			if (!state) { 
 				if (swShow)	System.out.println("-- OK text: "+ webcontent + " NOT found! "); 
 			}
-		} catch (Exception e) { System.out.println(e); state = false;   }
+		} catch (Exception e) { if (swShow) System.out.println(e); state = false;   }
 		efter = new Date();
 		delay = efter.getTime() - innan.getTime();
 		delay++;    // add an extra millisecond to compensate for extremely fast connections  
@@ -274,20 +262,30 @@ public class monHttp {
 			}
 		}
 
+		if (swNegative) pn = "N";
+		else pn = "P";
 
-		if (state) {System.out.println(new Date()+" -- Connection succcessful - "+hosturl+t_desc); return true; }
-		else 	   {System.out.println(new Date()+" -- Connection failed      - "+hosturl+t_desc); return false; }
+		if (state) {System.out.println(new Date()+" ("+pn+") Connection succcessful - "+hosturl+t_desc); return true; }
+		else 	   {System.out.println(new Date()+" ("+pn+") Connection failed      - "+hosturl+t_desc); return false; }
 	}
 
 	// sends status to the server
-	static protected void sendSTS( boolean STS) throws IOException {
+	static protected void sendSTS( boolean STS) {
 		Message jmsg = new Message();
 		SendMsg jm = new SendMsg(jvhost, port);
+
 		if (swShow)			System.out.println(jm.open());
 		else jm.open();
 		jmsg.setId(t_id+"-monHttp-"+host);
-		if (STS) jmsg.setRptsts("OK");
-		else jmsg.setRptsts("ERR");
+		if ((STS && !swNegative) || (!STS && swNegative)) {
+			jmsg.setRptsts("OK");
+			if (swShow) System.out.print("("+pn+") Reported OK to Jvakt server --\n");
+		}
+		else {
+			jmsg.setRptsts("ERR");
+			if (swShow) System.out.print("("+pn+") Reported ERR to Jvakt server -\n");
+		}
+		if (swNegative) t_desc="("+pn+") "+t_desc;
 		jmsg.setBody(t_desc);
 		jmsg.setType("R");
 		jmsg.setAgent(agent);

@@ -1,8 +1,9 @@
 ### Checks the response from a HTTP request.
 ### Will establish a http connection to the server and check if the response is the expected.
 
-# ID of checkpoint ; host name ; port ; the URL path ; string expected in the response ; description
+# ID of checkpoint ; host name ; port ; the URL path ; string expected in the response ; description ; negative report (optional)
 
 # Web server
-App_Prod;host.domain.com;8080;/script/healthcheck;connection OK;Sample app description
+App_Prod1;host1.domain.com;8080;/script/healthcheck;connection OK;Sample app description
+App_Prod2;host2.domain.com;8080;/script/healthcheck;connection OK;Sample app description;negative
 

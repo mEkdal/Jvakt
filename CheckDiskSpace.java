@@ -25,7 +25,7 @@ public class CheckDiskSpace {
 	static String jvtype = "R";
 	static int port ;
 	static InetAddress inet;
-	static String version = "CheckDiskSpace (2021-NOV-10)";
+	static String version = "CheckDiskSpace (2022-APR-30)";
 	static String agent = null;
 
 	static String drive[] = new String[20];
@@ -82,7 +82,7 @@ public class CheckDiskSpace {
 				i++; i++; j++;
 			}
 		}
-		System.out.println("\n---"+ new Date()+" "+version + " by Michael Ekdal Sweden.\n");
+		System.out.println("\n\n-----  "+ new Date()+" "+version + " by Michael Ekdal Sweden.  -----");
 		
 		paths = File.listRoots();  // Get all drives into paths 
 
@@ -123,7 +123,6 @@ public class CheckDiskSpace {
 		if (swJvakt) {    
 						if (config == null ) 	configF = new File("Jvakt.properties");
 						else 					configF = new File(config,"Jvakt.properties");
-			System.out.println("---- Jvakt: "+new Date()+"  Version: "+version);
 			System.out.println("-config file: "+configF);
 			getProps();
 		}

@@ -25,12 +25,13 @@ public class monHttps {
 	static boolean swSingle = false;
 	static boolean swShow = false;
 	static boolean swExpire = false;
+	static boolean swNegative = false;
 	static String expire;
 	static String host;
 	static String hosturl;
 	static String tabbar = "                                                                                               ";
 	static InetAddress inet;
-	static String version = "monHttps (2021-DEC-30)";
+	static String version = "monHttps (2022-MAR-04)";
 //	static String database = "jVakt";
 //	static String dbuser   = "jVakt";
 //	static String dbpassword = "xz";
@@ -52,6 +53,7 @@ public class monHttps {
 	static File configF;
 
 	static String stat = null;
+	static String pn;
 	static FileOutputStream statF;
 	static boolean swStat = false;
 	static OutputStreamWriter osw;
@@ -189,15 +191,20 @@ public class monHttps {
 				while ((s = in.readLine()) != null) {
 					if (s.length() == 0) continue; 
 					if (s.startsWith("#")) continue; 
+					swNegative = false;
 
 					// splittar rad från fil
-					tab = s.split(";" , 6);
+					tab = s.split(";" , 7);
 					t_id = tab[0];
 					host = tab[1];
 					wport = Integer.parseInt(tab[2]);
 					webfile = tab[3];
 					webcontent = tab[4];
 					t_desc = tab[5];
+					if (tab.length > 6) {
+						if (tab[6].toLowerCase().trim().startsWith("neg")) swNegative = true;
+					}
+
 					state = false;
 
 					if (webcontent.length()>0) swWebcontent = true;
@@ -247,7 +254,7 @@ public class monHttps {
 		// connect to port
 		try {
 			hosturl ="https://"+host+":"+wport+webfile;
-			if (swShow)	System.out.println("-- URL    : https://"+host+":"+wport+webfile);
+			if (swShow)	System.out.println("\n-- URL    : https://"+host+":"+wport+webfile);
 			if (swShow && swWebcontent)	System.out.println("-- OK text: " +webcontent);
 			//			System.setProperty("https.protocols", "SSLv3");
 			URL url = new URL("https://"+host+":"+wport+webfile); 
@@ -376,8 +383,11 @@ public class monHttps {
 			state = false;
 		}
 
-		if (state) {System.out.println(new Date()+" -- Connection successful - "+hosturl+t_desc); return true; }
-		else 	   {System.out.println(new Date()+" -- Connection failed     - "+hosturl+t_desc); return false; }
+		if (swNegative) pn = "N";
+		else pn = "P";
+
+		if (state) {System.out.println(new Date()+" ("+pn+") Connection successful - "+hosturl+t_desc); return true; }
+		else 	   {System.out.println(new Date()+" ("+pn+") Connection failed     - "+hosturl+t_desc); return false; }
 
 		//		if (state) {System.out.println("Connection successful"); return true; }
 		//		else 	   {System.out.println("Connection failed"); return false; }
@@ -390,13 +400,18 @@ public class monHttps {
 		if (swShow)	System.out.println(jm.open());
 		else jm.open();
 		jmsg.setId(t_id+"-monHttps-"+host);
-		if (STS) jmsg.setRptsts("OK");
-		else jmsg.setRptsts("ERR");
-		//		if (swExpire) t_desc = expire +" - "+ t_desc;
+		if ((STS && !swNegative) || (!STS && swNegative)) {
+			jmsg.setRptsts("OK");
+			if (swShow) System.out.println("("+pn+") Reported OK to Jvakt server --");
+		}
+		else {
+			jmsg.setRptsts("ERR");
+			if (swShow) System.out.println("("+pn+") Reported ERR to Jvakt server --");
+		}
+		if (swNegative) t_desc="("+pn+") "+t_desc;
 		jmsg.setBody(t_desc);
 		jmsg.setType("R");
 		jmsg.setAgent(agent);
-		//		jm.sendMsg(jmsg);
 		if (jm.sendMsg(jmsg));
 		else            	  System.out.println("-- Rpt Failed --");
 		jm.close();

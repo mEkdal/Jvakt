@@ -700,7 +700,7 @@ public class console extends JFrame implements TableModelListener, WindowListene
 						jmsg.setRptsts("OK");
 						//						jmsg.setBody("Delete of row from GUI");
 						ValueId   = table.getValueAt(selectedRow[i],table.getColumnModel().getColumnIndex("Body"));
-						//						System.out.println(ValueId);
+//												System.out.println(ValueId);
 						jmsg.setBody(ValueId.toString());
 						//						jmsg.setBody("Delete of row from GUI");
 						ValueId   = table.getValueAt(selectedRow[i],table.getColumnModel().getColumnIndex("Prio"));

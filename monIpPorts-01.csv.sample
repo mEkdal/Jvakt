@@ -1,7 +1,8 @@
 ### Checks the response of a port at an IP-address.
 ### IPv4. Will try to establish a TCP connection to the port. 
-# ID of checkpoint ; host name ; port ; description
+# ID of checkpoint ; host name ; port ; description ; negative reporting
 # AS400
-AS400_hostname;10.10.10.10;23;Server at remote
+AS400_hostname1;10.10.10.10;23;Server at remote
+AS400_hostname2;10.10.10.11;23;Server at remote,neg
 # IUCLID
 REACH_servername;hostname.domain.com;3306;Chesar Derby DB
