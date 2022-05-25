@@ -15,12 +15,12 @@ public class ManFiles {
 			swMove = false, swSettings = false, swSN = false, swDed = false, swArch = false, 
 			swRepl = true, swAppend = false, swUnique = false, swCountC = false;
 	static boolean swExists = false, swFlat = false, swNew = false, swCmd = false,
-			swNrunq = false, swLogg = false, swNfile = false, swLoop = false, swArgs = true;
+			swNrunq = false, swLogg = false, swNfile = false, swLoop = false, swArgs = true, swAsuf, swRsuf;
 
 	static boolean moved = false;
 	static File sdir, tdir, adir, newfile;
-	static String origdir, norigdir, norigdirA, suf, pos, pref, hou, min, sec, nfile,
-	exfile, expath, inpath, unique, infTxt, parFile, scanstr, cmd1, cmd2;
+	static String origdir, norigdir, norigdirA, suf, pos, pref, hou, min, sec, nfile, pardir,
+	exfile, expath, inpath, unique, infTxt, parFile, scanstr, cmd1, cmd2, newSuf, remSuf; 
 	static String fdat = "00000000000000";
 	static String tdat = "99999999999999";
 	static Date now;
@@ -79,11 +79,11 @@ public class ManFiles {
 		//			logg.newLine();
 		//		}
 		if (swSettings) {
-			infTxt = "\n swList=" + swList + "\t swDelete=" + swDelete
+			infTxt = "\n swList=" + swList + "\t swDelete=" + swDelete + "\t mardir=" + pardir
 					+ "\t swSub=" + swSub + "\t swCopy=" + swCopy
 					+ "\t swMove=" + swMove + "\t swArch=" + swArch + "\t swRun=" + swRun
 					+ "\t sdir=" + sdir + "\t tdir=" + tdir + "\t adir=" + adir
-					+ "\t Suf=" + suf + "\t Prefix=" + pref
+					+ "\t Suf=" + suf + "\t Prefix=" + pref + "\t swAsuf=" + swAsuf + "\t swRsuf=" + swRsuf
 					+ "\t Pos=" + pos + "\t Hours=" + hou
 					+ "\t Minutes=" + min + "\t Seconds=" + sec 
 					+ "\t FromDate=" + fdat + "\t ToDAte=" + tdat + "\t swDed="
@@ -111,19 +111,20 @@ public class ManFiles {
 
 		if (swHelp) {
 			System.out
-			.println("\n*** Jvakt.ManFiles (build 2022-JAN-21) ***"
+			.println("\n*** Jvakt.ManFiles (build 2022-MAY-24) ***"
 					+ "\n*** by Michael Ekdal, Sweden. ***");
 			System.out
 			.println("\nThe parameters and their meaning are:\n"
 					+ "\n-parfile \tThe name prefix of the parameter file (default is ManFiles). The suffix must end with .par"
 					+ "\n         \tIn the default case, files named ManFiles01.par, ManFiles02.par and so on will be found."
-					+ "\n         \tThe files must reside in the current directory."
+					+ "\n         \tThe files must reside in the current directory or the directory indicated by -pardir."
 					+ "\n         \tNOTE: -sdir and -tdir can contain maximum one consecutive space in the string."
 					+ "\n         \tNOTE: Spaces can be substituted with a ? if more than one space are needed."
 					+ "\n         \tNOTE: No single or double quotes are allowed anywhere in the file."
-					+ "\n-sdir    \tThe name of the source  directory, like \"-sdir c:\\Temp\" "
-					+ "\n-tdir    \tThe name of the target  directory, like \"-tdir c:\\Temp2\" "
-					+ "\n-adir    \tThe name of the archive directory, like \"-adir c:\\Temp3\" "
+					+ "\n-pardir  \tThe name of the -parfile  directory, like \"-pardir c:\\Temp\" (optional)"
+					+ "\n-sdir    \tThe name of the source  directory,   like \"-sdir c:\\Temp\" "
+					+ "\n-tdir    \tThe name of the target  directory,   like \"-tdir c:\\Temp2\" "
+					+ "\n-adir    \tThe name of the archive directory,   like \"-adir c:\\Temp3\" "
 					+ "\n-sub     \tThe subdirectories are searched.(default) "
 					+ "\n-nosub   \tThe subdirectories are NOT searched. "
 					+ "\n-copy    \tCopy the files "
@@ -141,18 +142,24 @@ public class ManFiles {
 					+ "\n-norepl  \tDo NOT Replace target file."
 					+ "\n-nrunq   \tUsed with -norepl to create a new unique file on target."
 					+ "\n-append  \tAppend an existing target file"
+					+ "\n-asuf    \tAdd a new suffix to the source file, like \"-asuf transfered\"  "
+					+ "\n-rsuf    \tremove the suffix of the source file, like \"-rsuf transfered\". Use \"-rsuf .\" to remove any suffix"
 					+ "\n-nfile   \tName of the new file. Used with append to merge a number of related files."
 					+ "\n-unique  \tThe moved or copied file is sufixed with the unique string _YYYYMMDDHHMMSS. like (_20100111113539)"
 					+ "\n-flat    \tFiles are copied or moved to the -sdir without the original structure"
 					+ "\n-noflat  \tFiles are copied or moved to the -sdir with the original structure (default)"
 					+ "\n-suf     \t(include) a file suffix to look for. like \"-suf .log \" "
+					+ "\n         \t  To use more -suf strings, separate them with a semicolon. (stra;strb;strc)"
 					+ "\n-pref    \t(include) a file prefix to look for. like \"-pref Z \" "
+					+ "\n         \t  To use more -pref strings, separate them with a semicolon like stra;strb"
 					+ "\n-pos     \t(include) a any string in the file name to look for. like \"-pos per\" "
+					+ "\n         \t  To use more -pos strings, separate them with a semicolon like stra;strb"
 					+ "\n-inpath  \t(include) a string in the path name. like \"-inpath INV\" "
+					+ "\n         \t  To use more -inpath strings, separate them with a semicolon like stra;strb"
 					+ "\n-expath  \t(exclude) a string in the path name. like \"-expath INV\" "
-					+ "\n         \t  To use more expath strings, separate them with a ; like stra;strb"
+					+ "\n         \t  To use more -expath strings, separate them with a semicolon like stra;strb"
 					+ "\n-exfile  \t(exclude) a string(s) in the file name. like \"-exfile TEMP01\" "
-					+ "\n         \t  To use more exfile strings, separate them with a ; like flda;fldb"
+					+ "\n         \t  To use more -exfile strings, separate them with a semicolon like flda;fldb"
 					+ "\n-fdat    \tSelect files from the date it was last changed . like (-fdat 20181101000000)"
 					+ "\n-tdat    \tSelect files to   the date it was last changed . like (-tdat 20181205140000)"
 					+ "\n-hou     \tHours since file last changed. like \"-hou 48\" (default=0) "
@@ -302,17 +309,19 @@ public class ManFiles {
 		//		System.out.println("---> parse " +args[0]);
 
 		String ssdir = null;
-		swList = true; swDelete = false; swHelp = false;
+		swList = true; swDelete = false; swHelp = false; swAsuf = false; swRsuf = false;
 		swSub = true; swFirst = true; swCopy = false; swRun = false;
 		swMove = false; swArch = false; swSettings = false; swSN = false; swDed = false;
 		swRepl = true; swAppend = false; swUnique = false; swCountC = false;
 		swExists = false; swFlat = false; swNew = false; swCmd = false;
 		swNrunq = false; swLogg = false; swNfile = false;
 		moved = false;
-		sdir=null; tdir=null; newfile=null;
-		origdir=null; norigdir=null; norigdirA=null; nfile=null;
+		sdir=null; tdir=null; newfile=null; pardir=null;
+		origdir=null; norigdir=null; norigdirA=null; nfile=null; 
 		unique=null; infTxt=null; 
 		suf = "*";
+		newSuf = null;
+		remSuf = null;
 		pref = "*";
 		pos = "*";
 		inpath = "*";
@@ -341,6 +350,14 @@ public class ManFiles {
 				swMove = true;
 			else if (args[i].equalsIgnoreCase("-del"))
 				swDelete = true;
+			else if (args[i].equalsIgnoreCase("-asuf")){
+				newSuf = args[++i];
+				swAsuf = true;
+			}
+			else if (args[i].equalsIgnoreCase("-rsuf")){
+				remSuf = args[++i];
+				swRsuf = true;
+			}
 			else if (args[i].equalsIgnoreCase("-nodel"))
 				swDelete = false;
 			else if (args[i].equalsIgnoreCase("-sub"))
@@ -463,6 +480,8 @@ public class ManFiles {
 				fdat = args[++i];
 			else if (args[i].equalsIgnoreCase("-tdat"))
 				tdat = args[++i];
+			else if (args[i].equalsIgnoreCase("-pardir"))
+				pardir = args[++i];
 			else if (args[i].equalsIgnoreCase("-parfile")) {
 				swParfile = true;
 				if (args.length == i+1) parFile = "ManFiles";
@@ -495,7 +514,15 @@ public class ManFiles {
 		if (swCopy && swDelete && !swAppend) {
 			swCopy = false;
 			swMove = true;
+		} // If move is true you cannot change the source file name.
+		if (swMove || swDelete) {
+			swAsuf = false;
+			swRsuf = false;
 		} // Use move instead of copy and delete.
+		if (swAsuf && swRsuf) {
+			System.out.println("*** Both -asuf and -rsuf are present. Only -asuf is used!");
+			swRsuf = false;
+		}
 
 		if (sdir == null && !swArgs) {
 			System.out.println("**** -sdir is missing!! Execution aborted!!!");	
@@ -521,11 +548,13 @@ public class ManFiles {
 		File[] listf;
 		DirFilter df;
 		String s;
-		File dir = new File(".");
 		String suf = ".par";
 		String pos = parFile;
 		int antal = 0;
 
+		File dir = new File(".");
+		if (pardir != null ) 	dir = new File(pardir);
+		
 		listToS = new ArrayList<String>();  // id:mailadress.
 
 		df = new DirFilter(suf, pos);
@@ -579,7 +608,7 @@ public class ManFiles {
 
 
 	// sends status to the Jvakt server
-//	static protected void sendSTS( boolean STS) throws IOException {
+	//	static protected void sendSTS( boolean STS) throws IOException {
 	static protected void sendSTS( boolean STS) {
 
 		System.out.println("\n--- " + id + "  --  " + desc);
@@ -942,7 +971,60 @@ public class ManFiles {
 								antdeleted++; antdeletedT++;
 							}
 							else {
-								anterrors++; 
+								anterrors++; anterrorsT++;
+							}
+						}
+					}
+					if (swAsuf && !copyerror && !moveerror && !archiveerror && !moved) {  // add new suffix to source file
+						newfile = new File(sdir+ "." + newSuf);
+						if (swList) {
+							System.out.println("  -new name > " + newfile);
+							if (swLogg) {
+								logg.write("  -new name > " + newfile);
+								logg.newLine();
+							}
+						}
+						if (swRun) {
+							if (sdir.renameTo(newfile)) {
+							}
+							else {
+								System.out.println("   -new suffix failed! " + newfile);
+								if (swLogg) {
+									logg.write("   -new suffix failed! " + newfile);
+									logg.newLine();
+								}
+								anterrors++; anterrorsT++;
+							}
+						}
+					}
+					if (swRsuf && !copyerror && !moveerror && !archiveerror && !moved) {  // remove suffix from source file
+						boolean swRename = true;
+						p = sdir.getName().lastIndexOf(".");
+						if (p >= 0 && remSuf.equals(sdir.getName().substring(p+1))) {
+							 newfile = new File(sdir.getParent(), sdir.getName().substring(0, p));
+						}
+						else if (p >= 0 && remSuf.equals(".")) {
+							 newfile = new File(sdir.getParent(), sdir.getName().substring(0, p));
+						}
+						else  swRename = false;
+						 
+						if (swList && swRename) {
+							System.out.println("  -new name > " + newfile);
+							if (swLogg) {
+								logg.write("  -new name > " + newfile);
+								logg.newLine();
+							}
+						}
+						if (swRun && swRename) {
+							if (sdir.renameTo(newfile)) {
+							}
+							else {
+								System.out.println("   -remove of suffix of file "+newfile+" FAILED! ");
+								if (swLogg) {
+									logg.write("   -remove of suffix of file "+newfile+" FAILED! ");
+									logg.newLine();
+								}
+								anterrors++; anterrorsT++;
 							}
 						}
 					}
@@ -995,7 +1077,7 @@ public class ManFiles {
 
 		public boolean accept(File dir, String name) {
 			// System.out.println("DifFilter name: " + name);
-			// System.out.println("DifFilter dir: " + dir);
+			//			System.out.println("inpref: " + inpref);
 			okay = true;
 			//
 			String chdat = new String("yyyyMMddHHmmss");
@@ -1054,17 +1136,26 @@ public class ManFiles {
 					okay = false;
 			}
 
-			if (!infix.equals("*")) {
-				if (f.indexOf(infix) < 0)
-					okay = false;
+			if (!infix.equals("*") && okay) {
+				okay = false;
+				String infixTab[] = infix.split(";");
+				for (int k = 0; k < infixTab.length; k++) {
+					if (f.indexOf(infixTab[k]) >= 0) okay = true;
+				}
 			}
-			if (!inpref.equals("*")) {
-				if (!f.startsWith(inpref))
-					okay = false;
+			if (!inpref.equals("*") && okay) {
+				okay = false;
+				String inprefTab[] = inpref.split(";");
+				for (int k = 0; k < inprefTab.length; k++) {
+					if (f.startsWith(inprefTab[k])) okay = true;
+				}
 			}
-			if (!afn.equals("*")) {
-				if (!f.endsWith(afn))
-					okay = false;
+			if (!afn.equals("*") && okay) {
+				okay = false;
+				String afnTab[] = afn.split(";");
+				for (int k = 0; k < afnTab.length; k++) {
+					if (f.endsWith(afnTab[k])) okay = true;
+				}
 			}
 			if (okay && !exfile.equals("*")) {
 				//				if (f.indexOf(exfile) >= 0) okay = false;
@@ -1074,8 +1165,11 @@ public class ManFiles {
 				}
 			}
 			if (okay && !inpath.equals("*")) {
-				if (dir.toString().toLowerCase().indexOf(inpath) < 0)
-					okay = false;
+				okay = false;
+				String inpathTab[] = inpath.split(";");
+				for (int k = 0; k < inpathTab.length; k++) {
+					if (dir.toString().toLowerCase().indexOf(inpathTab[k]) >= 0) okay = true;
+				}
 			}
 			if (okay && !expath.equals("*")) {
 				//				if (dir.toString().toLowerCase().indexOf(expath) >= 0)	okay = false;
@@ -1084,6 +1178,7 @@ public class ManFiles {
 					if (dir.toString().toLowerCase().indexOf(expathTab[k]) >= 0)	okay = false;
 				}
 			}
+
 			if (okay && scanstr!=null) {
 				try {okay = scanF(fi,scanstr,charset); }
 				catch (IOException e) {	
