@@ -1,4 +1,7 @@
 package Jvakt;
+/*
+ * 2022-07-02 V.54 Michael Ekdal		Added getVersion() to get at consistent version throughout all classes.
+ */
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -32,7 +35,7 @@ public class MonDB_SQL
 	static String url;
 	static String stmt;
 	static String state = "ERR";
-	static String version = "monDB_SQL (2020-02-25)";
+	static String version = "monDB_SQL ";
 
 
 	static String id;
@@ -80,6 +83,8 @@ public class MonDB_SQL
 
 	public static void main (String[] args)
 	{
+		version += getVersion()+".54";
+
 		// Check the input parameters.
 		if (args.length < 1) {
 			System.out.println("\n " +version);
@@ -285,6 +290,19 @@ public class MonDB_SQL
 		}
 		catch (Exception e) { System.out.println(e);  }
 
+	}
+
+	static private String getVersion() {
+		String version = "0";
+		try { 
+			Class<?> c1 = Class.forName("Jvakt.Version",false,ClassLoader.getSystemClassLoader());
+			Version ver = new Version();
+			version = ver.getVersion();
+ 		} 
+		catch (java.lang.ClassNotFoundException ex) {
+			version = "?";
+		}
+		return version;
 	}
 
 }

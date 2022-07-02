@@ -1,4 +1,7 @@
 package Jvakt;
+/*
+ * 2022-06-23 V.54 Michael Ekdal		Added getVersion() to get at consistent version throughout all classes.
+ */
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -24,7 +27,7 @@ public class MonAS400msgq  {
 	public static void main(String[] args) throws IOException {
 
 		now = new Date();
-		String version = "2022-02-24";
+		String version = getVersion()+".54";
 
 		// Displays help
 		if (args.length == 0) {
@@ -234,6 +237,19 @@ public class MonAS400msgq  {
 			catch( Exception e ) { e.printStackTrace(); System.exit(12);}
 		}
 
+	}
+
+	static private String getVersion() {
+		String version = "0";
+		try { 
+			Class<?> c1 = Class.forName("Jvakt.Version",false,ClassLoader.getSystemClassLoader());
+			Version ver = new Version();
+			version = ver.getVersion();
+ 		} 
+		catch (java.lang.ClassNotFoundException ex) {
+			version = "?";
+		}
+		return version;
 	}
 }
 

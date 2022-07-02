@@ -1,9 +1,8 @@
 package Jvakt;
+/*
+ * 2022-06-23 V.54 Michael Ekdal		Added getVersion() to get at consistent version throughout all classes.
+ */
 
-//import java.awt.*;
-//import java.awt.event.*;
-//import javax.swing.event.*;
-//import javax.swing.*;
 import javax.swing.table.*;
 import java.io.*;
 import java.sql.Connection;

@@ -1,4 +1,8 @@
 package Jvakt;
+/*
+ * 2022-07-02 V.54 Michael Ekdal		Added getVersion() to get at consistent version throughout all classes.
+ */
+
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -25,7 +29,7 @@ public class console2txt {
 	static int errors = 0;
 	static int warnings = 0;
 	static int infos = 0;
-	static String version = "console2txt 2.0 Date 2019-07-09";
+	static String version = "console2txt ";
 	static String database = "Jvakt";
 	static String dbuser   = "console";
 	static String dbpassword = "Jvakt";
@@ -41,6 +45,7 @@ public class console2txt {
     public static void main (String[] args) throws IOException, UnknownHostException
     {
 
+    version += getVersion()+".54";
     now = new Date();
 
 
@@ -132,4 +137,17 @@ public class console2txt {
     	}
     	
 	}
+	static private String getVersion() {
+		String version = "0";
+		try { 
+			Class<?> c1 = Class.forName("Jvakt.Version",false,ClassLoader.getSystemClassLoader());
+			Version ver = new Version();
+			version = ver.getVersion();
+ 		} 
+		catch (java.lang.ClassNotFoundException ex) {
+			version = "?";
+		}
+		return version;
+	}
+
 }

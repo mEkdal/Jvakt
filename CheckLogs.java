@@ -31,7 +31,7 @@ public class CheckLogs {
 	static String jvtype = "R";
 	static int port ;
 	static InetAddress inet;
-	static String version = "CheckLogs (2022-FEB-10)";
+	static String version = "CheckLogs ";
 	static String agent = null;
 	static boolean swSlut = false;
 	static String charset = "UTF8";
@@ -69,6 +69,7 @@ public class CheckLogs {
 	public static void main(String[] args) throws IOException {
 
 		//		int j = 0;
+		version += getVersion()+".54";
 		int errors = 0;
 		int position=0;
 		int posprev = 0;
@@ -622,6 +623,19 @@ public class CheckLogs {
 		catch (IOException ioe) {
 			System.out.println("IO error "+configF.getPath()+"\n"+ioe);
 		}
+	}
+
+	static private String getVersion() {
+		String version = "0";
+		try { 
+			Class<?> c1 = Class.forName("Jvakt.Version",false,ClassLoader.getSystemClassLoader());
+			Version ver = new Version();
+			version = ver.getVersion();
+ 		} 
+		catch (java.lang.ClassNotFoundException ex) {
+			version = "?";
+		}
+		return version;
 	}
 
 }

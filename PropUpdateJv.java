@@ -1,4 +1,8 @@
 package Jvakt;
+/*
+ * 2022-06-23 V.54 Michael Ekdal		Added getVersion() to get at consistent version throughout all classes.
+ */
+
 import java.io.*;
 import java.io.InputStream;
 import java.net.*;
@@ -8,7 +12,6 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.*;
 import org.apache.commons.codec.binary.Hex;
-//import java.time.*;
 
 public class PropUpdateJv {
 
@@ -37,7 +40,8 @@ public class PropUpdateJv {
 
 	public static void main(String[] args ) throws IOException, UnknownHostException {
 
-		String version = "PropUpdateJv # 2022-02-10";
+		String version = "PropUpdateJv ";
+		version += getVersion()+".54";
 		System.out.println("----- Jvakt: "+new Date()+"  Version: "+version);
 
 		for (int i=0; i<args.length; i++) {
@@ -261,6 +265,19 @@ public class PropUpdateJv {
 		catch (IOException ioe) {
 			System.out.println("IO error "+configF.getPath()+"\n"+ioe);
 		}
+	}
+
+	static private String getVersion() {
+		String version = "0";
+		try { 
+			Class<?> c1 = Class.forName("Jvakt.Version",false,ClassLoader.getSystemClassLoader());
+			Version ver = new Version();
+			version = ver.getVersion();
+ 		} 
+		catch (java.lang.ClassNotFoundException ex) {
+			version = "?";
+		}
+		return version;
 	}
 
 }

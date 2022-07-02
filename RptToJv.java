@@ -1,4 +1,8 @@
 package Jvakt;
+/*
+ * 2022-06-23 V.54 Michael Ekdal		Added getVersion() to get at consistent version throughout all classes.
+ */
+
 import java.io.*;
 import java.net.*;
 import java.util.Properties;
@@ -7,7 +11,8 @@ public class RptToJv {
 //	public static void main(String[] args ) throws IOException, UnknownHostException {
 	public static void main(String[] args )  {
 
-		String version = "RptToJv (2021-NOV-30)";
+		String version = "RptToJv ";
+		version += getVersion()+".54";
 		String host = "127.0.0.1";
 		int port = 1956; 
 		String id = null;
@@ -128,5 +133,20 @@ public class RptToJv {
 //		catch (java.net.ConnectException e ) {System.out.println("-- Rpt Failed --" + e); }
 		catch (NullPointerException npe2 )   {System.out.println("-- Rpt Failed --" + npe2);}
 
-	}        
+	}     
+
+	static private String getVersion() {
+		String version = "0";
+		try { 
+			Class<?> c1 = Class.forName("Jvakt.Version",false,ClassLoader.getSystemClassLoader());
+			Version ver = new Version();
+			version = ver.getVersion();
+ 		} 
+		catch (java.lang.ClassNotFoundException ex) {
+			version = "?";
+		}
+		return version;
+	}
+
+
 }

@@ -1,14 +1,8 @@
 package Jvakt;
 /*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
+ * 2022-07-02 V.54 Michael Ekdal		Added getVersion() to get at consistent version throughout all classes.
  */
-//package projektarbetegr11;
 
-/**
- *
- * @author Annika
- */
 public class consoleStsROW {
 
 	public String state;

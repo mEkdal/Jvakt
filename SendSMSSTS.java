@@ -1,19 +1,17 @@
 package Jvakt;
+/*
+ * 2022-06-23 V.54 Michael Ekdal		Added getVersion() to get at consistent version throughout all classes.
+ */
+
 import java.io.*;
 import java.net.InetAddress;
 import java.net.*;
 import java.sql.Connection;
 import java.sql.DriverManager;
-//import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
-//import java.sql.Timestamp;
 import java.util.*;
-//import java.time.*;
-//import javax.mail.*;
-//import javax.mail.Authenticator;
-//import javax.mail.PasswordAuthentication;
 
 public class SendSMSSTS {
 
@@ -76,7 +74,8 @@ public class SendSMSSTS {
 //	public static void main(String[] args ) throws IOException, UnknownHostException {
 	public static void main(String[] args ) {
 
-		String version = "SendSMSSTS (2021-DEC-30)";
+		String version = "SendSMSSTS ";
+		version += getVersion()+".54";
 
 		for (int i=0; i<args.length; i++) {
 			if (args[i].equalsIgnoreCase("-config")) config = args[++i];
@@ -429,6 +428,18 @@ public class SendSMSSTS {
 			if (!jm.sendMsg(jmsg)) System.out.println("--- Rpt to Jvakt Failed for Jvakt-SendSMSSTS ---");
 			jm.close();
 	}
-
+	
+	static private String getVersion() {
+		String version = "0";
+		try { 
+			Class<?> c1 = Class.forName("Jvakt.Version",false,ClassLoader.getSystemClassLoader());
+			Version ver = new Version();
+			version = ver.getVersion();
+ 		} 
+		catch (java.lang.ClassNotFoundException ex) {
+			version = "?";
+		}
+		return version;
+	}
 
 }

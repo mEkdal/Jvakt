@@ -1,5 +1,7 @@
 package Jvakt;
-
+/*
+ * 2022-06-23 V.54 Michael Ekdal		Added getVersion() to get at consistent version throughout all classes.
+ */
 
 import jakarta.mail.*;
 import jakarta.mail.search.*;
@@ -59,7 +61,8 @@ public class SearchMail {
 
 	public static void main(String[] args) throws IOException, FileNotFoundException {
 
-		String version = "SearchMail 2021-DEC-30 ";
+		String version = "SearchMail  ";
+		version += getVersion()+".54";
 
 		for (int i=0; i<args.length; i++) {
 			if (args[i].equalsIgnoreCase("-config")) config = args[++i];
@@ -501,5 +504,17 @@ public class SearchMail {
 
 	}
 
+	static private String getVersion() {
+		String version = "0";
+		try { 
+			Class<?> c1 = Class.forName("Jvakt.Version",false,ClassLoader.getSystemClassLoader());
+			Version ver = new Version();
+			version = ver.getVersion();
+ 		} 
+		catch (java.lang.ClassNotFoundException ex) {
+			version = "?";
+		}
+		return version;
+	}
 
 }

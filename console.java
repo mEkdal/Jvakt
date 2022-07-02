@@ -1,21 +1,15 @@
 package Jvakt;
 
 /*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
+ * 2022-06-23 V.54 Michael Ekdal		Added getVersion() to get at consistent version throughout all classes.
  */
 
-/**
- *
- * @author Annika
- */
 import java.awt.*;
 import java.awt.event.*;
 import javax.swing.event.*;
 import javax.swing.*;
 import javax.swing.table.*;
 import java.io.*;
-//import java.sql.SQLException;
 import java.util.*;
 import javax.swing.ListSelectionModel;
 import javax.swing.event.ListSelectionEvent;
@@ -23,25 +17,21 @@ import javax.swing.event.ListSelectionListener;
 import javax.swing.Timer;
 import javax.swing.border.*;
 
-// Extend av jframe för att få tillgång till swing metoderna i Jframe. 
-// Jframe är basen i fönsterhanteringen.
-//implementerar TableModelListener för att använda denna class som lyssnare till Jtables datamodellclass via metoden tableChanged.
-//implementerar WindowListener f�r att använda denna class som lyssnare till Jframe med metoden windowClosing; och där tömma data till filer.
+// Extend of Jframe to get access to the swing metohods in Jframe. 
+// Jframe is the base in the windows management.
+//implementing TableModelListener to use this class as listener to Jtables datamodell class via the method tableChanged.
+//implementing WindowListener to use this class as lyssnare to Jframe with the method windowClosing
 public class console extends JFrame implements TableModelListener, WindowListener {
 
-	// Skapar diverse variabler
+	// Creates variables
 	static final long serialVersionUID = 42L;
 	private JPanel topPanel;
-	//	private JPanel usrPanel;
-	//	private JPanel logPanel;
 	private JTable table;
 	private JScrollPane scrollPane;
 	private JButton bu1;
 	private JTableHeader header;
-	//	    private JScrollPane scrollPane2;
 	private consoleDM wD;
 	private Boolean swAuto = true;
-	//	private Boolean swAuto = false;
 	private Boolean swRed = true; 
 	private Boolean swDBopen = true; 
 	private Boolean swServer = true; 
@@ -49,13 +39,12 @@ public class console extends JFrame implements TableModelListener, WindowListene
 
 	private Boolean swPropFile = true;
 
-	//	private  String host = "193.234.149.176";
 	private  String jvhost = "127.0.0.1";
 	private  String jvport = "1956";
 	private  int port = 1956; 
-	private  String cmdHst  = "java -cp console.jar;postgresql.jar Jvakt.consoleHst";
-	private  String cmdSts  = "java -cp console.jar;postgresql.jar Jvakt.consoleSts";
-	private  String cmdStat = "java -cp console.jar;postgresql.jar Jvakt.StatisticsChartLauncher";
+	private  String cmdHst  = "javaw -cp Jvakt.jar Jvakt.consoleHst";
+	private  String cmdSts  = "javaw -cp Jvakt.jar Jvakt.consoleSts";
+	private  String cmdStat = "javaw -cp Jvakt.jar Jvakt.StatisticsChartLauncher";
 
 	private  int deselectCount = 0; 
 	private  int jvconnectCount = 0; 
@@ -67,16 +56,16 @@ public class console extends JFrame implements TableModelListener, WindowListene
 	 */
 	public static void main(String[] args) throws IOException {
 
-		console mainFrame = new console();  // gör objekt av innevarande class 
-		mainFrame.pack();                   // kallar på innevarande class metod pack som ärvts via Jframe 
-		mainFrame.setVisible(true);  	    // kallar på innevarande class metod setVisible och nu visas fönster för användaren
+		console mainFrame = new console();  // Creates an object of the current class  
+		mainFrame.pack();                   // calling method pack which is ingetiyed from Jframe 
+		mainFrame.setVisible(true);  	    // calling method setVisible so show all findows to the user
 
-	}   // main står nu och "väntar" vid slutet tills de andra objekten avslutas.
+	}   // main is now in waiting mode waiting for all the other objects to end.
 
 
-	// construktorn som startas i den statiska main metoden.
-	// skapar alla inblandade objekt och kopplar ihop dom.
-	// kallar också på metoder ärvda från Jframe att sätta vissa värden.
+	// this is the constructor which starts from the static main method.
+	// it creates all needed objects and connects them.
+	// it also calls methods inherited from Jframe to set certain values.
 	public console() throws IOException {
 
 		ImageIcon img = new ImageIcon("console.png");
@@ -86,8 +75,9 @@ public class console extends JFrame implements TableModelListener, WindowListene
 		getProps();
 		port = Integer.parseInt(jvport);
 
-		// funktion från Jframe att sätta rubrik
-		setTitle("Jvakt console 2.52  -  F1 = Help"); 
+		// a function inherited from Jframe used to set a heading
+		setTitle("Jvakt console "+getVersion()+".54 -  F1 = Help"); 
+
 		//	        setSize(5000, 5000);
 
 		// get the screen size as a java dimension
@@ -100,29 +90,25 @@ public class console extends JFrame implements TableModelListener, WindowListene
 		// set the jframe height and width
 		setPreferredSize(new Dimension(width, height));
 
-
-		// funktion från Jframe att sätta färg
+		// function in Jframe to set colors
 		setBackground(Color.gray);
 		setUndecorated(false);
-		// skapar ny Jpanel och sparar referensen i topPanel
+		// creates a new Jpanel and saves the reference in topPanel
 		topPanel = new JPanel();
-		// berättar för topPanel vilken layout den ska använda genom att skapa ett BorderLayout object utan namn.
+		// tells topPanel which layout to use by create a BorderLayout object with no name.
 		topPanel.setLayout(new BorderLayout());
 		//topPanel.setLayout(new FlowLayout());
-		// Hämtar Jpanels enkla content hanterare och lägger dit topPanel i stället att hantera resten av objekten
+		// gets Jpanels simple content handler and inserts topPanel in stead to handle the rest of the objects
 		getContentPane().add(topPanel);
 		//topPanel.setComponentOrientation(ComponentOrientation.RIGHT_TO_LEFT);
 
-		// Skapar datamodel för datahanteringen av userDB i table
+		// creates a data model to handle the data in the table
 		wD = new consoleDM();
-		// skapar en Jtable och lägger till referensen till wD via Jtables contructor
-		// table kommer att visa userDB
+		// creates a Jtable and add the reference to wD via the Jtable contructor
 		table = new JTable(wD);
 
-		//		JTableHeader header = table.getTableHeader();
 		header = table.getTableHeader();
 		header.setBackground(Color.LIGHT_GRAY);
-		//		header.setBackground(Color.white);
 
 		bu1 = new JButton();
 
@@ -141,7 +127,7 @@ public class console extends JFrame implements TableModelListener, WindowListene
 
 		swServer = true;
 		try {
-			SendMsg jm = new SendMsg(jvhost, port);  // kollar om JvaktServer är tillgänglig.
+			SendMsg jm = new SendMsg(jvhost, port);  // check if the Jvakt.Server is accessable
 			String oSts = jm.open();
 			//			System.out.println("#1 "+oSts);
 			if (oSts.startsWith("failed")) 	swServer  = false;
@@ -149,19 +135,12 @@ public class console extends JFrame implements TableModelListener, WindowListene
 			else 							swDormant = false;
 			jm.close();
 		} 
-//		catch (IOException e1) {
-//			swServer = false;
-//			System.err.println(e1);
-//			//			System.err.println(e1.getMessage());
-//		}
 		catch (NullPointerException npe2 )   {
 			swServer = false;
 			System.out.println("-- Rpt Failed 1 --" + npe2);
 		}
 
-		//		System.out.println("swServer :" + swServer);
-
-		swDBopen = wD.refreshData(); // kollar om DB �r tillgänglig
+		swDBopen = wD.refreshData(); // check if the DB is available
 		setBu1Color();
 
 		bu1.addActionListener(new ActionListener() {
@@ -172,18 +151,17 @@ public class console extends JFrame implements TableModelListener, WindowListene
 			}
 		});
 
-		// talar om för table att man bara får välja en rad i taget
-		//		table.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+		// enables the table to accept multiple row selection
 		table.setSelectionMode(ListSelectionModel.MULTIPLE_INTERVAL_SELECTION);
 
-		// ber table om referensen till LIstSecectionModel objektet, sparar i rowSM
+		// ask the table for the reference to the LIstSecectionModel object, the reference is saved in rowSM
 		ListSelectionModel rowSM = table.getSelectionModel();
 
 		//
-		// OBS intern class start---
-		// Använder rowSM metod för att skapa lyssnare till table för att veta vilken rad som väljs.
+		// NB internal class start---
+		// Use the rowSM method to create a listener to the table to know which row is selected
 		rowSM.addListSelectionListener(new ListSelectionListener()  {
-			// interna classens metod som tar fram vilken rad som valts
+			// the internal class method which gets the selected row
 			public void valueChanged(ListSelectionEvent e)   {
 				// Ignore extra messages.
 				if (e.getValueIsAdjusting()) return;
@@ -201,63 +179,30 @@ public class console extends JFrame implements TableModelListener, WindowListene
 
 		}   
 				);
-		// OBS intern class end---
+		// NB internal class end---
 		//
 
 
-		// s�tter automatsortering i tabellerna    
+		// sets auto sorting in the table    
 		//	        table.setAutoCreateRowSorter(true);
-		// talar om för tabellernas datamodellobjekt (wD o wD2) att detta objekt lyssnar; metoden tableChanged
+		
+		// tells the table data model object (wD) this object is listening; method tableChanged
 		table.getModel().addTableModelListener(this);
 
-		// sätter färg på raderna
+		// consoleCR selects color on the rows
 		consoleCR cr=new consoleCR();
-
-		//		for (int i=0; i <= 8 ; i++ ) {      
-		//			table.getColumn(table.getColumnName(i)).setCellRenderer(cr);
-		//		}
 
 		for (int i=0; i <= 7 ; i++ ) {
 			table.getColumn(table.getColumnName(i)).setCellRenderer(cr);
 		}
 
 
-		// skapar nya JScrollPane och lägger till tabellerna via construktorn. För att kunna scrolla tabellerna.
+		// creates new JScrollPane and adds the table via the constructor. To be able to scroll the tables.
 
 		scrollPane = new JScrollPane(table);
-		//		table.setAutoResizeMode(JTable.AUTO_RESIZE_ALL_COLUMNS);
 		table.setAutoResizeMode(JTable. 	AUTO_RESIZE_SUBSEQUENT_COLUMNS);
-		//	        table.setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
 
 		TableColumn column = null;
-		//		column = table.getColumnModel().getColumn(0);
-		//		column.setPreferredWidth(30);
-		//		column.setMaxWidth(85);
-		//		column = table.getColumnModel().getColumn(1);
-		//		column.setPreferredWidth(400);
-		//		column.setMaxWidth(1100);
-		//		column = table.getColumnModel().getColumn(2);
-		//		column.setPreferredWidth(30);
-		//		column.setMaxWidth(65);
-		//		column = table.getColumnModel().getColumn(3);
-		//		column.setPreferredWidth(30);
-		//		column.setMaxWidth(65);
-		//		column = table.getColumnModel().getColumn(4);
-		//		column.setPreferredWidth(255);
-		//		column.setMaxWidth(895);
-		//		column = table.getColumnModel().getColumn(5);
-		//		column.setPreferredWidth(255);
-		//		column.setMaxWidth(895);
-		//		column = table.getColumnModel().getColumn(6);
-		//		column.setPreferredWidth(100);
-		//		column.setMaxWidth(420);
-		//		column = table.getColumnModel().getColumn(7);
-		//		column.setPreferredWidth(900);
-		//		column.setMaxWidth(2800);
-		//		column = table.getColumnModel().getColumn(8);
-		//		column.setPreferredWidth(100);
-		//		column.setMaxWidth(950);
-
 		column = table.getColumnModel().getColumn(0);
 		column.setPreferredWidth(400);
 		column.setMaxWidth(1100);
@@ -288,26 +233,14 @@ public class console extends JFrame implements TableModelListener, WindowListene
 		scrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
 		//	        scrollPane.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_ALWAYS);
 
-		// skapar två nya JPanel att användas inuti topPanel, som också är en JPanel
-		//	        usrPanel = new JPanel();
-		//	        usrPanel.setLayout(new BorderLayout());
-		//	        logPanel = new JPanel();
-		//	        logPanel.setLayout(new BorderLayout());
-		// talar om för de nya JPanels vilka scrollPanes dom ska innehålla (scrollPanes innehåller tabellerna).
-		//	        usrPanel.add(scrollPane, BorderLayout.CENTER);
+		// Creates two new JPanels to be used inside topPanel, also a JPanel
 		topPanel.add(scrollPane, BorderLayout.CENTER);
-		// talar om för topPanel att den ska innehålla två JPanelobjekt NORTH och CENTER       
-		//	        usrPanel.add(bu1, BorderLayout.NORTH);
 		topPanel.add(bu1, BorderLayout.NORTH);
-		//	        topPanel.add(usrPanel, BorderLayout.NORTH);
-		//	        topPanel.add(logPanel, BorderLayout.CENTER);
-		// talar om för innevarande object att den lyssnar på sig själv. (metoderna för WindowListener)
+		// tells the current object to use itself as a listener. (methods for WindowListener)
 		addWindowListener(this);
 
-		Timer timer = new Timer(2500, new ActionListener() {
+		Timer timer = new Timer(2000, new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				//	              button.setBackground(flag ? Color.green : Color.yellow);
-				//	              flag = !flag;
 				if (deselectCount > 10 ) {
 					table.getSelectionModel().clearSelection();  // clear selected rows.
 					deselectCount = 0;
@@ -315,47 +248,32 @@ public class console extends JFrame implements TableModelListener, WindowListene
 				deselectCount++;
 				if (swAuto) {
 					jvconnectCount++;
-					if (jvconnectCount > 5 || !swServer) {    // keep the number of connections down because of limitations in Win10
+					if (jvconnectCount > 2 || !swServer) {    // keep the number of connection checks down because of limitations in Win10
 						jvconnectCount = 0;
 						try {
 							swServer = true;
-							SendMsg jm = new SendMsg(jvhost, port);  // kollar om JvaktServer är tillgänglig.
+							SendMsg jm = new SendMsg(jvhost, port);  // check if the Jvakt.Server is started.
 							String oSts = jm.open();
-							//						System.out.println("#1 "+oSts);
 							if (oSts.startsWith("failed")) 	swServer  = false;
 							if (oSts.startsWith("DORMANT")) swDormant = true;
 							else 							swDormant = false;
 							jm.close();
 						} 
-//						catch (IOException e1) {
-//							swServer = false;
-//							System.err.println(e1);
-//							//						System.err.println(e1.getMessage());
-//						}
 						catch (NullPointerException npe2 )   {
 							swServer = false;
 							System.out.println("-- Rpt Failed 2 --" + npe2);
 						}
-						//						System.out.println("swServer 2 : " + swServer);
 					}
 
 					swDBopen = wD.refreshData();
-					//	            	if (!swDBopen) {
 					setBu1Color();
-					//	            	}
-					//	            	table.repaint();
-					//	            	
 					if (swRed) scrollPane.setBorder(new LineBorder(Color.RED));
 					else scrollPane.setBorder(new LineBorder(Color.CYAN));
 					swRed = !swRed;
 					scrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_NEVER);
 					scrollPane.validate();
 					scrollPane.repaint();
-					//	            	scrollPane.setAutoscrolls(true);
 					scrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
-
-					//	            	topPanel.repaint();
-					//	            	pack();
 					revalidate();
 					repaint();	            
 				}
@@ -363,11 +281,11 @@ public class console extends JFrame implements TableModelListener, WindowListene
 		});
 		timer.start();
 
-	} // slut construktor
+	} // end constructor
 
 
-	// vi implementerade TableModelListener och addade "this" f�r att denna metod skulle anropas vid änding av värde i tabellen
-	// detta användas bara för loggning
+	// we implemented TableModelListener and added "this" so this method should be called at a change in the table
+	// this is only used for logging
 	public void tableChanged(TableModelEvent e)  {
 		int row = e.getFirstRow();
 		int column = e.getColumn();
@@ -383,25 +301,18 @@ public class console extends JFrame implements TableModelListener, WindowListene
 		String txt = "";
 		if (swAuto) {
 			bu1.setBackground(Color.GRAY);
-			//			bu1.setBackground(Color.LIGHT_GRAY);
 			txt = "Auto Update ON.";
-			//	            bu1.setText("Auto Update ON");
 		}
 		else {
 			bu1.setBackground(Color.yellow);
 			txt = "Auto Update OFF.";
-			//		              bu1.setText("Auto Update OFF");
 		}
 		if (!swPropFile) {
 			txt = txt + "  No console.properties file found. ";
 		}
 		if (!swDBopen) {
 			bu1.setBackground(Color.RED);
-			//    		if (swAuto) bu1.setText("No connection with DB. Autoupdate ON");
-			//    		else 		bu1.setText("No connection with DB. Autoupdate OFF");
 			txt = txt + "  No connection with DB. ";
-
-			//    		swAuto = false;
 		}
 		if (!swServer) {
 			bu1.setBackground(Color.RED);
@@ -537,10 +448,6 @@ public class console extends JFrame implements TableModelListener, WindowListene
 						else            	  System.out.println("-- Rpt Failed 5 --");
 						jm.close();
 					} 
-//					catch (IOException e1) {
-//						System.err.println(e1);
-//						System.err.println(e1.getMessage());
-//					}
 					catch (Exception e2) {
 						System.err.println(e2);
 						System.err.println(e2.getMessage());
@@ -714,10 +621,6 @@ public class console extends JFrame implements TableModelListener, WindowListene
 						jm.close();
 					}
 				} 
-//				catch (IOException e1) {
-//					System.err.println(e1);
-//					System.err.println(e1.getMessage());
-//				}
 				catch (Exception e2) {
 					System.err.println(e2);
 					System.err.println(e2.getMessage());
@@ -757,10 +660,6 @@ public class console extends JFrame implements TableModelListener, WindowListene
 						else            	  System.out.println("-- Rpt Failed 4 --");
 						jm.close();
 					} 
-//					catch (IOException e1) {
-//						System.err.println(e1);
-//						System.err.println(e1.getMessage());
-//					}
 					catch (Exception e2) {
 						System.err.println(e2);
 						System.err.println(e2.getMessage());
@@ -783,33 +682,11 @@ public class console extends JFrame implements TableModelListener, WindowListene
 				//				System.out.println("-- Start consoleHst: " + cmdHst);
 
 				try {
-					//			       Runtime.getRuntime().exec("java -cp \"/Users/septpadm/OneDrive - Perstorp Group/JavaSrc;/Users/septpadm/OneDrive - Perstorp Group/JavaSrc/postgresql-42.1.3.jar\" Jvakt.consoleHst");
 					Runtime.getRuntime().exec(cmdHst);
 				} catch (IOException e1) {
 					System.err.println(e1);
 					System.err.println(e1.getMessage());
 				}
-
-				//			       String[] par = new String[] { "One", "Two", "Three" };
-				//			       try {
-				//			    	   consoleHst.main(par);
-				//			       } catch (IOException e1) {
-				//			    	   System.err.println(e1);
-				//			    	   System.err.println(e1.getMessage());
-				//			       }
-
-				//			       new Thread() {
-				//			    	   public void run(){
-				//			    		   String[] par = new String[] { "One", "Two", "Three" };
-				//			    		   try {
-				//			    			   consoleHst.main(par);
-				//			    		   } 		catch (IOException e1) {
-				//			    			   System.err.println(e1);
-				//			    			   System.err.println(e1.getMessage());
-				//			    		   }
-				//
-				//			    	   }
-				//			       }.start();
 
 			}
 		};
@@ -863,12 +740,12 @@ public class console extends JFrame implements TableModelListener, WindowListene
 
 
 	// windows listeners
-	// vi implementerade WindowListener och addade "this" för att denna metod skulle anropas vid normalt avslut av Jframe 
+	// we implemented WindowListener and added "this" so this method should be used at a normal ending of Jframe 
 	public void windowClosing(WindowEvent e) {
 		//skriv userDB
 		wD.closeDB();
 		System.exit(0);
-		// ...och h�r �r det slut i rutan..!!!... 
+		// ...and now all ends..!!!... 
 	}
 
 	void getProps() {
@@ -889,11 +766,23 @@ public class console extends JFrame implements TableModelListener, WindowListene
 			swPropFile = false;
 			System.out.println("The console.properties file was not found! Am using default values!  ");
 			System.err.println(ex);
-			// ex.printStackTrace();
 		}    	
 	}
 
+	static String getVersion() {
+		String version = "0";
+		try { 
+			Class<?> c1 = Class.forName("Jvakt.Version",false,ClassLoader.getSystemClassLoader());
+			Version ver = new Version();
+			version = ver.getVersion();
+ 		} 
+		catch (java.lang.ClassNotFoundException ex) {
+			version = "?";
+		}
+		return version;
+	}
 
+	
 	// vi implementerade WindowListener men följande metoder avänds inte 
 	public void windowClosed(WindowEvent e) {    }
 	public void windowOpened(WindowEvent e) {    }

@@ -1,4 +1,8 @@
 package Jvakt;
+/*
+ * 2022-06-23 V.54 Michael Ekdal		Added getVersion() to get at consistent version throughout all classes.
+ */
+
 import java.io.*;
 import java.net.*;
 import java.sql.Connection;
@@ -94,7 +98,8 @@ public class SendMail30 {
 
 	public static void main(String[] args ) throws IOException, UnknownHostException {
 
-		String version = "SendMail30 (2022-APR-30)";
+		String version = "SendMail30 ";
+		version += getVersion()+".54";
 		String database = "jVakt";
 		String dbuser   = "jVakt";
 		String dbpassword = "";
@@ -572,6 +577,19 @@ public class SendMail30 {
 		}
 		//		System.out.println("RETURN true");
 		return true;
+	}
+	
+	static private String getVersion() {
+		String version = "0";
+		try { 
+			Class<?> c1 = Class.forName("Jvakt.Version",false,ClassLoader.getSystemClassLoader());
+			Version ver = new Version();
+			version = ver.getVersion();
+ 		} 
+		catch (java.lang.ClassNotFoundException ex) {
+			version = "?";
+		}
+		return version;
 	}
 
 }

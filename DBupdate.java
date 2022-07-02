@@ -3,11 +3,13 @@
  * It is created by the Server class in a single instance only.
  * The dbWrite method is synchronized thus only one DP access at the time is made.
  *  
- * @author 		Michael Ekdal
- * @version 	2022-MAR-09
  */
 
 package Jvakt;
+/*
+ * 2022-07-02 V.54 Michael Ekdal		Added getVersion() to get at consistent version throughout all classes.
+ */
+
 import java.io.*;
 //import java.net.*;
 import java.util.*;

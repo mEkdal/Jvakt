@@ -5,6 +5,10 @@
  * @version 	2019-04-29
  */
 package Jvakt;
+/*
+ * 2022-06-23 V.54 Michael Ekdal		Added getVersion() to get at consistent version throughout all classes.
+ */
+
 import java.io.*;
 import java.net.*;
 import java.util.*;
@@ -21,7 +25,8 @@ public class Server {
 	 */
 	public static void main(String[] args ) throws Exception  {
 
-		String version = "Server 1.3 # 2019-04-29";
+		String version = "Server ";
+		version += getVersion()+".54";
 		String jvport   = "1956";
 
 		String config = null;
@@ -65,4 +70,18 @@ public class Server {
 			}
 		}
 	}
+	
+	static private String getVersion() {
+		String version = "0";
+		try { 
+			Class<?> c1 = Class.forName("Jvakt.Version",false,ClassLoader.getSystemClassLoader());
+			Version ver = new Version();
+			version = ver.getVersion();
+ 		} 
+		catch (java.lang.ClassNotFoundException ex) {
+			version = "?";
+		}
+		return version;
+	}
+
 }

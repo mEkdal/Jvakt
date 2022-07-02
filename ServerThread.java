@@ -6,6 +6,10 @@
  */
 
 package Jvakt;
+/*
+ * 2022-06-23 V.54 Michael Ekdal		Added getVersion() to get at consistent version throughout all classes.
+ */
+
 import java.io.*;
 import java.net.*;
 
@@ -17,7 +21,7 @@ class ServerThread extends Thread {
 
 	Socket client;
 	DBupdate dt;
-	String version = "ServerThread (2021-05-11)";
+	String version = "ServerThread 2.4.54";
 	boolean swData;
 	String line;
 	Message jm = new Message();

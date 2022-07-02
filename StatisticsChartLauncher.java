@@ -1,4 +1,8 @@
 package Jvakt;
+/*
+ * 2022-06-23 V.54 Michael Ekdal		Added getVersion() to get at consistent version throughout all classes.
+ */
+
 import java.awt.Color;
 import java.awt.FlowLayout;
 import java.awt.Font;
@@ -17,7 +21,6 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Properties;
 import java.util.concurrent.TimeUnit;
-
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JFileChooser;
@@ -28,7 +31,6 @@ import javax.swing.JOptionPane;
 import javax.swing.JTextField;
 import javax.swing.SwingUtilities;
 import javax.swing.text.MaskFormatter;
-
 import Jvakt.ManFiles.StreamGobbler;
 import Jvakt.ManFiles.runCMD;
 
@@ -60,7 +62,7 @@ public class StatisticsChartLauncher extends JFrame {
 	private  String cmd; 
 
 	public StatisticsChartLauncher() {
-		super("Jvakt.StatisticsChartLauncher 2022-01-24");
+		super("Jvakt.StatisticsChartLauncher "+getVersion()+".54");
 		setLayout(new FlowLayout());
 		
 		ImageIcon img = new ImageIcon("console.png");
@@ -336,6 +338,20 @@ public class StatisticsChartLauncher extends JFrame {
 				ioe.printStackTrace();  
 			}
 		}
+	}
+
+	
+	static private String getVersion() {
+		String version = "0";
+		try { 
+			Class<?> c1 = Class.forName("Jvakt.Version",false,ClassLoader.getSystemClassLoader());
+			Version ver = new Version();
+			version = ver.getVersion();
+ 		} 
+		catch (java.lang.ClassNotFoundException ex) {
+			version = "?";
+		}
+		return version;
 	}
 
 // Launch the renderer program ( stop )

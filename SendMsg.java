@@ -1,4 +1,8 @@
 package Jvakt;
+/*
+ * 2022-06-23 V.54 Michael Ekdal		Added getVersion() to get at consistent version throughout all classes.
+ */
+
 import java.io.*;
 import java.net.*;
 
@@ -10,7 +14,7 @@ public class SendMsg {
 	OutputStream sut;
 	PrintWriter ut;
 	int port;
-	String version = "SendMsg 2021-JUL-04";
+	String version = "SendMsg 2.4.54";
 
 	public SendMsg(String host, int port ) {
 		this.port = port;
@@ -68,4 +72,5 @@ public class SendMsg {
 			return false;
 		}
 	}
+
 }

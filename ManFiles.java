@@ -1,4 +1,7 @@
 package Jvakt;
+/*
+ * 2022-06-23 V.54 Michael Ekdal		Added getVersion() to get at consistent version throughout all classes.
+ */
 
 import java.io.*;
 import java.net.InetAddress;
@@ -7,9 +10,6 @@ import java.util.*;
 
 public class ManFiles {
 
-	/**
-	 * @param args
-	 */
 	static boolean swList = true, swDelete = false, swHelp = false,swParfile=false,
 			swSub = true, swFirst = true, swCopy = false, swRun = false, swRunJvakt = false,
 			swMove = false, swSettings = false, swSN = false, swDed = false, swArch = false, 
@@ -111,7 +111,7 @@ public class ManFiles {
 
 		if (swHelp) {
 			System.out
-			.println("\n*** Jvakt.ManFiles (build 2022-MAY-24) ***"
+			.println("\n*** Jvakt.ManFiles "+getVersion()+".54 ***"
 					+ "\n*** by Michael Ekdal, Sweden. ***");
 			System.out
 			.println("\nThe parameters and their meaning are:\n"
@@ -265,6 +265,19 @@ public class ManFiles {
 
 		if (antalT > 255) antalT = 255;
 		System.exit(antalT);
+	}
+
+	static private String getVersion() {
+		String version = "0";
+		try { 
+			Class<?> c1 = Class.forName("Jvakt.Version",false,ClassLoader.getSystemClassLoader());
+			Version ver = new Version();
+			version = ver.getVersion();
+ 		} 
+		catch (java.lang.ClassNotFoundException ex) {
+			version = "?";
+		}
+		return version;
 	}
 
 	static void execOneParSet() throws IOException,	FileNotFoundException  {

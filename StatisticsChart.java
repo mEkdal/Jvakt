@@ -1,4 +1,7 @@
 package Jvakt;
+/*
+ * 2022-06-23 V.54 Michael Ekdal		Added getVersion() to get at consistent version throughout all classes.
+ */
 
 import java.awt.*;
 import java.io.BufferedReader;
@@ -25,7 +28,6 @@ import org.jfree.data.category.CategoryDataset;
 import org.jfree.data.category.DefaultCategoryDataset;
 
 import org.jfree.chart.ui.*;
-//import org.jfree.chart.renderer.*;
 
 public class StatisticsChart extends ApplicationFrame
 {
@@ -95,7 +97,7 @@ public class StatisticsChart extends ApplicationFrame
 		statIn = new File(statF);
 		
 //		StatisticsChart PCategory = new StatisticsChart(statIn.getName());
-		StatisticsChart PCategory = new StatisticsChart("Jvakt.StatisticsChart renderer 2021-10-06");
+		StatisticsChart PCategory = new StatisticsChart("Jvakt.StatisticsChart renderer "+getVersion()+".54");
 		PCategory.pack();
 		PCategory.setVisible(true);
 
@@ -197,5 +199,17 @@ public class StatisticsChart extends ApplicationFrame
 		return defaultcategorydataset;
 	}
 
+	static private String getVersion() {
+		String version = "0";
+		try { 
+			Class<?> c1 = Class.forName("Jvakt.Version",false,ClassLoader.getSystemClassLoader());
+			Version ver = new Version();
+			version = ver.getVersion();
+ 		} 
+		catch (java.lang.ClassNotFoundException ex) {
+			version = "?";
+		}
+		return version;
+	}
 
 }

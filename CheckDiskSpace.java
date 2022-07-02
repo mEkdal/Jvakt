@@ -1,5 +1,9 @@
 package Jvakt;
 
+/*
+ * 2022-07-02 V.54 Michael Ekdal		Added getVersion() to get at consistent version throughout all classes.
+ */
+
 import java.net.InetAddress;
 import java.util.Properties;
 
@@ -25,7 +29,7 @@ public class CheckDiskSpace {
 	static String jvtype = "R";
 	static int port ;
 	static InetAddress inet;
-	static String version = "CheckDiskSpace (2022-APR-30)";
+	static String version = "CheckDiskSpace ";
 	static String agent = null;
 
 	static String drive[] = new String[20];
@@ -44,6 +48,7 @@ public class CheckDiskSpace {
 	public static void main(String[] args) throws IOException {
 
 //		int errors = 0;
+		version += getVersion()+".54";
 		boolean swWarn = false;
 		boolean swFinns = false;
 		long totalSpace; //total disk space in bytes.
@@ -54,7 +59,7 @@ public class CheckDiskSpace {
 		long freeSpaceG; //unallocated / free disk space in bytes.
 
 		if (args.length < 1) {
-			System.out.println("\n\n"+version + " by Michael Ekdal Sweden.\n");
+			System.out.println("\n\n"+version+" by Michael Ekdal Sweden.\n");
 
 			System.out.println("\nThe parameters and their meaning are:\n"+
 					"\n-jvakt  \tA switch to enable report to Jvakt. Default is no connection to Jvakt." +
@@ -183,7 +188,7 @@ public class CheckDiskSpace {
 	}
 
 	// sends status to the server
-	static protected void sendSTS( boolean STS) throws IOException {
+	static private void sendSTS( boolean STS) throws IOException {
 
 		if (swJvakt) {
 			System.out.println("\n--- " + id + "  --  " + t_desc);
@@ -207,7 +212,7 @@ public class CheckDiskSpace {
 		}
 	}
 
-	static void getProps() {
+	static private void getProps() {
 
 		Properties prop = new Properties();
 		InputStream input = null;
@@ -231,5 +236,17 @@ public class CheckDiskSpace {
 
 	}
 
-
+	static private String getVersion() {
+		String version = "0";
+		try { 
+			Class<?> c1 = Class.forName("Jvakt.Version",false,ClassLoader.getSystemClassLoader());
+			Version ver = new Version();
+			version = ver.getVersion();
+ 		} 
+		catch (java.lang.ClassNotFoundException ex) {
+			version = "?";
+		}
+		return version;
+	}
+	
 }

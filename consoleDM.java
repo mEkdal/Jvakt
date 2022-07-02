@@ -1,9 +1,8 @@
 package Jvakt;
+/*
+ * 2022-07-02 V.54 Michael Ekdal		Added getVersion() to get at consistent version throughout all classes.
+ */
 
-//import java.awt.*;
-//import java.awt.event.*;
-//import javax.swing.event.*;
-//import javax.swing.*;
 import javax.swing.table.*;
 import java.io.*;
 import java.sql.Connection;
@@ -12,13 +11,11 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.*;
-//import java.net.*;
 
 class consoleDM extends AbstractTableModel {
-	
+
 	static final long serialVersionUID = 50L;
 	String afn;
-//	String columnNames[] = {"Count", "Id", "Prio", "Type", "CreDate", "ConDate", "Status", "Body", "Agent"};
 	String columnNames[] = { "Id", "Prio", "Type", "CreDate", "ConDate", "Status", "Body", "Agent"};
 	static Vector<consoleROW> map = new Vector<consoleROW>(100,10);
 
@@ -90,34 +87,8 @@ class consoleDM extends AbstractTableModel {
 			return null;
 		}
 
-		
-//		if (col == 0) {
-//			return rad.getCount();
-//		} else if (col == 1) {
-//			return rad.getId();
-//		} else if (col == 2) {
-//			return rad.getPrio();
-//		} else if (col == 3) {
-//			return rad.getType();
-//		} else if (col == 4) {
-//			return rad.getCredat();
-//		} else if (col == 5) {
-//			return rad.getCondat();
-//		} else if (col == 6) {
-//			return rad.getStatus();
-//		} else if (col == 7) {
-//			return rad.getBody();
-//		} else if (col == 8) {
-//			return rad.getAgent();
-//		} else {
-//			return null;
-//		}
-
 	}
 
-//	public Class getColumnClass(int c) {
-//		return getValueAt(0, c).getClass();
-//	}
 	public Class<?> getColumnClass(int c) {
 		try {
 			//		return getValueAt(0, c).getClass();
@@ -133,7 +104,7 @@ class consoleDM extends AbstractTableModel {
 	}
 
 	public void setValueAt(Object value, int row, int col) {
-		// se till att objektet User sparar v�rdet med r�tt set metod ( if (col == 2) .........
+		// save the vakue in right field dependin on th column (if (col == 2) .........
 		// 	System.out.println("wD setValueAt " + value + " " + row + " "+ col);
 
 		consoleROW rad;
@@ -145,12 +116,10 @@ class consoleDM extends AbstractTableModel {
 
 		if (col == 0) {
 			rad.setCount((Integer)value);
-//			rad.setCount((int)value);
 		} else if (col == 1) {
 			rad.setId((String)value);
 		} else if (col == 2) {
 			rad.setPrio((Integer)value);
-//			rad.setPrio((int)value);
 		} else if (col == 3) {
 			rad.setType((String)value);            
 		} else if (col == 4) {
@@ -181,14 +150,14 @@ class consoleDM extends AbstractTableModel {
 			swDBopen = true;
 		}
 		catch (SQLException e) {
-//			System.err.println(e);
+			//			System.err.println(e);
 			System.err.println("#e1 "+e.getMessage());
 			swDBopen = false;
 			map.clear();
 			createEmptyRow();
 		}
 		catch (Exception e) {
-//			System.err.println(e);
+			//			System.err.println(e);
 			System.err.println("#e2 "+e.getMessage());
 			swDBopen = false;
 			map.clear();
@@ -212,37 +181,28 @@ class consoleDM extends AbstractTableModel {
 
 			map.clear();
 
-//			System.out.println(s);
-//			Statement stmt = conn.createStatement(ResultSet.CONCUR_READ_ONLY,ResultSet.TYPE_SCROLL_INSENSITIVE); 
-//			Statement stmt = conn.createStatement(ResultSet.CONCUR_UPDATABLE,ResultSet.TYPE_FORWARD_ONLY,ResultSet.CLOSE_CURSORS_AT_COMMIT ); 
+			//			System.out.println(s);
+			//			Statement stmt = conn.createStatement(ResultSet.CONCUR_READ_ONLY,ResultSet.TYPE_SCROLL_INSENSITIVE); 
+			//			Statement stmt = conn.createStatement(ResultSet.CONCUR_UPDATABLE,ResultSet.TYPE_FORWARD_ONLY,ResultSet.CLOSE_CURSORS_AT_COMMIT ); 
 			Statement stmt = conn.createStatement(ResultSet.CONCUR_READ_ONLY,ResultSet.TYPE_FORWARD_ONLY,ResultSet.CLOSE_CURSORS_AT_COMMIT ); 
 			stmt.setFetchSize(1000);
 			stmt.setQueryTimeout(5); 
 			ResultSet rs = stmt.executeQuery(s);
 
-//			if (!rs.first()) {
-//				System.out.println("createemptyrow");
-//				createEmptyRow();
-//			}
-
 			while (rs.next()) {
-				//--
-//				System.out.println("rs.next");
+				//				System.out.println("rs.next");
 				rad = new consoleROW();
 
-//				for (int i = 1; i <= 7; i++) {
+				rad.setCount(rs.getInt("count"));
+				rad.setId(rs.getString("id"));
+				rad.setPrio(rs.getInt("prio"));
+				rad.setType(rs.getString("type"));
+				rad.setCredat(rs.getString("credat"));
+				rad.setCondat(rs.getString("condat"));
+				rad.setStatus(rs.getString("status"));
+				rad.setBody(rs.getString("body"));
+				rad.setAgent(rs.getString("agent"));
 
-					rad.setCount(rs.getInt("count"));
-					rad.setId(rs.getString("id"));
-					rad.setPrio(rs.getInt("prio"));
-					rad.setType(rs.getString("type"));
-					rad.setCredat(rs.getString("credat"));
-					rad.setCondat(rs.getString("condat"));
-					rad.setStatus(rs.getString("status"));
-					rad.setBody(rs.getString("body"));
-					rad.setAgent(rs.getString("agent"));
-
-//				}
 				map.add(rad);
 			}
 
@@ -279,7 +239,6 @@ class consoleDM extends AbstractTableModel {
 		rad.setStatus(" ");
 		rad.setBody(" ");
 		rad.setAgent(" ");
-//		map.add(rad);
 
 		return true;	
 	}
@@ -299,29 +258,29 @@ class consoleDM extends AbstractTableModel {
 
 	void getProps() {
 
-    	Properties prop = new Properties();
-    	InputStream input = null;
-    	try {
-    	input = new FileInputStream("console.properties");
-    	prop.load(input);
-    	// get the property value and print it out
-    	database = prop.getProperty("database");
-    	dbuser   = prop.getProperty("dbuser");
-    	dbpassword = prop.getProperty("dbpassword");
-		if (dbpassword.startsWith("==y")) {
-		    byte[] decodedBytes = Base64.getDecoder().decode(dbpassword.substring(3));
-		    String decodedString = new String(decodedBytes);
-		    dbpassword=decodedString;
+		Properties prop = new Properties();
+		InputStream input = null;
+		try {
+			input = new FileInputStream("console.properties");
+			prop.load(input);
+			// get the property value and print it out
+			database = prop.getProperty("database");
+			dbuser   = prop.getProperty("dbuser");
+			dbpassword = prop.getProperty("dbpassword");
+			if (dbpassword.startsWith("==y")) {
+				byte[] decodedBytes = Base64.getDecoder().decode(dbpassword.substring(3));
+				String decodedString = new String(decodedBytes);
+				dbpassword=decodedString;
+			}
+			dbhost   = prop.getProperty("dbhost");
+			dbport   = prop.getProperty("dbport");
+			jvport   = prop.getProperty("jvport");
+			jvhost   = prop.getProperty("jvhost");
+			input.close();
+		} catch (IOException ex) {
+			// ex.printStackTrace();
 		}
-    	dbhost   = prop.getProperty("dbhost");
-    	dbport   = prop.getProperty("dbport");
-    	jvport   = prop.getProperty("jvport");
-    	jvhost   = prop.getProperty("jvhost");
-    	input.close();
-    	} catch (IOException ex) {
-    		// ex.printStackTrace();
-    	}
-    	
+
 	}
 
 }

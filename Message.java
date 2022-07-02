@@ -1,8 +1,6 @@
 package Jvakt;
-
-/**
- * @author  Michael Ekdal
- * @version 2021-JUL-04  
+/*
+ * 2022-06-23 V.54 Michael Ekdal		Added getVersion() to get at consistent version throughout all classes.
  */
 
 public class Message {

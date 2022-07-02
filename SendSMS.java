@@ -1,4 +1,8 @@
 package Jvakt;
+/*
+ * 2022-06-23 V.54 Michael Ekdal		Added getVersion() to get at consistent version throughout all classes.
+ */
+
 import java.io.*;
 import java.net.InetAddress;
 import java.net.*;
@@ -11,11 +15,6 @@ import java.sql.Statement;
 //import java.sql.Timestamp;
 import java.util.*;
 import java.time.*;
-//import javax.mail.*;
-//import javax.mail.Authenticator;
-//import javax.mail.PasswordAuthentication;
-
-//import ptp.tool.ReceiverThread;
 
 public class SendSMS {
 
@@ -74,7 +73,8 @@ public class SendSMS {
 
 	public static void main(String[] args ) throws IOException, UnknownHostException {
 
-		String version = "SendSMS (2021-DEC-30)";
+		String version = "SendSMS ";
+		version += getVersion()+".54";
 		String database = "jVakt";
 		String dbuser   = "jVakt";
 		String dbpassword = "";
@@ -457,7 +457,6 @@ public class SendSMS {
 			}	      
 		}
 	}
-
 	
 	// sends status to the Jvakt server
 	static protected void sendSTS( boolean STS) throws IOException {
@@ -485,6 +484,18 @@ public class SendSMS {
 			if (!jm.sendMsg(jmsg)) System.out.println(LocalDateTime.now()+" --- Rpt to Jvakt Failed for Jvakt-SendSMS ---");
 			jm.close();
 	}
-
+	
+	static private String getVersion() {
+		String version = "0";
+		try { 
+			Class<?> c1 = Class.forName("Jvakt.Version",false,ClassLoader.getSystemClassLoader());
+			Version ver = new Version();
+			version = ver.getVersion();
+ 		} 
+		catch (java.lang.ClassNotFoundException ex) {
+			version = "?";
+		}
+		return version;
+	}
 	
 }
