@@ -8,6 +8,12 @@
 package Jvakt;
 /*
  * 2022-07-02 V.54 Michael Ekdal		Added getVersion() to get at consistent version throughout all classes.
+ * 2022-07-05 V.55 Michael Ekdal		Added the possibility to use cmdPlug1 during add/delete of lines in console 
+ * 2022-08-10 V.56 Michael Ekdal		Added check of cmdPlug1prio30 to trigger messages from 30 up yes or no. Else only below 30. 
+ * 2022-08-11 V.57 Michael Ekdal		-config to the cmdPlug1 arguments 
+ * 2022-08-11 V.58 Michael Ekdal		-recid to the cmdPlug1 arguments when *DELETE 
+ * 2022-08-11 V.59 Michael Ekdal		Added getVersion() to get at consistent version throughout all classes. 
+ * 2022-08-11 V.60 Michael Ekdal		Added check of cmdPlug1delete to trigger messages deleted from the console. 
  */
 
 import java.io.*;
@@ -36,12 +42,16 @@ class DBupdate {
 	int dbwrites;
 	boolean swDB = false;
 	boolean swPlugin = false;
-	boolean swDormant = true;
+	static boolean swDormant = true;
 	boolean swPerm = false;
 	boolean swLoop = true;
 	static boolean swLogg = false;
-    Calendar cal = Calendar.getInstance();
-
+	Calendar cal = Calendar.getInstance();
+	static private  String cmdPlug1 = null;
+	static private  String cmdPlug1prio30 = null;
+	static private  String cmdPlug1delete = null;
+	static String config = null;
+	static String version = "DBupdate ";
 
 	String database = "jVakt";
 	String dbuser   = "jVakt";
@@ -58,7 +68,6 @@ class DBupdate {
 
 	DBupdate(String[] args) throws Exception {
 
-		String config = null;
 		File configF;
 
 		for (int i=0; i<args.length; i++) {
@@ -68,7 +77,10 @@ class DBupdate {
 
 		if (config == null ) 	configF = new File("Jvakt.properties");
 		else 					configF = new File(config,"Jvakt.properties");
-		System.out.println("-config file DBupdate: "+configF);
+		
+		version += getVersion()+".60";
+//		System.out.println("-config file DBupdate: "+configF);
+		System.out.println("----------- Jvakt: "+new Date()+"  Version: "+version +"  -  config file: "+configF);
 
 		InputStream input = null; 
 		try {
@@ -79,12 +91,15 @@ class DBupdate {
 			dbuser   = prop.getProperty("dbuser");
 			dbpassword = prop.getProperty("dbpassword");
 			if (dbpassword.startsWith("==y")) {
-			    byte[] decodedBytes = Base64.getDecoder().decode(dbpassword.substring(3));
-			    String decodedString = new String(decodedBytes);
-			    dbpassword=decodedString;
+				byte[] decodedBytes = Base64.getDecoder().decode(dbpassword.substring(3));
+				String decodedString = new String(decodedBytes);
+				dbpassword=decodedString;
 			}
 			dbhost   = prop.getProperty("dbhost");
 			dbport   = prop.getProperty("dbport");
+			cmdPlug1 = prop.getProperty("cmdPlug1");
+			cmdPlug1prio30 = prop.getProperty("cmdPlug1prio30");
+			cmdPlug1delete = prop.getProperty("cmdPlug1delete");
 			autocreate  = prop.getProperty("autocreate");
 			String	mode 	 =  prop.getProperty("mode");
 			if (!mode.equalsIgnoreCase("active")) {  
@@ -93,7 +108,7 @@ class DBupdate {
 			}
 			dbwritesMax =  Integer.parseInt(prop.getProperty("dbwritesMax"));
 		} catch (IOException ex) {
-			 ex.printStackTrace();
+			ex.printStackTrace();
 		}
 		input.close();
 
@@ -114,7 +129,7 @@ class DBupdate {
 		String sId = "";		
 		String sBody = "";
 		dbwrites++;
-//		int sPrio = 99;
+		//		int sPrio = 99;
 
 		// Ignore empty connections. Most often from console checking the status.
 		if ( m.getId().isEmpty() ) {
@@ -127,7 +142,7 @@ class DBupdate {
 			if(!swDB) {
 				DBUrl = "jdbc:postgresql://"+dbhost+":"+dbport+"/"+database;
 				conn = DriverManager.getConnection(DBUrl,dbuser,dbpassword);
-//				conn.setAutoCommit(true);   // 2020-07-22
+				//				conn.setAutoCommit(true);   // 2020-07-22
 				conn.setAutoCommit(false);   // 2020-07-22
 				swDB = true;
 				System.out.println(LocalDateTime.now()+" #C1 Connected to DB" );
@@ -150,7 +165,7 @@ class DBupdate {
 					s = new String("select * from status " + 
 							"WHERE id ilike '" + m.getId().toUpperCase() + 
 							"';");
-//					if (swLogg) System.out.println("s: " + s );
+					//					if (swLogg) System.out.println("s: " + s );
 
 					//					stmt = conn.createStatement(ResultSet.CONCUR_UPDATABLE,ResultSet.TYPE_SCROLL_INSENSITIVE);
 					stmt = conn.createStatement(ResultSet.CONCUR_UPDATABLE,ResultSet.TYPE_FORWARD_ONLY,ResultSet.CLOSE_CURSORS_AT_COMMIT ); 
@@ -164,7 +179,7 @@ class DBupdate {
 						sType = rs.getString("type");
 						sId = rs.getString("id");
 						sBody = rs.getString("body");
-//						sPrio = rs.getInt("prio");
+						//						sPrio = rs.getInt("prio");
 						if (swLogg) {
 							if (!rs.getString("status").equals(m.getRptsts().toUpperCase()))
 								System.out.println(LocalDateTime.now()+" #1 " + rs.getString("id") + "  "  + sState + "  "  + sType + " " + rs.getString("status")+"->"+ m.getRptsts().toUpperCase() );
@@ -183,9 +198,9 @@ class DBupdate {
 						if (rs.getString("type").startsWith("D")) {
 							rs.updateString("type", m.getType().toUpperCase());
 							sType = m.getType().toUpperCase();
-//							rs.updateString("msg", "M");
-//							rs.updateString("sms", "M");
-//							rs.updateString("msg30", "M");
+							//							rs.updateString("msg", "M");
+							//							rs.updateString("sms", "M");
+							//							rs.updateString("msg30", "M");
 							if (rs.getString("msg").startsWith("M")) rs.updateString("msg", " ");
 							else if (rs.getString("msg").startsWith("T")) rs.updateString("msg", " ");
 							else if (rs.getString("msg").startsWith("S")) rs.updateString("msg", "R");
@@ -209,8 +224,8 @@ class DBupdate {
 						accerr = rs.getInt("accerr");
 
 						// update the errors column
-//						if (m.getRptsts().toUpperCase().equals("OK") || m.getRptsts().toUpperCase().equals("INFO")) rs.updateInt("errors", 0); 
-//						else                                          rs.updateInt("errors", errors);
+						//						if (m.getRptsts().toUpperCase().equals("OK") || m.getRptsts().toUpperCase().equals("INFO")) rs.updateInt("errors", 0); 
+						//						else                                          rs.updateInt("errors", errors);
 						if (m.getRptsts().toUpperCase().equals("OK") ) errors= 0; 
 						rs.updateInt("errors", errors);
 
@@ -232,11 +247,11 @@ class DBupdate {
 							else if (rs.getString("msg30").startsWith("S")) rs.updateString("msg30", "R");
 
 							if (rs.getString("type").startsWith("I")) rs.updateString("type", "D");
-//							rs.updateString("condat", null);					
+							//							rs.updateString("condat", null);					
 						}
 
 						// If Immediate and not OK, set "console" to C and set "msg" and "sms" to M
-//						if ( rs.getString("type").equalsIgnoreCase("I") && !m.getRptsts().toUpperCase().equals("OK") && errors > accerr) {
+						//						if ( rs.getString("type").equalsIgnoreCase("I") && !m.getRptsts().toUpperCase().equals("OK") && errors > accerr) {
 						if ( (rs.getString("type").equalsIgnoreCase("I") || m.getType().equalsIgnoreCase("I")) && !m.getRptsts().toUpperCase().equals("OK") && errors > accerr) {
 							rs.updateString("console", "C");
 							rs.updateTimestamp("condat", new java.sql.Timestamp((new Date(System.currentTimeMillis())).getTime()));
@@ -261,13 +276,13 @@ class DBupdate {
 
 						// trigger the background process for the plugin.
 						if (swPlugin && !swDormant && !rs.getString("type").startsWith("D")) {
-//							if (!rs.getString("plugin").startsWith(" ") && !rs.getString("plugin").startsWith("")) {
+							//							if (!rs.getString("plugin").startsWith(" ") && !rs.getString("plugin").startsWith("")) {
 							if (rs.getString("plugin").length() > 4 ) {
 								System.out.println(LocalDateTime.now()+" #4 plugin " + rs.getString("plugin") + " " + rs.getString("id")+ " " + rs.getString("prio")+ " " + status + " \"" + m.getBody() +"\"");
-//                              The plugin functionality disabled because of security concerns.  # 2021-12-19 Ekdal
-//								p =  Runtime.getRuntime().exec(rs.getString("plugin") + " " + rs.getString("id")+ " " + rs.getString("prio")+ " " + status + " \"" + m.getBody() +"\"");
-//								pList.add(p);
-//                              The plugin functionality disabled because of security concerns.  # 2021-12-19 Ekdal
+								//                              The plugin functionality disabled because of security concerns.  # 2021-12-19 Ekdal
+								//								p =  Runtime.getRuntime().exec(rs.getString("plugin") + " " + rs.getString("id")+ " " + rs.getString("prio")+ " " + status + " \"" + m.getBody() +"\"");
+								//								pList.add(p);
+								//                              The plugin functionality disabled because of security concerns.  # 2021-12-19 Ekdal
 								System.out.println(LocalDateTime.now()+" #4 plugin NOT started. The functionality is disabled");
 							}
 						}
@@ -301,9 +316,9 @@ class DBupdate {
 							st.setTime(9, new java.sql.Time( cal.getTime().getTime())); // chktim 00:00:00
 						}
 						else { 
-//							if (sType.toUpperCase().equals("S")) st.setTime(9, new java.sql.Time(8,0,0)); 
-//							else st.setTime(9, new java.sql.Time(6,0,0)); 
-							
+							//							if (sType.toUpperCase().equals("S")) st.setTime(9, new java.sql.Time(8,0,0)); 
+							//							else st.setTime(9, new java.sql.Time(6,0,0)); 
+
 							if (sType.toUpperCase().equals("S")) {
 								cal.set(1970, 01, 01, 8, 0, 0); // only HH:MM:SS is used
 								st.setTime(9, new java.sql.Time( cal.getTime().getTime())); // chktim 08:00:00 
@@ -352,16 +367,16 @@ class DBupdate {
 							System.out.println(LocalDateTime.now()+" #5 " +" Plugin Process finished, exitValue: "+exitVal);
 						} 
 						catch (Exception e) {
-//							System.out.println(" Plugin Process exitValue exeption " + e);
+							//							System.out.println(" Plugin Process exitValue exeption " + e);
 						} 
 					}
 
 
 					// console ** Immediate or delete type cause an update to the console table at once.
-//					if ( sType.equalsIgnoreCase("I") || m.getType().equalsIgnoreCase("I") || m.getType().equalsIgnoreCase("D") ) {   
+					//					if ( sType.equalsIgnoreCase("I") || m.getType().equalsIgnoreCase("I") || m.getType().equalsIgnoreCase("D") ) {   
 					if ( sType.equalsIgnoreCase("I") ||
-					  (!sState.equalsIgnoreCase("I") && m.getType().equalsIgnoreCase("I") && (!autocreate.equalsIgnoreCase("no") || swHits) ) ||
-					    m.getType().equalsIgnoreCase("D") ) {   
+							(!sState.equalsIgnoreCase("I") && m.getType().equalsIgnoreCase("I") && (!autocreate.equalsIgnoreCase("no") || swHits) ) ||
+							m.getType().equalsIgnoreCase("D") ) {   
 						if (swLogg) {
 							System.out.println(LocalDateTime.now()+" #6 Con  m.Type  : " + m.getType().toUpperCase() +" - "+  m.getId()+" - "+ m.getBody());
 							System.out.println(LocalDateTime.now()+" #7 Con rs.sType : " + sType +" - "+sId+"- -"+ sBody);
@@ -378,11 +393,11 @@ class DBupdate {
 							if (swLogg)
 								System.out.println(LocalDateTime.now()+" #8 s for update: "+s);
 						} else {  // delete 
-//							s = new String("select * from console " + 
-//									"WHERE id ilike '" + m.getId() + 
-//									"' AND ( body ilike '" + m.getBody() +"' OR body ilike '" + sBody +
-//									"' ) and prio='" + Integer.toString(m.getPrio()) +
-//									"';");
+							//							s = new String("select * from console " + 
+							//									"WHERE id ilike '" + m.getId() + 
+							//									"' AND ( body ilike '" + m.getBody() +"' OR body ilike '" + sBody +
+							//									"' ) and prio='" + Integer.toString(m.getPrio()) +
+							//									"';");
 							s = new String("select * from console " + 
 									"WHERE id ilike '" + m.getId() + 
 									"' AND body ilike '" + m.getBody() +
@@ -447,11 +462,28 @@ class DBupdate {
 							//        System.out.println("Closed " + sessnum );
 							//  Sleep one millisecond to be sure next timestamp is unique.
 							try { Thread.sleep(1); } catch (InterruptedException e) { e.printStackTrace();}
+
+							// *** call plugin1 start //
+							if (cmdPlug1 != null && !swDormant) {
+								if (cmdPlug1prio30.equalsIgnoreCase("Y") || m.getPrio() < 30 ) {
+									try {
+										String cmd = cmdPlug1+" *INSERT -id "+m.getId()+" -prio "+m.getPrio()+" -type "+sType.toUpperCase()+" -sts "+m.getRptsts().toUpperCase()+" -body \""+m.getBody()+"\" -agent \"" +m.getAgent()+"\"" ;
+										if (config != null ) cmd = cmd + " -config "+config; 	
+										Runtime.getRuntime().exec(cmd);
+										if (swLogg)	System.out.println(LocalDateTime.now()+" #P1 executed as insert: " +cmd);
+									} catch (IOException e1) {
+										System.err.println(e1);
+										System.err.println(e1.getMessage());
+									}
+								}
+							}
+							// *** call plugin1 end //
+
 						}
 					} //@console    
 
 				}
-			
+
 			// 2020-09-15
 			if (dbwrites>dbwritesMax && dbwritesMax>0) {
 				System.out.println(LocalDateTime.now()+" #C2 closing DB connection" );
@@ -506,8 +538,27 @@ class DBupdate {
 				System.out.println(LocalDateTime.now()+" #16 Executed insert addHst " +rowsInserted);
 			st.close();
 			conn.commit(); // 2020-07-22
+
 			if (swLogg)
 				System.out.println(LocalDateTime.now()+" #17 Closed addHst");
+
+			// call plugin1 start //
+			if (cmdPlug1 != null && !swDormant && cmdPlug1delete.equalsIgnoreCase("Y")) {
+				if (cmdPlug1prio30.equalsIgnoreCase("Y") || rs.getString("prio").compareTo("30") < 0 ) {
+					try {
+						String cmd = cmdPlug1+" *DELETE -id "+rs.getString("id")+" -prio "+rs.getString("prio")+" -type "+rs.getString("type")+" -sts "+rs.getString("status")+" -body \""+rs.getString("body")+"\" -agent \""+rs.getString("agent")+"\" -recid \""+rs.getString("recid")+"\""  ;
+//						System.out.println(LocalDateTime.now()+" #P2 pluin1 args: "+cmd );
+						if (config != null ) cmd = cmd + " -config "+config; 	
+						Runtime.getRuntime().exec(cmd);
+						if (swLogg)	System.out.println(LocalDateTime.now()+" #P2 executed as delete: " +cmd);
+
+					} catch (IOException e1) {
+						System.err.println(e1);
+						System.err.println(e1.getMessage());
+					}
+				}
+			}
+			// call plugin1 end //
 		}
 		catch (SQLException e) {
 			System.out.println(LocalDateTime.now()+" #E3 SQL exeption error session " );
@@ -521,6 +572,20 @@ class DBupdate {
 		}
 		finally { if (swLogg) System.out.println(LocalDateTime.now()+" #18 CheckStatus addHst finally routine" ); }
 	} 
+
+
+	static private String getVersion() {
+		String version = "0";
+		try { 
+			Class<?> c1 = Class.forName("Jvakt.Version",false,ClassLoader.getSystemClassLoader());
+			Version ver = new Version();
+			version = ver.getVersion();
+		} 
+		catch (java.lang.ClassNotFoundException ex) {
+			version = "?";
+		}
+		return version;
+	}
 
 
 }

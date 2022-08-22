@@ -1,0 +1,3 @@
+@rem Monitor access to SolarEdge clout checking a SolarPanel Site
+
+java -cp C:\Jvakt\Jvakt.jar Jvakt.monSolarEdge -run -show -host monitoringapi.solaredge.com -site 1212121 -auth QWQWQWQWQWQWQWQWQWQWQWQWQWQWQWQW -from 07 -to 18 >> c:\Jvakt\Logs\monSolarEdge.log 2>> c:\Jvakt\Logs\monSolarEdgeE.log

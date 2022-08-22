@@ -42,4 +42,12 @@ dbwritesMax=10000
 autocreate=yes
 # How many days to accept before warning of old https certificate. 10 is the default value if the line is missing.
 CertAgeDays = 15
+# plugin1   it is used to trigger a plugin program when rows is add3d or removed from the console!
+# plugin1   Keep cmdPlug1, cmdPlug1prio30 and cmdPlug1delete commented if not used.
+# cmdPlug1       = javaw -cp Jvakt.jar Jvakt.PlugIvantiSM  (The command to call plugin1 (used to update Ivanti Service Manager or such from the console))
+# cmdPlug1prio30 = Y ( includes console messages from 30 and higher. )
+# cmdPlug1delete = Y ( the plugin is triggered also when a row is deleted from the console. )
+#cmdPlug1 = javaw -cp Jvakt.jar Jvakt.PlugIvantiSM
+#cmdPlug1prio30 = Y
+#cmdPlug1delete = Y
 

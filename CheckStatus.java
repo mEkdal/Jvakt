@@ -1,6 +1,11 @@
 package Jvakt;
 /*
  * 2022-07-02 V.54 Michael Ekdal		Added getVersion() to get at consistent version throughout all classes.
+ * 2022-07-05 V.55 Michael Ekdal		Added the possibility to use cmdPlug1 during add/delete of lines in console 
+ * 2022-08-10 V.56 Michael Ekdal		Added check of cmdPlug1prio30 to trigger messages from 30 up yes or no. Else only below 30. 
+ * 2022-08-11 V.57 Michael Ekdal		-config to the cmdPlug1 arguments 
+ * 2022-08-11 V.58 Michael Ekdal		-recid to the cmdPlug1 arguments when *DELETE 
+ * 2022-08-11 V.59 Michael Ekdal		Added check of cmdPlug1delete to trigger messages deleted from the console.
  */
 
 import java.io.*;
@@ -17,7 +22,7 @@ import java.time.*;
 import java.time.LocalDateTime;
 
 public class CheckStatus {
- 
+
 	static String DBUrl = "jdbc:postgresql://localhost:5433/Jvakt";
 	static Connection conn = null;
 	static boolean swShowVer = true;
@@ -48,12 +53,15 @@ public class CheckStatus {
 	static String agent = null;
 	static Calendar cal = Calendar.getInstance();
 	static String currentID;
+	static private  String cmdPlug1 = null;
+	static private  String cmdPlug1prio30 = null;
+	static private  String cmdPlug1delete = null;
+	static String config = null;
 
-//	public static void main(String[] args ) throws IOException, UnknownHostException {
+	//	public static void main(String[] args ) throws IOException, UnknownHostException {
 	public static void main(String[] args ) {
 
-		version += getVersion()+".54";
-		String config = null;
+		version += getVersion()+".59";
 		File configF;
 
 		for (int i=0; i<args.length; i++) {
@@ -76,14 +84,17 @@ public class CheckStatus {
 			dbuser   = prop.getProperty("dbuser");
 			dbpassword = prop.getProperty("dbpassword");
 			if (dbpassword.startsWith("==y")) {
-			    byte[] decodedBytes = Base64.getDecoder().decode(dbpassword.substring(3));
-			    String decodedString = new String(decodedBytes);
-			    dbpassword=decodedString;
+				byte[] decodedBytes = Base64.getDecoder().decode(dbpassword.substring(3));
+				String decodedString = new String(decodedBytes);
+				dbpassword=decodedString;
 			}
 			dbhost   = prop.getProperty("dbhost");
 			dbport   = prop.getProperty("dbport");
 			jvport   = prop.getProperty("jvport");
 			jvhost   = prop.getProperty("jvhost");
+			cmdPlug1 = prop.getProperty("cmdPlug1");
+			cmdPlug1prio30 = prop.getProperty("cmdPlug1prio30");
+			cmdPlug1delete = prop.getProperty("cmdPlug1delete");
 			String	mode 	 =  prop.getProperty("mode");
 			if (!mode.equalsIgnoreCase("active"))  swDormant = true;
 		} catch (IOException ex) {
@@ -121,16 +132,16 @@ public class CheckStatus {
 			Class.forName("org.postgresql.Driver").newInstance();
 			DBUrl = "jdbc:postgresql://"+dbhost+":"+dbport+"/"+database;
 			conn = DriverManager.getConnection(DBUrl,dbuser,dbpassword);
-//			conn.setAutoCommit(true);
+			//			conn.setAutoCommit(true);
 			conn.setAutoCommit(false);
 
 			s = new String("select * from status " + 
 					"WHERE state='A' or state = 'D';"); 
 
 			//						System.out.println(s);
-//			stmt = conn.createStatement(ResultSet.CONCUR_UPDATABLE,ResultSet.TYPE_FORWARD_ONLY,ResultSet.CLOSE_CURSORS_AT_COMMIT ); 
+			//			stmt = conn.createStatement(ResultSet.CONCUR_UPDATABLE,ResultSet.TYPE_FORWARD_ONLY,ResultSet.CLOSE_CURSORS_AT_COMMIT ); 
 			stmt = conn.createStatement(ResultSet.CONCUR_READ_ONLY,ResultSet.TYPE_FORWARD_ONLY,ResultSet.HOLD_CURSORS_OVER_COMMIT ); 
-//			stmt = conn.createStatement(ResultSet.CONCUR_UPDATABLE,ResultSet.TYPE_FORWARD_ONLY,ResultSet.HOLD_CURSORS_OVER_COMMIT ); 
+			//			stmt = conn.createStatement(ResultSet.CONCUR_UPDATABLE,ResultSet.TYPE_FORWARD_ONLY,ResultSet.HOLD_CURSORS_OVER_COMMIT ); 
 			stmt.setFetchSize(1000);
 			ResultSet rs = stmt.executeQuery(s); 
 			while (rs.next()) {
@@ -202,63 +213,63 @@ public class CheckStatus {
 					if (rs.getString("console").startsWith(" ")) {
 						System.out.println(new Date()+" - ERR: Set console to C" + " " + rs.getString("id"));
 
-//						rs.updateString("console", "C");
-//						rs.updateTimestamp("condat", new java.sql.Timestamp((new Date(System.currentTimeMillis())).getTime()));
-						
+						//						rs.updateString("console", "C");
+						//						rs.updateTimestamp("condat", new java.sql.Timestamp((new Date(System.currentTimeMillis())).getTime()));
+
 						SQL_UPDATE ="UPDATE STATUS SET CONSOLE=?, CONDAT=? WHERE ID='"+rs.getString("id")+"' AND PRIO="+rs.getString("prio");
 						StmtUpdate = conn.prepareStatement(SQL_UPDATE);
 						StmtUpdate.setString(1, "C");
 						StmtUpdate.setTimestamp(2, new java.sql.Timestamp((new Date(System.currentTimeMillis())).getTime()));
 						StmtUpdate.executeUpdate();
 						StmtUpdate.close();
-						
+
 						swUpdate=true;
 					}
 					if (rs.getString("msg").startsWith("T") || rs.getString("msg").startsWith(" ")) {
 						System.out.println(new Date()+" - ERR: Set msg to M" + " " + rs.getString("id"));
-//						rs.updateString("msg", "M");
-//						rs.updateTimestamp("msgdat", new java.sql.Timestamp((new Date(System.currentTimeMillis())).getTime()));
-						
+						//						rs.updateString("msg", "M");
+						//						rs.updateTimestamp("msgdat", new java.sql.Timestamp((new Date(System.currentTimeMillis())).getTime()));
+
 						SQL_UPDATE ="UPDATE STATUS SET MSG=?, MSGDAT=? WHERE ID='"+rs.getString("id")+"' AND PRIO="+rs.getString("prio");
 						StmtUpdate = conn.prepareStatement(SQL_UPDATE);
 						StmtUpdate.setString(1, "M");
 						StmtUpdate.setTimestamp(2, new java.sql.Timestamp((new Date(System.currentTimeMillis())).getTime()));
 						StmtUpdate.executeUpdate();
 						StmtUpdate.close();
-						
+
 						swPlugin = true;
 						swUpdate=true;
 					}
 					if ( rs.getString("sms").startsWith("T") || rs.getString("sms").startsWith(" ")) {
 						System.out.println(new Date()+" - ERR: Set sms to M" + " " + rs.getString("id"));
-//						rs.updateString("sms", "M");
-//						rs.updateTimestamp("smsdat", new java.sql.Timestamp((new Date(System.currentTimeMillis())).getTime()));
-						
+						//						rs.updateString("sms", "M");
+						//						rs.updateTimestamp("smsdat", new java.sql.Timestamp((new Date(System.currentTimeMillis())).getTime()));
+
 						SQL_UPDATE ="UPDATE STATUS SET SMS=?, SMSDAT=? WHERE ID='"+rs.getString("id")+"' AND PRIO="+rs.getString("prio");
 						StmtUpdate = conn.prepareStatement(SQL_UPDATE);
 						StmtUpdate.setString(1, "M");
 						StmtUpdate.setTimestamp(2, new java.sql.Timestamp((new Date(System.currentTimeMillis())).getTime()));
 						StmtUpdate.executeUpdate();
 						StmtUpdate.close();
-						
+
 						swUpdate=true;
 					}
 					if ( rs.getString("msg30").startsWith("T") || rs.getString("msg30").startsWith(" ")) {
 						System.out.println(new Date()+" - ERR: Set msg30 to M" + " " + rs.getString("id"));
-//						rs.updateString("msg30", "M");
-//						rs.updateTimestamp("msgdat30", new java.sql.Timestamp((new Date(System.currentTimeMillis())).getTime()));
-						
+						//						rs.updateString("msg30", "M");
+						//						rs.updateTimestamp("msgdat30", new java.sql.Timestamp((new Date(System.currentTimeMillis())).getTime()));
+
 						SQL_UPDATE ="UPDATE STATUS SET MSG30=?, MSGDAT30=? WHERE ID='"+rs.getString("id")+"' AND PRIO="+rs.getString("prio");
 						StmtUpdate = conn.prepareStatement(SQL_UPDATE);
 						StmtUpdate.setString(1, "M");
 						StmtUpdate.setTimestamp(2, new java.sql.Timestamp((new Date(System.currentTimeMillis())).getTime()));
 						StmtUpdate.executeUpdate();
 						StmtUpdate.close();
-						
+
 						swUpdate=true;
 					}
-//					if (swUpdate) try { rs.updateRow(); } catch(NullPointerException npe2) {}
-//					conn.commit();
+					//					if (swUpdate) try { rs.updateRow(); } catch(NullPointerException npe2) {}
+					//					conn.commit();
 					//					System.out.println("## 1");
 					updC(rs); // add or remove line to/from the console table
 					//					System.out.println("## 2");
@@ -277,23 +288,23 @@ public class CheckStatus {
 					System.out.println(new Date()+" - TOUT: " + " " + rs.getString("id")+"  msg:"+rs.getString("msg"));
 
 					if (!rs.getString("console").equalsIgnoreCase("C")) {
-//						rs.updateString("console", "C");
-//						rs.updateTimestamp("condat", new java.sql.Timestamp((new Date(System.currentTimeMillis())).getTime()));
-						
+						//						rs.updateString("console", "C");
+						//						rs.updateTimestamp("condat", new java.sql.Timestamp((new Date(System.currentTimeMillis())).getTime()));
+
 						SQL_UPDATE ="UPDATE STATUS SET CONSOLE=?, CONDAT=? WHERE ID='"+rs.getString("id")+"' AND PRIO="+rs.getString("prio");
 						StmtUpdate = conn.prepareStatement(SQL_UPDATE);
 						StmtUpdate.setString(1, "C");
 						StmtUpdate.setTimestamp(2, new java.sql.Timestamp((new Date(System.currentTimeMillis())).getTime()));
-//						System.out.println(	StmtUpdate.executeUpdate() );
+						//						System.out.println(	StmtUpdate.executeUpdate() );
 						StmtUpdate.executeUpdate();
 
 						StmtUpdate.close();
-						
+
 						swUpdate=true;
 					}
 					swTiming = true;
 					System.out.println(new Date()+" - timing #3: " + rs.getString("id")+"  MSG:"+rs.getString("msg"));
-// 2021-03-17
+					// 2021-03-17
 					rs.updateString("status", "TOut");
 					rs.updateString("body", "Agent Timed-Out");
 					SQL_UPDATE ="UPDATE STATUS SET STATUS=?, BODY=? WHERE ID='"+rs.getString("id")+"' AND PRIO="+rs.getString("prio");
@@ -302,28 +313,28 @@ public class CheckStatus {
 					StmtUpdate.setString(2, "Agent Timed-Out");
 					StmtUpdate.executeUpdate();
 					StmtUpdate.close();
-// 2021-03-17
-					
+					// 2021-03-17
+
 					if (rs.getString("msg").startsWith(" ")) {
 						System.out.println(new Date()+" - TOut: Set msg to T " + rs.getString("id"));
-//						rs.updateString("msg", "T");
-//						rs.updateTimestamp("msgdat", new java.sql.Timestamp((new Date(System.currentTimeMillis())).getTime()));
-						
+						//						rs.updateString("msg", "T");
+						//						rs.updateTimestamp("msgdat", new java.sql.Timestamp((new Date(System.currentTimeMillis())).getTime()));
+
 						SQL_UPDATE ="UPDATE STATUS SET MSG=?, MSGDAT=? WHERE ID='"+rs.getString("id")+"' AND PRIO="+rs.getString("prio");
 						StmtUpdate = conn.prepareStatement(SQL_UPDATE);
 						StmtUpdate.setString(1, "T");
 						StmtUpdate.setTimestamp(2, new java.sql.Timestamp((new Date(System.currentTimeMillis())).getTime()));
 						StmtUpdate.executeUpdate();
 						StmtUpdate.close();
-						
+
 						swPlugin = true;
 						swUpdate=true;
 					}
 					if (rs.getString("sms").startsWith(" ")) {
 						System.out.println(new Date()+" - TOut: Set sms to T " + rs.getString("id"));
-//						rs.updateString("sms", "T");
-//						rs.updateTimestamp("smsdat", new java.sql.Timestamp((new Date(System.currentTimeMillis())).getTime()));
-						
+						//						rs.updateString("sms", "T");
+						//						rs.updateTimestamp("smsdat", new java.sql.Timestamp((new Date(System.currentTimeMillis())).getTime()));
+
 						SQL_UPDATE ="UPDATE STATUS SET SMS=?, SMSDAT=? WHERE ID='"+rs.getString("id")+"' AND PRIO="+rs.getString("prio");
 						StmtUpdate = conn.prepareStatement(SQL_UPDATE);
 						StmtUpdate.setString(1, "T");
@@ -335,7 +346,7 @@ public class CheckStatus {
 						System.out.println(new Date()+" - TOut: Set msg30 to T " + rs.getString("id"));
 						rs.updateString("msg30", "T");
 						rs.updateTimestamp("msgdat30", new java.sql.Timestamp((new Date(System.currentTimeMillis())).getTime()));
-						
+
 						SQL_UPDATE ="UPDATE STATUS SET MSG30=?, MSGDAT30=? WHERE ID='"+rs.getString("id")+"' AND PRIO="+rs.getString("prio");
 						StmtUpdate = conn.prepareStatement(SQL_UPDATE);
 						StmtUpdate.setString(1, "T");
@@ -344,8 +355,8 @@ public class CheckStatus {
 						StmtUpdate.close();
 					}
 					System.out.println(new Date()+" - timing #3.a :  " + rs.getString("id")+"  MSG:"+rs.getString("msg"));
-//					if (swUpdate) try { rs.updateRow(); } catch(NullPointerException npe2) {}
-//					conn.commit();
+					//					if (swUpdate) try { rs.updateRow(); } catch(NullPointerException npe2) {}
+					//					conn.commit();
 					updC(rs); // add new line to the console table
 					if (swPlugin && !rs.getString("plugin").startsWith(" ")) {
 						trigPlugin(rs.getString("id"), rs.getString("status"), "P", rs.getString("body")); 
@@ -357,9 +368,9 @@ public class CheckStatus {
 						) {
 					System.out.println(new Date()+" - OK: #4 " + rs.getString("id")+" "+rs.getString("status")+"  MSG:"+rs.getString("msg")+"  SMS:"+rs.getString("sms")+"  MSG30:"+rs.getString("msg30") );
 					swDelete = true;   // remove lines from console
-//					rs.updateString("console", " ");
-//					rs.updateString("status", "OK");
-					
+					//					rs.updateString("console", " ");
+					//					rs.updateString("status", "OK");
+
 					SQL_UPDATE ="UPDATE STATUS SET CONSOLE=?, STATUS=? WHERE ID='"+rs.getString("id")+"' AND PRIO="+rs.getString("prio");
 					StmtUpdate = conn.prepareStatement(SQL_UPDATE);
 					StmtUpdate.setString(1, " ");
@@ -370,8 +381,8 @@ public class CheckStatus {
 					swUpdate=true;
 					if (rs.getString("msg").startsWith("M") || rs.getString("msg").startsWith("T")) {
 						System.out.println(new Date()+" - OK: Set msg to blank" + " " + rs.getString("id"));
-//						rs.updateString("msg", " ");
-						
+						//						rs.updateString("msg", " ");
+
 						SQL_UPDATE ="UPDATE STATUS SET MSG=? WHERE ID='"+rs.getString("id")+"' AND PRIO="+rs.getString("prio");
 						StmtUpdate = conn.prepareStatement(SQL_UPDATE);
 						StmtUpdate.setString(1, " ");
@@ -381,8 +392,8 @@ public class CheckStatus {
 					}
 					else if (rs.getString("msg").startsWith("S")) {
 						System.out.println(new Date()+" - OK: Set msg to R" + " " + rs.getString("id"));
-//						rs.updateString("msg", "R");
-						
+						//						rs.updateString("msg", "R");
+
 						SQL_UPDATE ="UPDATE STATUS SET MSG=? WHERE ID='"+rs.getString("id")+"' AND PRIO="+rs.getString("prio");
 						StmtUpdate = conn.prepareStatement(SQL_UPDATE);
 						StmtUpdate.setString(1, "R");
@@ -392,8 +403,8 @@ public class CheckStatus {
 					}
 					if (rs.getString("sms").startsWith("M") || rs.getString("sms").startsWith("T")) {
 						System.out.println(new Date()+" - OK: Set sms to blank" + " " + rs.getString("id"));
-//						rs.updateString("sms", " ");
-						
+						//						rs.updateString("sms", " ");
+
 						SQL_UPDATE ="UPDATE STATUS SET SMS=? WHERE ID='"+rs.getString("id")+"' AND PRIO="+rs.getString("prio");
 						StmtUpdate = conn.prepareStatement(SQL_UPDATE);
 						StmtUpdate.setString(1, " ");
@@ -403,8 +414,8 @@ public class CheckStatus {
 					}
 					else if (rs.getString("sms").startsWith("S")) {
 						System.out.println(new Date()+" - OK: Set sms to R" + " " + rs.getString("id"));
-//						rs.updateString("sms", "R");
-						
+						//						rs.updateString("sms", "R");
+
 						SQL_UPDATE ="UPDATE STATUS SET SMS=? WHERE ID='"+rs.getString("id")+"' AND PRIO="+rs.getString("prio");
 						StmtUpdate = conn.prepareStatement(SQL_UPDATE);
 						StmtUpdate.setString(1, "R");
@@ -414,8 +425,8 @@ public class CheckStatus {
 					}
 					if (rs.getString("msg30").startsWith("M") || rs.getString("msg30").startsWith("T") || rs.getString("msg30").startsWith("D")) {
 						System.out.println(new Date()+" - OK: Set msg30 to blank" + " " + rs.getString("id"));
-//						rs.updateString("msg30", " ");
-						
+						//						rs.updateString("msg30", " ");
+
 						SQL_UPDATE ="UPDATE STATUS SET MSG30=? WHERE ID='"+rs.getString("id")+"' AND PRIO="+rs.getString("prio");
 						StmtUpdate = conn.prepareStatement(SQL_UPDATE);
 						StmtUpdate.setString(1, " ");
@@ -425,8 +436,8 @@ public class CheckStatus {
 					}
 					else if (rs.getString("msg30").startsWith("S")) {
 						System.out.println(new Date()+" - OK: Set msg30 to R" + " " + rs.getString("id"));
-//						rs.updateString("msg30", "R");
-						
+						//						rs.updateString("msg30", "R");
+
 						SQL_UPDATE ="UPDATE STATUS SET MSG30=? WHERE ID='"+rs.getString("id")+"' AND PRIO="+rs.getString("prio");
 						StmtUpdate = conn.prepareStatement(SQL_UPDATE);
 						StmtUpdate.setString(1, "R");
@@ -434,10 +445,10 @@ public class CheckStatus {
 						StmtUpdate.close();
 
 					}
-//					if (swUpdate) try { rs.updateRow(); } catch(NullPointerException npe2) {}
-//					conn.commit();
+					//					if (swUpdate) try { rs.updateRow(); } catch(NullPointerException npe2) {}
+					//					conn.commit();
 					updC(rs); // update or remove line from the console table
-//					System.out.println(new Date()+" - ssss");
+					//					System.out.println(new Date()+" - ssss");
 				}
 				conn.commit();
 			}
@@ -496,7 +507,7 @@ public class CheckStatus {
 	}
 
 	//----- add or remove line to/from the console table -----
-//	static protected void updC(ResultSet rs) throws IOException {
+	//	static protected void updC(ResultSet rs) throws IOException {
 	static protected void updC(ResultSet rs) {
 
 		Statement stmt = null;
@@ -547,9 +558,9 @@ public class CheckStatus {
 					System.out.println(new Date()+" - update console: row.count:"+count  + " - id:"+ rs2.getString("id")+ " - "+rs2.getString("prio") + " - " + rs2.getString("body") );
 					if (swTiming) {
 						rs2.updateString("status","TOut");
-//						rs2.updateString("body", rs.getString("body"));
+						//						rs2.updateString("body", rs.getString("body"));
 						rs2.updateString("body", "Agent Timed-Out");
-						
+
 					}
 					else {
 						if (!swShDay) rs2.updateString("status","INFO");    // Force INFO if chkday is out of range
@@ -563,7 +574,7 @@ public class CheckStatus {
 			}
 			rs2.close(); 
 			stmt.close();
-//			conn.commit();
+			//			conn.commit();
 			//			}
 
 
@@ -586,7 +597,7 @@ public class CheckStatus {
 				//				else st.setString(7,rs.getString("status").toUpperCase() );// 
 				if (swTiming) {
 					st.setString(7,"TOut");
-//					st.setString(8,rs.getString("body") );
+					//					st.setString(8,rs.getString("body") );
 					st.setString(8,"Agent Timed-Out");
 				}
 				else {
@@ -599,9 +610,26 @@ public class CheckStatus {
 				int rowsInserted = st.executeUpdate();
 				System.out.println(new Date()+" - Executed insert addC " +rowsInserted);
 				st.close();
-//				conn.commit();
+				//				conn.commit();
+
+				// *** call plugin1 start //
+				if (cmdPlug1 != null  && !swDormant) {
+					if (cmdPlug1prio30.equalsIgnoreCase("Y") || rs.getString("prio").compareTo("30") < 0 ) {
+						try {
+							String cmd = cmdPlug1+" *INSERT -id "+rs.getString("id")+" -prio "+rs.getString("prio")+" -type "+rs.getString("type")+" -sts "+rs.getString("status")+" -body \""+rs.getString("body")+"\" -agent \""+rs.getString("agent")+"\""  ;
+							if (config != null ) cmd = cmd + " -config "+config; 	
+							Runtime.getRuntime().exec(cmd);
+							System.out.println(new Date()+" - #P1 executed as insert: " +cmd);
+						} catch (IOException e1) {
+							System.err.println(e1);
+							System.err.println(e1.getMessage());
+						}
+					}
+				}
+				// *** call plugin1 end //
+
 			}
-//			System.out.println(LocalDateTime.now()+" Closed addC");
+			//			System.out.println(LocalDateTime.now()+" Closed addC");
 		}
 		catch (SQLException e) {
 			System.err.println(new Date()+" - "+e);
@@ -611,8 +639,8 @@ public class CheckStatus {
 			System.err.println(new Date()+" - "+e);
 			System.err.println(e.getMessage());
 		}
-//		finally { System.out.println(LocalDateTime.now()+" CheckStatus addC finally routine" ); }
-		
+		//		finally { System.out.println(LocalDateTime.now()+" CheckStatus addC finally routine" ); }
+
 	} 
 
 	static protected void countErr(ResultSet rs, char c) throws SQLException {
@@ -654,6 +682,23 @@ public class CheckStatus {
 			System.out.println(new Date()+" - Executed insert addHst " +rowsInserted);
 			st.close();
 			System.out.println(new Date()+" - Closed addHst");
+
+			// call plugin1 start //
+			if (cmdPlug1 != null && !swDormant &&  cmdPlug1delete.equalsIgnoreCase("Y")) {
+				if (cmdPlug1prio30.equalsIgnoreCase("Y") || rs.getString("prio").compareTo("30") < 0 ) {
+					try {
+						String cmd = cmdPlug1+" *DELETE -id "+rs.getString("id")+" -prio "+rs.getString("prio")+" -type "+rs.getString("type")+" -sts "+rs.getString("status")+" -body \""+rs.getString("body")+"\" -agent \""+rs.getString("agent")+"\" -recid \""+rs.getString("recid")+"\""  ;
+						if (config != null ) cmd = cmd + " -config "+config; 	
+						Runtime.getRuntime().exec(cmd);
+						System.out.println(new Date()+" - #P2 executed as delete: " +cmd);
+
+					} catch (IOException e1) {
+						System.err.println(e1);
+						System.err.println(e1.getMessage());
+					}
+				}
+			}
+			// call plugin1 end //
 		}
 		catch (SQLException e) {
 			System.err.println(new Date()+" - "+e);
@@ -664,6 +709,8 @@ public class CheckStatus {
 			System.err.println(e.getMessage());
 		}
 		finally { System.out.println(new Date()+" - CheckStatus addHst finally routine" ); }
+
+
 	} 
 
 	static private String getVersion() {
@@ -672,7 +719,7 @@ public class CheckStatus {
 			Class<?> c1 = Class.forName("Jvakt.Version",false,ClassLoader.getSystemClassLoader());
 			Version ver = new Version();
 			version = ver.getVersion();
- 		} 
+		} 
 		catch (java.lang.ClassNotFoundException ex) {
 			version = "?";
 		}
