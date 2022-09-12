@@ -49,12 +49,13 @@ public class monSolarEdge {
 	static Date now;
 
 	static boolean swRun = false;
+	static boolean swBat = false;
 	static String config = null;
 	static File configF;
 
 	public static void main(String[] args) throws UnknownHostException, IOException, Exception {
 
-		version += getVersion()+".1";
+		version += getVersion()+".2";
 		now = new Date();
 
 
@@ -64,16 +65,16 @@ public class monSolarEdge {
 			System.out.println("Power and the last reported connection by the site to the SolarEdge is checked.");
 
 			System.out.println("\n\nThe parameters and their meaning are:\n"+
-					"\n-config \tThe dir of the input files. Like: \"-dir c:\\Temp\" "+
-					"\n-run    \tTo actually update the status on the server side."+
-					"\n-host   \tCheck a single host." +
-					"\n-port   \tDefault is 443." +
-					"\n-show   \tShow extended logging." +
-					"\n-site   \tThe SolarEdge site id" +
-					"\n-auth   \tThe SolarEdge API key." +
-					"\n-from   \tFrom which hour the power is checked. default is 09" +
-					"\n-to     \tTo which hour the power is checked.   default is 14" +
-				"\n-show   \tShow the response from the server."
+					"\n-config  \tThe dir of the input files. Like: \"-dir c:\\Temp\" "+
+					"\n-run     \tTo actually update the status on the server side."+
+					"\n-host    \tCheck a single host." +
+					"\n-port    \tDefault is 443." +
+					"\n-show    \tShow extended logging." +
+					"\n-site    \tThe SolarEdge site id" +
+					"\n-auth    \tThe SolarEdge API key." +
+					"\n-from    \tFrom which hour the power is checked. default is 09" +
+					"\n-to      \tTo which hour the power is checked.   default is 14" +
+					"\n-battery \tCheck the battery." 
 					);
 
 			System.exit(4);
@@ -112,6 +113,7 @@ public class monSolarEdge {
 			if (args[i].equalsIgnoreCase("-site")) site = args[++i];
 			if (args[i].equalsIgnoreCase("-run")) swRun = true;
 			if (args[i].equalsIgnoreCase("-show")) swShow = true;
+			if (args[i].equalsIgnoreCase("-battery")) swBat = true;
 			if (args[i].equalsIgnoreCase("-host")) { host = args[++i]; }
 			if (args[i].equalsIgnoreCase("-config")) config = args[++i];
 			if (args[i].equalsIgnoreCase("-from")) fom = args[++i];
@@ -131,10 +133,11 @@ public class monSolarEdge {
 		if (swShow)	{
 			System.out.println(" Host: "+host+"\n");
 		}
-		checkHttp();
+		checkHttpOverview();
+		if (swBat) checkHttpBattery();
 	}
 
-	public static boolean checkHttp() {
+	public static boolean checkHttpOverview() {
 		// First set the default cookie manager.
 		java.net.CookieManager cm = new java.net.CookieManager(null, CookiePolicy.ACCEPT_ALL);
 		java.net.CookieHandler.setDefault(cm);
@@ -143,7 +146,7 @@ public class monSolarEdge {
 			hosturl ="https://"+host+":"+wport+"/site/"+site+"/overview.json?api_key="+auth;
 
 			//			if (swShow)	System.out.println("-- URL  : https://"+host+":"+wport+webfile);
-			if (swShow)	System.out.println("-- URL  : "+hosturl);
+			if (swShow)	System.out.println("-- overview URL  : "+hosturl);
 			//			if (swShow)	System.out.println("-- Auth : " +auth);
 			//			System.setProperty("https.protocols", "SSLv3");
 			URL url = new URL(hosturl); 
@@ -176,7 +179,7 @@ public class monSolarEdge {
 			while ((inputLine = httpin.readLine()) != null  && !state) {
 				state = true;
 				if (swShow)	System.out.println(inputLine);
-				String parseResult = parseInputline(inputLine);
+				String parseResult = parseInputlineOverview(inputLine); 
 				if (parseResult.startsWith("OK")) {
 					System.out.println(new Date()+" -- SolarEdge site "+site+" is working.");
 					if (swRun) {
@@ -196,6 +199,7 @@ public class monSolarEdge {
 			}
 			httpin.close();
 			con.disconnect();
+			if (swShow)	System.out.println("-- End overview check --");
 		} 
 		catch (Exception e) { System.out.println(e); state = false;   }
 
@@ -211,7 +215,89 @@ public class monSolarEdge {
 		return true; 
 	}
 
-	static String parseInputline(String in) {
+	public static boolean checkHttpBattery() {
+		// First set the default cookie manager.
+		java.net.CookieManager cm = new java.net.CookieManager(null, CookiePolicy.ACCEPT_ALL);
+		java.net.CookieHandler.setDefault(cm);
+		// connect to port
+		try {
+			hosturl ="https://"+host+":"+wport+"/site/"+site+"/storageData.json?startTime=2022-09-10%2011:00:00&endTime=2022-09-11%2013:00:00&api_key="+auth;
+
+//			if (swShow)	System.out.println("-- URL  : https://"+host+":"+wport+webfile);
+			if (swShow)	System.out.println("\n-- battery URL  : "+hosturl);
+			//			if (swShow)	System.out.println("-- Auth : " +auth);
+			//			System.setProperty("https.protocols", "SSLv3");
+			URL url = new URL(hosturl); 
+			HttpsURLConnection con = (HttpsURLConnection) url.openConnection();
+			if (swShow)	System.out.println("-- OK, got connection");
+			con.setReadTimeout(5000);
+			con.setConnectTimeout(5000);
+			con.setDoOutput(true);
+			con.setRequestMethod("GET");
+			con.setRequestProperty("Content-Type", "application/json");
+			con.setRequestProperty("Accept", "application/json");
+			con.setRequestProperty("Authorization", "Bearer "+auth);
+			con.connect();
+
+			//			if (swShow) System.out.println(new Date()+" -- getURL         : "+con.getURL());
+			//			if (swShow) System.out.println(new Date()+" -- Req-Limit-Short: "+con.getHeaderField("Req-Limit-Short"));
+			//			if (swShow) System.out.println(new Date()+" -- Req-Limit-Long : "+con.getHeaderField("Req-Limit-Long"));
+
+			if (con.getResponseCode() != 200) {
+				throw new RuntimeException("Failed : HTTP error code: "
+						+ con.getResponseCode() +" "+con.getResponseMessage());
+			}
+
+			BufferedReader httpin = new BufferedReader(
+					new InputStreamReader(con.getInputStream()));
+			if (swShow)	System.out.println("-- OK, got in-stream");
+
+			String inputLine;
+			Boolean batFound = false;
+			if (swShow)	System.out.println("-- start read lines");
+			while ((inputLine = httpin.readLine()) != null  && !state) {
+				state = true;
+				if (swShow)	System.out.println(inputLine);
+				batFound = true;
+//				String parseResult = parseInputlineBattery(inputLine);
+//				if (parseResult.startsWith("OK")) {
+//					System.out.println(new Date()+" -- SolarEdge site "+site+" is working.");
+//					if (swRun) {
+//						t_id=site;
+//						t_desc="SolarEdge site "+site+" is working.";
+//						sendSTS(true);
+//					}
+//				} else {
+//					System.out.println(new Date()+" -- SolarEdge site "+site+" has an anomality: "+parseResult);
+//					if (swRun) {
+//						t_id=site;
+//						t_desc="SolarEdge site "+site+" has an anomality: "+parseResult;
+//						sendSTS(false);
+//					}
+//				}
+			}
+			if (swShow && !batFound)	System.out.println("No battery found!");
+
+			httpin.close();
+			con.disconnect();
+			if (swShow)	System.out.println("-- End battry check --");
+		} 
+		catch (Exception e) { System.out.println(e); state = false;   }
+
+		if (!state) {
+			if (swShow)	System.out.println(new Date()+" -- Connection failed      - "+hosturl+t_desc);
+			if (swRun) {
+				t_id=site;
+				t_desc = "Connection failed  ";
+				sendSTS(false);
+			}
+			return false; 
+		}
+		return true; 
+	}
+
+	
+	static String parseInputlineOverview(String in) {
 
 		JsonElement jsonElement = JsonParser.parseString(in);
 
@@ -248,11 +334,11 @@ public class monSolarEdge {
 		int power= overView.getAsJsonObject().get("currentPower").getAsJsonObject().get("power").getAsInt();
 		tod_form = new SimpleDateFormat("HH");
 		String tod = tod_form.format(new Date());
-		System.out.println("Tod : "+ tod );
+//		System.out.println("Tod : "+ tod );
 
 
-		if ( diffInMillies/1000/60 > 20) return "No contact was made with SolarEdge in the last 20 minutes";
-		else if (power==0 && tod.compareTo(fom)>0 && tod.compareTo(tom)<0 ) return "No power reported";
+		if ( diffInMillies/1000/60 > 20) return "No update from solarpanels to SolarEdge cloud was made in the last 20 minutes";
+		else if (power==0 && tod.compareTo(fom)>0 && tod.compareTo(tom)<0 ) return "Currently no power is produced at the moment";
 		else  return "OK";        
 
 	}
