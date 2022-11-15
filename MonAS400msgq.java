@@ -1,5 +1,7 @@
 package Jvakt;
 /*
+ * 2022-11-15 V.55 Michael Ekdal		Fixed: When -dormant, "All reports will be forced to be 30 or higher" 
+ * 2022-11-15 V.55 Michael Ekdal		Tested: Used with Java 17. 
  * 2022-06-23 V.54 Michael Ekdal		Added getVersion() to get at consistent version throughout all classes.
  */
 
@@ -27,7 +29,7 @@ public class MonAS400msgq  {
 	public static void main(String[] args) throws IOException {
 
 		now = new Date();
-		String version = getVersion()+".54";
+		String version = getVersion()+".55";
 
 		// Displays help
 		if (args.length == 0) {
@@ -172,7 +174,7 @@ public class MonAS400msgq  {
 			severity = msge.getSeverity();
 			msgId = msge.getID();
 			//			System.out.println("GetType "+msge.getType());
-			if (msgId.length()<1)  { System.out.println("msgId empty"); continue; }
+//			if (msgId.length()<1)  { System.out.println(new Date()+" msgId empty"); continue; }
 			//			System.out.println("* Msge: "+msgId + " "+severity+ " " + jobName + " - " + msg );
 
 			msgL = jobName+" "+msgId+" "+msg;
@@ -189,6 +191,7 @@ public class MonAS400msgq  {
 					}
 					else {
 						sev = Integer.parseInt(words[1]);
+						if (swDormant && sev < 30) sev = 30;
 						sts = words[2];
 					}
 					if (words.length>3) rpy = words[3];
