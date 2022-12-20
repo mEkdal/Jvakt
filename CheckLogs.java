@@ -1,4 +1,9 @@
 package Jvakt;
+/*
+ * 2022-12-20 V.55 Michael Ekdal		Made sure the jvtype is used as a default when updating Jvakt status
+ * 2022-06-23 V.54 Michael Ekdal		Added getVersion() to get at consistent version throughout all classes.
+ */
+
 
 import java.net.InetAddress;
 import java.util.Properties;
@@ -69,7 +74,7 @@ public class CheckLogs {
 	public static void main(String[] args) throws IOException {
 
 		//		int j = 0;
-		version += getVersion()+".54";
+		version += getVersion()+".55";
 		int errors = 0;
 		int position=0;
 		int posprev = 0;
@@ -397,6 +402,7 @@ public class CheckLogs {
 			System.out.println(jm.open()); 
 
 			jmsg.setId(id);
+			jmsg.setType(jvtype);
 			if (!STS) {
 				jmsg.setRptsts("OK");
 			}
@@ -419,9 +425,7 @@ public class CheckLogs {
 				}
 				else {
 					jmsg.setRptsts("ERR");
-					//					jmsg.setId(id);
 				}
-				//				jmsg.setType(jvtype);
 				jmsg.setType("I");
 			}
 			jmsg.setBody(t_desc);

@@ -1,5 +1,6 @@
 package Jvakt;
 /*
+ * 2022-11-15 V.3   Michael Ekdal		Small correction in the text "Currently no power is produced".
  * 2022-08-17 V.1   Michael Ekdal		Created to monitor an solar panel site hosted by SolarEdge.
  */
 
@@ -55,7 +56,7 @@ public class monSolarEdge {
 
 	public static void main(String[] args) throws UnknownHostException, IOException, Exception {
 
-		version += getVersion()+".2";
+		version += getVersion()+".3";
 		now = new Date();
 
 
@@ -338,7 +339,7 @@ public class monSolarEdge {
 
 
 		if ( diffInMillies/1000/60 > 20) return "No update from solarpanels to SolarEdge cloud was made in the last 20 minutes";
-		else if (power==0 && tod.compareTo(fom)>0 && tod.compareTo(tom)<0 ) return "Currently no power is produced at the moment";
+		else if (power==0 && tod.compareTo(fom)>0 && tod.compareTo(tom)<0 ) return "Currently no power is produced";
 		else  return "OK";        
 
 	}
