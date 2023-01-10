@@ -6,6 +6,7 @@ package Jvakt;
  * 2022-08-11 V.57 Michael Ekdal		-config to the cmdPlug1 arguments 
  * 2022-08-11 V.58 Michael Ekdal		-recid to the cmdPlug1 arguments when *DELETE 
  * 2022-08-11 V.59 Michael Ekdal		Added check of cmdPlug1delete to trigger messages deleted from the console.
+ * 2023-01-10 V.60 Michael Ekdal		Added send of the status to Jvakt server
  */
 
 import java.io.*;
@@ -32,7 +33,9 @@ public class CheckStatus {
 	static boolean swPlugin = false;
 	static boolean swShDay; // set when the scheduled day is active
 	static boolean swDormant = false;
-	static boolean swRowDormant = false;
+	static boolean swRowDormant = false; 
+	static boolean swOKtot = false; 
+	
 	static java.sql.Date zDate;
 	static java.sql.Timestamp zD;
 	static java.sql.Timestamp zTs;
@@ -49,7 +52,7 @@ public class CheckStatus {
 	static String dbport   = "5433";
 	static String jvhost   = "localhost";
 	static String jvport   = "1956";
-	static int port ;
+	static int jvporti ;
 	static String agent = null;
 	static Calendar cal = Calendar.getInstance();
 	static String currentID;
@@ -57,11 +60,12 @@ public class CheckStatus {
 	static private  String cmdPlug1prio30 = null;
 	static private  String cmdPlug1delete = null;
 	static String config = null;
+	static InetAddress inet;
 
 	//	public static void main(String[] args ) throws IOException, UnknownHostException {
 	public static void main(String[] args ) {
 
-		version += getVersion()+".59";
+		version += getVersion()+".60";
 		File configF;
 
 		for (int i=0; i<args.length; i++) {
@@ -110,9 +114,9 @@ public class CheckStatus {
 		//		boolean swHits;
 		int accerr;
 		int err;
-		port = Integer.parseInt(jvport);
+		jvporti = Integer.parseInt(jvport);
 		agent = null;
-		InetAddress inet;
+//		InetAddress inet;
 
 		try {
 			inet = InetAddress.getLocalHost();
@@ -165,7 +169,7 @@ public class CheckStatus {
 				accerr = rs.getInt("accerr");
 				err    = rs.getInt("errors");
 
-				Lsec = (zTs.getTime() / 1000 - zD.getTime() / 1000);  // Aktuella tiden minus tiden rptdat i sekunder  
+				Lsec = (zTs.getTime() / 1000 - zD.getTime() / 1000);  // Actual time minus the time rptdat in seconds  
 
 				Lchktim = rs.getTime("chktim").getTime();
 				Lchktimto = rs.getTime("chktimto").getTime();
@@ -448,9 +452,9 @@ public class CheckStatus {
 					//					if (swUpdate) try { rs.updateRow(); } catch(NullPointerException npe2) {}
 					//					conn.commit();
 					updC(rs); // update or remove line from the console table
-					//					System.out.println(new Date()+" - ssss");
 				}
 				conn.commit();
+				swOKtot = true;
 			}
 			rs.close(); 
 			stmt.close();
@@ -460,16 +464,21 @@ public class CheckStatus {
 			System.out.println(new Date()+" SQLExeption - CurrentID = " + currentID);
 			System.err.println(e);
 			System.err.println(e.getMessage());
+			swOKtot = false;
 		}
 		catch (Exception e) {
 			System.out.println(new Date()+" Exeption - CurrentID = " + currentID);
 			System.err.println(e);
 			System.err.println(e.getMessage());
+			swOKtot = false;
 		}
 		finally { 
 			//			System.out.println("CheckStatus Severe: " + errors + "  Problems: " + warnings + "  Info: " + infos ); 
 			//		   sendSTS();
 		}
+		if (swOKtot ) try {sendSTS(true);}  catch (IOException e) { e.printStackTrace();}
+		else 	      try {sendSTS(false);} catch (IOException e) { e.printStackTrace();}
+
 	}        
 
 	// trigger plugin
@@ -477,7 +486,7 @@ public class CheckStatus {
 		if (swDormant) return;
 		System.out.println(new Date()+" - * trigPlugin * " + id +" "+ sts +" "+ type +" "+ body);
 		Message jmsg = new Message();
-		SendMsg jm = new SendMsg(jvhost, port);
+		SendMsg jm = new SendMsg(jvhost, jvporti);
 		System.out.println(jm.open());
 		jmsg.setId(id);
 		jmsg.setRptsts(sts);
@@ -490,22 +499,33 @@ public class CheckStatus {
 		jm.close();
 	}
 
-	// sends SYSSTS to the server
-	static protected void sendSTS() throws IOException {
-		Message jmsg = new Message();
-		SendMsg jm = new SendMsg(jvhost, port);
-		System.out.println(new Date()+" - "+jm.open());
-		jmsg.setId("SYSSTS");
-		jmsg.setRptsts("Info");
-		jmsg.setBody("Severe: " + errors + "  Problems: " + warnings + "  Info: " + infos);
-		jmsg.setType("I");
-		jmsg.setAgent(agent);
-		//		jm.sendMsg(jmsg);
-		if (jm.sendMsg(jmsg)) System.out.println(new Date()+" - Rpt Delivered ");
-		else           	      System.out.println(new Date()+" - Rpt Failed ");
-		jm.close();
-	}
+	// sends status to the Jvakt server
+	static protected void sendSTS( boolean STS) throws IOException {
+			System.out.println("--- Connecting to "+jvhost+":"+jvport);
+			Message jmsg = new Message();
+			SendMsg jm = new SendMsg(jvhost, jvporti);
+//			System.out.println(jm.open()); 
+			jm.open(); 
+			jmsg.setId("Jvakt-CheckStatus");
+			if (STS) {
+				jmsg.setBody("The CheckStatus program is working.");
+				jmsg.setRptsts("OK");
+			}
+			else {
+				jmsg.setBody("The CheckStatus program is not working!");
+				jmsg.setRptsts("ERR");
+			}
+			jmsg.setType("T");
 
+			inet = InetAddress.getLocalHost();
+//			System.out.println("-- Inet: "+inet);
+			agent = inet.toString();
+
+			jmsg.setAgent(agent);
+			if (!jm.sendMsg(jmsg)) System.out.println("--- Rpt to Jvakt Failed for CheckStatus ---");
+			jm.close();
+	}
+	
 	//----- add or remove line to/from the console table -----
 	//	static protected void updC(ResultSet rs) throws IOException {
 	static protected void updC(ResultSet rs) {

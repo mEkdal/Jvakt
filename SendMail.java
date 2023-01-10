@@ -1,5 +1,6 @@
 package Jvakt;
 /*
+ * 2023-01-09 V.55 Michael Ekdal		Added send of the status to Jvakt server
  * 2022-06-23 V.54 Michael Ekdal		Added getVersion() to get at consistent version throughout all classes.
  */
 
@@ -11,6 +12,9 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.*;
+
+import Jvakt.Message;
+
 import java.time.*;
 import jakarta.mail.*;
 import jakarta.mail.Authenticator;
@@ -24,6 +28,7 @@ public class SendMail {
 	static boolean swTiming;
 	static boolean swShDay; // set when the scheduled day is active
 	static boolean swDormant = false;
+	static boolean swOK = false;
 	
 	static boolean swShowVer = true;
 
@@ -38,6 +43,9 @@ public class SendMail {
 	static int infos = 0;
 	static int resolved = 0;
 	static Date now;
+	
+	static InetAddress inet;
+	static String agent = null;
 
 	static String sbody = "";
 	static String ebody = "";
@@ -80,6 +88,10 @@ public class SendMail {
 	static String smtphost;
 	static String smtpport;
 
+	static String jvhost   = "localhost";
+	static String jvport   = "1956";
+	static int    jvporti   = 1956;
+
 	static Authenticator auth;
 
 	static List<String> listTo;
@@ -87,14 +99,12 @@ public class SendMail {
 	public static void main(String[] args ) throws IOException, UnknownHostException {
 
 		String version = "SendMail ";
-		version += getVersion()+".54";
+		version += getVersion()+".55";
 		String database = "jVakt";
 		String dbuser   = "jVakt";
 		String dbpassword = "";
 		String dbhost   = "localhost";
 		String dbport   = "5433";
-		String jvhost   = "localhost";
-		String jvport   = "1956";
 
 		String config = null;
 		File configF;
@@ -143,7 +153,7 @@ public class SendMail {
 		dbhost   = prop.getProperty("dbhost");
 		dbport   = prop.getProperty("dbport");
 		jvport   = prop.getProperty("jvport");
-		int jvporti = Integer.parseInt(jvport);
+		jvporti = Integer.parseInt(jvport);
 		jvhost   = prop.getProperty("jvhost");
 		toEmailW  = prop.getProperty("toEmail");
 		fromEmail= prop.getProperty("fromEmail");
@@ -318,8 +328,15 @@ public class SendMail {
 				}
 			}
 			
-			if (sendMail()) conn.commit();
-			else			conn.rollback();
+			// One mail contains all errors
+			if (sendMail()) {
+				conn.commit();
+				swOK = true;
+			}
+			else			{
+				conn.rollback();
+				swOK = false;
+			}
 
 			rs.close(); 
 			stmt.close();
@@ -329,56 +346,18 @@ public class SendMail {
 		}
 		catch (SQLException e) {
 			System.err.println("SQLExeption " + e);
+			swOK = false;
 //			System.err.println(e.getMessage());
 		}
 		catch (Exception e) {
 			System.err.println("Exeption " + e);
+			swOK = false;
 //			System.err.println(e.getMessage());
 		}
-		finally { 
-//			subject = "Altered status -->   ";
-//			body = tblStr;
-//
-//			if (sbody.length() > 0) {
-//				subject = subject + "Errors: " + serrors + "  ";
-//				body = body + rowStr+hdrStrM+"ERROR" +hdrEnd+hdrStrM+""+hdrEnd+hdrStrM+""+hdrEnd+rowEnd+	sbody ;
-//			}
-//			if (ebody.length() > 0) {
-//				subject = subject + "Warnings: " + errors + "  ";
-//				body = body + rowStr+hdrStrR+"WARNING" +hdrEnd+hdrStrR+""+hdrEnd+hdrStrR+""+hdrEnd+rowEnd+	ebody ;
-//			}
-//			if (wbody.length() > 0) {
-//				subject = subject + "Time-outs: " + warnings + "  ";
-//				body = body + rowStr+hdrStrY+"TIME-OUT"+hdrEnd+hdrStrY+""+hdrEnd+hdrStrY+""+hdrEnd+rowEnd+	wbody ;
-//			}
-//			if (rbody.length() > 0) { 
-//				subject = subject + "Resolved: " + resolved;
-//				body = body + rowStr+hdrStrG+"RESOLVED" +hdrEnd+hdrStrG+""+hdrEnd+hdrStrG+""+hdrEnd+rowEnd+	rbody ;
-//			}
-//			body = body + tblEnd;
-//
-//			if (swMail) {
-//
-////				Iterator iterator = listTo.iterator();
-//				toEmailW = "";
-//				int n = 0;
-//				for(Object object : listTo) { 
-//					if (n>0) toEmailW = toEmailW + ",";
-//					n++;
-//				  String element = (String) object;
-//				  System.out.println(object);
-//				  toEmailW = toEmailW + (String) object;
-//				}
-//				
-//				toEmail = toEmailW;
-////				System.out.println("To:"+toEmailW+"   Subject: " + subject );
-//				System.out.println("To:"+toEmail +"   Subject: " + subject );
-//				System.out.println( body );
-//				Session session = Session.getInstance(props, auth);
-//				EmailUtil.sendEmail(session, toEmail,subject, body, fromEmail);
-//			}
-
-		}
+//		finally { 
+//		}
+		if (swOK ) try {sendSTS(true);}  catch (IOException e) { e.printStackTrace();}
+		else 	   try {sendSTS(false);} catch (IOException e) { e.printStackTrace();}
 	}        
 	static boolean sendMail() {
 
@@ -454,6 +433,33 @@ public class SendMail {
 			version = "?";
 		}
 		return version;
+	}
+
+	// sends status to the Jvakt server
+	static protected void sendSTS( boolean STS) throws IOException {
+			System.out.println("--- Connecting to "+jvhost+":"+jvport);
+			Message jmsg = new Message();
+			SendMsg jm = new SendMsg(jvhost, jvporti);
+//			System.out.println(jm.open()); 
+			jm.open(); 
+			jmsg.setId("Jvakt-SendMail");
+			if (STS) {
+				jmsg.setBody("The SendMail program is working.");
+				jmsg.setRptsts("OK");
+			}
+			else {
+				jmsg.setBody("The SendMail program is not working!");
+				jmsg.setRptsts("ERR");
+			}
+			jmsg.setType("T");
+
+			inet = InetAddress.getLocalHost();
+//			System.out.println("-- Inet: "+inet);
+			agent = inet.toString();
+
+			jmsg.setAgent(agent);
+			if (!jm.sendMsg(jmsg)) System.out.println("--- Rpt to Jvakt Failed for SendMail ---");
+			jm.close();
 	}
 
 }

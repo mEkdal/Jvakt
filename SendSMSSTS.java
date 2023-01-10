@@ -1,5 +1,6 @@
 package Jvakt;
 /*
+ * 2023-01-03 V.55 Michael Ekdal		Added send of the status to Jvakt server
  * 2022-06-23 V.54 Michael Ekdal		Added getVersion() to get at consistent version throughout all classes.
  */
 
@@ -75,7 +76,7 @@ public class SendSMSSTS {
 	public static void main(String[] args ) {
 
 		String version = "SendSMSSTS ";
-		version += getVersion()+".54";
+		version += getVersion()+".55";
 
 		for (int i=0; i<args.length; i++) {
 			if (args[i].equalsIgnoreCase("-config")) config = args[++i];
@@ -215,8 +216,9 @@ public class SendSMSSTS {
 		//			System.out.println("\n" + body );
 
 		if (swMail && !swDormant) {
-			sendSMS();  // gör för närvarande ingen return hit, utan sendSMS avslutar pgm.
+			sendSMS();  // sendSMS will exit the program with no return here.
 		}
+		try {sendSTS(true);} catch (IOException e) { e.printStackTrace();}
 
 	}        
 
@@ -268,7 +270,7 @@ public class SendSMSSTS {
 
 			// Connect to Com-Server
 			try {
-				System.out.println("Connecting to: "+SMShost +":" + SMSporti +"\n" );
+				System.out.println("Connecting to SMShost: "+SMShost +":" + SMSporti +"\n" );
 				//				sock = new Socket( SMShost, SMSporti );
 				sock = new Socket();
 				sock.connect(new InetSocketAddress(SMShost, SMSporti), 2000);
@@ -276,7 +278,7 @@ public class SendSMSSTS {
 				osw = new OutputStreamWriter( sock.getOutputStream() );
 				isr = new InputStreamReader( sock.getInputStream() );
 			} catch( IOException e ) {
-				System.out.println("IOExeption while connecting " + e);
+				System.out.println("IOExeption while connecting to SMShost" + e);
 				swOK = false;
 				break;
 			}
@@ -319,7 +321,7 @@ public class SendSMSSTS {
 					
 			} catch( IOException e ) {
 				swOK = false;
-				System.out.println("IOExeption while sending " + e);
+				System.out.println("IOExeption while sending SMS " + e);
 				break;
 			}		      
 			// closing and disconnecting 
@@ -338,7 +340,8 @@ public class SendSMSSTS {
 			return true;
 		}
 		else {
-			System.out.println("RETURN false");
+			System.out.println("Failure sending SMS message");
+			try {sendSTS(false);} catch (IOException e) { e.printStackTrace();}
 			System.exit(12);
 			return false;
 		}

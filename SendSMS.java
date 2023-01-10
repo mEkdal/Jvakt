@@ -1,5 +1,6 @@
 package Jvakt;
 /*
+ * 2023-01-03 V.55 Michael Ekdal		Added send of the status to Jvakt server
  * 2022-06-23 V.54 Michael Ekdal		Added getVersion() to get at consistent version throughout all classes.
  */
 
@@ -25,6 +26,8 @@ public class SendSMS {
 	static boolean swShDay; // set when the scheduled day is active 
 	static boolean swDormant = false;
 	static boolean swShowVer = true;
+	static boolean swOK = false;
+
 	static java.sql.Date zDate;
 	static java.sql.Timestamp zD;
 	static java.sql.Timestamp zTs;
@@ -74,7 +77,7 @@ public class SendSMS {
 	public static void main(String[] args ) throws IOException, UnknownHostException {
 
 		String version = "SendSMS ";
-		version += getVersion()+".54";
+		version += getVersion()+".55";
 		String database = "jVakt";
 		String dbuser   = "jVakt";
 		String dbpassword = "";
@@ -287,14 +290,14 @@ public class SendSMS {
 			//			System.err.println(e.getMessage());
 		}
 		finally { 
-			try {sendSTS(true);} catch (IOException e) { e.printStackTrace();}
+			if (swOK) try {sendSTS(true);} catch (IOException e) { e.printStackTrace();}
 		}
 	}        
 
 	// Connects to the SMS terminal and sends the text
 	static boolean sendSMS() {
 
-		boolean swOK = false;
+		swOK = false;
 		System.out.println(LocalDateTime.now()+" --- Sending Jvakt SMS ---\n");
 
 		if (error) {
@@ -332,7 +335,7 @@ public class SendSMS {
 				isr = new InputStreamReader( sock.getInputStream() );
 			} catch( IOException e ) {
 				swOK = false;
-				System.out.println(LocalDateTime.now()+" IOExeption while connecting " + e);
+				System.out.println(LocalDateTime.now()+" IOExeption while connecting to SMShost" + e);
 				break;
 			}
 			// Sending ( http://chadselph.github.io/smssplit/ )
@@ -379,7 +382,7 @@ public class SendSMS {
 
 			} catch( IOException e ) {
 //				swOK = false;
-				System.out.println(LocalDateTime.now()+" IOExeption while sending " + e);
+				System.out.println(LocalDateTime.now()+" IOExeption while sending SMS " + e);
 				break;
 			}		      
 			// closing and disconnecting 
@@ -396,7 +399,8 @@ public class SendSMS {
 			return true;
 		}
 		else {
-			System.out.println(LocalDateTime.now()+" RETURN false");
+			System.out.println(LocalDateTime.now()+" Failure sending SMS message");
+			try {sendSTS(false);} catch (IOException e) { e.printStackTrace();}
 			return false;
 		}
 

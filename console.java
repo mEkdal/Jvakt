@@ -1,6 +1,7 @@
 package Jvakt;
 
 /*
+ * 2023-01-09 V.55 Michael Ekdal		Added CheckStatus warning.
  * 2022-06-23 V.54 Michael Ekdal		Added getVersion() to get at consistent version throughout all classes.
  */
 
@@ -36,6 +37,7 @@ public class console extends JFrame implements TableModelListener, WindowListene
 	private Boolean swDBopen = true; 
 	private Boolean swServer = true; 
 	private Boolean swDormant = true; 
+	private Boolean swCheckStatus = true; 
 
 	private Boolean swPropFile = true;
 
@@ -48,6 +50,7 @@ public class console extends JFrame implements TableModelListener, WindowListene
 
 	private  int deselectCount = 0; 
 	private  int jvconnectCount = 0; 
+	private  int jvCheckStatusCount = 1000; 
 
 	private String infotxt; 
 
@@ -76,7 +79,7 @@ public class console extends JFrame implements TableModelListener, WindowListene
 		port = Integer.parseInt(jvport);
 
 		// a function inherited from Jframe used to set a heading
-		setTitle("Jvakt console "+getVersion()+".54 -  F1 = Help"); 
+		setTitle("Jvakt console "+getVersion()+".55 -  F1 = Help"); 
 
 		//	        setSize(5000, 5000);
 
@@ -266,6 +269,13 @@ public class console extends JFrame implements TableModelListener, WindowListene
 					}
 
 					swDBopen = wD.refreshData();
+					
+					jvCheckStatusCount++;
+					if (jvCheckStatusCount > 30) { 
+							swCheckStatus = wD.isCheckStatusActive(); 
+							jvCheckStatusCount=0;
+//							System.out.println("isCheckStatusActive? "+  swCheckStatus);  
+					}
 					setBu1Color();
 					if (swRed) scrollPane.setBorder(new LineBorder(Color.RED));
 					else scrollPane.setBorder(new LineBorder(Color.CYAN));
@@ -323,6 +333,10 @@ public class console extends JFrame implements TableModelListener, WindowListene
 			txt = txt + "  System DORMANT.";
 		}
 		else txt = txt +  "  System ACTIVE.";
+		if (!swCheckStatus) {
+			bu1.setBackground(Color.RED);
+			txt = txt + "  CheckStatus not active. ";
+		}
 
 		bu1.setText(txt);
 	}

@@ -1,12 +1,16 @@
 package Jvakt;
 /*
  * 2022-06-23 V.54 Michael Ekdal		Added getVersion() to get at consistent version throughout all classes.
+ * 2023-01-10 V.55 Michael Ekdal		Added send of the status to Jvakt server
  */
 
 import jakarta.mail.*;
 import jakarta.mail.search.*;
 //import Jvakt.Message;
 import java.util.*;
+
+import Jvakt.Message;
+
 import java.io.*;
 import java.net.InetAddress;
 
@@ -22,6 +26,7 @@ public class GetMail2Jvakt {
 	static boolean swDormant = false;
 	static boolean swId = false;
 	static boolean swDelete = false;
+	static boolean swOKtot = false;
 	static String mimeType;
 	static String msgId;
 	static String t_id;
@@ -40,7 +45,7 @@ public class GetMail2Jvakt {
 	static String agent = null;
 	static String jvhost   = "localhost";
 	static String jvport   = "1956";
-	static int port ;
+	static int jvporti ;
 	static String jvrc   = "";
 	static String uname;
 	static String pwd;
@@ -64,7 +69,7 @@ public class GetMail2Jvakt {
 	public static void main(String[] args) {
 
 		String version = "GetMail2Jvakt ";
-		version += getVersion()+".54";
+		version += getVersion()+".55";
 
 		for (int i=0; i<args.length; i++) {
 			if (args[i].equalsIgnoreCase("-config")) config = args[++i];
@@ -105,7 +110,7 @@ public class GetMail2Jvakt {
 
 
 		if (swRun) {
-			SendMsg jm = new SendMsg(jvhost, port);  // kollar om JvaktServer är tillgänglig.
+			SendMsg jm = new SendMsg(jvhost, jvporti);  // Check if JvaktServer is available and if dormant.
 			jvrc = jm.open();
 			System.out.println(new Date()+" Jvakt server status: "+jvrc);
 			if (jvrc.toLowerCase().startsWith("dormant")) swDormant = true;
@@ -343,11 +348,15 @@ public class GetMail2Jvakt {
 				}
 			}
 			store.close();
-
+			swOKtot = true;
 		}
 		catch (Exception ex) {
 			ex.printStackTrace();
+			swOKtot = false;
 		}
+
+		if (swOKtot ) try {sendSTS(true);}  catch (IOException e) { e.printStackTrace();}
+		else 	      try {sendSTS(false);} catch (IOException e) { e.printStackTrace();}
 
 	} 
 
@@ -355,7 +364,7 @@ public class GetMail2Jvakt {
 
 	static protected void sendJv( String ID, String STS, String type, String msg) throws IOException {
 		Message jmsg = new Message();
-		SendMsg jm = new SendMsg(jvhost, port);
+		SendMsg jm = new SendMsg(jvhost, jvporti);
 		System.out.println(jm.open());
 		jmsg.setId(ID);
 		jmsg.setRptsts(STS);
@@ -388,7 +397,7 @@ public class GetMail2Jvakt {
 			// get the property value and print it out
 			jvport   = prop.getProperty("jvport");
 			jvhost   = prop.getProperty("jvhost");
-			port = Integer.parseInt(jvport);
+			jvporti  = Integer.parseInt(jvport);
 			uname    = prop.getProperty("smtpuser");
 			pwd      = prop.getProperty("smtppwd");
 			if (pwd.startsWith("==y")) {
@@ -450,5 +459,33 @@ public class GetMail2Jvakt {
 		}
 		return version;
 	}
+
+	// sends status to the Jvakt server
+	static protected void sendSTS( boolean STS) throws IOException {
+			System.out.println("--- Connecting to "+jvhost+":"+jvport);
+			Message jmsg = new Message();
+			SendMsg jm = new SendMsg(jvhost, jvporti);
+//			System.out.println(jm.open()); 
+			jm.open(); 
+			jmsg.setId("Jvakt-GetMail2Jvakt");
+			if (STS) {
+				jmsg.setBody("The GetMail2Jvakt program is working.");
+				jmsg.setRptsts("OK");
+			}
+			else {
+				jmsg.setBody("The GetMail2Jvakt program is not working!");
+				jmsg.setRptsts("ERR");
+			}
+			jmsg.setType("T");
+
+			inet = InetAddress.getLocalHost();
+//			System.out.println("-- Inet: "+inet);
+			agent = inet.toString();
+
+			jmsg.setAgent(agent);
+			if (!jm.sendMsg(jmsg)) System.out.println("--- Rpt to Jvakt Failed for GetMail2Jvakt ---");
+			jm.close();
+	}
+	
 
 }

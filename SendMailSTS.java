@@ -1,5 +1,6 @@
 package Jvakt;
 /*
+ * 2023-01-09 V.55 Michael Ekdal		Added send of the status to Jvakt server
  * 2022-06-23 V.54 Michael Ekdal		Added getVersion() to get at consistent version throughout all classes.
  */
 
@@ -11,6 +12,8 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.*;
+
+import Jvakt.Message;
 import jakarta.mail.*;
 import jakarta.mail.Authenticator;
 import jakarta.mail.PasswordAuthentication;
@@ -39,6 +42,9 @@ public class SendMailSTS {
 	static String wbody = "";
 	static String rbody = "";
 	static Date now;
+	
+	static InetAddress inet;
+	static String agent = null;
 
 	static String tblStr = "<TABLE COLS=2 BORDER=4 cellpadding=\"3\" width=\"100%\"  >"; 
 	static String tblEnd = "</TABLE>";
@@ -84,7 +90,7 @@ public class SendMailSTS {
 	public static void main(String[] args ) throws IOException, UnknownHostException {
 
 		String version = "SendMailSTS ";
-		version += getVersion()+".54";
+		version += getVersion()+".55";
 
 		String subject = "";
 		String body = "";
@@ -283,7 +289,12 @@ public class SendMailSTS {
 			
 			if (swMail && !swDormant) {
 				Session session = Session.getInstance(props, auth);
-				if (EmailUtil.sendEmail(session, toEmail,subject, body, fromEmail)) {};
+				if (EmailUtil.sendEmail(session, toEmail,subject, body, fromEmail)) {
+					try {sendSTS(true);} catch (IOException e) { e.printStackTrace();}
+				}
+				else {
+					try {sendSTS(false);} catch (IOException e) { e.printStackTrace();}
+				}
 			}
 
 	}        
@@ -339,6 +350,33 @@ public class SendMailSTS {
 			version = "?";
 		}
 		return version;
+	}
+
+	// sends status to the Jvakt server
+	static protected void sendSTS( boolean STS) throws IOException {
+			System.out.println("--- Connecting to "+jvhost+":"+jvport);
+			Message jmsg = new Message();
+			SendMsg jm = new SendMsg(jvhost, port);
+//			System.out.println(jm.open()); 
+			jm.open(); 
+			jmsg.setId("Jvakt-SendMailSTS");
+			if (STS) {
+				jmsg.setBody("The SendMailSTS program is working.");
+				jmsg.setRptsts("OK");
+			}
+			else {
+				jmsg.setBody("The SendMailSTS program is not working!");
+				jmsg.setRptsts("ERR");
+			}
+			jmsg.setType("T");
+
+			inet = InetAddress.getLocalHost();
+//			System.out.println("-- Inet: "+inet);
+			agent = inet.toString();
+
+			jmsg.setAgent(agent);
+			if (!jm.sendMsg(jmsg)) System.out.println("--- Rpt to Jvakt Failed for SendMailSTS ---");
+			jm.close();
 	}
 
 }

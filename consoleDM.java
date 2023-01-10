@@ -1,6 +1,7 @@
 package Jvakt;
 /*
- * 2022-07-02 V.54 Michael Ekdal		Added getVersion() to get at consistent version throughout all classes.
+ * 2023-01-09 V.55 Michael Ekdal		Added isCheckStatusActive member.
+ * 2022-07-02 V.54 Michael Ekdal		Added variable version.
  */
 
 import javax.swing.table.*;
@@ -38,6 +39,9 @@ class consoleDM extends AbstractTableModel {
 
 	Boolean swDBopen = false; 
 
+	static Long lhou, lmin, Lsec, Lrptdat, Lchktim, Lchktimto;
+	static java.sql.Timestamp zD;
+	static java.sql.Timestamp zTs;
 
 
 	public consoleDM() throws IOException {
@@ -281,6 +285,52 @@ class consoleDM extends AbstractTableModel {
 			// ex.printStackTrace();
 		}
 
+	}
+
+	public boolean isCheckStatusActive() {
+
+		boolean statusRC = false; 
+
+		if (!swDBopen) {
+			if (!openDB()) return false;
+		}
+
+		try {
+			String s = new String("select * from status WHERE (state='A' or state = 'D') and id='Jvakt-CheckStatus';"); 
+
+			Statement stmt = conn.createStatement(ResultSet.CONCUR_READ_ONLY,ResultSet.TYPE_FORWARD_ONLY,ResultSet.CLOSE_CURSORS_AT_COMMIT ); 
+			stmt.setFetchSize(10);
+			stmt.setQueryTimeout(5); 
+			ResultSet rs = stmt.executeQuery(s);
+
+			zTs = new java.sql.Timestamp((new Date(System.currentTimeMillis())).getTime());  // YYYY-MM-DD hh:mm.ss.nnn.  now
+
+			//				System.out.println("Last RS: "+statusRC) ; 
+			//				System.out.println("Getrow RS: "+rs.getRow()) ; 
+			//				System.out.println("zTs: "+zTs) ;
+			statusRC=false;
+			Lsec = new Long(0);
+			while (rs.next()) {
+				statusRC=true;
+				zD = rs.getTimestamp("rptdat");
+				Lsec = (zTs.getTime() / 1000 - zD.getTime() / 1000);  // Actual time minus the time rptdat in seconds  
+				//					System.out.println("Lsec: "+Lsec) ;
+			}
+			if ( Lsec > 1200 ) statusRC = false;    // false when mire than 20 minutes has passed since the Jvakt-CheckStatus was updated
+
+			rs.close(); 
+			stmt.close();
+		}
+		catch (SQLException e) {
+			System.err.println(e);
+			System.err.println(e.getMessage());
+			swDBopen = false;
+		}
+		catch (Exception e) {
+			System.err.println(e);
+			System.err.println(e.getMessage());
+		}
+		return statusRC;
 	}
 
 }

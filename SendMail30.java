@@ -1,5 +1,6 @@
 package Jvakt;
 /*
+ * 2023-01-09 V.55 Michael Ekdal		Added send of the status to Jvakt server
  * 2022-06-23 V.54 Michael Ekdal		Added getVersion() to get at consistent version throughout all classes.
  */
 
@@ -13,6 +14,9 @@ import java.sql.SQLException;
 import java.sql.Statement;
 //import java.sql.Timestamp;
 import java.util.*;
+
+import Jvakt.Message;
+
 import java.time.*;
 //import javax.mail.*;
 //import javax.mail.Authenticator;
@@ -30,6 +34,7 @@ public class SendMail30 {
 	static boolean swShDay; // set when the scheduled day is active
 	static boolean swDormant = false;
 
+	static boolean swOKtot = true; 
 	static boolean swOK = false; 
 	static boolean swINFO = false; 
 	static boolean swShowVer = true;
@@ -89,6 +94,11 @@ public class SendMail30 {
 	static String pwd;
 	static String smtphost;
 	static String smtpport;
+	static String jvhost;
+	static String jvport;
+	static int    jvporti   = 1956;
+	static InetAddress inet;
+	static String agent = null;
 
 	static Authenticator auth;
 
@@ -99,14 +109,14 @@ public class SendMail30 {
 	public static void main(String[] args ) throws IOException, UnknownHostException {
 
 		String version = "SendMail30 ";
-		version += getVersion()+".54";
+		version += getVersion()+".55";
 		String database = "jVakt";
 		String dbuser   = "jVakt";
 		String dbpassword = "";
 		String dbhost   = "localhost";
 		String dbport   = "5433";
-		String jvhost   = "localhost";
-		String jvport   = "1956";
+		jvhost   = "localhost";
+		jvport   = "1956";
 
 		Calendar cal = Calendar.getInstance();
 
@@ -138,7 +148,7 @@ public class SendMail30 {
 		dbhost   = prop.getProperty("dbhost");
 		dbport   = prop.getProperty("dbport");
 		jvport   = prop.getProperty("jvport");
-		int jvporti = Integer.parseInt(jvport);
+		jvporti = Integer.parseInt(jvport);
 		jvhost   = prop.getProperty("jvhost");
 		toEmailW  = prop.getProperty("toEmail");
 		fromEmail= prop.getProperty("fromEmail");
@@ -386,6 +396,7 @@ public class SendMail30 {
 						else	 {
 							System.out.println(LocalDateTime.now()+" -- rollback");
 							conn.rollback();
+							swOKtot = false;
 						}
 
 					}
@@ -401,14 +412,18 @@ public class SendMail30 {
 		}
 		catch (SQLException e) {
 			System.err.println(LocalDateTime.now()+" SQLExeption " + e);
+			swOKtot = false;
 			//			System.err.println(e.getMessage());
 		}
 		catch (Exception e) {
 			System.err.println(LocalDateTime.now()+" Exeption " + e);
+			swOKtot = false;
 			//			System.err.println(e.getMessage());
 		}
-		finally { 
-		}
+//		finally { 
+//		}
+		if (swOKtot ) try {sendSTS(true);}  catch (IOException e) { e.printStackTrace();}
+		else 	      try {sendSTS(false);} catch (IOException e) { e.printStackTrace();}
 	}        
 
 	static void readEmailAdr() {
@@ -431,6 +446,10 @@ public class SendMail30 {
 //		System.out.println("-- Number of SendMail30*.csv files found: "+ listf.length);
 		if (listf.length==0) {
 			System.out.println("-- No SendMail30*.csv files found! aborting...");
+			swOKtot = false;
+			if (swOKtot ) try {sendSTS(true);}  catch (IOException e) { e.printStackTrace();}
+			else 	      try {sendSTS(false);} catch (IOException e) { e.printStackTrace();}
+
 			System.exit(12);
 		}
 		
@@ -590,6 +609,33 @@ public class SendMail30 {
 			version = "?";
 		}
 		return version;
+	}
+
+	// sends status to the Jvakt server
+	static protected void sendSTS( boolean STS) throws IOException {
+			System.out.println("--- Connecting to "+jvhost+":"+jvport);
+			Message jmsg = new Message();
+			SendMsg jm = new SendMsg(jvhost, jvporti);
+//			System.out.println(jm.open()); 
+			jm.open(); 
+			jmsg.setId("Jvakt-SendMail30");
+			if (STS) {
+				jmsg.setBody("The SendMail30 program is working.");
+				jmsg.setRptsts("OK");
+			}
+			else {
+				jmsg.setBody("The SendMail30 program is not working!");
+				jmsg.setRptsts("ERR");
+			}
+			jmsg.setType("T");
+
+			inet = InetAddress.getLocalHost();
+//			System.out.println("-- Inet: "+inet);
+			agent = inet.toString();
+
+			jmsg.setAgent(agent);
+			if (!jm.sendMsg(jmsg)) System.out.println("--- Rpt to Jvakt Failed for SendMail30 ---");
+			jm.close();
 	}
 
 }

@@ -14,7 +14,7 @@ package Jvakt;
   
 public class Version {
 
-	static private String version = "2.6";
+	static private String version = "2.7";
 
 	public boolean isVersionOk()  { return true;  }
 

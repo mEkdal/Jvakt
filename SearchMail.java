@@ -1,11 +1,15 @@
 package Jvakt;
 /*
+ * 2023-01-10 V.55 Michael Ekdal		Added send of the status to Jvakt server
  * 2022-06-23 V.54 Michael Ekdal		Added getVersion() to get at consistent version throughout all classes.
  */
 
 import jakarta.mail.*;
 import jakarta.mail.search.*;
 import java.util.*;
+
+import Jvakt.Message;
+
 import java.io.*;
 import java.net.InetAddress;
 
@@ -19,6 +23,7 @@ public class SearchMail {
 	static boolean swGoodMail = true;
 	static boolean swExMail = true;
 	static boolean swDormant = false;
+	static boolean swOKtot = false;
 	static String jvrc   = "";
 
 	static String Sid = null;
@@ -46,7 +51,7 @@ public class SearchMail {
 	static String agent = null;
 	static String jvhost   = "localhost";
 	static String jvport   = "1956";
-	static int port ;
+	static int jvporti ;
 	static String uname;
 	static String pwd;
 	static String imaphost;
@@ -62,7 +67,7 @@ public class SearchMail {
 	public static void main(String[] args) throws IOException, FileNotFoundException {
 
 		String version = "SearchMail  ";
-		version += getVersion()+".54";
+		version += getVersion()+".55";
 
 		for (int i=0; i<args.length; i++) {
 			if (args[i].equalsIgnoreCase("-config")) config = args[++i];
@@ -100,7 +105,7 @@ public class SearchMail {
 			getProps();  // get Jvakt properties
 			readParFile();  // read parameter file
 
-			SendMsg jm = new SendMsg(jvhost, port);  // kollar om JvaktServer är tillgänglig.
+			SendMsg jm = new SendMsg(jvhost, jvporti);  // kollar om JvaktServer är tillgänglig.
 			jvrc = jm.open();
 			System.out.println(new Date()+" Jvakt server status: "+jvrc);
 			//			if (jvrc.toLowerCase().startsWith("dormant")) swDormant = true;
@@ -300,9 +305,10 @@ public class SearchMail {
 			if (imaprw.startsWith("Y")) inbox.close(true);  // remove the marked messages from the server
 			else 						inbox.close(false);
 			store.close();
-
+			swOKtot=true;
 		}
 		catch (Exception ex) {
+			swOKtot=false;
 			ex.printStackTrace();
 		}
 
@@ -340,13 +346,43 @@ public class SearchMail {
 				}
 			}
 		}
+		
+		if (swOKtot ) try {sendSTS(true);}  catch (IOException e) { e.printStackTrace();}
+		else 	      try {sendSTS(false);} catch (IOException e) { e.printStackTrace();}
 
 
 	} // slut på pgm
 
+	// sends status to the Jvakt server
+	static protected void sendSTS( boolean STS) throws IOException {
+			System.out.println("--- Sending STS to "+jvhost+":"+jvport);
+			Message jmsg = new Message();
+			SendMsg jm = new SendMsg(jvhost, jvporti);
+//			System.out.println(jm.open()); 
+			jm.open(); 
+			jmsg.setId("Jvakt-SearchMail");
+			if (STS) {
+				jmsg.setBody("The SearchMail program is working.");
+				jmsg.setRptsts("OK");
+			}
+			else {
+				jmsg.setBody("The SearchMail program is not working!");
+				jmsg.setRptsts("ERR");
+			}
+			jmsg.setType("T");
+
+			inet = InetAddress.getLocalHost();
+//			System.out.println("-- Inet: "+inet);
+			agent = inet.toString();
+
+			jmsg.setAgent(agent);
+			if (!jm.sendMsg(jmsg)) System.out.println("--- Rpt to Jvakt Failed for SearchMail ---");
+			jm.close();
+	}
+
 	static protected void sendJv( String ID, String STS, String type, String msg) throws IOException {
 		Message jmsg = new Message();
-		SendMsg jm = new SendMsg(jvhost, port);
+		SendMsg jm = new SendMsg(jvhost, jvporti);
 		System.out.println(new Date()+" Jvakt server status: "+jm.open());
 
 		jmsg.setId(ID);
@@ -427,7 +463,7 @@ public class SearchMail {
 			// get the property value and print it out
 			jvport   = prop.getProperty("jvport");
 			jvhost   = prop.getProperty("jvhost");
-			port = Integer.parseInt(jvport);
+			jvporti  = Integer.parseInt(jvport);
 			uname    = prop.getProperty("smtpuser");
 			pwd      = prop.getProperty("smtppwd");
 			if (pwd.startsWith("==y")) {

@@ -1,5 +1,6 @@
 package Jvakt;
 /*
+ * 2023-01-10 V.4   Michael Ekdal		Changed default type from T to R
  * 2022-11-15 V.3   Michael Ekdal		Small correction in the text "Currently no power is produced".
  * 2022-08-17 V.1   Michael Ekdal		Created to monitor an solar panel site hosted by SolarEdge.
  */
@@ -56,7 +57,7 @@ public class monSolarEdge {
 
 	public static void main(String[] args) throws UnknownHostException, IOException, Exception {
 
-		version += getVersion()+".3";
+		version += getVersion()+".4";
 		now = new Date();
 
 
@@ -355,7 +356,7 @@ public class monSolarEdge {
 			if (STS) jmsg.setRptsts("OK");
 			else jmsg.setRptsts("ERR");
 			jmsg.setBody(t_desc);
-			jmsg.setType("T");
+			jmsg.setType("R");
 			jmsg.setAgent(agent);
 			if (jm.sendMsg(jmsg));
 			else            	  System.out.println("-- Rpt Failed --");
