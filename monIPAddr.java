@@ -1,5 +1,6 @@
 package Jvakt;
 /*
+ * 2023-02-11 V.55 Michael Ekdal		Made the response time calculation better regarding pings
  * 2022-06-23 V.54 Michael Ekdal		Added getVersion() to get at consistent version throughout all classes.
  */
 
@@ -15,6 +16,8 @@ public class monIPAddr {
 	static String t_id;
 	static String t_ip;
 	static String t_desc;
+	static Date innan;
+	static Date efter;
 	static long ts;
 	static boolean swFound;
 	static boolean swSingle = false;
@@ -53,7 +56,7 @@ public class monIPAddr {
 
 	public static void main(String[] args) throws UnknownHostException, IOException {
 
-		version += getVersion()+".54";
+		version += getVersion()+".55";
 		String[] tab = new String [1];
 		//		String tdat;
 		String s;
@@ -245,8 +248,6 @@ public class monIPAddr {
 	}
 
 	public static boolean checkIPAddr() {
-		Date innan;
-		Date efter;
 		long delay;
 
 		// connect to host
@@ -268,9 +269,13 @@ public class monIPAddr {
 				state = "OKAY"; 
 				swEcho=true;  
 			}
-		} catch (Exception e) { state = "FAILED"; /*System.out.println("-- exception state: "+state);*/  }
+		} catch (Exception e) { 
+			state = "FAILED"; 
+			if (swShow)	System.out.println("-- Echo exception state: "+state);  
+		}
 
 		if (state.equals("FAILED")) { // make a second attempt by use of ICMP 
+			innan = new Date();
 			try {
 				state = "OKAY";
 
@@ -278,11 +283,16 @@ public class monIPAddr {
 				else if (OS.indexOf("nux") >= 0 || OS.indexOf("nix") >= 0) cmd = "ping -c 1 -W 5 " + host;      // Linux or Unix
 				else cmd = "ping " + host;											  // 
 
+				if (swShow)	System.out.println("-- Ping cmd: "+cmd);  
+				
 				if (!runCMD(cmd)) { 
 					state = "FAILED";
 				}
 			}
-			catch (Exception e) { state = "FAILED"; /*System.out.println("-- exeption state: "+state);*/  }
+			catch (Exception e) { 
+				state = "FAILED"; 
+				if (swShow)	System.out.println("-- Ping exeption state: "+state);  
+				}
 		}
 		efter = new Date();
 		delay = efter.getTime() - innan.getTime();
@@ -319,8 +329,8 @@ public class monIPAddr {
 
 		if (state.equals("OKAY")) { 
 			if (!swLoop) {
-				if (swEcho) System.out.println(now+" ("+pn+") Connection succcessful (echo)     "+host+" "+t_desc );
-				else        System.out.println(now+" ("+pn+") Connection succcessful (ping)     "+host+" "+t_desc );
+				if (swEcho) System.out.println(now+" ("+pn+") Connection successful (echo)      "+host+" "+t_desc );
+				else        System.out.println(now+" ("+pn+") Connection successful (ping)      "+host+" "+t_desc );
 			}
 			return true; 
 		}
@@ -403,6 +413,7 @@ public class monIPAddr {
 		//						System.out.println(now+" --- runCMD  -> " + cmd );
 		try {
 			exitVal = 0;
+			
 			p = Runtime.getRuntime().exec(cmd);
 			p.getInputStream();
 
@@ -413,24 +424,25 @@ public class monIPAddr {
 			BufferedReader bre = new BufferedReader(isr);
 			String line=null;
 
+			// waits a number of milliseconds for command to end.
 			nuWait = 0;
-			// waits a number of seconds for command to end.
 			swGoon = true;
-			while (nuWait < 300 && swGoon && !swError) {
+			innan = new Date();
+			while (nuWait < 5000 && swGoon && !swError) {
 				swGoon = false;
 				try { exitVal = p.exitValue(); } catch (Exception e) {swGoon = true;} ;
 				if (swGoon) {
 					Thread.currentThread();
-					Thread.sleep(1000);
+					Thread.sleep(1);
 					exitVal = 0;
 					nuWait++;
 				}
 				else {
-					//											System.out.println("-  Got exitval: " + exitVal);
+					if (swShow)	System.out.println("- Got exitval from ping: " + exitVal);
 				}
 			}
-			//				System.out.println("-  Looped -- " + nuWait);
-			if (nuWait >= 300) {
+			if (swShow)	System.out.println("- Waited for ping (ms) -- " + nuWait);
+			if (nuWait >= 5000) {
 				System.out.println(new Date() +" ** Timeout --: " + nuWait);
 				swError = true;
 				p.destroy(); System.out.println(new Date() + " **Destroy process...");
@@ -438,7 +450,7 @@ public class monIPAddr {
 
 			if (exitVal != 0) { 
 				swError = true;
-				if (swShow) System.out.println(new Date() +" ** exitVal: " + exitVal +"   -Unsuccessfull cmd: "+ cmd);  
+				if (swShow) System.out.println(new Date() +" ** Ping exitVal: " + exitVal +"   -Unsuccessfull cmd: "+ cmd);  
 			}
 
 			while ( (line = br.readLine()) != null) {
@@ -464,7 +476,7 @@ public class monIPAddr {
 		catch (Exception e) {
 			swError = true;
 			e.printStackTrace();
-			System.out.println(new Date() +" ** exeption (p)  ");
+			if (swShow)	System.out.println(new Date() +" ** ping exeption (p)  ");
 		}
 
 		if (swError) {

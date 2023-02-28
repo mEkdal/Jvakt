@@ -7,6 +7,7 @@
 
 package Jvakt;
 /*
+ * 2023-02-27 V.55 Michael Ekdal		Added client.close() i ServerThread to the end of code trying avoid CLOSE_WAIT.
  * 2022-06-23 V.54 Michael Ekdal		Added getVersion() to get at consistent version throughout all classes.
  */
 
@@ -21,7 +22,7 @@ class ServerThread extends Thread {
 
 	Socket client;
 	DBupdate dt;
-	String version = "ServerThread 2.4.54";
+	String version = "ServerThread 2.4.55";
 	boolean swData;
 	String line;
 	Message jm = new Message();
@@ -34,20 +35,20 @@ class ServerThread extends Thread {
 			client.setSoTimeout(15000);
 			BufferedReader in = new BufferedReader(new InputStreamReader(client.getInputStream()));
 			PrintWriter    ut = new PrintWriter(new OutputStreamWriter(client.getOutputStream()));
-//			dt.getStatus();
+			//			dt.getStatus();
 			ut.println(dt.getStatus() + " " +version ); 
 			ut.flush();
-//			String line;
-//			Message jm = new Message();
+			//			String line;
+			//			Message jm = new Message();
 			while((line = in.readLine()) != null ) {
 				swData = false;
 				if (line.length() == 0) break;
 				if (line.startsWith("SendMsg")) continue ;
 				String[] tab = line.split("<;>");
-//				System.out.println("ServerThread #1: " + tab.length +"   " + client.getInetAddress() );				
+				//				System.out.println("ServerThread #1: " + tab.length +"   " + client.getInetAddress() );				
 				if (tab.length < 6) break; 
 				swData = true;
-				
+
 				jm.setType(tab[0]);
 				jm.setId(tab[1]);
 				jm.setRptsts(tab[2]);
@@ -55,26 +56,26 @@ class ServerThread extends Thread {
 				jm.setAgent(tab[4]);
 				jm.setPrio(Integer.parseInt(tab[5]));
 
-//				System.out.println("ServerThread #1: " + client.getInetAddress() + " " + jm.getType() + " " + jm.getId() + " " +jm.getRptsts() + " " + jm.getBody() + " " +jm.getAgent() + " " +jm.getPrio());
-//				dt.dbWrite(jm);  // update DB
-//				System.out.println("ServerThread #2: After dbWrite");
-				
 				ut.println("okay " );
 				ut.flush();
 				break;
 			}
-//			ut.println(version+" Disconnecting Session "); 
-//			ut.flush();
 			in.close();
 			ut.close();
-			client.close();
+//			client.close();
 //			System.out.println("ServerThread #2: " + client.getInetAddress() + " " + jm.getType() + " " + jm.getId() + " " +jm.getRptsts() + " " + jm.getBody() + " " +jm.getAgent() + " " +jm.getPrio());
-//			if (swData) dt.dbWrite(jm);  // update DB
 		}
 		catch (IOException e1) { 
-//			System.out.println("ServerThread exception:>> " + client.getInetAddress() + " " + e1 ); 
-			}
+//			System.out.println("ServerThread IOexception:>> " + client.getInetAddress() + " " + e1 ); 
+		}
+		
 		if (swData) dt.dbWrite(jm);  // update DB
-//		System.out.println("ServerThread Session:  DBupdate done!");
+
+		try {
+			client.close(); 
+		}
+		catch (Exception e2) {
+			System.out.println("ServerThread close exception:>> " + client.getInetAddress() + " " + e2 ); 
+		}
 	}        
 }

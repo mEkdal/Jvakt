@@ -1,5 +1,7 @@
 package Jvakt;
 /*
+ * 2023-02-27 V.56 Michael Ekdal		Fixat pardir så att den inte nollas vid loop.
+ * 2023-02-27 V.55 Michael Ekdal		Ändrat sendSTS() att inte sända varje loop.
  * 2022-06-23 V.54 Michael Ekdal		Added getVersion() to get at consistent version throughout all classes.
  */
 
@@ -26,7 +28,7 @@ public class ManFiles {
 	static Date now;
 	static FileFilter ff;
 	static Long lhou, lmin, Lsec;
-	static int antal, antcopies, anterrors, antdeleted, antmoved, antarchived, antded, antempty,antalCMD, p, JvLoops, sleepOrig;
+	static int antal, antcopies, anterrors, antdeleted, antmoved, antarchived, antded, antempty,antalCMD, p, JvLoops, sleepOrig=1;
 	static int antalT, antcopiesT, anterrorsT, antdeletedT, antmovedT, antarchivedT, antdedT, antemptyT, antalTCMD;
 	static BufferedWriter logg;
 	static List<String> listToS;
@@ -48,6 +50,10 @@ public class ManFiles {
 	static boolean swJvakt = false;
 	static int sleep = 1000;
 	static String charset = "UTF8";
+	
+	static Message jmsg;
+	static SendMsg jm;
+
 
 	//	static ManFiles x;
 	static ManFiles x = new ManFiles();
@@ -111,7 +117,7 @@ public class ManFiles {
 
 		if (swHelp) {
 			System.out
-			.println("\n*** Jvakt.ManFiles "+getVersion()+".54 ***"
+			.println("\n*** Jvakt.ManFiles "+getVersion()+".56 ***"
 					+ "\n*** by Michael Ekdal, Sweden. ***");
 			System.out
 			.println("\nThe parameters and their meaning are:\n"
@@ -191,7 +197,7 @@ public class ManFiles {
 		for (;;) {
 			now = new Date();	
 			if (swParfile) {
-				//			System.out.println("--> innan readParFile");
+//							System.out.println("--> innan readParFile");
 				readParFile();  // reads the parameter files.
 				for(Object object : listToS) { 
 					//				String element = (String) object;
@@ -230,11 +236,16 @@ public class ManFiles {
 						sendSTS(true);
 						JvLoops=0;
 					}
-					else JvLoops=JvLoops+sleepOrig;
+					//					else JvLoops=JvLoops+sleepOrig;
+					else JvLoops++;
 				}
 				else {
-					desc = "Errors found in ManFiles! Check log files.";
-					sendSTS(false);
+					if (JvLoops>=60) {
+						desc = "Errors found in ManFiles! Check log files.";
+						sendSTS(false);
+						JvLoops=0;
+					}
+					else JvLoops++;
 				}
 			}
 
@@ -273,7 +284,7 @@ public class ManFiles {
 			Class<?> c1 = Class.forName("Jvakt.Version",false,ClassLoader.getSystemClassLoader());
 			Version ver = new Version();
 			version = ver.getVersion();
- 		} 
+		} 
 		catch (java.lang.ClassNotFoundException ex) {
 			version = "?";
 		}
@@ -329,7 +340,7 @@ public class ManFiles {
 		swExists = false; swFlat = false; swNew = false; swCmd = false;
 		swNrunq = false; swLogg = false; swNfile = false;
 		moved = false;
-		sdir=null; tdir=null; newfile=null; pardir=null;
+		sdir=null; tdir=null; newfile=null; 
 		origdir=null; norigdir=null; norigdirA=null; nfile=null; 
 		unique=null; infTxt=null; 
 		suf = "*";
@@ -558,6 +569,7 @@ public class ManFiles {
 	}
 
 	static void readParFile() {
+		System.out.println("-- readParFile 1 ");
 		File[] listf;
 		DirFilter df;
 		String s;
@@ -567,6 +579,8 @@ public class ManFiles {
 
 		File dir = new File(".");
 		if (pardir != null ) 	dir = new File(pardir);
+		System.out.println("-- pardir "+pardir+" dir "+dir);
+
 		
 		listToS = new ArrayList<String>();  // id:mailadress.
 
@@ -626,31 +640,33 @@ public class ManFiles {
 
 		System.out.println("\n--- " + id + "  --  " + desc);
 		System.out.println("--- Connecting to "+jvhost+":"+jvport);
-		Message jmsg = new Message();
-		SendMsg jm = new SendMsg(jvhost, port);
-		//			try {
-		System.out.println(jm.open()); 
-		if (!jm.open().startsWith("failed")) {
-			//			}
-			//			catch (java.net.ConnectException e ) {System.out.println("-- Rpt Failed -" + e);    return;}
-			//			catch (NullPointerException npe2 )   {System.out.println("-- Rpt Failed --" + npe2); return;}
-
-			//		if (!swSlut) jmsg.setId(id+"-CheckLogs-"+aFile);
-			//		else		 jmsg.setId(id+"-CheckLogs-"+aFile+"-JV");
-			// 	    jmsg.setId(id+"-CheckLogs-"+aFile);
-			if (STS) jmsg.setRptsts("OK");
-			else jmsg.setRptsts("ERR");
-			jmsg.setId(id);
-			jmsg.setType(jvtype);
-			jmsg.setId(id);
-			jmsg.setType("T");
-			jmsg.setBody(desc);
-			jmsg.setAgent(agent);
-			//		jm.sendMsg(jmsg);
-			if (jm.sendMsg(jmsg)) System.out.println("--- Rpt Delivered --  " + id + "  --  " + desc);
-			else           		  System.out.println("--- Rpt Failed ---");
-			jm.close();
+		jmsg = new Message();
+		jm = new SendMsg(jvhost, port);
+		try {
+			String reply = jm.open();
+			System.out.println("Status: open "+reply);
+			if (!jm.open().startsWith("failed")) {
+				if (STS) jmsg.setRptsts("OK");
+				else jmsg.setRptsts("ERR");
+				jmsg.setId(id);
+				jmsg.setType(jvtype);
+				jmsg.setId(id);
+				jmsg.setType("T");
+				jmsg.setBody(desc);
+				jmsg.setAgent(agent);
+				//		jm.sendMsg(jmsg);
+				if (jm.sendMsg(jmsg)) System.out.println("--- Rpt Delivered --  " + id + "  --  " + desc);
+				else           		  System.out.println("--- Rpt Failed ---");
+//				try { Thread.sleep(10000); } catch (InterruptedException e) { e.printStackTrace();}
+				jm.close();
+			}
+			else {
+				if (reply.equalsIgnoreCase("failed")) System.out.println("-- Rpt Failed --");
+				else System.out.println("-- Test to Jvakt server succeeded - "+reply);
+			}
 		}
+		//		catch (java.net.ConnectException e ) {System.out.println("-- Rpt Failed --" + e); }
+		catch (NullPointerException npe2 )   {System.out.println("-- Rpt Failed --" + npe2);}
 	}
 
 	static void getProps() {
@@ -1014,13 +1030,13 @@ public class ManFiles {
 						boolean swRename = true;
 						p = sdir.getName().lastIndexOf(".");
 						if (p >= 0 && remSuf.equals(sdir.getName().substring(p+1))) {
-							 newfile = new File(sdir.getParent(), sdir.getName().substring(0, p));
+							newfile = new File(sdir.getParent(), sdir.getName().substring(0, p));
 						}
 						else if (p >= 0 && remSuf.equals(".")) {
-							 newfile = new File(sdir.getParent(), sdir.getName().substring(0, p));
+							newfile = new File(sdir.getParent(), sdir.getName().substring(0, p));
 						}
 						else  swRename = false;
-						 
+
 						if (swList && swRename) {
 							System.out.println("  -new name > " + newfile);
 							if (swLogg) {

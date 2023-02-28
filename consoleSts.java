@@ -1,5 +1,6 @@
 package Jvakt;
 /*
+ * 2023-02-15 V.55 Michael Ekdal		Added tests (in consoleSts) on state, type and chkday to minimize user errors.
  * 2022-06-23 V.54 Michael Ekdal		Added getVersion() to get at consistent version throughout all classes.
  */
 
@@ -67,7 +68,7 @@ public class consoleSts extends JFrame implements TableModelListener, WindowList
 		port = Integer.parseInt(jvport);
 
 		// funktion in Jframe to set the title
-		setTitle("Jvakt consoleSts "+getVersion()+".54 -  F1 = Help");
+		setTitle("Jvakt consoleSts "+getVersion()+".55 -  F1 = Help");
 		//	        setSize(5000, 5000);
 
 		// get the screen size as a java dimension
@@ -435,7 +436,7 @@ public class consoleSts extends JFrame implements TableModelListener, WindowList
 								"\ntype - S = rptday must be updated 'today' or a time out warning is issued. " +
 								"\ntype - T = no time out warning is issued. " +
 								"\ntype - I = a temporary type used for impromptu messages. " +
-								"\ntype - D = delete mark. the row will be purged by the nightly housekeeping routine. " +
+								"\ntype - D = delete mark (use DEL button). the row will be purged by the nightly housekeeping routine. " +
 								"\nchkday - Must be *ALL or a mix of MON TUE WED THU FRI SAT SUN  (regarding SMS and mail) "+ 
 								"\nchktim - The time of day when the check starts (regarding SMS and mail). The format is HH:MM:TT"+ 
 								"\naccerr - The number of acceptable errors before a warning is issued." + 
@@ -522,7 +523,7 @@ public class consoleSts extends JFrame implements TableModelListener, WindowList
 				try {
 					for (int i = 0; i <  selectedRow.length; i++) {
 //						System.out.println("*** Row do delete :" + selectedRow[i]);
-						wD.setValueAt("D", selectedRow[i], 3);   // Set the type field to D to mark it as deletable by housekeeping 
+						wD.setValueAt("delete", selectedRow[i], 3);   // Set the type field to D to mark it as deletable by housekeeping 
 					}
 				} 
 				catch (Exception e2) {

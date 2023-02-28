@@ -6,6 +6,7 @@
  */
 package Jvakt;
 /*
+ * 2023-02-27 V.55 Michael Ekdal		Moved client.close() i ServerThread to the end of code trying avoid CLOSE_WAIT.
  * 2022-06-23 V.54 Michael Ekdal		Added getVersion() to get at consistent version throughout all classes.
  */
 
@@ -26,7 +27,7 @@ public class Server {
 	public static void main(String[] args ) throws Exception  {
 
 		String version = "Server ";
-		version += getVersion()+".54";
+		version += getVersion()+".55";
 		String jvport   = "1956";
 
 		String config = null;

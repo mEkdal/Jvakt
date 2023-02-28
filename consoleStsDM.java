@@ -1,5 +1,6 @@
 package Jvakt;
 /*
+ * 2023-02-15 V.55 Michael Ekdal		Added tests (in consoleSts) on state, type and chkday to minimize user errors.
  * 2022-06-23 V.54 Michael Ekdal		Added getVersion() to get at consistent version throughout all classes.
  */
 
@@ -169,9 +170,10 @@ class consoleStsDM extends AbstractTableModel {
 		if (col == 0) {
 			tmp =((String)value).trim().toUpperCase();
 			if (tmp.length()<1) tmp="I";
-			System.out.println("setState " + value + " -  " + row + " "+ col);
+			System.out.println("setState " + tmp + " -  " + row + " "+ col);
 			System.out.println("setState rad " + rad.getId());
-			rad.setState(tmp);
+			// only accept A,I and D
+			if (tmp.compareTo("I")==0 || tmp.compareTo("A")==0 || tmp.compareTo("D")==0) rad.setState(tmp);
 		} else if (col == 1) {
 			tmp =((String)value).trim();
 			if (tmp.length()<1) tmp=" ";
@@ -181,7 +183,9 @@ class consoleStsDM extends AbstractTableModel {
 		} else if (col == 3) {
 			tmp =((String)value).trim().toUpperCase();
 			if (tmp.length()<1) tmp="T";
-			rad.setType(tmp);
+			// only accept R,S,T,I
+			if (tmp.compareTo("R")==0 || tmp.compareTo("S")==0 || tmp.compareTo("T")==0 || tmp.compareTo("I")==0) rad.setType(tmp);
+			else if (tmp.compareTo("DELETE")==0 ) rad.setType("D");
 		} else if (col == 4) {
 			tmp =((String)value).trim().toUpperCase();
 			if (tmp.length()<1) tmp="OK";
@@ -195,7 +199,8 @@ class consoleStsDM extends AbstractTableModel {
 		} else if (col == 7) {
 			tmp =((String)value).trim().toUpperCase();
 			if (tmp.length()<1) tmp="*ALL";
-			rad.setChkday(tmp);
+			// only accept MON, TUE, WED, THU, FRI, SAT, SUN OR *ALL
+			if (tmp.indexOf("MON")>=0 || tmp.indexOf("TUE")>=0 || tmp.indexOf("WED")>=0 || tmp.indexOf("THU")>=0 || tmp.indexOf("FRI")>=0|| tmp.indexOf("SAT")>=0|| tmp.indexOf("SUN")>=0|| tmp.indexOf("*ALL")>=0) rad.setChkday(tmp);
 		} else if (col == 8) {
 			rad.setChktim((String)value);
 		} else if (col == 9) {
