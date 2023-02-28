@@ -1,7 +1,8 @@
 package Jvakt;
 /*
- * 2023-02-27 V.56 Michael Ekdal		Fixat pardir så att den inte nollas vid loop.
- * 2023-02-27 V.55 Michael Ekdal		Ändrat sendSTS() att inte sända varje loop.
+ * 2023-02-28 V.57 Michael Ekdal		Fixed sendSTS() to not open socket twice.
+ * 2023-02-27 V.56 Michael Ekdal		Fixat pardir to not be nulled while looping.
+ * 2023-02-27 V.55 Michael Ekdal		Changed sendSTS() to not send every loop.
  * 2022-06-23 V.54 Michael Ekdal		Added getVersion() to get at consistent version throughout all classes.
  */
 
@@ -117,7 +118,7 @@ public class ManFiles {
 
 		if (swHelp) {
 			System.out
-			.println("\n*** Jvakt.ManFiles "+getVersion()+".56 ***"
+			.println("\n*** Jvakt.ManFiles "+getVersion()+".57 ***"
 					+ "\n*** by Michael Ekdal, Sweden. ***");
 			System.out
 			.println("\nThe parameters and their meaning are:\n"
@@ -644,8 +645,8 @@ public class ManFiles {
 		jm = new SendMsg(jvhost, port);
 		try {
 			String reply = jm.open();
-			System.out.println("Status: open "+reply);
-			if (!jm.open().startsWith("failed")) {
+			System.out.println("Status: "+reply);
+			if (!reply.startsWith("failed")) {
 				if (STS) jmsg.setRptsts("OK");
 				else jmsg.setRptsts("ERR");
 				jmsg.setId(id);
@@ -654,10 +655,8 @@ public class ManFiles {
 				jmsg.setType("T");
 				jmsg.setBody(desc);
 				jmsg.setAgent(agent);
-				//		jm.sendMsg(jmsg);
 				if (jm.sendMsg(jmsg)) System.out.println("--- Rpt Delivered --  " + id + "  --  " + desc);
 				else           		  System.out.println("--- Rpt Failed ---");
-//				try { Thread.sleep(10000); } catch (InterruptedException e) { e.printStackTrace();}
 				jm.close();
 			}
 			else {

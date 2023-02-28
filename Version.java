@@ -6,6 +6,7 @@ package Jvakt;
  */
 
 /*
+ * 2023-02-28 V2.7 Michael Ekdal ManFiles   	Fixed: Not open socket to Jvakt twice. 
  * 2022-11-15 V2.6 Michael Ekdal MonAS400msgq	Fixed: When -dormant, "All reports will be forced to be 30 or higher" 
  * 2022-11-15 V2.6 Michael Ekdal *all 			Tested: Used with Java 17. 
  * 2022-06-23 V2.5 Michael Ekdal *all			Added getVersion() to get at consistent version throughout all classes.

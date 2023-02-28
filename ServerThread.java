@@ -41,11 +41,12 @@ class ServerThread extends Thread {
 			//			String line;
 			//			Message jm = new Message();
 			while((line = in.readLine()) != null ) {
+//				System.out.println("ServerThread #1: "+line +" " + client.getInetAddress() );				
 				swData = false;
 				if (line.length() == 0) break;
 				if (line.startsWith("SendMsg")) continue ;
 				String[] tab = line.split("<;>");
-				//				System.out.println("ServerThread #1: " + tab.length +"   " + client.getInetAddress() );				
+//				System.out.println("ServerThread #2: " + tab.length+" "+line +" " + client.getInetAddress() );				
 				if (tab.length < 6) break; 
 				swData = true;
 
@@ -66,7 +67,7 @@ class ServerThread extends Thread {
 //			System.out.println("ServerThread #2: " + client.getInetAddress() + " " + jm.getType() + " " + jm.getId() + " " +jm.getRptsts() + " " + jm.getBody() + " " +jm.getAgent() + " " +jm.getPrio());
 		}
 		catch (IOException e1) { 
-//			System.out.println("ServerThread IOexception:>> " + client.getInetAddress() + " " + e1 ); 
+			System.out.println("ServerThread IOexception:>> " + client.getInetAddress() + " " + e1 ); 
 		}
 		
 		if (swData) dt.dbWrite(jm);  // update DB
