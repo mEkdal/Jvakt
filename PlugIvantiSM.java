@@ -1,7 +1,8 @@
 package Jvakt;
 
 /*
- * 2023-03-28 V.2 Michael Ekdal		Added possibility to exclude all by defauls using E;* in the PlugIvantiSM.csv file  
+ * 2023-04-06 V.3 Michael Ekdal		Completed the *DELETE function to close the incidents.  
+ * 2023-03-28 V.2 Michael Ekdal		Added possibility to exclude all by default using E;* in the PlugIvantiSM.csv file  
  * 2022-08-11 V.1 Michael Ekdal		New plugin to update Ivanti Serrvice Manager with input from the console 
  */
 
@@ -87,6 +88,7 @@ public class PlugIvantiSM {
 	static String Owner;
 
 	static String json_insert;
+	static String json_patch;
 	static String hosturl;
 	static String inputLine;
 	static boolean state = false;
@@ -109,7 +111,7 @@ public class PlugIvantiSM {
 
 	public static void main(String[] args ) throws UnknownHostException, IOException, Exception, FileNotFoundException {
 
-		version += getVersion()+".1";
+		version += getVersion()+".3";
 
 		if (args.length < 1) {
 			System.out.println("\n " +version);
@@ -330,6 +332,14 @@ public class PlugIvantiSM {
 		logg.write(json_insert);
 		logg.newLine(); 
 
+		json_patch = "{\n"+
+				" \"Status\":\"Closed\"\r\n" +
+				"}";
+
+		System.out.println(json_patch);
+		logg.write(json_patch);
+		logg.newLine(); 
+
 		//		System.exit(4);
 
 		// Create a trust manager that does not validate certificate chains
@@ -411,9 +421,11 @@ public class PlugIvantiSM {
 		}
 
 		if (swDelete) {
-			System.out.println(new Date()+ " *DELETE:  recid = "+recid);
-			logg.write(new Date()+ "  *DELETE: recid = "+recid);
+			if (patchIvanti()) {
+			System.out.println(new Date()+ " *PATCHED:  recid = "+recid);
+			logg.write(new Date()+ "  *PATCHED: recid = "+recid);
 			logg.newLine();
+			}
 		}
 		logg.close();
 	}
@@ -491,6 +503,74 @@ public class PlugIvantiSM {
 
 		return state; 
 	}
+
+	public static boolean patchIvanti() {
+		// First set the default cookie manager.
+		java.net.CookieManager cm = new java.net.CookieManager(null, CookiePolicy.ACCEPT_ALL);
+		java.net.CookieHandler.setDefault(cm);
+		try {
+			//			hosturl ="https://"+host+":"+ivaport+"/api/odata/businessobject/incidents?api_key="+auth;
+			//			hosturl ="https://"+host+":"+ivaport+"/api/odata/businessobject/incidents";
+			hosturl ="https://"+host+":"+ivaport+path+"('"+recid+"')";
+
+			if (swShow) System.out.println("URL: "+hosturl);
+			logg.write("URL: "+hosturl);
+			logg.newLine();
+
+			URL url = new URL(hosturl); 
+			HttpsURLConnection con = (HttpsURLConnection) url.openConnection(); 
+
+			con.setRequestProperty("User-Agent", "Mozilla/5.0");
+			con.setReadTimeout(15000);
+			con.setConnectTimeout(15000);
+			con.setDoOutput(true); 
+			con.setRequestProperty("Content-Type", "application/json");
+			con.setRequestProperty("Accept", "application/json");
+			con.setRequestProperty("Authorization", "rest_api_key="+auth);
+			con.setRequestMethod("PUT");
+			OutputStream httpout = con.getOutputStream();
+			httpout.write(json_patch.getBytes());
+			httpout.flush();
+			httpout.close();
+//						System.out.println("#z3 efter json write   " );
+
+			int responseCode = con.getResponseCode();
+			String responseMsg = con.getResponseMessage();
+			System.out.println("PATCH Response Code :  " + responseCode);
+			System.out.println("PATCH Response Message : " + responseMsg);
+			logg.write("PATCH Response Code :  " + responseCode);
+			logg.newLine();
+			logg.write("PATCH Response Message : " + responseMsg);
+			logg.newLine();
+
+
+			if (responseCode < 200 || responseCode >= 300 ) {
+				System.out.println("#ZF1: HTTP error code: "	+ responseCode +" "+responseMsg);		
+				logg.write("#ZF1: HTTP error code: "	+ responseCode +" "+responseMsg);
+				logg.newLine();
+
+				return false;
+			}
+
+			BufferedReader httpin = new BufferedReader(
+					new InputStreamReader(con.getInputStream()));
+			//			if (swShow)	System.out.println("-- OK, got in-stream");
+
+			//			if (swShow)	System.out.println("-- start read lines");
+			while ((inputLine = httpin.readLine()) != null  && !state) {
+				String parseResult = parseInputlineOverview(inputLine); 
+				if (parseResult.startsWith("OK")) {
+					state = true;
+				}
+			}
+			httpin.close();
+			con.disconnect();
+		} 
+		catch (Exception e) { System.out.println(e); state = false;   }
+
+		return state; 
+	}
+
 
 	static String parseInputlineOverview(String in) {
 
