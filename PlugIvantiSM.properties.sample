@@ -1,0 +1,21 @@
+# Ivanti 
+# auth is the rest_api_key gotten from Ivanti to use in the rest authentication
+auth = A1A1A1A1A1A1A1A1A1A1
+host = xxxxxx.ivanticloud.com
+path = /api/odata/businessobject/incidents
+port = 443
+
+# Json fields for creating an Ivanti Incident
+Service = Test Operations
+Category = Test
+Impact = Only Me
+OwnerTeam = Test Team
+ProfileLink_RecID = W1W1W1W1W1W1W1W1W1
+Source = AutoTicket
+Urgency = Low
+CauseCode = Other
+Resolution = Statistic 
+FirstCallResolution = true
+Owner = Test
+Status = Closed
+

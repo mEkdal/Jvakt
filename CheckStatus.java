@@ -7,6 +7,7 @@ package Jvakt;
  * 2022-08-11 V.58 Michael Ekdal		-recid to the cmdPlug1 arguments when *DELETE 
  * 2022-08-11 V.59 Michael Ekdal		Added check of cmdPlug1delete to trigger messages deleted from the console.
  * 2023-01-10 V.60 Michael Ekdal		Added send of the status to Jvakt server
+ * 2023-03-17 V.61 Michael Ekdal		Hard coded status "TOut" when calling plugin instead when swTimin is true
  */
 
 import java.io.*;
@@ -65,7 +66,7 @@ public class CheckStatus {
 	//	public static void main(String[] args ) throws IOException, UnknownHostException {
 	public static void main(String[] args ) {
 
-		version += getVersion()+".60";
+		version += getVersion()+".61";
 		File configF;
 
 		for (int i=0; i<args.length; i++) {
@@ -501,7 +502,7 @@ public class CheckStatus {
 
 	// sends status to the Jvakt server
 	static protected void sendSTS( boolean STS) throws IOException {
-			System.out.println("--- Connecting to "+jvhost+":"+jvport);
+//			System.out.println("--- Connecting to "+jvhost+":"+jvport);
 			Message jmsg = new Message();
 			SendMsg jm = new SendMsg(jvhost, jvporti);
 //			System.out.println(jm.open()); 
@@ -633,10 +634,13 @@ public class CheckStatus {
 				//				conn.commit();
 
 				// *** call plugin1 start //
-				if (cmdPlug1 != null  && !swDormant) {
-					if (cmdPlug1prio30.equalsIgnoreCase("Y") || rs.getString("prio").compareTo("30") < 0 ) {
+//				if (cmdPlug1 != null  && !swDormant && !swRowDormant && !swTiming) {
+				if (cmdPlug1 != null  && !swDormant && !swRowDormant) {
+					if ((cmdPlug1prio30.equalsIgnoreCase("Y") || rs.getString("prio").compareTo("30") < 0) && (!rs.getString("type").startsWith("I") && !rs.getString("status").startsWith("INFO") ) ) {
 						try {
-							String cmd = cmdPlug1+" *INSERT -id "+rs.getString("id")+" -prio "+rs.getString("prio")+" -type "+rs.getString("type")+" -sts "+rs.getString("status")+" -body \""+rs.getString("body")+"\" -agent \""+rs.getString("agent")+"\""  ;
+							String cmd;
+							if (swTiming) cmd = cmdPlug1+" *INSERT -id "+rs.getString("id")+" -prio "+rs.getString("prio")+" -type "+rs.getString("type")+" -sts TOut -body \""+rs.getString("body")+"\" -agent \""+rs.getString("agent")+"\""  ;
+								else 	  cmd = cmdPlug1+" *INSERT -id "+rs.getString("id")+" -prio "+rs.getString("prio")+" -type "+rs.getString("type")+" -sts "+rs.getString("status")+" -body \""+rs.getString("body")+"\" -agent \""+rs.getString("agent")+"\""  ;
 							if (config != null ) cmd = cmd + " -config "+config; 	
 							Runtime.getRuntime().exec(cmd);
 							System.out.println(new Date()+" - #P1 executed as insert: " +cmd);

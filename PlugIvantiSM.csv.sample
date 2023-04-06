@@ -1,0 +1,13 @@
+# One or more strings to search for in the Ivanto subject field.
+# More strings can be divided by an &. 
+# E;*     s   ( Special. Makes all incidents to be excluded if not identified by a L; or C; 
+# E;strings   ( Exclude: if the strings are found no Ivanti incident is created )
+# C;strings   ( Close: if the strings are found the Ivanti incident created as closed )
+# L;strings   ( Logged: if the strings are found the Ivanti incident created as Logged )
+# E.g. E;monIpPort&Ubuntu
+
+# E;*
+E;monIpPort&Ubuntu
+L;monIpPort&Ubuntu&FTP
+C;Koholma
+

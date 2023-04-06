@@ -1,5 +1,6 @@
 package Jvakt;
 /*
+ * 2023-03-20 V.55 Michael Ekdal		Added a trim() in setRptsts()
  * 2022-06-23 V.54 Michael Ekdal		Added getVersion() to get at consistent version throughout all classes.
  */
 
@@ -29,9 +30,12 @@ public class Message {
 		if (rptsts.length() > 255) rptsts = rptsts.substring(0, 255);
 		rptsts = rptsts.replaceAll("[^a-zA-Z]" , "");
 		String[] tab = rptsts.split("<;>",2);
-		this.rptsts = tab[0];
-		if (this.rptsts.toUpperCase().startsWith("ERR"))  this.rptsts = "ERR";   
-		else if (this.rptsts.toUpperCase().startsWith("OK"))   this.rptsts = "OK";   
+		this.rptsts = tab[0].trim();
+//		if (this.rptsts.toUpperCase().startsWith("ERR"))  this.rptsts = "ERR";   
+//		else if (this.rptsts.toUpperCase().startsWith("OK"))   this.rptsts = "OK";   
+//		else this.rptsts = "INFO";   
+		if (this.rptsts.toUpperCase().lastIndexOf("ERR") >= 0)  this.rptsts = "ERR";   
+		else if (this.rptsts.toUpperCase().lastIndexOf("OK") >= 0)   this.rptsts = "OK";   
 		else this.rptsts = "INFO";   
 		return true;  
 	}
