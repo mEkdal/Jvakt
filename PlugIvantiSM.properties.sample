@@ -1,5 +1,5 @@
 # Ivanti 
-# auth is the rest_api_key gotten from Ivanti to use in the rest authentication
+# auth is the rest_api_key gotten from Ivanti to be used in the rest authentication
 auth = A1A1A1A1A1A1A1A1A1A1
 host = xxxxxx.ivanticloud.com
 path = /api/odata/businessobject/incidents
