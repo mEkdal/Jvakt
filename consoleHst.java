@@ -1,5 +1,6 @@
 package Jvakt;
 /*
+ * 2023-05-26 V.55 Michael Ekdal		Added menus in addition to the F keys
  * 2022-06-23 V.54 Michael Ekdal		Added getVersion() to get at consistent version throughout all classes.
  */
 
@@ -28,6 +29,9 @@ public class consoleHst extends JFrame implements TableModelListener, WindowList
 	private JTable table;
 	private JScrollPane scrollPane;
 	private JButton bu1;
+	private JMenuBar menuBar;      
+	private JMenu menu, menuPgm, menuRow;   
+	private JMenuItem menuItem;    
 	private JTextField where;
 	private JTableHeader header;
 	private consoleHstDM wD;
@@ -67,7 +71,7 @@ public class consoleHst extends JFrame implements TableModelListener, WindowList
 		port = Integer.parseInt(jvport);
 
 		// funktion in Jframe to set the title
-		setTitle("Jvakt consoleHst "+getVersion()+".54 -  F1 = Help");
+		setTitle("Jvakt consoleHst "+getVersion()+".55 -  F1 = Help");
 		//	        setSize(5000, 5000);
 
 		// get the screen size as a java dimension
@@ -102,6 +106,36 @@ public class consoleHst extends JFrame implements TableModelListener, WindowList
 		header.setBackground(Color.LIGHT_GRAY);
 
 		bu1 = new JButton();
+		
+		//Create the menu .
+		menuBar = new JMenuBar();
+		//Build the first menu.
+		menu    = new JMenu("File");
+		menuPgm = new JMenu("Programs");
+		menuRow = new JMenu("Rows");
+//		menu.setMnemonic(KeyEvent.VK_A);
+//		menu.getAccessibleContext().setAccessibleDescription("The only menu in this program that has menu items");
+		menuBar.add(menu);
+		menuBar.add(menuRow);
+		//a group of JMenuItems
+		menuItem = new JMenuItem("Unselect row(s) (ESC)");
+		menuItem.addActionListener(clearSel());
+		menuRow.add(menuItem);
+		menuItem = new JMenuItem("Increase font (F3)");
+		menuItem.addActionListener(increaseH());
+		menuRow.add(menuItem);
+		menuItem = new JMenuItem("Decrease font (F4)");
+		menuItem.addActionListener(decreaseH());
+		menuRow.add(menuItem);
+		menuItem = new JMenuItem("Show selected row in separate window (F7)");
+		menuItem.addActionListener(showLine());
+		menuRow.add(menuItem);
+		menuItem = new JMenuItem("Help (F1)");
+		menuItem.addActionListener(showHelp());
+		menu.add(menuItem);
+		
+		setJMenuBar(menuBar);
+		
 		where = new JTextField(40);
 		where.setText("id ilike '%search%'");
 

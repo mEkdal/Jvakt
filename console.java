@@ -1,6 +1,7 @@
 package Jvakt;
 
 /*
+ * 2023-05-26 V.56 Michael Ekdal		Added menus in addition to the F keys
  * 2023-01-09 V.55 Michael Ekdal		Added CheckStatus warning.
  * 2022-06-23 V.54 Michael Ekdal		Added getVersion() to get at consistent version throughout all classes.
  */
@@ -12,7 +13,7 @@ import javax.swing.*;
 import javax.swing.table.*;
 import java.io.*;
 import java.util.*;
-import javax.swing.ListSelectionModel;
+
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 import javax.swing.Timer;
@@ -30,6 +31,9 @@ public class console extends JFrame implements TableModelListener, WindowListene
 	private JTable table;
 	private JScrollPane scrollPane;
 	private JButton bu1;
+	private JMenuBar menuBar;      
+	private JMenu menu, menuPgm, menuRow;   
+	private JMenuItem menuItem;    
 	private JTableHeader header;
 	private consoleDM wD;
 	private Boolean swAuto = true;
@@ -79,7 +83,7 @@ public class console extends JFrame implements TableModelListener, WindowListene
 		port = Integer.parseInt(jvport);
 
 		// a function inherited from Jframe used to set a heading
-		setTitle("Jvakt console "+getVersion()+".55 -  F1 = Help"); 
+		setTitle("Jvakt console "+getVersion()+".56 -  F1 = Help"); 
 
 		//	        setSize(5000, 5000);
 
@@ -115,6 +119,54 @@ public class console extends JFrame implements TableModelListener, WindowListene
 
 		bu1 = new JButton();
 
+		//Create the menu.
+		menuBar = new JMenuBar();
+		//Build the first menu.
+		menu    = new JMenu("File");
+		menuPgm = new JMenu("Programs");
+		menuRow = new JMenu("Rows");
+//		menu.setMnemonic(KeyEvent.VK_A);
+//		menu.getAccessibleContext().setAccessibleDescription("The only menu in this program that has menu items");
+		menuBar.add(menu);
+		menuBar.add(menuPgm);
+		menuBar.add(menuRow);
+		//a group of JMenuItems
+		menuItem = new JMenuItem("History (F5)");
+		menuItem.addActionListener(strHst());
+		menuPgm.add(menuItem);
+		menuItem = new JMenuItem("Status (F6)");
+		menuItem.addActionListener(strSts());
+		menuPgm.add(menuItem);
+		menuItem = new JMenuItem("Statistics (F10)");
+		menuItem.addActionListener(strStat());
+		menuPgm.add(menuItem);
+		menuItem = new JMenuItem("Delete selected row(s) (DEL)");
+		menuItem.addActionListener(delRow());
+		menuRow.add(menuItem);
+		menuItem = new JMenuItem("Unselect row(s) (ESC)");
+		menuItem.addActionListener(clearSel());
+		menuRow.add(menuItem);
+		menuItem = new JMenuItem("Increase font (F3)");
+		menuItem.addActionListener(increaseH());
+		menuRow.add(menuItem);
+		menuItem = new JMenuItem("Decrease font (F4)");
+		menuItem.addActionListener(decreaseH());
+		menuRow.add(menuItem);
+		menuItem = new JMenuItem("Show selected row in separate window (F7)");
+		menuItem.addActionListener(showLine());
+		menuRow.add(menuItem);
+		menuItem = new JMenuItem("Toggle active/dormant status of Jvakt server. (F8)");
+		menuItem.addActionListener(toggleDormant());
+		menu.add(menuItem);
+		menuItem = new JMenuItem("Create info line in console (F9)");
+		menuItem.addActionListener(getInfo());
+		menuRow.add(menuItem);
+		menuItem = new JMenuItem("Help (F1)");
+		menuItem.addActionListener(showHelp());
+		menu.add(menuItem);
+		
+		setJMenuBar(menuBar);
+		
 		System.out.println("screenHeightWidth :" +screenSize.height+" " +screenSize.width);
 		if (screenSize.height > 1200) {
 			table.setRowHeight(table.getRowHeight()*2);
@@ -239,6 +291,8 @@ public class console extends JFrame implements TableModelListener, WindowListene
 		// Creates two new JPanels to be used inside topPanel, also a JPanel
 		topPanel.add(scrollPane, BorderLayout.CENTER);
 		topPanel.add(bu1, BorderLayout.NORTH);
+
+		
 		// tells the current object to use itself as a listener. (methods for WindowListener)
 		addWindowListener(this);
 
