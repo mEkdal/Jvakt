@@ -8,6 +8,7 @@ package Jvakt;
  * 2022-08-11 V.59 Michael Ekdal		Added check of cmdPlug1delete to trigger messages deleted from the console.
  * 2023-01-10 V.60 Michael Ekdal		Added send of the status to Jvakt server
  * 2023-03-17 V.61 Michael Ekdal		Hard coded status "TOut" when calling plugin instead when swTimin is true
+ * 2023-06-23 V.62 Michael Ekdal		Will send also the Type=I Status=INFO combo to cmdPlug1.
  */
 
 import java.io.*;
@@ -636,7 +637,8 @@ public class CheckStatus {
 				// *** call plugin1 start //
 //				if (cmdPlug1 != null  && !swDormant && !swRowDormant && !swTiming) {
 				if (cmdPlug1 != null  && !swDormant && !swRowDormant) {
-					if ((cmdPlug1prio30.equalsIgnoreCase("Y") || rs.getString("prio").compareTo("30") < 0) && (!rs.getString("type").startsWith("I") && !rs.getString("status").startsWith("INFO") ) ) {
+//					if ((cmdPlug1prio30.equalsIgnoreCase("Y") || rs.getString("prio").compareTo("30") < 0) && (!rs.getString("type").startsWith("I") && !rs.getString("status").startsWith("INFO") ) ) {
+					if ((cmdPlug1prio30.equalsIgnoreCase("Y") || rs.getString("prio").compareTo("30") < 0)) {
 						try {
 							String cmd;
 							if (swTiming) cmd = cmdPlug1+" *INSERT -id "+rs.getString("id")+" -prio "+rs.getString("prio")+" -type "+rs.getString("type")+" -sts TOut -body \""+rs.getString("body")+"\" -agent \""+rs.getString("agent")+"\""  ;

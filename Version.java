@@ -6,6 +6,7 @@ package Jvakt;
  */
 
 /*
+ * 2023-06-23 V2.11 Michael Ekdal PlugIvantiSM  Will send also the Type=I Status=INFO combo to cmdPlug1.
  * 2023-05-26 V2.10 Michael Ekdal GUI pgm    	Added menus to GUI programs. 
  * 2023-04-06 V2.9  Michael Ekdal PlugIvantiSM 	Completed *INSERT to create an incident and the *DELETE function to close an incident. 
  * 2023-02-28 V2.8  Michael Ekdal ManFiles   	Fixed: Not open socket to Jvakt twice. 
@@ -17,7 +18,7 @@ package Jvakt;
   
 public class Version {
 
-	static private String version = "2.10";
+	static private String version = "2.11";
 
 	public boolean isVersionOk()  { return true;  }
 
