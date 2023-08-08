@@ -1,5 +1,6 @@
 package Jvakt;
 /*
+ * 2023-08-08 V.57 Michael Ekdal		Added a button to trigger the search field
  * 2023-05-26 V.56 Michael Ekdal		Added menus in addition to the F keys
  * 2023-02-15 V.55 Michael Ekdal		Added tests (in consoleSts) on state, type and chkday to minimize user errors.
  * 2022-06-23 V.54 Michael Ekdal		Added getVersion() to get at consistent version throughout all classes.
@@ -28,9 +29,12 @@ public class consoleSts extends JFrame implements TableModelListener, WindowList
 	static final long serialVersionUID = 42L;
 	private JPanel topPanel;
 	private JPanel usrPanel;
+	private JPanel srchPanel;
+	
 	private JTable table;
 	private JScrollPane scrollPane;
 	private JButton bu1;
+	private JToggleButton buSrch;
 	private JMenuBar menuBar;      
 	private JMenu menu, menuRow;   
 	private JMenuItem menuItem;    
@@ -72,7 +76,7 @@ public class consoleSts extends JFrame implements TableModelListener, WindowList
 		port = Integer.parseInt(jvport);
 
 		// funktion in Jframe to set the title
-		setTitle("Jvakt consoleSts "+getVersion()+".56 -  F1 = Help");
+		setTitle("Jvakt consoleSts "+getVersion()+".57 -  F1 = Help");
 		//	        setSize(5000, 5000);
 
 		// get the screen size as a java dimension
@@ -98,6 +102,11 @@ public class consoleSts extends JFrame implements TableModelListener, WindowList
 		getContentPane().add(topPanel);
 		//topPanel.setComponentOrientation(ComponentOrientation.RIGHT_TO_LEFT);
 
+		// creates a new Jpanel and saves the reference in topPanel
+		srchPanel = new JPanel();
+		// tells topPanel which layout to use by create a BorderLayout object with no name.
+		srchPanel.setLayout(new FlowLayout());
+
 		// creates a data model to handle the data in the table
 		wD = new consoleStsDM();
 		// creates a Jtable and add the reference to wD via the Jtable contructor
@@ -107,7 +116,8 @@ public class consoleSts extends JFrame implements TableModelListener, WindowList
 		header.setBackground(Color.LIGHT_GRAY);
 
 		bu1 = new JButton();
-		
+		buSrch = new JToggleButton();
+		buSrch.setText("Search");
 		
 		//Create the menu.
 		menuBar = new JMenuBar();
@@ -143,7 +153,7 @@ public class consoleSts extends JFrame implements TableModelListener, WindowList
 		
 		
 		where = new JTextField(40);
-		where.setText("id ilike '%search%'");
+		where.setText("id ilike '%jvakt%' and prio <= 99");
 
 		System.out.println("screenHeightWidth :" +screenSize.height+" " +screenSize.width);
 		if (screenSize.height > 1200) {
@@ -316,7 +326,12 @@ public class consoleSts extends JFrame implements TableModelListener, WindowList
 		usrPanel = new JPanel();
 		usrPanel.setLayout(new BorderLayout());
 		usrPanel.add(bu1, BorderLayout.NORTH);
-		usrPanel.add(where, BorderLayout.CENTER);
+//		usrPanel.add(where, BorderLayout.CENTER);
+		
+		srchPanel.add(buSrch);
+		srchPanel.add(where);
+		usrPanel.add(srchPanel, BorderLayout.CENTER);
+		
 		topPanel.add(usrPanel, BorderLayout.NORTH);
 		topPanel.add(scrollPane, BorderLayout.CENTER);
 		// tells the current object to use itself as a listener. (methods for WindowListener)
@@ -349,10 +364,12 @@ public class consoleSts extends JFrame implements TableModelListener, WindowList
 
 					if (where.getText().length() > 5) {
 						//						System.out.println("swServer :" + swServer);
-						wD.setWhere(where.getText());
+//						wD.setWhere(where.getText());
+						if (buSrch.isSelected()) wD.setWhere(where.getText().trim()+" ");
+						else      				 wD.setWhere(where.getText().trim());
 					}
 					else {			
-						where.setText("id ilike '%search%'");
+						where.setText("id ilike '%jvakt%' and prio <= 99");
 					}
 
 					swDBopen = wD.refreshData();
@@ -466,7 +483,7 @@ public class consoleSts extends JFrame implements TableModelListener, WindowList
 //				pane.showMessageDialog(getContentPane(),
 				JOptionPane.showMessageDialog(getContentPane(),
 						"F1 : Help \nF3 : Increase font size \nF4 : Decrease font size \nF9 : Copy row \nDEL : Mark for deletion \n\nESC : Unselect"+
-								"\n\nThe SEARCH field (a where statement) is active when an ending space is present"+
+								"\n\nThe SEARCH field (a PostgreSQL 'where' statement) is active when the search button is active"+
 								"\n\nSome fields are updatable when the 'Auto Update' is off!\n Please heed the rules for the fields!" +
 								"\n\nstate - Must be A (active), I (inactive) or D (dormant)" + 
 								"\nprio - Below 30   may trigger SMS or Mail depending on chkday/chktim " + 

@@ -1,6 +1,7 @@
 package Jvakt;
 /*
  * 2022-06-23 V.54 Michael Ekdal		Added getVersion() to get at consistent version throughout all classes.
+ * 2023-08-02 V.55 Michael Ekdal		Added -tout parameter 
  */
 
 import java.io.*;
@@ -33,6 +34,7 @@ public class monIpPorts {
 	static String jvport   = "1956";
 	static int port ;
 	static int wport = 80 ;
+	static int tout = 5 ;
 	static String agent = null;
 	static Socket cs = null;
 
@@ -51,7 +53,7 @@ public class monIpPorts {
 
 	public static void main(String[] args) throws UnknownHostException, IOException {
 
-		version += getVersion()+".54";
+		version += getVersion()+".55";
 		String[] tab = new String [1];
 		//		String tdat;
 		String s;
@@ -78,6 +80,7 @@ public class monIpPorts {
 			System.out.println("\n\nThe parameters and their meaning are:\n"+
 					"\n-config \tThe dir of the input files. Like: \"-dir c:\\Temp\" "+
 					"\n-run    \tTo actually update the status on the server side."+
+					"\n-tout   \tTime out in seconds. Default is 5 seconds."+
 					"\n-host   \tCheck a single host."+          
 					"\n-port   \tThe port of a single host."+
 					"\n-stat   \tThe dir of the statistics files."+
@@ -91,6 +94,7 @@ public class monIpPorts {
 		for ( int i = 0; i < args.length; i++) {
 			//			if (args[i].equalsIgnoreCase("-dir")) dir = new File(args[++i]);
 			if (args[i].equalsIgnoreCase("-port")) wport = Integer.parseInt(args[++i]);
+			if (args[i].equalsIgnoreCase("-tout")) tout = Integer.parseInt(args[++i]);
 			if (args[i].equalsIgnoreCase("-run")) swRun = true;
 			if (args[i].equalsIgnoreCase("-host")) { swSingle = true; host = args[++i]; }
 			if (args[i].equalsIgnoreCase("-config")) config = args[++i];
@@ -125,7 +129,8 @@ public class monIpPorts {
 		}
 
 		getProps();
-
+		tout=tout*1000;
+		
 		System.setProperty("java.net.preferIPv6Addresses", "false");
 
 		if (swShow)	{
@@ -135,6 +140,7 @@ public class monIpPorts {
 			System.out.println(" Pos   : "+pos);
 			System.out.println(" Host  : "+host);
 			System.out.println(" Port  : "+wport);
+			System.out.println(" Tout: "+tout+" ms");
 			System.out.println(" Config file   : "+configF);
 			System.out.println(" Stat directory: "+stat+"\n");
 		}
@@ -217,7 +223,7 @@ public class monIpPorts {
 		try {
 			//			System.out.print(new Date()+" --- Connection to: " + host + ":" + wport);
 			cs = new Socket();
-			cs.connect(new InetSocketAddress(host, wport), 5000);
+			cs.connect(new InetSocketAddress(host, wport), tout);
 			//			BufferedInputStream inFromClient = new BufferedInputStream(cs.getInputStream());
 			//			BufferedOutputStream outToClient = new BufferedOutputStream(cs.getOutputStream());
 			//cs = new Socket(host, port);
@@ -237,7 +243,7 @@ public class monIpPorts {
 		efter = new Date();
 		delay = efter.getTime() - innan.getTime();
 		delay++;    // add an extra millisecond to compensate for extremely fast connections  
-		if (delay>=5000 || !state.equals("OKAY")) {
+		if (delay>=tout || !state.equals("OKAY")) {
 			if (swShow)	System.out.println("-- Delay value set to 0" );
 			delay = 0;   // a response delay over 5000ms is a failure
 		}

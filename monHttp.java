@@ -1,6 +1,7 @@
 package Jvakt;
 /*
  * 2022-06-23 V.54 Michael Ekdal		Added getVersion() to get at consistent version throughout all classes.
+ * 2023-08-02 V.55 Michael Ekdal		Added -tout parameter 
  */
 
 import java.io.*;
@@ -29,6 +30,7 @@ public class monHttp {
 	static String jvport   = "1956";
 	static int port ;
 	static int wport = 80 ;
+	static int tout = 5 ;
 	static String agent = null;
 	static String webfile = "";
 	static String webcontent = "";
@@ -46,7 +48,7 @@ public class monHttp {
 
 	public static void main(String[] args) throws UnknownHostException, IOException {
 
-		version += getVersion()+".54";
+		version += getVersion()+".55";
 		String[] tab = new String [1];
 		String s;
 		File[] listf;
@@ -68,6 +70,7 @@ public class monHttp {
 			System.out.println("\n\nThe parameters and their meaning are:\n"+
 					"\n-config \tThe dir of the input files. Like: \"-dir c:\\Temp\" "+
 					"\n-run    \tTo actually update the status on the server side."+
+					"\n-tout   \tTime out in seconds. Default is 5 seconds."+
 					"\n-host   \tCheck a single host." +      
 					"\n-port   \tDefault is 80." +
 					"\n-web    \tlike /index.html" +
@@ -83,6 +86,7 @@ public class monHttp {
 		for ( int i = 0; i < args.length; i++) {
 			//			if (args[i].equalsIgnoreCase("-dir")) dir = new File(args[++i]);
 			if (args[i].equalsIgnoreCase("-port")) wport = Integer.parseInt(args[++i]);
+			if (args[i].equalsIgnoreCase("-tout")) tout = Integer.parseInt(args[++i]);
 			if (args[i].equalsIgnoreCase("-web")) webfile = args[++i];
 			if (args[i].equalsIgnoreCase("-run")) swRun = true;
 			if (args[i].equalsIgnoreCase("-show")) swShow = true;
@@ -118,10 +122,13 @@ public class monHttp {
 
 		System.setProperty("java.net.preferIPv6Addresses", "false");
 
+		tout=tout*1000;
+		
 		if (swShow)	{
 			System.out.println(" Dir : "+dir);
 			System.out.println(" Suf : "+suf);
 			System.out.println(" Pos : "+pos);
+			System.out.println(" Tout: "+tout+" ms");
 			System.out.println(" Host: "+host+"\n");
 			System.out.println(" config file   : "+configF);
 			System.out.println(" stat directory: "+stat+"\n");
@@ -211,8 +218,8 @@ public class monHttp {
 			URL url = new URL("http://"+host+":"+wport+webfile); 
 			URLConnection con = url.openConnection();  // new
 			con.addRequestProperty("User-Agent", "Mozilla");
-			con.setReadTimeout(5000);
-			con.setConnectTimeout(5000);
+			con.setReadTimeout(tout);
+			con.setConnectTimeout(tout);
 			if (swShow) {
 				if (con.getExpiration() > 0) {
 					cacheexpiration = new Date(con.getExpiration());
@@ -239,7 +246,7 @@ public class monHttp {
 		efter = new Date();
 		delay = efter.getTime() - innan.getTime();
 		delay++;    // add an extra millisecond to compensate for extremely fast connections  
-		if (delay>=5000) delay = 0;   // a response delay over 5000ms is a failure
+		if (delay>=tout) delay = 0;   // a response delay over 5000ms is a failure
 
 		//		try { Thread.currentThread(); Thread.sleep(1000); } catch (Exception e) {} ;
 		if (t_desc == null) t_desc = " ";

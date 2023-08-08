@@ -123,7 +123,6 @@ public class PlugIvantiSM {
 					"\n*INSERT \tIndicates it is an insert of a new incident into Ivanti."+
 					"\n*DELETE \tIndicates it is a close of an incident. (not implemented yet) "+
 					"\n-prio   \tField from the Jvakt console table."+
-					"\n-prio   \tField from the Jvakt console table."+
 					"\n-type   \tField from the Jvakt console table."+
 					"\n-sts    \tField from the Jvakt console table." +
 					"\n-body   \tField from the Jvakt console table." +
@@ -253,11 +252,11 @@ public class PlugIvantiSM {
 		else if (prio.compareTo("20")>= 0 && prio.compareTo("30")<0) Urgency = "Medium";
 		else Urgency = "High";
 
-		if (getCsv()) System.out.println("-Filter found"); 
+		if (getCsv()) System.out.println("-Filter file found"); 
 		else {
-			logg.write("-No Filter found");
+			logg.write("-No Filter file found");
 			logg.newLine();
-			System.out.println("-No Filter found"); 
+			System.out.println("-No Filter file found"); 
 		}
 
 		//		System.out.println("ecount "+ecount+" ccount "+ccount+" lcount "+lcount); 
@@ -303,6 +302,7 @@ public class PlugIvantiSM {
 				logg.write("-- Filter set "+id+" to Logged");
 				logg.newLine();
 				swLogged=true;
+				swClosed=false;
 				swExcludeAll=false;
 				System.out.println("-- Filter set "+id+" to Logged");
 			}

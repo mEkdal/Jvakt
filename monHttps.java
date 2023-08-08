@@ -1,6 +1,7 @@
 package Jvakt;
 /*
  * 2022-06-23 V.54 Michael Ekdal		Added getVersion() to get at consistent version throughout all classes.
+ * 2023-08-02 V.55 Michael Ekdal		Added -tout parameter 
  */
 
 import java.io.*;
@@ -45,6 +46,7 @@ public class monHttps {
 	static String jvport   = "1956";
 	static int port ;
 	static int wport = 443 ;
+	static int tout = 5 ;
 	static String agent = null;
 	static String webfile = "";
 	//	static String webcontent = "400";
@@ -65,7 +67,7 @@ public class monHttps {
 
 	public static void main(String[] args) throws UnknownHostException, IOException, Exception {
 		
-		version += getVersion()+".54";
+		version += getVersion()+".55";
 		String[] tab = new String [1];
 		//		String tdat;
 		String s;
@@ -88,6 +90,7 @@ public class monHttps {
 			System.out.println("\n\nThe parameters and their meaning are:\n"+
 					"\n-config \tThe dir of the input files. Like: \"-dir c:\\Temp\" "+
 					"\n-run    \tTo actually update the status on the server side."+
+					"\n-tout   \tTime out in seconds. Default is 5 seconds."+
 					"\n-host   \tCheck a single host." +
 					"\n-port   \tDefault is 443." +
 					"\n-web    \tlike /index.html" +
@@ -130,6 +133,7 @@ public class monHttps {
 		for ( int i = 0; i < args.length; i++) {
 			//			if (args[i].equalsIgnoreCase("-dir")) dir = new File(args[++i]);
 			if (args[i].equalsIgnoreCase("-port")) wport = Integer.parseInt(args[++i]);
+			if (args[i].equalsIgnoreCase("-tout")) tout = Integer.parseInt(args[++i]);
 			if (args[i].equalsIgnoreCase("-web")) webfile = args[++i];
 			if (args[i].equalsIgnoreCase("-run")) swRun = true;
 			if (args[i].equalsIgnoreCase("-show")) swShow = true;
@@ -164,13 +168,16 @@ public class monHttps {
 		if (swShow)	System.out.println(" config file: "+configF);
 
 		getProps();
-
+		
+		tout=tout*1000;
+		
 		System.setProperty("java.net.preferIPv6Addresses", "false");
 		if (swShow)	{
 			System.out.println(" Dir : "+dir);
 			System.out.println(" Suf : "+suf);
 			System.out.println(" Pos : "+pos);
 			System.out.println(" Host: "+host);
+			System.out.println(" Tout: "+tout+" ms");
 			System.out.println(" stat directory: "+stat+"\n");
 		}
 
@@ -267,9 +274,9 @@ public class monHttps {
 			HttpsURLConnection con = (HttpsURLConnection) url.openConnection();
 			con.addRequestProperty("User-Agent", "Mozilla");
 			if (swShow)	System.out.println("-- OK connection");
-			con.setReadTimeout(5000);
-			con.setConnectTimeout(5000);
-			con.setConnectTimeout(5000);
+			con.setReadTimeout(tout);
+			con.setConnectTimeout(tout);
+			con.setConnectTimeout(tout);
 			if (swShow) {
 				if (con.getExpiration() > 0) {
 					cacheexpiration = new Date(con.getExpiration());
@@ -344,8 +351,8 @@ public class monHttps {
 		efter = new Date();
 		delay = efter.getTime() - innan.getTime();
 		delay++;    // add an extra millisecond to compensate for extremely fast connections  
-		if (delay>=5000) {
-			System.out.println("-- Delay over 5000 ms, connection failed!");
+		if (delay>=tout) {
+			System.out.println("-- Delay over "+tout+" ms, connection failed!");
 			delay = 0;   // a response delay over 5000ms is a failure
 		}
 

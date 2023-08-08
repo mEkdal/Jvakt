@@ -1,5 +1,6 @@
 package Jvakt;
 /*
+ * 2023-07-26 V.55 Michael Ekdal		Unknown mail are marked for deletion if the -del switch is present
  * 2022-06-23 V.54 Michael Ekdal		Added getVersion() to get at consistent version throughout all classes.
  */
 
@@ -26,6 +27,7 @@ public class GetImap4Msg {
 	static boolean swSmq1PXP = false;
 	static boolean swSmq2PCP = false;
 	static boolean swUnomaly = false;
+	static boolean swDelete = false;
 	static int Sm58PCPerr = 0;
 
 	static String from;
@@ -52,18 +54,25 @@ public class GetImap4Msg {
 	public static void main(String[] args) throws IOException, FileNotFoundException {
 
 		String version = "GetImap4Msg ";
-		version += getVersion()+".54";
+		version += getVersion()+".55";
 
 		for (int i=0; i<args.length; i++) {
 			if (args[i].equalsIgnoreCase("-config")) config = args[++i];
 			if (args[i].equalsIgnoreCase("-help")) swHelp = true;
 			if (args[i].equalsIgnoreCase("-?")) swHelp = true;
+			if (args[i].equalsIgnoreCase("-del")) swDelete = true;
 		}
 
 		if (swHelp) {
 			System.out.println("--- GetImap4Msg --- ");
-			System.out.println("by Michael Ekdal Perstorp Sweden.\n");
+			System.out.println("by Michael Ekdal Perstorp AB Special Sweden.\n");
 			System.out.println("Analyses mail directed to a mailbox folder");
+			
+			System.out.println("\n\nThe parameters and their meaning are:\n"+
+					"\n-config \tThe dir of the input files. Like: \"-dir c:\\Temp\" " +
+					"\n-del    \tUnknown mail are marked as deleted!"
+					);
+
 			System.exit(4);
 		}
 
@@ -571,8 +580,14 @@ public class GetImap4Msg {
 				}
 
 				if (!msgFixat) {
-					System.out.println("* Mail ignored ");
-					messages[i].setFlag(Flags.Flag.SEEN, false); // markera mailet som oläst
+					if (swDelete) {
+						System.out.println("* Ignored mail marked for deletion");
+						messages[i].setFlag(Flags.Flag.DELETED, true); // markera mailet för deletion
+					}
+					else {
+						System.out.println("* Mail ignored ");
+						messages[i].setFlag(Flags.Flag.SEEN, false); // markera mailet som oläst
+					}
 				}
 
 				//************ analys stopp ******

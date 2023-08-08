@@ -1,7 +1,8 @@
 package Jvakt;
 /*
- * 2023-02-11 V.55 Michael Ekdal		Made the response time calculation better regarding pings
  * 2022-06-23 V.54 Michael Ekdal		Added getVersion() to get at consistent version throughout all classes.
+ * 2023-02-11 V.55 Michael Ekdal		Made the response time calculation better regarding pings
+ * 2023-08-02 V.56 Michael Ekdal		Added -tout parameter
  */
 
 import java.io.*;
@@ -37,6 +38,8 @@ public class monIPAddr {
 	static String jvhost   = "localhost";
 	static String jvport   = "1956";
 	static int port ;
+	static int tout = 5 ;
+	static int toutux;
 	static String agent = null;
 	static Date now;
 	static int sleep = 1000;
@@ -56,7 +59,7 @@ public class monIPAddr {
 
 	public static void main(String[] args) throws UnknownHostException, IOException {
 
-		version += getVersion()+".55";
+		version += getVersion()+".56";
 		String[] tab = new String [1];
 		//		String tdat;
 		String s;
@@ -91,6 +94,7 @@ public class monIPAddr {
 					"\n-host   \tCheck a single host." +
 					"\n-show   \tShow a verboose log." +
 					"\n-tracert\tTo make a traceroute when a check fails." +
+					"\n-tout   \tTime out in seconds. Default is 5 seconds."+
 					"\n-stat   \tThe dir of the statistics files."+
 					"\n-sleep  \tIn seconds. Used with loop to sleep between checks. The default is one second."
 					);
@@ -103,6 +107,7 @@ public class monIPAddr {
 			//			if (args[i].equalsIgnoreCase("-dir")) dir = new File(args[++i]);
 			if (args[i].equalsIgnoreCase("-run")) swRun = true;
 			if (args[i].equalsIgnoreCase("-host")) { swSingle = true; host = args[++i]; }
+			if (args[i].equalsIgnoreCase("-tout")) tout = Integer.parseInt(args[++i]);
 			if (args[i].equalsIgnoreCase("-config")) config = args[++i];
 			if (args[i].equalsIgnoreCase("-loop")) swLoop = true;
 			if (args[i].equalsIgnoreCase("-show")) swShow = true;
@@ -122,7 +127,8 @@ public class monIPAddr {
 		//		System.out.println(OS);
 
 		System.setProperty("java.net.preferIPv6Addresses", "false");
-
+		toutux=tout;
+		tout=tout*1000;
 		now = new Date();
 
 		if (swShow)	{
@@ -134,6 +140,7 @@ public class monIPAddr {
 			System.out.println(" Run    : "+swRun);
 			System.out.println(" Loop   : "+swLoop);
 			System.out.println(" Sleep  : "+sleep+" ms");
+			System.out.println(" Tout   : "+tout+" ms");
 			System.out.println(" stat directory: "+stat+"\n");
 		}
 
@@ -261,7 +268,7 @@ public class monIPAddr {
 			//			if (!swLoop) System.out.println("\n-- Inet: "+inet);
 			//System.out.println("-- Inet bool: "+inet.isReachable(5000));
 			//  TCP connection on port 7 (Echo) 
-			if (!inet.isReachable(5000)) { 
+			if (!inet.isReachable(tout)) { 
 				state = "FAILED"; 
 				if (swShow)	System.out.println(new Date()+" -- Echo failed, pinging..." );
 			}
@@ -279,8 +286,11 @@ public class monIPAddr {
 			try {
 				state = "OKAY";
 
-				if (OS.indexOf("win") >= 0) cmd = "ping -n 1 -l 8 -w 5000 " + host;   // Windows
-				else if (OS.indexOf("nux") >= 0 || OS.indexOf("nix") >= 0) cmd = "ping -c 1 -W 5 " + host;      // Linux or Unix
+				if (OS.indexOf("win") >= 0) cmd = "ping -n 1 -l 8 -w "+tout+" " + host;   // Windows
+				else if (OS.indexOf("nux") >= 0 || OS.indexOf("nix") >= 0) {
+//					cmd = "ping -c 1 -W 5 " + host;      // Linux or Unix
+					cmd = "ping -c 1 -W "+toutux+" "+ host;      // Linux or Unix
+				}
 				else cmd = "ping " + host;											  // 
 
 				if (swShow)	System.out.println("-- Ping cmd: "+cmd);  
@@ -297,7 +307,7 @@ public class monIPAddr {
 		efter = new Date();
 		delay = efter.getTime() - innan.getTime();
 		delay++;    // add an extra millisecond to compensate for extremely fast connections  
-		if (delay>=5000 || !state.equals("OKAY")) delay = 0;   // a response delay over 5000ms is a failure or state is failed
+		if (delay>=tout || !state.equals("OKAY")) delay = 0;   // a response delay over 5000ms is a failure or state is failed
 		if (swShow)	System.out.println("-- Response time: "+delay+" ms" );
 		if (swStat) {
 			now = new Date();
@@ -428,7 +438,7 @@ public class monIPAddr {
 			nuWait = 0;
 			swGoon = true;
 			innan = new Date();
-			while (nuWait < 5000 && swGoon && !swError) {
+			while (nuWait < tout && swGoon && !swError) {
 				swGoon = false;
 				try { exitVal = p.exitValue(); } catch (Exception e) {swGoon = true;} ;
 				if (swGoon) {
@@ -442,7 +452,7 @@ public class monIPAddr {
 				}
 			}
 			if (swShow)	System.out.println("- Waited for ping (ms) -- " + nuWait);
-			if (nuWait >= 5000) {
+			if (nuWait >= tout) {
 				System.out.println(new Date() +" ** Timeout --: " + nuWait);
 				swError = true;
 				p.destroy(); System.out.println(new Date() + " **Destroy process...");

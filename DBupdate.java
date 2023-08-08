@@ -14,6 +14,7 @@ package Jvakt;
  * 2022-08-11 V.58 Michael Ekdal		-recid to the cmdPlug1 arguments when *DELETE 
  * 2022-08-11 V.59 Michael Ekdal		Added getVersion() to get at consistent version throughout all classes. 
  * 2022-08-11 V.60 Michael Ekdal		Added check of cmdPlug1delete to trigger messages deleted from the console. 
+ * 2023-08-11 V.61 Michael Ekdal		Added ability to start a second plugin cmdPlug2 
  */
 
 import java.io.*;
@@ -50,6 +51,9 @@ class DBupdate {
 	static private  String cmdPlug1 = null;
 	static private  String cmdPlug1prio30 = null;
 	static private  String cmdPlug1delete = null;
+	static private  String cmdPlug2 = null;
+	static private  String cmdPlug2prio30 = null;
+	static private  String cmdPlug2delete = null;
 	static String config = null;
 	static String version = "DBupdate ";
 
@@ -78,7 +82,7 @@ class DBupdate {
 		if (config == null ) 	configF = new File("Jvakt.properties");
 		else 					configF = new File(config,"Jvakt.properties");
 		
-		version += getVersion()+".60";
+		version += getVersion()+".61";
 //		System.out.println("-config file DBupdate: "+configF);
 		System.out.println("----------- Jvakt: "+new Date()+"  Version: "+version +"  -  config file: "+configF);
 
@@ -100,6 +104,9 @@ class DBupdate {
 			cmdPlug1 = prop.getProperty("cmdPlug1");
 			cmdPlug1prio30 = prop.getProperty("cmdPlug1prio30");
 			cmdPlug1delete = prop.getProperty("cmdPlug1delete");
+			cmdPlug2 = prop.getProperty("cmdPlug2");
+			cmdPlug2prio30 = prop.getProperty("cmdPlug2prio30");
+			cmdPlug2delete = prop.getProperty("cmdPlug2delete");
 			autocreate  = prop.getProperty("autocreate");
 			String	mode 	 =  prop.getProperty("mode");
 			if (!mode.equalsIgnoreCase("active")) {  
@@ -463,7 +470,8 @@ class DBupdate {
 							//  Sleep one millisecond to be sure next timestamp is unique.
 							try { Thread.sleep(1); } catch (InterruptedException e) { e.printStackTrace();}
 
-							// *** call plugin1 start //
+							// *** call plugins start //
+//							System.out.println("cmdPlug1 "+cmdPlug1+" cmdPlug1prio30 "+cmdPlug1prio30);
 							if (cmdPlug1 != null && !swDormant) {
 								if (cmdPlug1prio30.equalsIgnoreCase("Y") || m.getPrio() < 30 ) {
 									try {
@@ -477,7 +485,21 @@ class DBupdate {
 									}
 								}
 							}
-							// *** call plugin1 end //
+//							System.out.println("cmdPlug2 "+cmdPlug2+" cmdPlug2prio30 "+cmdPlug2prio30);
+							if (cmdPlug2 != null && !swDormant) {
+								if (cmdPlug2prio30.equalsIgnoreCase("Y") || m.getPrio() < 30 ) {
+									try {
+										String cmd = cmdPlug2+" *INSERT -id "+m.getId()+" -prio "+m.getPrio()+" -type "+sType.toUpperCase()+" -sts "+m.getRptsts().toUpperCase()+" -body \""+m.getBody()+"\" -agent \"" +m.getAgent()+"\"" ;
+										if (config != null ) cmd = cmd + " -config "+config; 	
+										Runtime.getRuntime().exec(cmd);
+										if (swLogg)	System.out.println(LocalDateTime.now()+" #P2 executed as insert: " +cmd);
+									} catch (IOException e1) {
+										System.err.println(e1);
+										System.err.println(e1.getMessage());
+									}
+								}
+							}
+							// *** call plugins end //
 
 						}
 					} //@console    
@@ -542,15 +564,14 @@ class DBupdate {
 			if (swLogg)
 				System.out.println(LocalDateTime.now()+" #17 Closed addHst");
 
-			// call plugin1 start //
+			// call plugins start //
 			if (cmdPlug1 != null && !swDormant && cmdPlug1delete.equalsIgnoreCase("Y")) {
 				if (cmdPlug1prio30.equalsIgnoreCase("Y") || rs.getString("prio").compareTo("30") < 0 ) {
 					try {
 						String cmd = cmdPlug1+" *DELETE -id "+rs.getString("id")+" -prio "+rs.getString("prio")+" -type "+rs.getString("type")+" -sts "+rs.getString("status")+" -body \""+rs.getString("body")+"\" -agent \""+rs.getString("agent")+"\" -recid \""+rs.getString("recid")+"\""  ;
-//						System.out.println(LocalDateTime.now()+" #P2 pluin1 args: "+cmd );
 						if (config != null ) cmd = cmd + " -config "+config; 	
 						Runtime.getRuntime().exec(cmd);
-						if (swLogg)	System.out.println(LocalDateTime.now()+" #P2 executed as delete: " +cmd);
+						if (swLogg)	System.out.println(LocalDateTime.now()+" #P3 executed as delete: " +cmd);
 
 					} catch (IOException e1) {
 						System.err.println(e1);
@@ -558,7 +579,21 @@ class DBupdate {
 					}
 				}
 			}
-			// call plugin1 end //
+			if (cmdPlug2 != null && !swDormant && cmdPlug2delete.equalsIgnoreCase("Y")) {
+				if (cmdPlug2prio30.equalsIgnoreCase("Y") || rs.getString("prio").compareTo("30") < 0 ) {
+					try {
+						String cmd = cmdPlug2+" *DELETE -id "+rs.getString("id")+" -prio "+rs.getString("prio")+" -type "+rs.getString("type")+" -sts "+rs.getString("status")+" -body \""+rs.getString("body")+"\" -agent \""+rs.getString("agent")+"\" -recid \""+rs.getString("recid")+"\""  ;
+						if (config != null ) cmd = cmd + " -config "+config; 	
+						Runtime.getRuntime().exec(cmd);
+						if (swLogg)	System.out.println(LocalDateTime.now()+" #P4F executed as delete: " +cmd);
+
+					} catch (IOException e1) {
+						System.err.println(e1);
+						System.err.println(e1.getMessage());
+					}
+				}
+			}
+			// call plugins end //
 		}
 		catch (SQLException e) {
 			System.out.println(LocalDateTime.now()+" #E3 SQL exeption error session " );

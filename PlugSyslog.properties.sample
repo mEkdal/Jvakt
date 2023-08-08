@@ -1,0 +1,3 @@
+# syslog server
+host = ubuntu1
+port = 514

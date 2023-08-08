@@ -9,6 +9,9 @@ package Jvakt;
  * 2023-01-10 V.60 Michael Ekdal		Added send of the status to Jvakt server
  * 2023-03-17 V.61 Michael Ekdal		Hard coded status "TOut" when calling plugin instead when swTimin is true
  * 2023-06-23 V.62 Michael Ekdal		Will send also the Type=I Status=INFO combo to cmdPlug1.
+ * 2023-07-26 V.63 Michael Ekdal		Fixed a problem with GetInt("prio") was GetString .
+ * 2023-07-26 V.64 Michael Ekdal		Sends warning to Jvakt if CheckStatus is in dormant mode.
+ * 2023-08-11 V.65 Michael Ekdal		Added ability to start a second plugin cmdPlug2
  */
 
 import java.io.*;
@@ -37,7 +40,7 @@ public class CheckStatus {
 	static boolean swDormant = false;
 	static boolean swRowDormant = false; 
 	static boolean swOKtot = false; 
-	
+
 	static java.sql.Date zDate;
 	static java.sql.Timestamp zD;
 	static java.sql.Timestamp zTs;
@@ -61,13 +64,16 @@ public class CheckStatus {
 	static private  String cmdPlug1 = null;
 	static private  String cmdPlug1prio30 = null;
 	static private  String cmdPlug1delete = null;
+	static private  String cmdPlug2 = null;
+	static private  String cmdPlug2prio30 = null;
+	static private  String cmdPlug2delete = null;
 	static String config = null;
 	static InetAddress inet;
 
 	//	public static void main(String[] args ) throws IOException, UnknownHostException {
 	public static void main(String[] args ) {
 
-		version += getVersion()+".61";
+		version += getVersion()+".65";
 		File configF;
 
 		for (int i=0; i<args.length; i++) {
@@ -101,6 +107,9 @@ public class CheckStatus {
 			cmdPlug1 = prop.getProperty("cmdPlug1");
 			cmdPlug1prio30 = prop.getProperty("cmdPlug1prio30");
 			cmdPlug1delete = prop.getProperty("cmdPlug1delete");
+			cmdPlug2 = prop.getProperty("cmdPlug2");
+			cmdPlug2prio30 = prop.getProperty("cmdPlug2prio30");
+			cmdPlug2delete = prop.getProperty("cmdPlug2delete");
 			String	mode 	 =  prop.getProperty("mode");
 			if (!mode.equalsIgnoreCase("active"))  swDormant = true;
 		} catch (IOException ex) {
@@ -118,7 +127,7 @@ public class CheckStatus {
 		int err;
 		jvporti = Integer.parseInt(jvport);
 		agent = null;
-//		InetAddress inet;
+		//		InetAddress inet;
 
 		try {
 			inet = InetAddress.getLocalHost();
@@ -503,31 +512,37 @@ public class CheckStatus {
 
 	// sends status to the Jvakt server
 	static protected void sendSTS( boolean STS) throws IOException {
-//			System.out.println("--- Connecting to "+jvhost+":"+jvport);
-			Message jmsg = new Message();
-			SendMsg jm = new SendMsg(jvhost, jvporti);
-//			System.out.println(jm.open()); 
-			jm.open(); 
-			jmsg.setId("Jvakt-CheckStatus");
-			if (STS) {
+		//			System.out.println("--- Connecting to "+jvhost+":"+jvport);
+		Message jmsg = new Message();
+		SendMsg jm = new SendMsg(jvhost, jvporti);
+		//			System.out.println(jm.open()); 
+		jm.open(); 
+		jmsg.setId("Jvakt-CheckStatus");
+		if (STS) { 
+			if (swDormant) {
+				jmsg.setBody("The CheckStatus program runs in DORMANT mode! Check the Jvakt.properties file.");
+				jmsg.setRptsts("INFO");
+			}
+			else {
 				jmsg.setBody("The CheckStatus program is working.");
 				jmsg.setRptsts("OK");
 			}
-			else {
-				jmsg.setBody("The CheckStatus program is not working!");
-				jmsg.setRptsts("ERR");
-			}
-			jmsg.setType("T");
+		}
+		else {
+			jmsg.setBody("The CheckStatus program is not working!");
+			jmsg.setRptsts("ERR");
+		}
+		jmsg.setType("T");
 
-			inet = InetAddress.getLocalHost();
-//			System.out.println("-- Inet: "+inet);
-			agent = inet.toString();
+		inet = InetAddress.getLocalHost();
+		//			System.out.println("-- Inet: "+inet);
+		agent = inet.toString();
 
-			jmsg.setAgent(agent);
-			if (!jm.sendMsg(jmsg)) System.out.println("--- Rpt to Jvakt Failed for CheckStatus ---");
-			jm.close();
+		jmsg.setAgent(agent);
+		if (!jm.sendMsg(jmsg)) System.out.println("--- Rpt to Jvakt Failed for CheckStatus ---");
+		jm.close();
 	}
-	
+
 	//----- add or remove line to/from the console table -----
 	//	static protected void updC(ResultSet rs) throws IOException {
 	static protected void updC(ResultSet rs) {
@@ -634,15 +649,13 @@ public class CheckStatus {
 				st.close();
 				//				conn.commit();
 
-				// *** call plugin1 start //
-//				if (cmdPlug1 != null  && !swDormant && !swRowDormant && !swTiming) {
+				// *** call plugin1 insert start //
 				if (cmdPlug1 != null  && !swDormant && !swRowDormant) {
-//					if ((cmdPlug1prio30.equalsIgnoreCase("Y") || rs.getString("prio").compareTo("30") < 0) && (!rs.getString("type").startsWith("I") && !rs.getString("status").startsWith("INFO") ) ) {
-					if ((cmdPlug1prio30.equalsIgnoreCase("Y") || rs.getString("prio").compareTo("30") < 0)) {
+					if ((cmdPlug1prio30.equalsIgnoreCase("Y") || rs.getInt("prio") < 30)) {
 						try {
 							String cmd;
 							if (swTiming) cmd = cmdPlug1+" *INSERT -id "+rs.getString("id")+" -prio "+rs.getString("prio")+" -type "+rs.getString("type")+" -sts TOut -body \""+rs.getString("body")+"\" -agent \""+rs.getString("agent")+"\""  ;
-								else 	  cmd = cmdPlug1+" *INSERT -id "+rs.getString("id")+" -prio "+rs.getString("prio")+" -type "+rs.getString("type")+" -sts "+rs.getString("status")+" -body \""+rs.getString("body")+"\" -agent \""+rs.getString("agent")+"\""  ;
+							else 	  cmd = cmdPlug1+" *INSERT -id "+rs.getString("id")+" -prio "+rs.getString("prio")+" -type "+rs.getString("type")+" -sts "+rs.getString("status")+" -body \""+rs.getString("body")+"\" -agent \""+rs.getString("agent")+"\""  ;
 							if (config != null ) cmd = cmd + " -config "+config; 	
 							Runtime.getRuntime().exec(cmd);
 							System.out.println(new Date()+" - #P1 executed as insert: " +cmd);
@@ -652,7 +665,22 @@ public class CheckStatus {
 						}
 					}
 				}
-				// *** call plugin1 end //
+				if (cmdPlug2 != null  && !swDormant && !swRowDormant) {
+					if ((cmdPlug2prio30.equalsIgnoreCase("Y") || rs.getInt("prio") < 30)) {
+						try {
+							String cmd;
+							if (swTiming) cmd = cmdPlug2+" *INSERT -id "+rs.getString("id")+" -prio "+rs.getString("prio")+" -type "+rs.getString("type")+" -sts TOut -body \""+rs.getString("body")+"\" -agent \""+rs.getString("agent")+"\""  ;
+							else 	  cmd = cmdPlug2+" *INSERT -id "+rs.getString("id")+" -prio "+rs.getString("prio")+" -type "+rs.getString("type")+" -sts "+rs.getString("status")+" -body \""+rs.getString("body")+"\" -agent \""+rs.getString("agent")+"\""  ;
+							if (config != null ) cmd = cmd + " -config "+config; 	
+							Runtime.getRuntime().exec(cmd);
+							System.out.println(new Date()+" - #P2 executed as insert: " +cmd);
+						} catch (IOException e1) {
+							System.err.println(e1);
+							System.err.println(e1.getMessage());
+						}
+					}
+				}
+				// *** call plugins insert end //
 
 			}
 			//			System.out.println(LocalDateTime.now()+" Closed addC");
@@ -716,7 +744,21 @@ public class CheckStatus {
 						String cmd = cmdPlug1+" *DELETE -id "+rs.getString("id")+" -prio "+rs.getString("prio")+" -type "+rs.getString("type")+" -sts "+rs.getString("status")+" -body \""+rs.getString("body")+"\" -agent \""+rs.getString("agent")+"\" -recid \""+rs.getString("recid")+"\""  ;
 						if (config != null ) cmd = cmd + " -config "+config; 	
 						Runtime.getRuntime().exec(cmd);
-						System.out.println(new Date()+" - #P2 executed as delete: " +cmd);
+						System.out.println(new Date()+" - #P3 executed as delete: " +cmd);
+
+					} catch (IOException e1) {
+						System.err.println(e1);
+						System.err.println(e1.getMessage());
+					}
+				}
+			}
+			if (cmdPlug2 != null && !swDormant &&  cmdPlug2delete.equalsIgnoreCase("Y")) {
+				if (cmdPlug2prio30.equalsIgnoreCase("Y") || rs.getString("prio").compareTo("30") < 0 ) {
+					try {
+						String cmd = cmdPlug2+" *DELETE -id "+rs.getString("id")+" -prio "+rs.getString("prio")+" -type "+rs.getString("type")+" -sts "+rs.getString("status")+" -body \""+rs.getString("body")+"\" -agent \""+rs.getString("agent")+"\" -recid \""+rs.getString("recid")+"\""  ;
+						if (config != null ) cmd = cmd + " -config "+config; 	
+						Runtime.getRuntime().exec(cmd);
+						System.out.println(new Date()+" - #P4 executed as delete: " +cmd);
 
 					} catch (IOException e1) {
 						System.err.println(e1);

@@ -1,0 +1,9 @@
+# More strings can be divided by an & 
+# E;*         ( Special. Makes all incidents to be excluded if not identified by a L; or C; 
+# E;strings   ( Exclude: if the strings are found no Ivanti incident is created )
+# L;strings   ( Logged: if the strings are found the Ivanti incident created as Logged )
+# E.g. E;monIpPort&Ubuntu
+
+#E;*
+#E;FTP&Ubuntu
+#L;FTP&Ubuntu
