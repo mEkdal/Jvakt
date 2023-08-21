@@ -1,5 +1,6 @@
 package Jvakt;
 /*
+ * 2023-08-21 V.56 Michael Ekdal		Increated sleep times
  * 2023-01-03 V.55 Michael Ekdal		Added send of the status to Jvakt server
  * 2022-06-23 V.54 Michael Ekdal		Added getVersion() to get at consistent version throughout all classes.
  */
@@ -77,7 +78,7 @@ public class SendSMS {
 	public static void main(String[] args ) throws IOException, UnknownHostException {
 
 		String version = "SendSMS ";
-		version += getVersion()+".55";
+		version += getVersion()+".56";
 		String database = "jVakt";
 		String dbuser   = "jVakt";
 		String dbpassword = "";
@@ -424,7 +425,7 @@ public class SendSMS {
 			}
 			try {
 				if (isr.ready()) {
-					try { Thread.sleep(100); } catch (InterruptedException e) { e.printStackTrace();}
+					try { Thread.sleep(1000); } catch (InterruptedException e) { e.printStackTrace();}
 					len = isr.read( c, 0, 100 );
 				}
 				else {
@@ -456,7 +457,7 @@ public class SendSMS {
 			if( s.length() > 0 ) {
 				System.out.println(LocalDateTime.now()+" "+s);  
 				System.out.flush();
-				try { Thread.sleep(100); } catch (InterruptedException e) { e.printStackTrace();}
+				try { Thread.sleep(1000); } catch (InterruptedException e) { e.printStackTrace();}
 				return;
 			}	      
 		}

@@ -1,5 +1,6 @@
 package Jvakt;
 /*
+ * 2023-08-21 V.56 Michael Ekdal		Increated sleep times
  * 2023-01-03 V.55 Michael Ekdal		Added send of the status to Jvakt server
  * 2022-06-23 V.54 Michael Ekdal		Added getVersion() to get at consistent version throughout all classes.
  */
@@ -76,7 +77,7 @@ public class SendSMSSTS {
 	public static void main(String[] args ) {
 
 		String version = "SendSMSSTS ";
-		version += getVersion()+".55";
+		version += getVersion()+".56";
 
 		for (int i=0; i<args.length; i++) {
 			if (args[i].equalsIgnoreCase("-config")) config = args[++i];
@@ -310,12 +311,12 @@ public class SendSMSSTS {
 				osw.write( body +"\u001A" );
 				osw.flush();
 				ReceiveText();
-				if (reply.indexOf("+CMGS") > 0 ) {
-					System.out.println("Received +CMGS  "+reply);
+				if (reply.indexOf("+CMGS") > 0 || reply.indexOf("OK") > 0 ) {
+					System.out.println("Received +CMGS or OK "+reply);
 					swOK = true;
 				} else {
 					swOK = false;
-					System.out.println("Did not receive +CMGS ! "+reply);
+					System.out.println("Did not receive +CMGS or OK ! "+reply);
 //					break;					
 				}
 					
@@ -350,7 +351,7 @@ public class SendSMSSTS {
 
 
 	static public void ReceiveText() {
-		try { Thread.sleep(1000); } catch (InterruptedException e) { e.printStackTrace();}
+		try { Thread.sleep(4000); } catch (InterruptedException e) { e.printStackTrace();}
 		String s;
 		int i, len, timeouts;
 		char c[] = new char[ 100 ];
@@ -367,19 +368,19 @@ public class SendSMSSTS {
 			}
 			try {
 				if (isr.ready()) {
-					try { Thread.sleep(100); } catch (InterruptedException e) { e.printStackTrace();}
+					try { Thread.sleep(1000); } catch (InterruptedException e) { e.printStackTrace();}
 					len = isr.read( c, 0, 100 );
 				}
 				else {
 					timeouts++;
 					System.out.println("isr is not ready, waiting...");
-					try { Thread.sleep(1000); } catch (InterruptedException e) { e.printStackTrace();}
+					try { Thread.sleep(2000); } catch (InterruptedException e) { e.printStackTrace();}
 					continue;
 				}
 				if( len < 0 ) {
 					timeouts++;
 					System.out.println("no reply, waiting...");
-					try { Thread.sleep(1000); } catch (InterruptedException e) { e.printStackTrace();}
+					try { Thread.sleep(2000); } catch (InterruptedException e) { e.printStackTrace();}
 					continue;
 //					return;
 				}
@@ -399,7 +400,7 @@ public class SendSMSSTS {
 			if( s.length() > 0 ) {
 				System.out.println(s);  
 				System.out.flush();
-				try { Thread.sleep(100); } catch (InterruptedException e) { e.printStackTrace();}
+				try { Thread.sleep(1000); } catch (InterruptedException e) { e.printStackTrace();}
 				return;
 			}	      
 		}
