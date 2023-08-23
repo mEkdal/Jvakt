@@ -6,6 +6,8 @@ package Jvakt;
  */
 
 /*
+ * 2023-08-23 V2.13 Michael Ekdal SendSMS, SendSMSSTS: Increased sleep times when waiting for the operator response.
+ * 2023-08-09 V2.12 Michael Ekdal New plugin, new menus, new search button, new parameter to the mon* programs.
  * 2023-06-23 V2.11 Michael Ekdal PlugIvantiSM  Will send also the Type=I Status=INFO combo to cmdPlug1.
  * 2023-05-26 V2.10 Michael Ekdal GUI pgm    	Added menus to GUI programs. 
  * 2023-04-06 V2.9  Michael Ekdal PlugIvantiSM 	Completed *INSERT to create an incident and the *DELETE function to close an incident. 
@@ -18,7 +20,7 @@ package Jvakt;
   
 public class Version {
 
-	static private String version = "2.12";
+	static private String version = "2.13";
 
 	public boolean isVersionOk()  { return true;  }
 

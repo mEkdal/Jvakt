@@ -1,6 +1,6 @@
 package Jvakt;
 /*
- * 2023-08-21 V.56 Michael Ekdal		Increated sleep times
+ * 2023-08-21 V.56 Michael Ekdal		Increased sleep times when waiting for the operator response.
  * 2023-01-03 V.55 Michael Ekdal		Added send of the status to Jvakt server
  * 2022-06-23 V.54 Michael Ekdal		Added getVersion() to get at consistent version throughout all classes.
  */
