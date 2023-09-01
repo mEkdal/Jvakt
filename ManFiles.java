@@ -1,5 +1,6 @@
 package Jvakt;
 /*
+ * 2023-09-01 V.58 Michael Ekdal		Added -fsize and -tsize 
  * 2023-02-28 V.57 Michael Ekdal		Fixed sendSTS() to not open socket twice.
  * 2023-02-27 V.56 Michael Ekdal		Fixat pardir to not be nulled while looping.
  * 2023-02-27 V.55 Michael Ekdal		Changed sendSTS() to not send every loop.
@@ -18,7 +19,7 @@ public class ManFiles {
 			swMove = false, swSettings = false, swSN = false, swDed = false, swArch = false, 
 			swRepl = true, swAppend = false, swUnique = false, swCountC = false;
 	static boolean swExists = false, swFlat = false, swNew = false, swCmd = false,
-			swNrunq = false, swLogg = false, swNfile = false, swLoop = false, swArgs = true, swAsuf, swRsuf;
+			swNrunq = false, swLogg = false, swNfile = false, swLoop = false, swArgs = true, swAsuf, swRsuf,swSize=false;
 
 	static boolean moved = false;
 	static File sdir, tdir, adir, newfile;
@@ -26,6 +27,8 @@ public class ManFiles {
 	exfile, expath, inpath, unique, infTxt, parFile, scanstr, cmd1, cmd2, newSuf, remSuf; 
 	static String fdat = "00000000000000";
 	static String tdat = "99999999999999";
+	static Long fsize = new Long(0);
+	static Long tsize = new Long(0);
 	static Date now;
 	static FileFilter ff;
 	static Long lhou, lmin, Lsec;
@@ -93,6 +96,7 @@ public class ManFiles {
 					+ "\t Suf=" + suf + "\t Prefix=" + pref + "\t swAsuf=" + swAsuf + "\t swRsuf=" + swRsuf
 					+ "\t Pos=" + pos + "\t Hours=" + hou
 					+ "\t Minutes=" + min + "\t Seconds=" + sec 
+					+ "\t fsize=" + fsize + "\t tsize=" + tsize 
 					+ "\t FromDate=" + fdat + "\t ToDAte=" + tdat + "\t swDed="
 					+ swDed + "\t swSN=" + swSN + "\t nfile=" + nfile
 					+ "\t exfile=" + exfile + "\t expath=" + expath
@@ -118,7 +122,7 @@ public class ManFiles {
 
 		if (swHelp) {
 			System.out
-			.println("\n*** Jvakt.ManFiles "+getVersion()+".57 ***"
+			.println("\n*** Jvakt.ManFiles "+getVersion()+".58 ***"
 					+ "\n*** by Michael Ekdal, Sweden. ***");
 			System.out
 			.println("\nThe parameters and their meaning are:\n"
@@ -167,6 +171,8 @@ public class ManFiles {
 					+ "\n         \t  To use more -expath strings, separate them with a semicolon like stra;strb"
 					+ "\n-exfile  \t(exclude) a string(s) in the file name. like \"-exfile TEMP01\" "
 					+ "\n         \t  To use more -exfile strings, separate them with a semicolon like flda;fldb"
+					+ "\n-fsize   \tFrom size (-fsize 10737418240 gives all files greater than 10GB)"
+					+ "\n-tsize   \tTo   size (-tsize 10737418240 gives all files smaller than 10GB)"
 					+ "\n-fdat    \tSelect files from the date it was last changed . like (-fdat 20181101000000)"
 					+ "\n-tdat    \tSelect files to   the date it was last changed . like (-tdat 20181205140000)"
 					+ "\n-hou     \tHours since file last changed. like \"-hou 48\" (default=0) "
@@ -310,8 +316,8 @@ public class ManFiles {
 		lmin = new Long(min);
 		Lsec = new Long(sec);
 		//		x = new ManFiles();
-		//		System.out.println("pref: "+pref+" inpath: "+inpath+" sdir "+ sdir); 
-		ff = x.new FileFilter(lhou, lmin, Lsec, suf, pos, pref, expath, inpath,	swNew, exfile,scanstr,charset,fdat,tdat);
+//				System.out.println("pref: "+pref+" inpath: "+inpath+" sdir "+ sdir+"  fsize "+fsize+"  tsize"+tsize); 
+		ff = x.new FileFilter(lhou, lmin, Lsec, suf, pos, pref, expath, inpath,	swNew, exfile,scanstr,charset,fdat,tdat,fsize,tsize);
 		x.new VisitAllFiles(sdir);
 		if (swParfile) {
 
@@ -361,6 +367,8 @@ public class ManFiles {
 		cmd2 = "";
 		fdat = "00000000000000";
 		tdat = "99999999999999";
+		fsize = new Long(0);
+		tsize = new Long(0);
 
 
 		for (int i = 0; i < args.length; i++) {
@@ -524,6 +532,14 @@ public class ManFiles {
 				sleep = Integer.valueOf(args[++i]);
 				sleepOrig = sleep;
 				sleep = sleep *1000; 
+			}
+			else if (args[i].equalsIgnoreCase("-fsize")) { 
+				fsize = Long.valueOf(args[++i]);
+				swSize=true;
+			}
+			else if (args[i].equalsIgnoreCase("-tsize")) { 
+				tsize = Long.valueOf(args[++i]);
+				swSize=true;
 			}
 
 		}
@@ -792,24 +808,24 @@ public class ManFiles {
 					if (swList) {
 						if (swSN) {
 							if (swMove || swCopy || swDelete) System.out.print("-File: "+sdir.getName());
-							else System.out.println("-File: "+sdir.getName());
+							else System.out.println("-File: "+sdir.getName()+" Size: "+sdir.length());
 							if (swLogg) {
 								if (swMove || swCopy || swDelete) 
 									logg.write("-File: "+sdir.getName());
 								else {
-									logg.write("-File: "+sdir.getName());
+									logg.write("-File: "+sdir.getName()+" Size: "+sdir.length());
 									logg.newLine();
 								}
 							}
 						} else {
 							if (swMove || swCopy || swDelete) System.out.print("-File: "+sdir);
-							else System.out.println("-File: "+sdir);
+							else System.out.println("-File: "+sdir+"  Size: "+sdir.length());
 							if (swLogg) {
 								if (swMove || swCopy || swDelete) 
 									logg.write("-File: "+sdir.getAbsolutePath());
 								else {
 									//									System.out.println("-FileXX: "+sdir.getAbsolutePath());
-									logg.write("-File: "+sdir.getAbsolutePath());
+									logg.write("-File: "+sdir.getAbsolutePath()+" Size: "+sdir.length());
 									logg.newLine();
 								}
 							}
@@ -1078,13 +1094,15 @@ public class ManFiles {
 		long inhours;
 		long inmin;
 		long insec;
+		long fsize;
+		long tsize;
 		boolean okay;
 		boolean swNew;
 		File fi;
 
 		FileFilter(Long inhours, Long inmin, Long insec, String afn,
 				String infix, String inpref, String expath, String inpath,
-				boolean swNew, String exfile, String scanstr, String charset, String fdat,String tdat) {
+				boolean swNew, String exfile, String scanstr, String charset, String fdat,String tdat,Long fsize,Long tsize) {
 			this.afn = afn.toLowerCase();
 			this.infix = infix.toLowerCase();
 			this.inpref = inpref.toLowerCase();
@@ -1099,12 +1117,14 @@ public class ManFiles {
 			else 				this.scanstr = scanstr.toLowerCase();
 			this.fdat = fdat;
 			this.tdat = tdat;
+			this.fsize = fsize;
+			this.tsize = tsize;
 			this.charset = charset;
 
 		}
 
 		public boolean accept(File dir, String name) {
-			// System.out.println("DifFilter name: " + name);
+//			 System.out.println("DifFilter name: " + name);
 			//			System.out.println("inpref: " + inpref);
 			okay = true;
 			//
@@ -1125,6 +1145,7 @@ public class ManFiles {
 
 			if (fi.isDirectory())
 				return true;
+
 			// System.out.println("inhou, inmin, insec: " +" "+ inhours +" "+
 			// inmin +" "+ insec);
 
@@ -1213,6 +1234,14 @@ public class ManFiles {
 					e.printStackTrace(); 
 					okay = false; }
 
+			}
+			if (swSize && okay) {
+//				System.out.println("* before size -> " + fsize +" "+tsize );
+//				if (okay && (fi.length() < fsize || (fi.length() > tsize && tsize > 0) )) {
+				if (fi.length() < fsize || (fi.length() > tsize && tsize>0) ) {
+//					System.out.println("* size -> " + fsize +" "+tsize );
+					okay = false;
+				}
 			}
 
 			return okay;

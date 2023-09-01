@@ -6,6 +6,7 @@ package Jvakt;
  */
 
 /*
+ * 2023-09-01 V2.14 Michael Ekdal ManFiles		Added -fsize and -tsize to be able to select by size. 
  * 2023-08-23 V2.13 Michael Ekdal SendSMS, SendSMSSTS: Increased sleep times when waiting for the operator response.
  * 2023-08-09 V2.12 Michael Ekdal New plugin, new menus, new search button, new parameter to the mon* programs.
  * 2023-06-23 V2.11 Michael Ekdal PlugIvantiSM  Will send also the Type=I Status=INFO combo to cmdPlug1.

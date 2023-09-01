@@ -1,6 +1,6 @@
-# rows starting E; are strings to search for. At least one is neccesary to raise an error.
-# rows starting O; are strings that can turn off th error found in a row. Optional.
-# rows starting M; are strings must be found in the logfile, else an error is raised. Optional.
+# rows starting E; (errors) are strings to search for. At least one is neccesary to raise an error.
+# rows starting O; (omit) are strings that can turn off the error found in a row. Optional.
+# rows starting M; (must exist) are strings must be found in the logfile, else an error is raised. Optional.
 # the searchstring can be divided by a ampersand (&) to contain several search strings.
 # E.g. O;Error not found&ftpuserxx
 
