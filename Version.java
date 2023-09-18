@@ -6,6 +6,7 @@ package Jvakt;
  */
 
 /*
+ * 2023-09-18 V2.15 Michael Ekdal CheckLogs 	Changed charset to default UTF8 before every new log file is checked.
  * 2023-09-01 V2.14 Michael Ekdal ManFiles		Added -fsize and -tsize to be able to select by size. 
  * 2023-08-23 V2.13 Michael Ekdal SendSMS, SendSMSSTS: Increased sleep times when waiting for the operator response.
  * 2023-08-09 V2.12 Michael Ekdal New plugin, new menus, new search button, new parameter to the mon* programs.
@@ -21,7 +22,7 @@ package Jvakt;
   
 public class Version {
 
-	static private String version = "2.13";
+	static private String version = "2.15";
 
 	public boolean isVersionOk()  { return true;  }
 

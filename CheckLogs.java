@@ -1,5 +1,6 @@
 package Jvakt;
 /*
+ * 2023-09-18 V.56 Michael Ekdal		Changed charset to default UTF8 before every new log file is checked. 
  * 2022-12-20 V.55 Michael Ekdal		Made sure the jvtype is used as a default when updating Jvakt status
  * 2022-06-23 V.54 Michael Ekdal		Added getVersion() to get at consistent version throughout all classes.
  */
@@ -74,7 +75,7 @@ public class CheckLogs {
 	public static void main(String[] args) throws IOException {
 
 		//		int j = 0;
-		version += getVersion()+".55";
+		version += getVersion()+".56";
 		int errors = 0;
 		int position=0;
 		int posprev = 0;
@@ -249,7 +250,7 @@ public class CheckLogs {
 				fis = new FileInputStream(oldnamn);
 				//				in = new BufferedReader( new FileReader(oldnamn) );
 			}
-			//			InputStreamReader isr = new InputStreamReader(fis, "UTF8"); 
+
 			InputStreamReader isr = new InputStreamReader(fis, charset); 
 			in = new BufferedReader(isr);
 
@@ -582,6 +583,12 @@ public class CheckLogs {
 
 	static void checkFileForBOM() {
 		
+		// restore default values if previous file was changed by checkFileForBOM
+		charset = "UTF8";
+		swUTF8BOM = false;
+		swUTF16BEBOM = false;
+		swUTF16LEBOM = false;
+
 		byte[] bom = new byte[3];
 
 		Path path = Paths.get(listf[currI].getPath());
