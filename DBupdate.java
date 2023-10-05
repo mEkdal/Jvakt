@@ -14,7 +14,8 @@ package Jvakt;
  * 2022-08-11 V.58 Michael Ekdal		-recid to the cmdPlug1 arguments when *DELETE 
  * 2022-08-11 V.59 Michael Ekdal		Added getVersion() to get at consistent version throughout all classes. 
  * 2022-08-11 V.60 Michael Ekdal		Added check of cmdPlug1delete to trigger messages deleted from the console. 
- * 2023-08-11 V.61 Michael Ekdal		Added ability to start a second plugin cmdPlug2 
+ * 2023-08-11 V.61 Michael Ekdal		Added ability to start a second plugin cmdPlug2
+ * 2023-10-04 V.62 Michael Ekdal		Added *MANUAL to trigger the plugins from the console. A message with the status "P" is sent from the console. 
  */
 
 import java.io.*;
@@ -82,7 +83,7 @@ class DBupdate {
 		if (config == null ) 	configF = new File("Jvakt.properties");
 		else 					configF = new File(config,"Jvakt.properties");
 		
-		version += getVersion()+".61";
+		version += getVersion()+".62";
 //		System.out.println("-config file DBupdate: "+configF);
 		System.out.println("----------- Jvakt: "+new Date()+"  Version: "+version +"  -  config file: "+configF);
 
@@ -193,11 +194,36 @@ class DBupdate {
 						}
 						// trigger plugin
 						if ( m.getType().equalsIgnoreCase("P")) {
-							if (rs.getString("msg").equals("T")) status = "TOut";
-							else 								 status = rs.getString("status");
-							swPlugin = true;
-						}
+							if (cmdPlug1 != null ) {
+									try {
+										String cmd = cmdPlug1+" *MANUAL -id "+m.getId()+" -prio "+m.getPrio()+" -type "+sType+" -sts "+m.getRptsts()+" -body \""+m.getBody()+"\" -agent \""+rs.getString("agent")+"\"";
+										if (config != null ) cmd = cmd + " -config "+config; 	
+										Runtime.getRuntime().exec(cmd);
+										if (swLogg)	System.out.println(LocalDateTime.now()+" #P3p executed as manual: " +cmd);
 
+									} catch (IOException e1) {
+										System.err.println(e1);
+										System.err.println(e1.getMessage());
+									}
+							}
+							if (cmdPlug2 != null ) {
+									try {
+										String cmd = cmdPlug2+" *MANUAL -id "+m.getId()+" -prio "+m.getPrio()+" -type "+sType+" -sts "+m.getRptsts()+" -body \""+m.getBody()+"\" -agent \""+rs.getString("agent")+"\"";
+										if (config != null ) cmd = cmd + " -config "+config; 	
+										Runtime.getRuntime().exec(cmd);
+										if (swLogg)	System.out.println(LocalDateTime.now()+" #P4p executed as manual: " +cmd);
+
+									} catch (IOException e1) {
+										System.err.println(e1);
+										System.err.println(e1.getMessage());
+									}
+							}
+							rs.close(); 
+							stmt.close(); 
+							conn.commit();  // 2020-07-22
+							return;
+						}
+						
 						rs.updateTimestamp("rptdat", new java.sql.Timestamp(new java.util.Date().getTime())); 
 						rs.updateString("status", m.getRptsts().toUpperCase());
 						rs.updateString("body", m.getBody());
@@ -224,6 +250,7 @@ class DBupdate {
 							if (m.getType().toUpperCase().startsWith("I")) rs.updateInt("prio", m.getPrio());
 							//							System.out.println("sType 2 " + sType );
 						}
+						
 						if (rs.getString("type").startsWith("I")) rs.updateInt("prio", m.getPrio());
 
 						errors = rs.getInt(10);

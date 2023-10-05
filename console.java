@@ -1,6 +1,7 @@
 package Jvakt;
 
 /*
+ * 2023-10-04 V.57 Michael Ekdal		Added triggering of the plugins from the console.
  * 2023-05-26 V.56 Michael Ekdal		Added menus in addition to the F keys
  * 2023-01-09 V.55 Michael Ekdal		Added CheckStatus warning.
  * 2022-06-23 V.54 Michael Ekdal		Added getVersion() to get at consistent version throughout all classes.
@@ -83,7 +84,7 @@ public class console extends JFrame implements TableModelListener, WindowListene
 		port = Integer.parseInt(jvport);
 
 		// a function inherited from Jframe used to set a heading
-		setTitle("Jvakt console "+getVersion()+".56 -  F1 = Help"); 
+		setTitle("Jvakt console "+getVersion()+".57 -  F1 = Help"); 
 
 		//	        setSize(5000, 5000);
 
@@ -125,8 +126,8 @@ public class console extends JFrame implements TableModelListener, WindowListene
 		menu    = new JMenu("File");
 		menuPgm = new JMenu("Programs");
 		menuRow = new JMenu("Rows");
-//		menu.setMnemonic(KeyEvent.VK_A);
-//		menu.getAccessibleContext().setAccessibleDescription("The only menu in this program that has menu items");
+		//		menu.setMnemonic(KeyEvent.VK_A);
+		//		menu.getAccessibleContext().setAccessibleDescription("The only menu in this program that has menu items");
 		menuBar.add(menu);
 		menuBar.add(menuPgm);
 		menuBar.add(menuRow);
@@ -141,7 +142,10 @@ public class console extends JFrame implements TableModelListener, WindowListene
 		menuItem.addActionListener(strStat());
 		menuPgm.add(menuItem);
 		menuItem = new JMenuItem("Delete selected row(s) (DEL)");
-		menuItem.addActionListener(delRow());
+		menuItem.addActionListener(delRow()); 
+		menuRow.add(menuItem);
+		menuItem = new JMenuItem("Send selected row(s) to plugin(s)");
+		menuItem.addActionListener(sendRowToPlugin()); 
 		menuRow.add(menuItem);
 		menuItem = new JMenuItem("Unselect row(s) (ESC)");
 		menuItem.addActionListener(clearSel());
@@ -164,9 +168,9 @@ public class console extends JFrame implements TableModelListener, WindowListene
 		menuItem = new JMenuItem("Help (F1)");
 		menuItem.addActionListener(showHelp());
 		menu.add(menuItem);
-		
+
 		setJMenuBar(menuBar);
-		
+
 		System.out.println("screenHeightWidth :" +screenSize.height+" " +screenSize.width);
 		if (screenSize.height > 1200) {
 			table.setRowHeight(table.getRowHeight()*2);
@@ -240,7 +244,7 @@ public class console extends JFrame implements TableModelListener, WindowListene
 
 		// sets auto sorting in the table    
 		//	        table.setAutoCreateRowSorter(true);
-		
+
 		// tells the table data model object (wD) this object is listening; method tableChanged
 		table.getModel().addTableModelListener(this);
 
@@ -292,7 +296,7 @@ public class console extends JFrame implements TableModelListener, WindowListene
 		topPanel.add(scrollPane, BorderLayout.CENTER);
 		topPanel.add(bu1, BorderLayout.NORTH);
 
-		
+
 		// tells the current object to use itself as a listener. (methods for WindowListener)
 		addWindowListener(this);
 
@@ -323,12 +327,12 @@ public class console extends JFrame implements TableModelListener, WindowListene
 					}
 
 					swDBopen = wD.refreshData();
-					
+
 					jvCheckStatusCount++;
 					if (jvCheckStatusCount > 30) { 
-							swCheckStatus = wD.isCheckStatusActive(); 
-							jvCheckStatusCount=0;
-//							System.out.println("isCheckStatusActive? "+  swCheckStatus);  
+						swCheckStatus = wD.isCheckStatusActive(); 
+						jvCheckStatusCount=0;
+						//							System.out.println("isCheckStatusActive? "+  swCheckStatus);  
 					}
 					setBu1Color();
 					if (swRed) scrollPane.setBorder(new LineBorder(Color.RED));
@@ -431,8 +435,8 @@ public class console extends JFrame implements TableModelListener, WindowListene
 		table.getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(keyStroke, "showLine");
 		keyStroke = KeyStroke.getKeyStroke(KeyEvent.VK_F8, 0);
 		table.getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(keyStroke, "toggleDormant");
-//		keyStroke = KeyStroke.getKeyStroke(KeyEvent.VK_F9, 0);
-//		table.getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(keyStroke, "strHst");
+		//		keyStroke = KeyStroke.getKeyStroke(KeyEvent.VK_F9, 0);
+		//		table.getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(keyStroke, "strHst");
 		keyStroke = KeyStroke.getKeyStroke(KeyEvent.VK_F9, 0); 
 		table.getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(keyStroke, "getInfo");
 		keyStroke = KeyStroke.getKeyStroke(KeyEvent.VK_F10, 0);
@@ -675,7 +679,7 @@ public class console extends JFrame implements TableModelListener, WindowListene
 						jmsg.setRptsts("OK");
 						//						jmsg.setBody("Delete of row from GUI");
 						ValueId   = table.getValueAt(selectedRow[i],table.getColumnModel().getColumnIndex("Body"));
-//												System.out.println(ValueId);
+						//												System.out.println(ValueId);
 						jmsg.setBody(ValueId.toString());
 						//						jmsg.setBody("Delete of row from GUI");
 						ValueId   = table.getValueAt(selectedRow[i],table.getColumnModel().getColumnIndex("Prio"));
@@ -699,6 +703,69 @@ public class console extends JFrame implements TableModelListener, WindowListene
 		return save;
 	}
 
+	private AbstractAction sendRowToPlugin()  {
+		AbstractAction save = new AbstractAction() {
+			static final long serialVersionUID = 47L;
+
+			@Override
+			public void actionPerformed(ActionEvent e)  {
+
+
+				Object[] options = { "OK", "Cancel" };
+				int n = JOptionPane.showOptionDialog(null, "Do you want to send the rows to be handeled by the plugins?", "Send / Cancel",
+						JOptionPane.DEFAULT_OPTION, JOptionPane.WARNING_MESSAGE,
+						null, options, options[0]);
+
+				if (n==1) {
+					System.out.println("-- Cancel sending rows ---");	
+				} else {
+					try {
+						table.editingCanceled(null);
+						table.editingStopped(null);
+						int[] selectedRow = table.getSelectedRows();
+
+						try {
+							for (int i = 0; i <  selectedRow.length; i++) {
+								//						System.out.println("*** Row do delete :" + selectedRow[i]);
+								Message jmsg = new Message();
+								SendMsg jm = new SendMsg(jvhost, port);
+								System.out.println("Response opening connection to Jvakt server: "+ jm.open());
+								Object ValueId   = table.getValueAt(selectedRow[i],table.getColumnModel().getColumnIndex("Id"));
+								jmsg.setId(ValueId.toString());
+								//								jmsg.setRptsts("OK");
+								ValueId   = table.getValueAt(selectedRow[i],table.getColumnModel().getColumnIndex("Status"));
+								jmsg.setRptsts(ValueId.toString());
+								ValueId   = table.getValueAt(selectedRow[i],table.getColumnModel().getColumnIndex("Body"));
+								jmsg.setBody(ValueId.toString());
+								ValueId   = table.getValueAt(selectedRow[i],table.getColumnModel().getColumnIndex("Prio"));
+								jmsg.setPrio(Integer.parseInt(ValueId.toString()));
+								jmsg.setType("P");
+								jmsg.setAgent("GUI");
+								//						jm.sendMsg(jmsg);
+								if (jm.sendMsg(jmsg)) System.out.println("-- Rpt Delivered 3p --");
+								else            	  System.out.println("-- Rpt Failed 3p --");
+								jm.close();
+							}
+						} 
+						catch (Exception e2) {
+							System.err.println(e2);
+							System.err.println(e2.getMessage());
+						}
+						table.getSelectionModel().clearSelection();  // clear selected rows.
+					} 
+					catch (Exception e2) {
+						System.err.println(e2);
+						System.err.println(e2.getMessage());
+					}
+
+				}
+
+			}
+		};
+		return save;
+	}
+
+
 	private AbstractAction toggleDormant()  {
 		AbstractAction save = new AbstractAction() {
 			static final long serialVersionUID = 48L;
@@ -715,7 +782,7 @@ public class console extends JFrame implements TableModelListener, WindowListene
 				if (n==1) {
 					System.out.println("-- Cancel Toggle dormant ---");	
 				} else {
-//					System.out.println("-- OK to Toggle dormant ---");
+					//					System.out.println("-- OK to Toggle dormant ---");
 					try {
 						Message jmsg = new Message();
 						SendMsg jm = new SendMsg(jvhost, port);
@@ -782,8 +849,8 @@ public class console extends JFrame implements TableModelListener, WindowListene
 		return save;
 	}
 	//************
-	
-	
+
+
 	private AbstractAction strSts()  {
 		AbstractAction save = new AbstractAction() {
 			static final long serialVersionUID = 50L;
@@ -843,14 +910,14 @@ public class console extends JFrame implements TableModelListener, WindowListene
 			Class<?> c1 = Class.forName("Jvakt.Version",false,ClassLoader.getSystemClassLoader());
 			Version ver = new Version();
 			version = ver.getVersion();
- 		} 
+		} 
 		catch (java.lang.ClassNotFoundException ex) {
 			version = "?";
 		}
 		return version;
 	}
 
-	
+
 	// vi implementerade WindowListener men följande metoder avänds inte 
 	public void windowClosed(WindowEvent e) {    }
 	public void windowOpened(WindowEvent e) {    }

@@ -1,6 +1,7 @@
 package Jvakt;
 
 /*
+ * 2023-10-04 V.4 Michael Ekdal		Completed the *MANUAL function which triggers incidents from the console.
  * 2023-04-06 V.3 Michael Ekdal		Completed the *DELETE function to close the incidents.  
  * 2023-03-28 V.2 Michael Ekdal		Added possibility to exclude all by default using E;* in the PlugIvantiSM.csv file  
  * 2022-08-11 V.1 Michael Ekdal		New plugin to update Ivanti Serrvice Manager with input from the console 
@@ -61,6 +62,7 @@ public class PlugIvantiSM {
 	static String recid;  
 	static boolean swInsert = false;  
 	static boolean swDelete = false;  
+	static boolean swManual = false;  
 	static boolean swLogg = true;  
 	static boolean swRun = true;  
 	static boolean swShow = true;  
@@ -111,7 +113,7 @@ public class PlugIvantiSM {
 
 	public static void main(String[] args ) throws UnknownHostException, IOException, Exception, FileNotFoundException {
 
-		version += getVersion()+".3";
+		version += getVersion()+".4";
 
 		if (args.length < 1) {
 			System.out.println("\n " +version);
@@ -146,6 +148,7 @@ public class PlugIvantiSM {
 			else if (args[i].equalsIgnoreCase("-agent")) agent = args[++i];
 			else if (args[i].equalsIgnoreCase("*INSERT")) swInsert = true;
 			else if (args[i].equalsIgnoreCase("*DELETE")) swDelete = true;
+			else if (args[i].equalsIgnoreCase("*MANUAL")) swManual = true;
 			else if (args[i].equalsIgnoreCase("-recid")) recid = args[++i];
 			else if (args[i].equalsIgnoreCase("-config")) config = args[++i];
 			else if (args[i].equalsIgnoreCase("-norun")) swRun = false;
@@ -164,7 +167,7 @@ public class PlugIvantiSM {
 			ivantiPropF = new File(config,"PlugIvantiSM.properties");
 		}
 
-		System.out.println("----------- Jvakt PlugIvantiSM "+new Date()+"  Version: "+version +"  -  config file: "+configF);
+//		System.out.println("----------- Jvakt PlugIvantiSM "+new Date()+"  Version: "+version +"  -  config file: "+configF);
 		logg.write("----------- Jvakt PlugIvantiSM "+new Date()+"  Version: "+version +"  -  config file: "+configF);
 		logg.newLine();
 
@@ -203,7 +206,7 @@ public class PlugIvantiSM {
 		row += " -recid "+recid;
 		row += " -config "+config;
 
-		System.out.println(row);
+//		System.out.println(row);
 		logg.write(row);
 		logg.newLine(); 
 
@@ -252,93 +255,101 @@ public class PlugIvantiSM {
 		else if (prio.compareTo("20")>= 0 && prio.compareTo("30")<0) Urgency = "Medium";
 		else Urgency = "High";
 
-		if (getCsv()) System.out.println("-Filter file found"); 
+		if (getCsv()) {
+			logg.write("-Filter file found");
+			logg.newLine();
+//			System.out.println("-Filter file found"); 
+		}
 		else {
 			logg.write("-No Filter file found");
 			logg.newLine();
-			System.out.println("-No Filter file found"); 
+//			System.out.println("-No Filter file found"); 
+		}
+		if (swInsert || swDelete) {
+			//		System.out.println("ecount "+ecount+" ccount "+ccount+" lcount "+lcount); 
+			// Checking if ID is to be excluded from creating an incident in Ivanti
+			for ( int k = 0; k < ecount ; k++) {  
+				etabSplit = etab[k].split("&");
+				int eTabWarn= 0;
+				for ( int j = 0; j < etabSplit.length ; j++) { 
+					if (id.toUpperCase().indexOf(etabSplit[j]) >= 0) eTabWarn++;
+				}
+				if (eTabWarn == etabSplit.length) {
+					logg.write("-- Filter Excluded :"+id);
+					logg.newLine();
+//					System.out.println("-- Filter Excluded: "+id);
+					System.exit(4);
+				}
+			}
+
+			// Checking if incident is to be "Closed" 
+			for ( int k = 0; k < ccount ; k++) {  
+				ctabSplit = ctab[k].split("&");
+				int cTabWarn= 0;
+				for ( int j = 0; j < ctabSplit.length ; j++) { 
+					if (id.toUpperCase().indexOf(ctabSplit[j]) >= 0) cTabWarn++;
+				}
+				if (cTabWarn == ctabSplit.length) {
+					logg.write("-- Filter set "+id+" to Closed");
+					logg.newLine();
+					swClosed=true;
+					swExcludeAll=false;
+//					System.out.println("-- Filter set "+id+" to Closed");
+				}
+			}
+
+			// Checking if incident is to be "Logged" 
+			for ( int k = 0; k < lcount ; k++) {  
+				ltabSplit = ltab[k].split("&");
+				int lTabWarn= 0;
+				for ( int j = 0; j < ltabSplit.length ; j++) { 
+					if (id.toUpperCase().indexOf(ltabSplit[j]) >= 0) lTabWarn++;
+				}
+				if (lTabWarn == ltabSplit.length) {
+					logg.write("-- Filter set "+id+" to Logged");
+					logg.newLine();
+					swLogged=true;
+					swClosed=false;
+					swExcludeAll=false;
+//					System.out.println("-- Filter set "+id+" to Logged");
+				}
+			}
+
+			if (swClosed) Status2 = "Closed";
+			else if (swLogged) Status2 = "Logged";
 		}
 
-		//		System.out.println("ecount "+ecount+" ccount "+ccount+" lcount "+lcount); 
-		// Checking if ID is to be excluded from creating an incident in Ivanti
-		for ( int k = 0; k < ecount ; k++) {  
-			etabSplit = etab[k].split("&");
-			int eTabWarn= 0;
-			for ( int j = 0; j < etabSplit.length ; j++) { 
-				if (id.toUpperCase().indexOf(etabSplit[j]) >= 0) eTabWarn++;
-			}
-			if (eTabWarn == etabSplit.length) {
-				logg.write("-- Filter Excluded :"+id);
-				logg.newLine();
-				System.out.println("-- Filter Excluded: "+id);
-				System.exit(4);
-			}
+		if (swInsert || swManual) {
+			json_insert = "{\n"+
+					" \"Category\":\""+ Category+"\",\r\n" +
+					" \"Impact\":\""+Impact+"\",\r\n" +
+					" \"OwnerTeam\":\""+OwnerTeam+"\",\r\n" +
+					" \"ProfileLink_RecID\":\""+ProfileLink_RecID+"\",\r\n" +
+					" \"Service\":\""+Service+"\",\r\n" +
+					" \"CauseCode\":\""+CauseCode+"\",\r\n" +
+					" \"Resolution\":\""+Resolution+"\",\r\n" +
+					" \"Urgency\":\""+Urgency+"\",\r\n" +
+					" \"FirstCallResolution\":\""+FirstCallResolution+"\",\r\n" +
+					" \"Owner\":\"\",\r\n" +
+					" \"Source\":\""+Source+"\",\r\n" +
+					" \"Subject\":\""+id+" - "+status+" -\",\r\n" +
+					" \"Symptom\":\""+body+"\",\r\n" +
+					" \"Status\":\""+Status2+"\"\r\n" +
+					"}";
+
+//			System.out.println(json_insert);
+			logg.write(json_insert);
+			logg.newLine();
 		}
 
-		// Checking if incident is to be "Closed" 
-		for ( int k = 0; k < ccount ; k++) {  
-			ctabSplit = ctab[k].split("&");
-			int cTabWarn= 0;
-			for ( int j = 0; j < ctabSplit.length ; j++) { 
-				if (id.toUpperCase().indexOf(ctabSplit[j]) >= 0) cTabWarn++;
-			}
-			if (cTabWarn == ctabSplit.length) {
-				logg.write("-- Filter set "+id+" to Closed");
-				logg.newLine();
-				swClosed=true;
-				swExcludeAll=false;
-				System.out.println("-- Filter set "+id+" to Closed");
-			}
+		if (swDelete) {
+			json_patch = "{\n"+
+					" \"Status\":\"Closed\"\r\n" +
+					"}";
+//			System.out.println(json_patch);
+			logg.write(json_patch);
+			logg.newLine();
 		}
-
-		// Checking if incident is to be "Logged" 
-		for ( int k = 0; k < lcount ; k++) {  
-			ltabSplit = ltab[k].split("&");
-			int lTabWarn= 0;
-			for ( int j = 0; j < ltabSplit.length ; j++) { 
-				if (id.toUpperCase().indexOf(ltabSplit[j]) >= 0) lTabWarn++;
-			}
-			if (lTabWarn == ltabSplit.length) {
-				logg.write("-- Filter set "+id+" to Logged");
-				logg.newLine();
-				swLogged=true;
-				swClosed=false;
-				swExcludeAll=false;
-				System.out.println("-- Filter set "+id+" to Logged");
-			}
-		}
-
-		if (swClosed) Status2 = "Closed";
-		else if (swLogged) Status2 = "Logged";
-
-		json_insert = "{\n"+
-				" \"Category\":\""+ Category+"\",\r\n" +
-				" \"Impact\":\""+Impact+"\",\r\n" +
-				" \"OwnerTeam\":\""+OwnerTeam+"\",\r\n" +
-				" \"ProfileLink_RecID\":\""+ProfileLink_RecID+"\",\r\n" +
-				" \"Service\":\""+Service+"\",\r\n" +
-				" \"CauseCode\":\""+CauseCode+"\",\r\n" +
-				" \"Resolution\":\""+Resolution+"\",\r\n" +
-				" \"Urgency\":\""+Urgency+"\",\r\n" +
-				" \"FirstCallResolution\":\""+FirstCallResolution+"\",\r\n" +
-				" \"Owner\":\"\",\r\n" +
-				" \"Source\":\""+Source+"\",\r\n" +
-				" \"Subject\":\""+id+" - "+status+" -\",\r\n" +
-				" \"Symptom\":\""+body+"\",\r\n" +
-				" \"Status\":\""+Status2+"\"\r\n" +
-				"}";
-
-		System.out.println(json_insert);
-		logg.write(json_insert);
-		logg.newLine(); 
-
-		json_patch = "{\n"+
-				" \"Status\":\"Closed\"\r\n" +
-				"}";
-
-		System.out.println(json_patch);
-		logg.write(json_patch);
-		logg.newLine(); 
 
 		//		System.exit(4);
 
@@ -385,13 +396,13 @@ public class PlugIvantiSM {
 					conn.setAutoCommit(false);
 
 					SQL_UPDATE ="UPDATE CONSOLE SET RECID=? WHERE ID ilike '"+id+"' AND PRIO="+Integer.parseInt(prio)+" AND TYPE='"+type+"'"+" AND BODY ilike '"+body+"'";
-					System.out.println(new Date()+ " > "+SQL_UPDATE);
+//					System.out.println(new Date()+ " > "+SQL_UPDATE);
 					logg.write(new Date()+" > "+SQL_UPDATE);
 					logg.newLine(); 
 
 					StmtUpdate = conn.prepareStatement(SQL_UPDATE);
 					StmtUpdate.setString(1, recid);
-					System.out.println(new Date()+" Updated records > "+StmtUpdate.executeUpdate());
+//					System.out.println(new Date()+" Updated records > "+StmtUpdate.executeUpdate());
 					logg.write(new Date()+" Updated records > "+StmtUpdate.executeUpdate());
 					logg.newLine();
 					StmtUpdate.close();
@@ -399,32 +410,92 @@ public class PlugIvantiSM {
 					conn.close();
 				}
 				catch (SQLException e) {
-					System.out.println(new Date()+" SQLExeption ");
+//					System.out.println(new Date()+" SQLExeption ");
+					logg.write(new Date()+" > "+e);
+					logg.newLine(); 
+					logg.write(new Date()+" > "+e.getMessage());
+					logg.newLine(); 
+//					System.err.println(e);
+//					System.err.println(e.getMessage());
+				}
+				catch (Exception e) {
+//					System.out.println(new Date()+" Exeption");
+					logg.write(new Date()+" > "+e);
+					logg.newLine(); 
+					logg.write(new Date()+" > "+e.getMessage());
+					logg.newLine(); 
+//					System.err.println(e);
+//					System.err.println(e.getMessage());
+				}
+			}
+			else {
+				logg.write(new Date()+" post2Ivanti failed");
+				logg.newLine();
+//				System.out.println(new Date()+" post2Ivanti failed");
+			}
+		} 
+		if (swInsert && swExcludeAll) {
+//			System.out.println(new Date()+ " -  No INSERT done because of the excluding E;* line in the CSV file  ");
+			logg.write(new Date()+ " - No INSERT done because of the excluding E;* line in the CSV file  ");
+			logg.newLine();		
+		}
+
+
+		if (swDelete && !recid.isEmpty() && !recid.startsWith("null")) {
+			if (patchIvanti()) {
+//				System.out.println(new Date()+ " *PATCHED:  recid = "+recid);
+				logg.write(new Date()+ "  *PATCHED: recid = "+recid);
+				logg.newLine();
+			}
+		} else if (swDelete) {
+//			System.out.println(new Date()+ " No closing, recid is missing!");
+			logg.write(new Date()+ " No closing, recid is missing!");
+			logg.newLine();
+			}
+
+		if (swManual) {
+//			System.out.println(new Date()+ " *MANUAL" +" ID "+id+"' PRIO "+Integer.parseInt(prio)+" TYPE "+type+" BODY '"+body+"'" );
+			logg.write(new Date()+ "  *MANUAL" +" ID "+id+"' PRIO "+Integer.parseInt(prio)+" TYPE "+type+" BODY '"+body+"'" );
+			logg.newLine();
+			if (post2Ivanti()) {  
+				try {
+					String SQL_UPDATE;
+					PreparedStatement StmtUpdate;
+					Class.forName("org.postgresql.Driver").newInstance();
+					DBUrl = "jdbc:postgresql://"+dbhost+":"+dbport+"/"+database;
+					conn = DriverManager.getConnection(DBUrl,dbuser,dbpassword);
+					conn.setAutoCommit(false);
+
+					SQL_UPDATE ="UPDATE CONSOLE SET RECID=? WHERE ID ilike '"+id+"' AND PRIO="+Integer.parseInt(prio)+" AND TYPE='"+type+"'"+" AND BODY ilike '"+body+"'";
+//					System.out.println(new Date()+ " > "+SQL_UPDATE);
+					logg.write(new Date()+" > "+SQL_UPDATE);
+					logg.newLine(); 
+
+					StmtUpdate = conn.prepareStatement(SQL_UPDATE);
+					StmtUpdate.setString(1, recid);
+//					System.out.println(new Date()+" Updated records > "+StmtUpdate.executeUpdate());
+					logg.write(new Date()+" Updated records > "+StmtUpdate.executeUpdate());
+					logg.newLine();
+					StmtUpdate.close();
+					conn.commit();
+					conn.close();
+				}
+				catch (SQLException e) {
+//					System.out.println(new Date()+" SQLExeption ");
 					System.err.println(e);
 					System.err.println(e.getMessage());
 				}
 				catch (Exception e) {
-					System.out.println(new Date()+" Exeption");
+//					System.out.println(new Date()+" Exeption");
 					System.err.println(e);
 					System.err.println(e.getMessage());
 				}
+
 			}
 			else {
-				System.out.println(new Date()+" post2Ivanti failed");
-			}
-		} else {
-			if (swExcludeAll) {
-				System.out.println(new Date()+ " -  No INSERT done because of the excluding E;* line in the CSV file  ");
-				logg.write(new Date()+ " - No INSERT done because of the excluding E;* line in the CSV file  ");
-				logg.newLine();		
-			}
-		}
-
-		if (swDelete) {
-			if (patchIvanti()) {
-			System.out.println(new Date()+ " *PATCHED:  recid = "+recid);
-			logg.write(new Date()+ "  *PATCHED: recid = "+recid);
-			logg.newLine();
+//				System.out.println(new Date()+" post2Ivanti failed");
+				logg.write(new Date()+" post2Ivanti failed");
+				logg.newLine();
 			}
 		}
 		logg.close();
@@ -439,8 +510,8 @@ public class PlugIvantiSM {
 			//			hosturl ="https://"+host+":"+ivaport+"/api/odata/businessobject/incidents";
 			hosturl ="https://"+host+":"+ivaport+path;
 
-			if (swShow) System.out.println("URL: "+hosturl);
-			logg.write("URL: "+hosturl);
+//			if (swShow) System.out.println(new Date()+ " URL: "+hosturl);
+			logg.write(new Date()+ " URL: "+hosturl);
 			logg.newLine();
 
 			URL url = new URL(hosturl); 
@@ -465,20 +536,22 @@ public class PlugIvantiSM {
 			httpout.write(json_insert.getBytes());
 			httpout.flush();
 			httpout.close();
-			//			System.out.println("#3 efter json write   " );
+//			System.out.println(new Date()+ " Posted, now waiting for response... ");
+			logg.write(new Date()+ " Posted, now waiting for response... ");
+			logg.newLine();
 
 			int responseCode = con.getResponseCode();
 			String responseMsg = con.getResponseMessage();
-			System.out.println("POST Response Code :  " + responseCode);
-			System.out.println("POST Response Message : " + responseMsg);
-			logg.write("POST Response Code :  " + responseCode);
+//			System.out.println(new Date()+ " POST Response Code :  " + responseCode);
+//			System.out.println(new Date()+ " POST Response Message : " + responseMsg);
+			logg.write(new Date()+ " POST Response Code :  " + responseCode);
 			logg.newLine();
-			logg.write("POST Response Message : " + responseMsg);
+			logg.write(new Date()+ " POST Response Message : " + responseMsg);
 			logg.newLine();
 
 
 			if (responseCode < 200 || responseCode >= 300 ) {
-				System.out.println("#F1: HTTP error code: "	+ responseCode +" "+responseMsg);		
+//				System.out.println("#F1: HTTP error code: "	+ responseCode +" "+responseMsg);		
 				logg.write("#F1: HTTP error code: "	+ responseCode +" "+responseMsg);
 				logg.newLine();
 
@@ -487,19 +560,33 @@ public class PlugIvantiSM {
 
 			BufferedReader httpin = new BufferedReader(
 					new InputStreamReader(con.getInputStream()));
-			//			if (swShow)	System.out.println("-- OK, got in-stream");
+//			System.out.println(new Date()+ " Got in-stream");
+			logg.write(new Date()+ " Got in-stream");
+			logg.newLine();
 
 			//			if (swShow)	System.out.println("-- start read lines");
 			while ((inputLine = httpin.readLine()) != null  && !state) {
+//				System.out.println(new Date()+ " response file: "+inputLine);
+				logg.write(new Date()+ " response file: "+inputLine);
+				logg.newLine();
 				String parseResult = parseInputlineOverview(inputLine); 
 				if (parseResult.startsWith("OK")) {
+//					System.out.println(new Date()+ " got response file");
+					logg.write(new Date()+ " got response file");
+					logg.newLine();
 					state = true;
 				}
 			}
 			httpin.close();
 			con.disconnect();
+//			System.out.println(new Date()+ " disconnected");
+			logg.write(new Date()+ " disconnected");
+			logg.newLine();
+
 		} 
-		catch (Exception e) { System.out.println(e); state = false;   }
+		catch (Exception e) {
+			System.out.println(e); state = false;
+			}
 
 		return state; 
 	}
@@ -513,7 +600,7 @@ public class PlugIvantiSM {
 			//			hosturl ="https://"+host+":"+ivaport+"/api/odata/businessobject/incidents";
 			hosturl ="https://"+host+":"+ivaport+path+"('"+recid+"')";
 
-			if (swShow) System.out.println("URL: "+hosturl);
+//			if (swShow) System.out.println("URL: "+hosturl);
 			logg.write("URL: "+hosturl);
 			logg.newLine();
 
@@ -532,12 +619,12 @@ public class PlugIvantiSM {
 			httpout.write(json_patch.getBytes());
 			httpout.flush();
 			httpout.close();
-//						System.out.println("#z3 efter json write   " );
+			//						System.out.println("#z3 efter json write   " );
 
 			int responseCode = con.getResponseCode();
 			String responseMsg = con.getResponseMessage();
-			System.out.println("PATCH Response Code :  " + responseCode);
-			System.out.println("PATCH Response Message : " + responseMsg);
+//			System.out.println("PATCH Response Code :  " + responseCode);
+//			System.out.println("PATCH Response Message : " + responseMsg);
 			logg.write("PATCH Response Code :  " + responseCode);
 			logg.newLine();
 			logg.write("PATCH Response Message : " + responseMsg);
@@ -545,7 +632,7 @@ public class PlugIvantiSM {
 
 
 			if (responseCode < 200 || responseCode >= 300 ) {
-				System.out.println("#ZF1: HTTP error code: "	+ responseCode +" "+responseMsg);		
+//				System.out.println("#ZF1: HTTP error code: "	+ responseCode +" "+responseMsg);	
 				logg.write("#ZF1: HTTP error code: "	+ responseCode +" "+responseMsg);
 				logg.newLine();
 
@@ -574,7 +661,7 @@ public class PlugIvantiSM {
 
 	static String parseInputlineOverview(String in) {
 
-		if (swShow)	System.out.println("Response: "+ in );
+//		if (swShow)	System.out.println("Response: "+ in );
 
 		JsonElement jsonElement = JsonParser.parseString(in);
 
@@ -582,7 +669,7 @@ public class PlugIvantiSM {
 		//		JsonElement overView =  jsonObject.get("RecId"); 
 
 		recid = jsonObject.get("RecId").toString();
-		System.out.println("RecId = "+ recid);
+//		System.out.println("RecId = "+ recid);
 
 		return "OK";        
 
@@ -607,11 +694,11 @@ public class PlugIvantiSM {
 
 		File[] listfcsv = dircsv.listFiles(dfcsv);
 
-		System.out.println("-- Number of csv files found:"+ listfcsv.length);
+//		System.out.println("-- Number of csv files found:"+ listfcsv.length);
 
 		for (int i = 0; i < listfcsv.length; i++) {
 
-			System.out.println("-- Importing: "+listfcsv[i]+"\n");
+//			System.out.println("-- Importing: "+listfcsv[i]+"\n");
 
 			BufferedReader in = new BufferedReader(new FileReader(listfcsv[i]));
 

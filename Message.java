@@ -1,5 +1,6 @@
 package Jvakt;
 /*
+ * 2023-10-04 V.56 Michael Ekdal		Added TOUT as a valid status
  * 2023-03-20 V.55 Michael Ekdal		Added a trim() in setRptsts()
  * 2022-06-23 V.54 Michael Ekdal		Added getVersion() to get at consistent version throughout all classes.
  */
@@ -36,6 +37,7 @@ public class Message {
 //		else this.rptsts = "INFO";   
 		if (this.rptsts.toUpperCase().lastIndexOf("ERR") >= 0)  this.rptsts = "ERR";   
 		else if (this.rptsts.toUpperCase().lastIndexOf("OK") >= 0)   this.rptsts = "OK";   
+		else if (this.rptsts.toUpperCase().lastIndexOf("TOUT") >= 0)   this.rptsts = "TOut";   
 		else this.rptsts = "INFO";   
 		return true;  
 	}
