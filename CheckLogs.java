@@ -1,5 +1,6 @@
 package Jvakt;
 /*
+ * 2023-10-25 V.57 Michael Ekdal		If there is at least a must line the program is not aborted.
  * 2023-09-18 V.56 Michael Ekdal		Changed charset to default UTF8 before every new log file is checked. 
  * 2022-12-20 V.55 Michael Ekdal		Made sure the jvtype is used as a default when updating Jvakt status
  * 2022-06-23 V.54 Michael Ekdal		Added getVersion() to get at consistent version throughout all classes.
@@ -75,7 +76,7 @@ public class CheckLogs {
 	public static void main(String[] args) throws IOException {
 
 		//		int j = 0;
-		version += getVersion()+".56";
+		version += getVersion()+".57";
 		int errors = 0;
 		int position=0;
 		int posprev = 0;
@@ -168,7 +169,7 @@ public class CheckLogs {
 		getCsv();
 
 		if (mcount == 0 ) swMust = false;
-		if (ecount == 0 ) {
+		if (ecount == 0 && !swMust ) {
 			System.out.println("*****  CheckLogs is aborting! **  No error strings imported!  *****");
 			System.exit(12);
 		}

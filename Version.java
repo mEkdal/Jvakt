@@ -6,6 +6,7 @@ package Jvakt;
  */
 
 /*
+ * 2023-10-25 V2.17 Michael Ekdal CheckLogs		If there is at least a must line the program is not aborted.
  * 2023-10-04 V2.16 Michael Ekdal Console,DBupdate,plugIvantiSM	Added *MANUAL to trigger the plugins from the console
  * 2023-09-18 V2.15 Michael Ekdal CheckLogs 	Changed charset to default UTF8 before every new log file is checked.
  * 2023-09-01 V2.14 Michael Ekdal ManFiles		Added -fsize and -tsize to be able to select by size. 
@@ -23,7 +24,7 @@ package Jvakt;
   
 public class Version {
 
-	static private String version = "2.16";
+	static private String version = "2.17";
 
 	public boolean isVersionOk()  { return true;  }
 

@@ -742,8 +742,13 @@ public class console extends JFrame implements TableModelListener, WindowListene
 								jmsg.setType("P");
 								jmsg.setAgent("GUI");
 								//						jm.sendMsg(jmsg);
-								if (jm.sendMsg(jmsg)) System.out.println("-- Rpt Delivered 3p --");
-								else            	  System.out.println("-- Rpt Failed 3p --");
+								if (jm.sendMsg(jmsg)) { 
+									System.out.println("-- Rpt Delivered 3p --");
+//									System.out.println(jmsg.getId()+" "+jmsg.getPrio()+" "+jmsg.getRptsts()+" "+jmsg.getType()+" "+" "+jmsg.getBody() );
+								}
+								else {
+									System.out.println("-- Rpt Failed 3p --");
+								}
 								jm.close();
 							}
 						} 
