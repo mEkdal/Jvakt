@@ -1,6 +1,7 @@
 package Jvakt;
 
 /*
+ * 2023-11-07 V.58 Michael Ekdal		Added "About" in the menu.
  * 2023-10-04 V.57 Michael Ekdal		Added triggering of the plugins from the console.
  * 2023-05-26 V.56 Michael Ekdal		Added menus in addition to the F keys
  * 2023-01-09 V.55 Michael Ekdal		Added CheckStatus warning.
@@ -33,7 +34,7 @@ public class console extends JFrame implements TableModelListener, WindowListene
 	private JScrollPane scrollPane;
 	private JButton bu1;
 	private JMenuBar menuBar;      
-	private JMenu menu, menuPgm, menuRow;   
+	private JMenu menu, menuPgm, menuRow, menuAbout;   
 	private JMenuItem menuItem;    
 	private JTableHeader header;
 	private consoleDM wD;
@@ -84,7 +85,7 @@ public class console extends JFrame implements TableModelListener, WindowListene
 		port = Integer.parseInt(jvport);
 
 		// a function inherited from Jframe used to set a heading
-		setTitle("Jvakt console "+getVersion()+".57 -  F1 = Help"); 
+		setTitle("Jvakt console "+getVersion()+".58"); 
 
 		//	        setSize(5000, 5000);
 
@@ -126,11 +127,13 @@ public class console extends JFrame implements TableModelListener, WindowListene
 		menu    = new JMenu("File");
 		menuPgm = new JMenu("Programs");
 		menuRow = new JMenu("Rows");
+		menuAbout = new JMenu("About");
 		//		menu.setMnemonic(KeyEvent.VK_A);
 		//		menu.getAccessibleContext().setAccessibleDescription("The only menu in this program that has menu items");
 		menuBar.add(menu);
 		menuBar.add(menuPgm);
 		menuBar.add(menuRow);
+		menuBar.add(menuAbout);
 		//a group of JMenuItems
 		menuItem = new JMenuItem("History (F5)");
 		menuItem.addActionListener(strHst());
@@ -167,7 +170,10 @@ public class console extends JFrame implements TableModelListener, WindowListene
 		menuRow.add(menuItem);
 		menuItem = new JMenuItem("Help (F1)");
 		menuItem.addActionListener(showHelp());
-		menu.add(menuItem);
+		menuAbout.add(menuItem);
+		menuItem = new JMenuItem("About");
+		menuItem.addActionListener(showAbout());
+		menuAbout.add(menuItem);
 
 		setJMenuBar(menuBar);
 
@@ -485,6 +491,28 @@ public class console extends JFrame implements TableModelListener, WindowListene
 								"\nbody = Contains the text sent by the agent"+ 
 								"\nagent = Contains the host name and IP address where the agent is executed."
 								,"Jvakt Help",
+								JOptionPane.INFORMATION_MESSAGE);
+			}
+		};
+		return save;
+	}
+
+	private AbstractAction showAbout()  {
+		AbstractAction save = new AbstractAction() {
+			static final long serialVersionUID = 43L;
+			@Override
+			public void actionPerformed(ActionEvent e)  {
+				//					                 JOptionPane.showMessageDialog(TestTableKeyBinding.this.table, "Action Triggered.");
+				//				System.out.println("ShowHelp");
+				JOptionPane.showMessageDialog(getContentPane(),
+						"Version: "+getVersion()+ 
+						"\n\nJvakt is a simple reactive monitoring system/toolbox." +
+						"\n\nJvakt is distributed under the MIT License (i.e. It is free of charge to use)"+
+						"\nhttps://github.com/mEkdal/Jvakt/blob/master/LICENSE"+
+						"\n\nDownload Jvakt and read the wiki documentation at the Github site"+
+						"\nhttps://github.com/mEkdal/Jvakt/wiki" +  
+						"\n\nby Michael Ekdal" 
+						,"Jvakt About",
 								JOptionPane.INFORMATION_MESSAGE);
 			}
 		};
