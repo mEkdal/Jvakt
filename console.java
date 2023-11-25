@@ -1,6 +1,7 @@
 package Jvakt;
 
 /*
+ * 2023-11-25 V.59 Michael Ekdal		Added cmdLogs to start the Logs pgm.
  * 2023-11-07 V.58 Michael Ekdal		Added "About" in the menu.
  * 2023-10-04 V.57 Michael Ekdal		Added triggering of the plugins from the console.
  * 2023-05-26 V.56 Michael Ekdal		Added menus in addition to the F keys
@@ -50,9 +51,10 @@ public class console extends JFrame implements TableModelListener, WindowListene
 	private  String jvhost = "127.0.0.1";
 	private  String jvport = "1956";
 	private  int port = 1956; 
-	private  String cmdHst  = "javaw -cp Jvakt.jar Jvakt.consoleHst";
-	private  String cmdSts  = "javaw -cp Jvakt.jar Jvakt.consoleSts";
-	private  String cmdStat = "javaw -cp Jvakt.jar Jvakt.StatisticsChartLauncher";
+	private  String cmdHst   = "javaw -cp Jvakt.jar Jvakt.consoleHst";
+	private  String cmdSts   = "javaw -cp Jvakt.jar Jvakt.consoleSts";
+	private  String cmdLogs  = "javaw -cp Jvakt.jar Jvakt.consoleSts";
+	private  String cmdStat  = "javaw -cp Jvakt.jar Jvakt.StatisticsChartLauncher";
 
 	private  int deselectCount = 0; 
 	private  int jvconnectCount = 0; 
@@ -98,6 +100,7 @@ public class console extends JFrame implements TableModelListener, WindowListene
 
 		// set the jframe height and width
 		setPreferredSize(new Dimension(width, height));
+		setLocation(20,20);
 
 		// function in Jframe to set colors
 		setBackground(Color.gray);
@@ -143,6 +146,9 @@ public class console extends JFrame implements TableModelListener, WindowListene
 		menuPgm.add(menuItem);
 		menuItem = new JMenuItem("Statistics (F10)");
 		menuItem.addActionListener(strStat());
+		menuPgm.add(menuItem);
+		menuItem = new JMenuItem("Imported log files");
+		menuItem.addActionListener(strLogs());
 		menuPgm.add(menuItem);
 		menuItem = new JMenuItem("Delete selected row(s) (DEL)");
 		menuItem.addActionListener(delRow()); 
@@ -906,6 +912,28 @@ public class console extends JFrame implements TableModelListener, WindowListene
 	}
 	//	************
 
+	private AbstractAction strLogs()  {
+		AbstractAction save = new AbstractAction() {
+			static final long serialVersionUID = 50L;
+
+			@Override
+			public void actionPerformed(ActionEvent e)  {
+								System.out.println("-- Start consoleLogs: " + cmdLogs);
+
+				try {
+					//			       Runtime.getRuntime().exec("java -cp \"/Users/septpadm/OneDrive - Perstorp Group/JavaSrc;/Users/septpadm/OneDrive - Perstorp Group/JavaSrc/postgresql-42.1.3.jar\" Jvakt.consoleHst");
+					Runtime.getRuntime().exec(cmdLogs);
+				} catch (IOException e1) {
+					System.err.println(e1);
+					System.err.println(e1.getMessage());
+				}
+
+			}
+		};
+		return save;
+	}
+	//	************
+
 
 	// windows listeners
 	// we implemented WindowListener and added "this" so this method should be used at a normal ending of Jframe 
@@ -929,6 +957,7 @@ public class console extends JFrame implements TableModelListener, WindowListene
 			cmdHst   = prop.getProperty("cmdHst");
 			cmdSts   = prop.getProperty("cmdSts");
 			cmdStat   = prop.getProperty("cmdStat");
+			cmdLogs   = prop.getProperty("cmdLogs");
 			input.close();
 		} catch (IOException ex) {
 			swPropFile = false;

@@ -36,7 +36,7 @@ public class consoleSts extends JFrame implements TableModelListener, WindowList
 	private JButton bu1;
 	private JToggleButton buSrch;
 	private JMenuBar menuBar;      
-	private JMenu menu, menuRow;   
+	private JMenu menu, menuRow, menuAbout;   
 	private JMenuItem menuItem;    
 	private JTextField where;
 	private JTableHeader header;
@@ -88,6 +88,7 @@ public class consoleSts extends JFrame implements TableModelListener, WindowList
 
 		// set the jframe height and width
 		setPreferredSize(new Dimension(width, height));
+		setLocation(40,40);
 
 
 		//  function in Jframe to set colors
@@ -124,10 +125,12 @@ public class consoleSts extends JFrame implements TableModelListener, WindowList
 		//Build the first menu.
 		menu    = new JMenu("File");
 		menuRow = new JMenu("Rows");
+		menuAbout = new JMenu("About");
 //		menu.setMnemonic(KeyEvent.VK_A);
 //		menu.getAccessibleContext().setAccessibleDescription("The only menu in this program that has menu items");
 		menuBar.add(menu);
 		menuBar.add(menuRow);
+		menuBar.add(menuAbout);
 		//a group of JMenuItems
 		menuItem = new JMenuItem("Mark the selected row(s) for deletion (DEL)");
 		menuItem.addActionListener(delRow());
@@ -147,6 +150,12 @@ public class consoleSts extends JFrame implements TableModelListener, WindowList
 		menuItem = new JMenuItem("Help (F1)");
 		menuItem.addActionListener(showHelp());
 		menu.add(menuItem);
+		menuItem = new JMenuItem("Help (F1)");
+		menuItem.addActionListener(showHelp());
+		menuAbout.add(menuItem);
+		menuItem = new JMenuItem("About");
+		menuItem.addActionListener(showAbout());
+		menuAbout.add(menuItem);
 		
 		setJMenuBar(menuBar);
 
@@ -669,5 +678,27 @@ public class consoleSts extends JFrame implements TableModelListener, WindowList
 	public void windowDeiconified(WindowEvent e) {    }
 	public void windowActivated(WindowEvent e) {    }
 	public void windowDeactivated(WindowEvent e) {    }
+
+	private AbstractAction showAbout()  {
+		AbstractAction save = new AbstractAction() {
+			static final long serialVersionUID = 43L;
+			@Override
+			public void actionPerformed(ActionEvent e)  {
+				//					                 JOptionPane.showMessageDialog(TestTableKeyBinding.this.table, "Action Triggered.");
+				//				System.out.println("ShowHelp");
+				JOptionPane.showMessageDialog(getContentPane(),
+						"Version: "+getVersion()+ 
+						"\n\nJvakt is a simple reactive monitoring system/toolbox." +
+						"\n\nJvakt is distributed under the MIT License (i.e. It is free of charge to use)"+
+						"\nhttps://github.com/mEkdal/Jvakt/blob/master/LICENSE"+
+						"\n\nDownload Jvakt and read the wiki documentation at the Github site"+
+						"\nhttps://github.com/mEkdal/Jvakt/wiki" +  
+						"\n\nby Michael Ekdal" 
+						,"Jvakt About",
+								JOptionPane.INFORMATION_MESSAGE);
+			}
+		};
+		return save;
+	}
 
 }

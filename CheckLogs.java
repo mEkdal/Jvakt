@@ -1,5 +1,6 @@
 package Jvakt;
 /*
+ * 2023-11-25 V.58 Michael Ekdal		New functions to add the logs into the DB
  * 2023-10-25 V.57 Michael Ekdal		If there is at least a must line the program is not aborted.
  * 2023-09-18 V.56 Michael Ekdal		Changed charset to default UTF8 before every new log file is checked. 
  * 2022-12-20 V.55 Michael Ekdal		Made sure the jvtype is used as a default when updating Jvakt status
@@ -8,7 +9,6 @@ package Jvakt;
 
 
 import java.net.InetAddress;
-import java.util.Properties;
 import java.io.*;
 import java.util.*;
 import java.text.*;
@@ -37,6 +37,13 @@ public class CheckLogs {
 	static String jvport = "1956";
 	static String jvtype = "R";
 	static int port ;
+
+	static String database = null;
+	static String dbuser   = "console";
+	static String dbpassword = "";
+	static String dbhost   = "localhost";
+	static String dbport   = "5433";
+
 	static InetAddress inet;
 	static String version = "CheckLogs ";
 	static String agent = null;
@@ -48,17 +55,19 @@ public class CheckLogs {
 	static FileInputStream fis;
 
 	static boolean swJvakt = false;
-	
+	static boolean swLogs = false;
+
 	static Boolean swUTF8BOM = false;
 	static Boolean swUTF16BEBOM = false;
 	static Boolean swUTF16LEBOM = false;
 	static Boolean swCharset = false;
 	static int currI;
+	static int line;
 
 	static DirFilter df;
 	static File dir = null;
 	static String suf = null;
-//	static String pos = ".";
+	//	static String pos = ".";
 	static String pos = null;
 	static File[] listf;
 	static String[] etab; 
@@ -71,12 +80,15 @@ public class CheckLogs {
 	static int tcount = 0;
 	static int mcount = 0;
 
+	static LogsRowInsert lri= new LogsRowInsert();
+
 	static BufferedReader inokay;
 
 	public static void main(String[] args) throws IOException {
 
 		//		int j = 0;
-		version += getVersion()+".57";
+		version += getVersion()+".58";
+		int fileErrors = 0;
 		int errors = 0;
 		int position=0;
 		int posprev = 0;
@@ -100,7 +112,7 @@ public class CheckLogs {
 		boolean swCsav = false;
 
 		System.out.println("--- "+version + " by Michael Ekdal Sweden.\n");
-		
+
 		// reads command line arguments
 		for ( int i = 0; i < args.length; i++) {
 			if (args[i].equalsIgnoreCase("-dir")) dir = new File(args[++i]);
@@ -110,6 +122,7 @@ public class CheckLogs {
 			if (args[i].equalsIgnoreCase("-ren")) swRename=true;
 			if (args[i].equalsIgnoreCase("-psav")) swPsav=true;
 			if (args[i].equalsIgnoreCase("-csav")) swCsav=true;
+			if (args[i].equalsIgnoreCase("-logs")) swLogs=true;
 			if (args[i].equalsIgnoreCase("-jvakt")) swJvakt=true;
 			if (args[i].equalsIgnoreCase("-jvtype")) jvtype  = args[++i];
 			if (args[i].equalsIgnoreCase("-config")) config = args[++i];
@@ -129,6 +142,7 @@ public class CheckLogs {
 					"\n-psav   \tSaves the position of the scanned fil in the logfiles directory. Optional." +
 					"\n-ren    \tThe scanned files be renamed. Optional." +
 					"\n\n--- the following switches is needed if Jvakt is to be used. Optional. ---" +
+					"\n-logs   \tA switch to enable importing the checked logfile to the Jvakt database. Default is no import." +
 					"\n-jvakt  \tA switch to enable report to Jvakt. Default is no connection to Jvakt." +
 					"\n-jvtype \tThe type of the Jvakt report. Optional.  The default is \"R\"" +
 					"\n-id     \tUsed as identifier in the Jvakt monitoring system." +
@@ -149,10 +163,10 @@ public class CheckLogs {
 			System.exit(4);
 		}
 
-		if (swJvakt) {
+		if (swJvakt || swLogs) {
 			if (config == null ) 	configF = new File("Jvakt.properties");
 			else 					configF = new File(config,"Jvakt.properties");
-			System.out.println("---- Jvakt: "+new Date()+"  Version: "+version);
+			System.out.println("---- Jvakt.CheckLogs: "+new Date()+"  Version: "+version);
 			System.out.println("-config file: "+configF);
 			getProps();
 		}
@@ -169,10 +183,10 @@ public class CheckLogs {
 		getCsv();
 
 		if (mcount == 0 ) swMust = false;
-		if (ecount == 0 && !swMust ) {
-			System.out.println("*****  CheckLogs is aborting! **  No error strings imported!  *****");
-			System.exit(12);
-		}
+//		if (ecount == 0 && !swMust && !swLogs ) {
+//			System.out.println("*****  CheckLogs is aborting! **  No error strings imported!  *****");
+//			System.exit(12);
+//		}
 		if (swCsav && config == null ) {
 			System.out.println("*****  CheckLogs is aborting! **  No -config provided!  *****");
 			System.exit(12);
@@ -182,16 +196,17 @@ public class CheckLogs {
 		else if (suf != null)           df = new DirFilter(suf);
 		else if (pos != null)           df = new DirFilter(null, pos);
 
-		
+
 		if (suf != null || pos != null) listf = dir.listFiles(df);
 		else listf = dir.listFiles();
-		
+
 		System.out.println(tdat+"-- Number of files to scan: "+ listf.length);
 
 		for (int i = 0; i < listf.length; i++) {
 
 			if (listf[i].isDirectory()) continue;
-			
+			System.out.println("\n"+tdat+"-- Checking: "+listf[i]);
+
 			if (swDummy) {
 				getSetup();
 				getCsv();
@@ -202,10 +217,9 @@ public class CheckLogs {
 				currI = i;
 				checkFileForBOM();
 			}
-			
+
 			//			System.out.println("\n  -- ecount: "+ecount);
 
-			System.out.println("\n"+tdat+"-- Checking: "+listf[i]);
 			oldnamn = new File(listf[i].toString());
 			aFile   = oldnamn.getName();
 			if (mcount > 0 ) swMust = true;
@@ -251,13 +265,22 @@ public class CheckLogs {
 				fis = new FileInputStream(oldnamn);
 				//				in = new BufferedReader( new FileReader(oldnamn) );
 			}
-
+			//			InputStreamReader isr = new InputStreamReader(fis, "UTF8"); 
 			InputStreamReader isr = new InputStreamReader(fis, charset); 
 			in = new BufferedReader(isr);
 
 			position = 0;
+			//			lri.open(id2.trim(), agent, new java.sql.Timestamp((new Date(System.currentTimeMillis())).getTime()),"Jvakt","Jvakt","xz","localhost","5432");
+			if (swLogs) {
+				String id2 = id+"-"+listf[i].getName();
+				System.out.println(tdat+"-- Saving the log in the Jvakt DB: "+id2);
+				lri.open(id2.trim(), agent, new java.sql.Timestamp((new Date(System.currentTimeMillis())).getTime()),database,dbuser,dbpassword,dbhost,dbport);
+			}
+
+			line=0;
+			fileErrors=0;
 			while ((s = in.readLine()) != null) {
-				
+
 				if (swPsav || swCsav) {
 					position++;
 					if ( position == 1 && !s.equals(strprev)) { posprev = 0; } // If it's a new logfile start from the beginning 
@@ -265,21 +288,29 @@ public class CheckLogs {
 					if ( position <= posprev  ) continue; // read next line if scanned previously. 
 				}
 
+				if (s.length() > 2048) s = s.substring(0, 2048);
+				s=s.trim();
+				if (swLogs) { 
+					line++;
+					lri.RowIns(s);
+				}
+
+
 				// check if any scan string is present in the line.
 				swWarn = false;
 				for ( int k = 0; k < ecount ; k++) {
-//					System.out.println("etab[k] " +etab[k]);
+					//					System.out.println("etab[k] " +etab[k]);
 					if (etab[k].contains("-*dummy-entry*-")) break;
 					etabSplit = etab[k].split("&");
-//					System.out.println("etabSplit.length " +etabSplit.length);
+					//					System.out.println("etabSplit.length " +etabSplit.length);
 					int eTabWarn= 0;
 					for ( int j = 0; j < etabSplit.length ; j++) { 
-//						System.out.println("etabSplit[j] "+j+" "+etabSplit[j]+ "  s "+s);
+						//						System.out.println("etabSplit[j] "+j+" "+etabSplit[j]+ "  s "+s);
 						if (s.toUpperCase().indexOf(etabSplit[j]) >= 0) { 
 							eTabWarn++;
 						}
 					}
-//					System.out.println("swWarn " +swWarn+"  eTabWarn " +eTabWarn+" etabSplit.length " +etabSplit.length);
+					//					System.out.println("swWarn " +swWarn+"  eTabWarn " +eTabWarn+" etabSplit.length " +etabSplit.length);
 					if (eTabWarn == etabSplit.length) {
 						etab[k] = "-*dummy-entry*-";     // only warn on first hit
 						swDummy = true;
@@ -287,27 +318,27 @@ public class CheckLogs {
 					}
 				}
 
-				 // reset warning flag if hit is okay.
+				// reset warning flag if hit is okay.
 				for ( int k = 0; k < tcount ; k++) { 
 					tokaySplit = tokay[k].split("&");
 					int tokayWarn= 0;
 					for ( int j = 0; j < tokaySplit.length ; j++) { 
-			        	if (s.toUpperCase().indexOf(tokaySplit[j]) >= 0) {
-			        		tokayWarn++;
-			    		}
+						if (s.toUpperCase().indexOf(tokaySplit[j]) >= 0) {
+							tokayWarn++;
+						}
 					}
 					if (tokayWarn == tokaySplit.length) {
 						swWarn = false;
 					}
 				}
-				
-//								System.out.println("Mcount :  "+mcount);
+
+				//								System.out.println("Mcount :  "+mcount);
 				// raise warning if string are missing.
 				for ( int k = 0; k < mcount ; k++) {  
-//					System.out.println("Must-check :  "+s+"  "+tmust[k]);
+					//					System.out.println("Must-check :  "+s+"  "+tmust[k]);
 					tmustSplit = tmust[k].split("&");
 					int tmustWarn= 0;
-//					System.out.println("tmustSplit.length " +tmustSplit.length+" tmustWarn:"+tmustWarn);
+					//					System.out.println("tmustSplit.length " +tmustSplit.length+" tmustWarn:"+tmustWarn);
 					for ( int j = 0; j < tmustSplit.length ; j++) { 
 						if (s.toUpperCase().indexOf(tmustSplit[j]) >= 0) tmustWarn++;
 					}
@@ -320,10 +351,11 @@ public class CheckLogs {
 				if (!swWarn) continue;
 
 				//				c = null;
-				if (s.length() > 256) s = s.substring(0, 255);
+				//				if (s.length() > 256) s = s.substring(0, 255);
 				//				if (s.compareTo(prev_s) == 0)  continue;
 				//				prev_s = s;
 				errors++;
+				fileErrors++;
 				t_desc = s;
 				t_desc =aFile+": "+t_desc;
 				if (t_desc.compareTo(t_desc_prev) !=0) {    // Lessen number of duplicate messages in Jvakt
@@ -350,10 +382,18 @@ public class CheckLogs {
 
 			if (swMust ) {
 				errors++;
+				fileErrors++;
 				swWarn=true;
 				t_desc = "Mandatory text strings are missing from the log file "+aFile+"!";
 				sendSTS(swWarn);
 			}
+
+			if (swLogs) {
+				if (line>0) lri.RowIns("<CheckLogs status> errors="+fileErrors);
+				lri.close();
+				System.out.println("-- Number of errors found in the file: "+ fileErrors);
+			}
+			
 		}
 
 		swSlut = true;
@@ -379,7 +419,7 @@ public class CheckLogs {
 			//			System.out.println("# 03");
 		}
 
-		System.out.println("-- Number of errors found: "+ errors);
+		System.out.println("-- Number of total errors found: "+ errors);
 
 		if (errors == 0) System.exit(0);
 		else             System.exit(errors);
@@ -449,10 +489,31 @@ public class CheckLogs {
 			input = new FileInputStream(configF);
 			prop.load(input);
 			// get the property value and print it out
+			if (swJvakt) {
 			jvport   = prop.getProperty("jvport");
 			jvhost   = prop.getProperty("jvhost");
 			port = Integer.parseInt(jvport);
-			System.out.println("getProps jvport: " + jvport + "    jvhost: "+jvhost) ;
+			}
+
+			if (swLogs) {
+				// get the property value and print it out
+				database = prop.getProperty("database");
+				dbuser   = prop.getProperty("dbuser");
+				dbpassword = prop.getProperty("dbpassword");
+				if (dbpassword.startsWith("==y")) {
+					byte[] decodedBytes = Base64.getDecoder().decode(dbpassword.substring(3));
+					String decodedString = new String(decodedBytes);
+					dbpassword=decodedString;
+				}
+				dbhost   = prop.getProperty("dbhost");
+				dbport   = prop.getProperty("dbport");
+				if (database == null) {
+					System.out.println("database is miossing from Jvakt.properties. Logs are not imported to the Jvakt DB");
+					swLogs = false;
+					}
+			}
+
+			System.out.println("getProps jvport: " + jvport + "  jvhost: "+jvhost + "  dbhost: "+dbhost+ "  dbport: "+dbport) ;
 		} catch (IOException ex) {
 			ex.printStackTrace();
 		}
@@ -583,8 +644,7 @@ public class CheckLogs {
 	}
 
 	static void checkFileForBOM() {
-		
-		// restore default values if previous file was changed by checkFileForBOM
+
 		charset = "UTF8";
 		swUTF8BOM = false;
 		swUTF16BEBOM = false;
@@ -598,36 +658,37 @@ public class CheckLogs {
 			InputStream is = new FileInputStream(path.toFile()); 
 
 			is.read(bom);
+
+			String content = new String(Hex.encodeHex(bom));
+			System.out.println("Content of first three bytes (BOM) "+content);
 			
-	          String content = new String(Hex.encodeHex(bom));
-//	          System.out.println("content "+content);
-	          if ("00".equalsIgnoreCase(content.substring(0, 2))) {
-	        	  System.out.println("\n** Found out the input file probably is UCS-2 BE without BOM. Trying -charset UTF-16");
-	        	  swUTF16BEBOM = true;
-	        	  charset = "UTF-16";
-	          }
-	          if ("feff".equalsIgnoreCase(content.substring(0, 4))) {
-	        	  System.out.println("\n** Found the input file to be UCS-2 BE BOM. Using -charset UTF-16");
-	        	  swUTF16BEBOM = true;
-	        	  charset = "UTF-16";
-	          }
-	          if ("00".equalsIgnoreCase(content.substring(2, 4))) {
-	        	  System.out.println("\n** Found out the input file probably is UCS-2 LE without BOM. Trying -charset UTF-16");
-	        	  swUTF16LEBOM = true;
-	        	  charset = "UTF-16";
-	          }
-	          if ("fffe".equalsIgnoreCase(content.substring(0, 4))) {
-	        	  System.out.println("\n** Found the input file to be UCS-2 LE BOM. Using -charset UTF-16");
-	        	  swUTF16LEBOM = true;
-	        	  charset = "UTF-16";
-	          }
-	          if ("efbbbf".equalsIgnoreCase(content.substring(0, 6))) {
-	        	  System.out.println("\n** Found the input file to be UCS8 BOM. Using -charset UTF8");
-	        	  swUTF8BOM = true;
-	        	  charset = "UTF8";
-	          }
-			
-			
+			if ("00".equalsIgnoreCase(content.substring(0, 2))) {
+				System.out.println("** Found out the input file probably is UCS-2 BE without BOM. Trying -charset UTF-16");
+				swUTF16BEBOM = true;
+				charset = "UTF-16";
+			}
+			if ("feff".equalsIgnoreCase(content.substring(0, 4))) {
+				System.out.println("** Found the input file to be UCS-2 BE BOM. Using -charset UTF-16");
+				swUTF16BEBOM = true;
+				charset = "UTF-16";
+			}
+			if ("00".equalsIgnoreCase(content.substring(2, 4))) {
+				System.out.println("** Found out the input file probably is UCS-2 LE without BOM. Trying -charset UTF-16");
+				swUTF16LEBOM = true;
+				charset = "UTF-16";
+			}
+			if ("fffe".equalsIgnoreCase(content.substring(0, 4))) {
+				System.out.println("** Found the input file to be UCS-2 LE BOM. Using -charset UTF-16");
+				swUTF16LEBOM = true;
+				charset = "UTF-16";
+			}
+			if ("efbbbf".equalsIgnoreCase(content.substring(0, 6))) {
+				System.out.println("** Found the input file to be UCS8 BOM. Using -charset UTF8");
+				swUTF8BOM = true;
+				charset = "UTF8";
+			}
+
+
 			is.close();
 		} catch (FileNotFoundException fnfe) {
 			System.out.println("File not found "+configF.getPath()+"\n"+fnfe);
@@ -643,7 +704,7 @@ public class CheckLogs {
 			Class<?> c1 = Class.forName("Jvakt.Version",false,ClassLoader.getSystemClassLoader());
 			Version ver = new Version();
 			version = ver.getVersion();
- 		} 
+		} 
 		catch (java.lang.ClassNotFoundException ex) {
 			version = "?";
 		}

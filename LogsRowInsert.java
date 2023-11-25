@@ -1,6 +1,6 @@
 package Jvakt;
 /*
- * 2022-06-23 V.54 Michael Ekdal		Added getVersion() to get at consistent version throughout all classes.
+ * 2022-06-25 V.01 Michael Ekdal		New pgm to import the logs into the DB
  */
 
 import java.time.LocalDateTime;
@@ -21,12 +21,14 @@ public class LogsRowInsert {
 	static Connection conn = null;
 	static PreparedStatement st = null; 
 	
-	static String version = "CheckStatus ";
+	static String version = "LogsRowInsert ";
 	
 	static String id;
 	static String origin;
 	static java.sql.Timestamp credat;
-	
+
+	static int line;
+
 //	static String database = "Jvakt";
 //	static String dbuser   = "Jvakt";
 //	static String dbpassword = "xz";
@@ -37,6 +39,7 @@ public class LogsRowInsert {
 		id = pid;
 		origin = porigin;
 		credat = pcredat;
+		line = 0;
 		try {
 			Class.forName("org.postgresql.Driver").newInstance();
 			DBUrl = "jdbc:postgresql://"+dbhost+":"+dbport+"/"+database;
@@ -52,23 +55,30 @@ public class LogsRowInsert {
 			System.err.println(new Date()+" - "+e);
 			System.err.println(e.getMessage());
 		}
+//		System.out.println("-- Opened DB: "+id+" "+origin+" "+credat);
 		return true;
 	}
 
 	public static boolean RowIns( String row ) {
 
+		line++;
 		try {
-			st = conn.prepareStatement("INSERT INTO Logs (id,origin,credat,row) "
-					+ "values (?,?,?,?)");
+			st = conn.prepareStatement("INSERT INTO Logs (id,origin,credat,row,line) "
+					+ "values (?,?,?,?,?)");
 			//				System.out.println(LocalDateTime.now()+" Prepared insert:" + st);
 //			System.out.println(new Date()+" - Insert Logs: "+id+" "+origin+" "+credat+" "+row);
+			if (row.startsWith("<CheckLogs status>")) {
+				row+=" Lines="+line--;
+				line=0;
+			}
 			st.setString(1,id); 
 			st.setString(2,origin); 
 			st.setTimestamp(3, credat);
-			st.setString(4,row ); // 
+			st.setString(4,row ); 
+			st.setInt(5,line ); 
 			int rowsInserted = st.executeUpdate();
-//			System.out.println(new Date()+" - Executed insert addC " +rowsInserted);
-			st.close();
+//			System.out.println(new Date()+" - Inserted "+line+"  "+rowsInserted);
+			st.close(); 
 		}
 		catch (SQLException e) {
 			System.err.println(new Date()+" - "+e);
@@ -78,6 +88,7 @@ public class LogsRowInsert {
 			System.err.println(new Date()+" - "+e);
 			System.err.println(e.getMessage());
 		}
+	
 		return true;
 	}
 

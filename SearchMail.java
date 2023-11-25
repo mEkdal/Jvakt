@@ -1,5 +1,6 @@
 package Jvakt;
 /*
+ * 2023-11-08 V.56 Michael Ekdal		Removed some System.out.println. They can cause problem in Linux when null.
  * 2023-01-10 V.55 Michael Ekdal		Added send of the status to Jvakt server
  * 2022-06-23 V.54 Michael Ekdal		Added getVersion() to get at consistent version throughout all classes.
  */
@@ -67,7 +68,7 @@ public class SearchMail {
 	public static void main(String[] args) throws IOException, FileNotFoundException {
 
 		String version = "SearchMail  ";
-		version += getVersion()+".55";
+		version += getVersion()+".56";
 
 		for (int i=0; i<args.length; i++) {
 			if (args[i].equalsIgnoreCase("-config")) config = args[++i];
@@ -202,14 +203,14 @@ public class SearchMail {
 
 					for (int j=0, n=mp.getCount(); j<n; j++) {
 						Part part = mp.getBodyPart(j);
-						System.out.println(new Date()+" *** Part "+j+" description : "+part.getDescription());
-						System.out.println(new Date()+" *** Part "+j+" ContentType : "+part.getContentType());
-						System.out.println(new Date()+" *** Part "+j+" Disposition : "+part.getDisposition());
+//						System.out.println(new Date()+" *** Part "+j+" description : "+part.getDescription());
+//						System.out.println(new Date()+" *** Part "+j+" ContentType : "+part.getContentType());
+//						System.out.println(new Date()+" *** Part "+j+" Disposition : "+part.getDisposition());
 						
 						if (part.getContentType().contains("text/")) {
 							if (body.length()<=0) 	body  = part.getContent().toString();
 							else 					body += part.getContent().toString();
-							System.out.println(new Date()+" *** Body Content : "+body);
+//							System.out.println(new Date()+" *** Body Content : "+body);
 						}
 //						else if (part.getDisposition().contains("attachment")) {
 //							System.out.println(new Date()+" *** File name: "+part.getFileName());
@@ -223,7 +224,7 @@ public class SearchMail {
 
 				System.out.println(new Date()+" From   -> " + from);
 				System.out.println(new Date()+" Subject-> " + subject);
-				System.out.println(new Date()+" Body   -> " + body);
+//				System.out.println(new Date()+" Body   -> " + body);
 
 
 				// Checks the mail for a match of all the rows in the parameter file 
@@ -234,7 +235,7 @@ public class SearchMail {
 					Object object = listToS.get(i2);
 					element = (String) object;
 					System.out.println("*** ParRow    * " + element);  			// Shows the parameter rows in action
-					System.out.println("*** ParStatus * " + parStatus[i2]); 	// Shows the Status of the line. F indicates a previous match
+//					System.out.println("*** ParStatus * " + parStatus[i2]); 	// Shows the Status of the line. F indicates a previous match
 					String[] tab = null;
 					tab = element.split(";");
 					Sid = tab[0].trim();
@@ -284,16 +285,19 @@ public class SearchMail {
 						parStatus[i2]='F'; 
 						if (swGoodMail) {
 							if (swExMail) {
-								System.out.println(new Date()+" Expected mail from: "+ from +" / "+ subject +" / "+ body );
+//								System.out.println(new Date()+" Expected mail from: "+ from +" / "+ subject +" / "+ body );
+								System.out.println(new Date()+" Expected mail from: "+ from +" / "+ subject );
 								sendJv(Sid , "OK" , "R", "From: "+ from +" / "+ subject +" / "+ body );
 							}
 							else {
-								System.out.println(new Date()+" Expected mail from: "+ from +" / "+ subject +" / "+ body );
+//								System.out.println(new Date()+" Expected mail from: "+ from +" / "+ subject +" / "+ body );
+								System.out.println(new Date()+" Expected mail from: "+ from +" / "+ subject);
 								sendJv(Sid , "INFO" , "T", "From: "+ from +" / "+ subject +" / "+ body );
 							}
 						}
 						else {
-							System.out.println(new Date()+" From: "+ from +" / "+ subject +" / "+ body );
+//							System.out.println(new Date()+" From: "+ from +" / "+ subject +" / "+ body );
+							System.out.println(new Date()+" From: "+ from +" / "+ subject );
 							sendJv(Sid , "ERR" , "T", "From: "+ from +" / "+ subject +" / "+ body );
 						}
 					}
@@ -317,7 +321,7 @@ public class SearchMail {
 		for (int i2 = 0; i2 < listToS.size(); i2++) {
 			Object object = listToS.get(i2);
 			element = (String) object;
-			System.out.println("*** ParStatus * " + parStatus[i2]);
+//			System.out.println("*** ParStatus * " + parStatus[i2]);
 			System.out.println("*** ParRow    * " + element);
 
 			if (parStatus[i2]!='F' ) {
@@ -341,7 +345,8 @@ public class SearchMail {
 					sendJv(Sid  , "ERR" , "R",  "Expected mail from "+Sfrom+" not found!");
 				}
 				else {
-					System.out.println(new Date()+" No mail from "+Sfrom+" or "+Ssubject+" or "+Sbody+" found!");
+//					System.out.println(new Date()+" No mail from "+Sfrom+" or "+Ssubject+" or "+Sbody+" found!");
+					System.out.println(new Date()+" No mail from "+Sfrom+" found, which is fine!");
 					sendJv(Sid , "OK" , "T", "No mail from "+Sfrom+" found, which is fine!");
 				}
 			}

@@ -14,4 +14,8 @@ cmdHst = javaw -cp Jvakt.jar Jvakt.consoleHst
 cmdSts = javaw -cp Jvakt.jar Jvakt.consoleSts
 cmdStat = javaw -cp Jvakt.jar Jvakt.StatisticsChartLauncher
 cmdStats = javaw -cp Jvakt.jar Jvakt.StatisticsChart
+cmdLogs = javaw -cp Jvakt.jar Jvakt.consoleLogs
+cmdLogsView = javaw -cp Jvakt.jar Jvakt.consoleLogsView
 statsDir = //ubuntu1/jvStats
+#statsDir = C:/Jvakt/Stat
+
