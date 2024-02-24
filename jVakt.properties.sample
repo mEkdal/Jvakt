@@ -35,11 +35,16 @@ mode = active
 # "W&T COM Port Redirector" https://www.wut.de/e-58www-10-inus-000.php
 SMShost = 10.10.10.10
 SMSport = 8000
-toSMS = +4623232323232323
+# ERRORS via SMS. comma separated numbers
+toSMS = 004611111111,0046222222222,0046333333333
+# STATUS via SMS. comma separated numbers
+toSMSSTS = 004611111111,0046222222222,0046333333333
 # after how many writes to the DB a close/opne in made. 0 is default
 dbwritesMax=10000
 # yes => A new entry is automaticaly created in the status table when a new id appears. If a no is used you have to create the entries in the status table by hand
 autocreate=yes
+# How many messages is an ID allowed to show in the console
+MsgsPerID = 4
 # How many days to accept before warning of old https certificate. 10 is the default value if the line is missing.
 CertAgeDays = 15
 # plugin*   it is used to trigger a plugin program when rows is added or removed from the console!

@@ -1,6 +1,7 @@
 package Jvakt;
 /*
- * 2022-06-25 V.01 Michael Ekdal		New pgm to import the logs into the DB
+ * 2023-11-29 V.02 Michael Ekdal		Shortened the row length to 2048.
+ * 2023-11-25 V.01 Michael Ekdal		New pgm to import the logs into the DB
  */
 
 import java.time.LocalDateTime;
@@ -74,6 +75,7 @@ public class LogsRowInsert {
 			st.setString(1,id); 
 			st.setString(2,origin); 
 			st.setTimestamp(3, credat);
+			if (row.length() > 2048) row = row.substring(0, 2048);
 			st.setString(4,row ); 
 			st.setInt(5,line ); 
 			int rowsInserted = st.executeUpdate();

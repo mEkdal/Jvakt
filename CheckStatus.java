@@ -12,6 +12,7 @@ package Jvakt;
  * 2023-07-26 V.63 Michael Ekdal		Fixed a problem with GetInt("prio") was GetString .
  * 2023-07-26 V.64 Michael Ekdal		Sends warning to Jvakt if CheckStatus is in dormant mode.
  * 2023-08-11 V.65 Michael Ekdal		Added ability to start a second plugin cmdPlug2
+ * 2024-02-24 V.66 Michael Ekdal		Added logic to restrict number of messages per ID in the console
  */
 
 import java.io.*;
@@ -58,6 +59,7 @@ public class CheckStatus {
 	static String jvhost   = "localhost";
 	static String jvport   = "1956";
 	static int jvporti ;
+	static int MsgsPerID = 5;
 	static String agent = null;
 	static Calendar cal = Calendar.getInstance();
 	static String currentID;
@@ -73,7 +75,7 @@ public class CheckStatus {
 	//	public static void main(String[] args ) throws IOException, UnknownHostException {
 	public static void main(String[] args ) {
 
-		version += getVersion()+".65";
+		version += getVersion()+".66";
 		File configF;
 
 		for (int i=0; i<args.length; i++) {
@@ -110,6 +112,8 @@ public class CheckStatus {
 			cmdPlug2 = prop.getProperty("cmdPlug2");
 			cmdPlug2prio30 = prop.getProperty("cmdPlug2prio30");
 			cmdPlug2delete = prop.getProperty("cmdPlug2delete");
+			String MsgsPerIDS = prop.getProperty("MsgsPerID");
+			if (MsgsPerIDS != null) MsgsPerID = Integer.parseInt(prop.getProperty("MsgsPerID"));
 			String	mode 	 =  prop.getProperty("mode");
 			if (!mode.equalsIgnoreCase("active"))  swDormant = true;
 		} catch (IOException ex) {
@@ -615,8 +619,8 @@ public class CheckStatus {
 			//			}
 
 
+			// insert new line with new timestamp and counter
 			if (!swDelete && count == 1 ) {
-				// insert new line with new timestamp and counter
 				PreparedStatement st = conn.prepareStatement("INSERT INTO Console (count,id,prio,type,condat,credat,status,body,agent) "
 						+ "values (?,?,?,?,?,?,?,?,?)");
 				//				System.out.println(LocalDateTime.now()+" Prepared insert:" + st);
@@ -681,6 +685,31 @@ public class CheckStatus {
 					}
 				}
 				// *** call plugins insert end //
+
+				
+				
+				// *** Restrict numbers of console entries per id //
+				s = new String("select * from console " + 
+						"WHERE id ilike '" + rs.getString("id") + 
+						"' and prio='" 	 +	prioS +
+						"' and type='" 	 +	rs.getString("type").toUpperCase() +
+						"' order by credat desc;");
+				stmt = conn.createStatement(ResultSet.CONCUR_UPDATABLE,ResultSet.TYPE_FORWARD_ONLY,ResultSet.CLOSE_CURSORS_AT_COMMIT ); 
+				stmt.setFetchSize(50);
+				rs2 = stmt.executeQuery(s);
+				int numRows = 0;
+				while (rs2.next()) {
+					numRows++;
+//					System.out.println(numRows+" - console: " + rs2.getString("id")+ " - "+rs2.getString("prio")+" - "+rs2.getString("body"));
+					if (numRows>MsgsPerID) {
+						System.out.println(new Date()+" - delete from console: " + rs2.getString("id")+ " - "+rs2.getString("prio")+" - "+rs2.getString("body"));
+						addHst(rs2);
+						try { rs2.deleteRow(); } catch(NullPointerException npe2) {} 
+					}
+				}				
+				rs2.close(); 
+				stmt.close();
+				// end *** Restrict numbers of console entries per id //				
 
 			}
 			//			System.out.println(LocalDateTime.now()+" Closed addC");

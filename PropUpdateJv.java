@@ -1,5 +1,6 @@
 package Jvakt;
 /*
+ * 2024-02-06 V.55 Michael Ekdaö		Added encode/decode of SMSpwd
  * 2022-06-23 V.54 Michael Ekdal		Added getVersion() to get at consistent version throughout all classes.
  */
 
@@ -41,7 +42,7 @@ public class PropUpdateJv {
 	public static void main(String[] args ) throws IOException, UnknownHostException {
 
 		String version = "PropUpdateJv ";
-		version += getVersion()+".54";
+		version += getVersion()+".55";
 		System.out.println("----- Jvakt: "+new Date()+"  Version: "+version);
 
 		for (int i=0; i<args.length; i++) {
@@ -194,6 +195,19 @@ public class PropUpdateJv {
 					s=propname+" = "+encodedString;
 				}
 				if (propname.equalsIgnoreCase("smtppwd") && swDecode && propvalue.startsWith("==y")) {
+					System.out.println("Decoded "+propname);
+					byte[] decodedBytes = Base64.getDecoder().decode(propvalue.substring(3));
+					String decodedString = new String(decodedBytes);
+					s=propname+" = "+decodedString;
+				}
+				// encode or decode SMSpwd
+				if (propname.equalsIgnoreCase("SMSpwd") && swEncode && !propvalue.startsWith("==y")) {
+					System.out.println("Encoded "+propname);
+					String encodedString = Base64.getEncoder().encodeToString(propvalue.getBytes());
+					encodedString="==y"+encodedString;
+					s=propname+" = "+encodedString;
+				}
+				if (propname.equalsIgnoreCase("SMSpwd") && swDecode && propvalue.startsWith("==y")) {
 					System.out.println("Decoded "+propname);
 					byte[] decodedBytes = Base64.getDecoder().decode(propvalue.substring(3));
 					String decodedString = new String(decodedBytes);

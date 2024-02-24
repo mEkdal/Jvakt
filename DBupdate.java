@@ -15,7 +15,8 @@ package Jvakt;
  * 2022-08-11 V.59 Michael Ekdal		Added getVersion() to get at consistent version throughout all classes. 
  * 2022-08-11 V.60 Michael Ekdal		Added check of cmdPlug1delete to trigger messages deleted from the console. 
  * 2023-08-11 V.61 Michael Ekdal		Added ability to start a second plugin cmdPlug2
- * 2023-10-04 V.62 Michael Ekdal		Added *MANUAL to trigger the plugins from the console. A message with the status "P" is sent from the console. 
+ * 2023-10-04 V.62 Michael Ekdal		Added *MANUAL to trigger the plugins from the console. A message with the status "P" is sent from the console.
+ * 2024-02-24 V.63 Michael Ekdal		Added logic to restrict number of messages per ID in the console
  */
 
 import java.io.*;
@@ -55,6 +56,7 @@ class DBupdate {
 	static private  String cmdPlug2 = null;
 	static private  String cmdPlug2prio30 = null;
 	static private  String cmdPlug2delete = null;
+	static int MsgsPerID = 5;
 	static String config = null;
 	static String version = "DBupdate ";
 
@@ -83,7 +85,7 @@ class DBupdate {
 		if (config == null ) 	configF = new File("Jvakt.properties");
 		else 					configF = new File(config,"Jvakt.properties");
 		
-		version += getVersion()+".62";
+		version += getVersion()+".63";
 //		System.out.println("-config file DBupdate: "+configF);
 		System.out.println("----------- Jvakt: "+new Date()+"  Version: "+version +"  -  config file: "+configF);
 
@@ -109,6 +111,8 @@ class DBupdate {
 			cmdPlug2prio30 = prop.getProperty("cmdPlug2prio30");
 			cmdPlug2delete = prop.getProperty("cmdPlug2delete");
 			autocreate  = prop.getProperty("autocreate");
+			String MsgsPerIDS = prop.getProperty("MsgsPerID");
+			if (MsgsPerIDS != null) MsgsPerID = Integer.parseInt(prop.getProperty("MsgsPerID"));
 			String	mode 	 =  prop.getProperty("mode");
 			if (!mode.equalsIgnoreCase("active")) {  
 				swDormant = true;
@@ -527,6 +531,30 @@ class DBupdate {
 								}
 							}
 							// *** call plugins end //
+							
+							// *** Restrict numbers of console entries per id //
+							s = new String("select * from console " + 
+									"WHERE id ilike '" + m.getId() + 
+									"' AND prio='" + Integer.toString(m.getPrio()) +
+									"' and type='" + sType.toUpperCase() +
+									"' order by credat desc;");
+//							System.out.println(" - console s: " + s);
+							stmt = conn.createStatement(ResultSet.CONCUR_UPDATABLE,ResultSet.TYPE_FORWARD_ONLY,ResultSet.CLOSE_CURSORS_AT_COMMIT ); 
+							stmt.setFetchSize(50);
+							rs2 = stmt.executeQuery(s);
+							int numRows = 0;
+							while (rs2.next()) {
+								numRows++;
+//								System.out.println(numRows+" - console: " + rs2.getString("id")+ " - "+rs2.getString("prio")+" - "+rs2.getString("body"));
+								if (numRows>MsgsPerID) {
+									System.out.println(new Date()+" - delete from console: " + rs2.getString("id")+ " - "+rs2.getString("prio")+" - "+rs2.getString("body"));
+									addHst(rs2);
+									try { rs2.deleteRow(); } catch(NullPointerException npe2) {} 
+								}
+							}				
+							rs2.close(); 
+							stmt.close();
+							// end *** Restrict numbers of console entries per id //				
 
 						}
 					} //@console    

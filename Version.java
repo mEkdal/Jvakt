@@ -6,6 +6,7 @@ package Jvakt;
  */
 
 /*
+ * 2024-02-24 V2.19 Michael Ekdal DBUpdate,CheckStatus	Added logic to restrict number of messages per ID in the console
  * 2023-11-25 V2.18 Michael Ekdal CheckLogs		Added a function to import logs file into the Jvakt database.
  * 2023-10-25 V2.17 Michael Ekdal CheckLogs		If there is at least a must line the program is not aborted.
  * 2023-10-04 V2.16 Michael Ekdal Console,DBupdate,plugIvantiSM	Added *MANUAL to trigger the plugins from the console
@@ -25,7 +26,7 @@ package Jvakt;
   
 public class Version {
 
-	static private String version = "2.18";
+	static private String version = "2.19";
 
 	public boolean isVersionOk()  { return true;  }
 

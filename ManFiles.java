@@ -1,5 +1,6 @@
 package Jvakt;
 /*
+ * 2023-12-20 V.59 Michael Ekdal		Made -fsize and -tsize accept KB, MB, GB and TB in the parameter.
  * 2023-09-01 V.58 Michael Ekdal		Added -fsize and -tsize 
  * 2023-02-28 V.57 Michael Ekdal		Fixed sendSTS() to not open socket twice.
  * 2023-02-27 V.56 Michael Ekdal		Fixat pardir to not be nulled while looping.
@@ -122,7 +123,7 @@ public class ManFiles {
 
 		if (swHelp) {
 			System.out
-			.println("\n*** Jvakt.ManFiles "+getVersion()+".58 ***"
+			.println("\n*** Jvakt.ManFiles "+getVersion()+".59 ***"
 					+ "\n*** by Michael Ekdal, Sweden. ***");
 			System.out
 			.println("\nThe parameters and their meaning are:\n"
@@ -171,7 +172,7 @@ public class ManFiles {
 					+ "\n         \t  To use more -expath strings, separate them with a semicolon like stra;strb"
 					+ "\n-exfile  \t(exclude) a string(s) in the file name. like \"-exfile TEMP01\" "
 					+ "\n         \t  To use more -exfile strings, separate them with a semicolon like flda;fldb"
-					+ "\n-fsize   \tFrom size (-fsize 10737418240 gives all files greater than 10GB)"
+					+ "\n-fsize   \tFrom size (-fsize 10GB gives all files bigger than 10GB) KB, MB, GB and TB accepted."
 					+ "\n-tsize   \tTo   size (-tsize 10737418240 gives all files smaller than 10GB)"
 					+ "\n-fdat    \tSelect files from the date it was last changed . like (-fdat 20181101000000)"
 					+ "\n-tdat    \tSelect files to   the date it was last changed . like (-tdat 20181205140000)"
@@ -534,12 +535,52 @@ public class ManFiles {
 				sleep = sleep *1000; 
 			}
 			else if (args[i].equalsIgnoreCase("-fsize")) { 
-				fsize = Long.valueOf(args[++i]);
+				i++;
+				if (args[i].toLowerCase().endsWith("kb")) {
+					fsize = Long.valueOf(args[i].substring(0, args[i].length()-2));	
+					fsize = fsize*1024;      // 1024*1024 to get mb
+				} 
+				else if (args[i].toLowerCase().endsWith("mb")) {
+					fsize = Long.valueOf(args[i].substring(0, args[i].length()-2));	
+					fsize = fsize*1048576;  // 1024*1024 to get mb
+				} 
+				else if (args[i].toLowerCase().endsWith("gb")) {
+					fsize = Long.valueOf(args[i].substring(0, args[i].length()-2));	
+					fsize = fsize*1073741824;  // 1024*1024*1024 to get gb
+				} 
+				else if (args[i].toLowerCase().endsWith("tb")) {
+					fsize = Long.valueOf(args[i].substring(0, args[i].length()-2));	
+					fsize = fsize*1073741824*1024;  // 1024*1024*1024*1024 to get tb
+				} 
+				else {
+					fsize = Long.valueOf(args[i]);
+				}
 				swSize=true;
+//				System.out.println("---> fsize = "+fsize );
 			}
-			else if (args[i].equalsIgnoreCase("-tsize")) { 
-				tsize = Long.valueOf(args[++i]);
+			else if (args[i].equalsIgnoreCase("-tsize")) {
+				i++;
+				if (args[i].toLowerCase().endsWith("kb")) {
+					tsize = Long.valueOf(args[i].substring(0, args[i].length()-2));	
+					tsize = tsize*1024;      // 1024*1024 to get mb
+				} 
+				else if (args[i].toLowerCase().endsWith("mb")) {
+					tsize = Long.valueOf(args[i].substring(0, args[i].length()-2));	
+					tsize = tsize*1048576;  // 1024*1024 to get mb
+				} 
+				else if (args[i].toLowerCase().endsWith("gb")) {
+					tsize = Long.valueOf(args[i].substring(0, args[i].length()-2));	
+					tsize = tsize*1073741824;  // 1024*1024*1024 to get gb
+				} 
+				else if (args[i].toLowerCase().endsWith("tb")) {
+					tsize = Long.valueOf(args[i].substring(0, args[i].length()-2));	
+					tsize = tsize*1073741824*1024;  // 1024*1024*1024*1024 to get tb
+				} 
+				else {
+					tsize = Long.valueOf(args[i]);
+				}	
 				swSize=true;
+//				System.out.println("---> tsize = "+tsize );
 			}
 
 		}
@@ -806,26 +847,34 @@ public class ManFiles {
 					}
 
 					if (swList) {
+						Long tSize; 
+						String tUnit="";
+						tSize = sdir.length();
+						if (tSize>1048576) { tSize = tSize/1024; tUnit="KB"; }
+						if (tSize>1048576) { tSize = tSize/1024; tUnit="MB"; }
+						if (tSize>1048576) { tSize = tSize/1024; tUnit="GB"; }
+						if (tSize>1048576) { tSize = tSize/1024; tUnit="TB"; }
+						
 						if (swSN) {
 							if (swMove || swCopy || swDelete) System.out.print("-File: "+sdir.getName());
-							else System.out.println("-File: "+sdir.getName()+" Size: "+sdir.length());
+							else System.out.println("-File: "+sdir.getName()+" Size: "+tSize+tUnit);
 							if (swLogg) {
 								if (swMove || swCopy || swDelete) 
 									logg.write("-File: "+sdir.getName());
 								else {
-									logg.write("-File: "+sdir.getName()+" Size: "+sdir.length());
+									logg.write("-File: "+sdir.getName()+" Size: "+tSize+tUnit);
 									logg.newLine();
 								}
 							}
 						} else {
 							if (swMove || swCopy || swDelete) System.out.print("-File: "+sdir);
-							else System.out.println("-File: "+sdir+"  Size: "+sdir.length());
+							else System.out.println("-File: "+sdir+"  Size: "+tSize+tUnit);
 							if (swLogg) {
 								if (swMove || swCopy || swDelete) 
 									logg.write("-File: "+sdir.getAbsolutePath());
 								else {
 									//									System.out.println("-FileXX: "+sdir.getAbsolutePath());
-									logg.write("-File: "+sdir.getAbsolutePath()+" Size: "+sdir.length());
+									logg.write("-File: "+sdir.getAbsolutePath()+" Size: "+tSize+tUnit);
 									logg.newLine();
 								}
 							}
@@ -1236,9 +1285,9 @@ public class ManFiles {
 
 			}
 			if (swSize && okay) {
-//				System.out.println("* before size -> " + fsize +" "+tsize );
+//				System.out.println("* before size -> "+fi.length()+ " "  + fsize +" "+tsize );
 //				if (okay && (fi.length() < fsize || (fi.length() > tsize && tsize > 0) )) {
-				if (fi.length() < fsize || (fi.length() > tsize && tsize>0) ) {
+				if (fi.length() < fsize || (fi.length() > tsize && tsize > 0) ) {
 //					System.out.println("* size -> " + fsize +" "+tsize );
 					okay = false;
 				}
