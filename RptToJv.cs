@@ -7,7 +7,7 @@ namespace RptToJv
 	{
 		public static void Main(string[] args)
 		{
-			string version = "RptToJv C# (2020-NOV-20)";
+			string version = "RptToJv C# (2024-APR-03)";
 			string host = "127.0.0.1";
 			int port = 1956;
 			string id = null;
@@ -74,7 +74,7 @@ namespace RptToJv
 			if (args.Length < 1 || string.ReferenceEquals(id, null))
 			{
 				Console.WriteLine("\n\n- "+version);
-				Console.WriteLine("- by Michael Ekdal Perstorp Sweden.\n");
+				Console.WriteLine("- by Michael Ekdal, Sweden.\n");
 				Console.WriteLine("-host \t - default is 127.0.0.1");
 				Console.WriteLine("-port \t - default is 1956");
 				Console.WriteLine("-id ");
@@ -189,7 +189,6 @@ namespace RptToJv
 			{
 				rptsts = rptsts.Substring(0, 255);
 			}
-			//rptsts = rptsts.replaceAll("[^a-zA-Z]", "");
 			string[] separatingStrings = { "<;>" };
 			string[] tab = rptsts.Split(separatingStrings, System.StringSplitOptions.RemoveEmptyEntries);
 			this.rptsts = tab[0];
@@ -209,17 +208,18 @@ namespace RptToJv
 		}
 		public virtual bool setBody(string body)
 		{
-			//		 regex metacharacters: <([{\^-=$!|]})?*+.>
 			body = body.Trim();
 			if (body.Length > 255)
 			{
 				body = body.Substring(0, 255);
 			}
 			if (body.Length == 0) body = " ";
-			//body = body.replaceAll("\\\\", "/");
-			//body = body.replaceAll("[^a-zA-Z0-9:;_#/><åäöÅÄÖ\"\\,\\.\\!\\?\\*\\$\\)\\(\\-\\=\\{\\}\\]\\[]", " ");
-			//body = body.replaceAll(" {2,}", " "); // replace multiple spaces with one
-			//string[] tab = body.Split("<;>", 2);
+			body = body.Replace('å', 'a');
+			body = body.Replace('ä', 'a');
+			body = body.Replace('ö', 'o');
+			body = body.Replace('Å', 'A');
+			body = body.Replace('Ä', 'A');
+			body = body.Replace('Ö', 'O');
 
 			string[] separatingStrings = { "<;>" };
 			string[] tab = body.Split(separatingStrings, System.StringSplitOptions.RemoveEmptyEntries);
@@ -234,9 +234,6 @@ namespace RptToJv
 			{
 				agent = agent.Substring(0, 255);
 			}
-			//agent = agent.replaceAll("[^a-zA-Z0-9.:!?;*_$#)(//\"><-=]", " ");
-			//string[] tab = agent.Split("<;>", 2);
-			//this.agent = tab[0];
 			string[] separatingStrings = { "<;>" };
 			string[] tab = agent.Split(separatingStrings, System.StringSplitOptions.RemoveEmptyEntries);
 			this.agent = tab[0];

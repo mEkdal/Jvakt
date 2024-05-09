@@ -20,7 +20,7 @@ namespace RptToJv
 
 		int port;
 		byte[] bytes = new byte[1024];
-		private const string version = "SendMsg C# 2020-SEP-12\r\n";
+		private const string version = "SendMsg C# 2024-APR-03\r\n";
 
 		public SendMsg(string host, int port)
 			{

@@ -1,5 +1,6 @@
 package Jvakt;
 /*
+ * 2024-05-09 V.56 Michael Ekdal		Added opportunity to change the default sts and sev in the MonAS400msgq.csv file 
  * 2022-11-15 V.55 Michael Ekdal		Fixed: When -dormant, "All reports will be forced to be 30 or higher" 
  * 2022-11-15 V.55 Michael Ekdal		Tested: Used with Java 17. 
  * 2022-06-23 V.54 Michael Ekdal		Added getVersion() to get at consistent version throughout all classes.
@@ -29,7 +30,7 @@ public class MonAS400msgq  {
 	public static void main(String[] args) throws IOException {
 
 		now = new Date();
-		String version = getVersion()+".55";
+		String version = getVersion()+".56";
 
 		// Displays help
 		if (args.length == 0) {
@@ -40,7 +41,7 @@ public class MonAS400msgq  {
 					"\n-ah      \tHostname of the AS400 server."+
 					"\n-us      \tThe AS400 user."+
 					"\n-pw      \tThe AS400 password."+
-					"\n-config  \tThe dir of the input files. Like: \"-config c:\\Temp\" "+
+					"\n-config  \tThe dir of the input files. Like: \"-config c:\\Temp\" (MonAS400msgq.csv must be present) "+
 					"\n-jh      \tHostname of the Jvakt server."+
 					"\n-jp      \tThe port of the Jvakt server."+
 					"\n-dormant \tAll reports will be forced to be 30 or higher. No autoreply will be made.");
@@ -69,6 +70,8 @@ public class MonAS400msgq  {
 		String s = "";
 		boolean swAutoreply = false;
 		boolean swDormant = false;
+		int sevDefault = 1;
+		String stsDefault = "ERR";
 		int sev;
 		String sts;
 		//		Enumeration<QueuedMessage> q = null;
@@ -116,10 +119,15 @@ public class MonAS400msgq  {
 			if (s.startsWith("#")) continue;
 			if (s.length() == 0) continue; 
 			Ftab[ecount++] = s.toUpperCase();
-			//			System.out.println( Ftab[ecount - 1]);
+			words = s.toUpperCase().split(";",4);
+			if (words[0].startsWith("*")) {
+				sevDefault = Integer.parseInt(words[1]);
+				stsDefault = words[2];
+			}
 		}          
 		inokay.close();
 		System.out.println(" Imported "+ecount+" rows from "+configF);
+		System.out.println(" Default values for unhandled messages are "+sevDefault+" and "+stsDefault);
 		if (swDormant) System.out.println(" Dormant mode on");
 		//		System.out.println( " count: " + ecount);
 
@@ -163,8 +171,8 @@ public class MonAS400msgq  {
 				sts = "INFO";
 			} 
 			else {
-				sev = 1;
-				sts = "ERR";
+				sev = sevDefault;
+				sts = stsDefault;
 			}
 			rpy = "";
 			swAutoreply = false;

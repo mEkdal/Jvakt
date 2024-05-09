@@ -2,6 +2,10 @@
 #
 # Searchstring ; jvakt prio (X is exclude) ; jvakt type ; reply 
 
+# Default values   (Default in program are 1 and ERR)
+# *;30;INFO
+
+
 ## Autoanswers
 #CPA0701 &3 RECEIVED BY &1 AT &4. (C D I R)       
 CPA0701 MCH1211;30;INFO;D
@@ -123,6 +127,7 @@ EDH30;30;INFO
 CPF1393;30;INFO
 CPF1817;30;INFO
 CPI0973;30;INFO
+CPC1604;30;INFO
 running okay;30;INFO
 is mounted;30;INFO
 Autoanswer:;30;INFO

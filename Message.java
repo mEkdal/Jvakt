@@ -46,14 +46,19 @@ public class Message {
 		//	 if (body == null) { body = " "; }
 		if (body.length() > 255) body = body.substring(0, 255);
 		body = body.replaceAll("\\\\" , "/");
-//		body = body.replaceAll("[^a-zA-Z0-9:;_%@#/><åäöÅÄÖ\"\\,\\.\\!\\?\\*\\$\\)\\(\\-\\=\\{\\}\\]\\[]" , " ");
+		body = body.replaceAll("å" , "a");
+		body = body.replaceAll("ä" , "a");
+		body = body.replaceAll("ö" , "o");
+		body = body.replaceAll("Å" , "A");
+		body = body.replaceAll("Ä" , "A");
+		body = body.replaceAll("Ö" , "O");
 		body = body.replaceAll("[^a-zA-Z0-9:;_%@#/><\"\\,\\.\\!\\?\\*\\$\\)\\(\\-\\=\\{\\}\\]\\[]" , " ");
 		body = body.replaceAll(" {2,}", " "); // replace multiple spaces with one
 		body = body.trim();
 		String[] tab = body.split("<;>",2);
 		this.body = tab[0];
-		//		System.out.println("Body length>> " + this.body.length());
-		//		System.out.println("Body>> " + this.body);
+//				System.out.println("Body length>> " + this.body.length());
+//				System.out.println("Body>> " + this.body);
 		return true;  
 	}
 	public boolean setAgent( String agent )     { 

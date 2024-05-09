@@ -6,6 +6,8 @@ package Jvakt;
  */
 
 /*
+ * 2024-05-09 V2.20 Michael Ekdal MonAS400msgq	Added opportunity to change the default sts and sev in the MonAS400msgq.csv file
+ * 2024-05-09 V2.20 Michael Ekdal CpyAS400TblToSQLsvr Added new pgm to copy AS400 tables from AS400 to SQL server.
  * 2024-02-24 V2.19 Michael Ekdal DBUpdate,CheckStatus	Added logic to restrict number of messages per ID in the console
  * 2023-11-25 V2.18 Michael Ekdal CheckLogs		Added a function to import logs file into the Jvakt database.
  * 2023-10-25 V2.17 Michael Ekdal CheckLogs		If there is at least a must line the program is not aborted.
@@ -26,7 +28,7 @@ package Jvakt;
   
 public class Version {
 
-	static private String version = "2.19";
+	static private String version = "2.20";
 
 	public boolean isVersionOk()  { return true;  }
 
