@@ -1,5 +1,6 @@
 package Jvakt;
 /*
+ * 2024-05-29 V.58 Michael Ekdal		Added possibility to have a H in the state field
  * 2023-08-08 V.57 Michael Ekdal		Added a button to trigger the search field
  * 2023-05-26 V.56 Michael Ekdal		Added menus in addition to the F keys
  * 2023-02-15 V.55 Michael Ekdal		Added tests (in consoleSts) on state, type and chkday to minimize user errors.
@@ -76,7 +77,7 @@ public class consoleSts extends JFrame implements TableModelListener, WindowList
 		port = Integer.parseInt(jvport);
 
 		// funktion in Jframe to set the title
-		setTitle("Jvakt consoleSts "+getVersion()+".57 -  F1 = Help");
+		setTitle("Jvakt consoleSts "+getVersion()+".58 -  F1 = Help");
 		//	        setSize(5000, 5000);
 
 		// get the screen size as a java dimension
@@ -494,7 +495,7 @@ public class consoleSts extends JFrame implements TableModelListener, WindowList
 						"F1 : Help \nF3 : Increase font size \nF4 : Decrease font size \nF9 : Copy row \nDEL : Mark for deletion \n\nESC : Unselect"+
 								"\n\nThe SEARCH field (a PostgreSQL 'where' statement) is active when the search button is active"+
 								"\n\nSome fields are updatable when the 'Auto Update' is off!\n Please heed the rules for the fields!" +
-								"\n\nstate - Must be A (active), I (inactive) or D (dormant)" + 
+								"\n\nstate - Must be A (active), I (inactive), H (history) or D (dormant)" + 
 								"\nprio - Below 30   may trigger SMS or Mail depending on chkday/chktim " + 
 								"\nprio - 10 or less may trigger SMS or Mail 24/7. " +
 								"\ntype - R = rptdat must be updated at least every 20 minutes or a time out warning is issued. " +

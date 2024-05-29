@@ -17,6 +17,7 @@ package Jvakt;
  * 2023-08-11 V.61 Michael Ekdal		Added ability to start a second plugin cmdPlug2
  * 2023-10-04 V.62 Michael Ekdal		Added *MANUAL to trigger the plugins from the console. A message with the status "P" is sent from the console.
  * 2024-02-24 V.63 Michael Ekdal		Added logic to restrict number of messages per ID in the console
+ * 2024-05-29 V.64 Michael Ekdal		Added logic send rows directly to history
  */
 
 import java.io.*;
@@ -37,6 +38,7 @@ class DBupdate {
 	String status;
 	boolean swHits;
 	boolean swPurgeConsole;
+	boolean swHistDirect;
 	static String DBUrl = "jdbc:postgresql://localhost:5433/Jvakt";
 	int updated;
 	int errors;
@@ -85,7 +87,7 @@ class DBupdate {
 		if (config == null ) 	configF = new File("Jvakt.properties");
 		else 					configF = new File(config,"Jvakt.properties");
 		
-		version += getVersion()+".63";
+		version += getVersion()+".64";
 //		System.out.println("-config file DBupdate: "+configF);
 		System.out.println("----------- Jvakt: "+new Date()+"  Version: "+version +"  -  config file: "+configF);
 
@@ -183,6 +185,7 @@ class DBupdate {
 					stmt = conn.createStatement(ResultSet.CONCUR_UPDATABLE,ResultSet.TYPE_FORWARD_ONLY,ResultSet.CLOSE_CURSORS_AT_COMMIT ); 
 					stmt.setFetchSize(500);
 					ResultSet rs = stmt.executeQuery(s);
+					swHistDirect = false;  // don't sent directly to history. 
 					swHits = false;  // is there already a record?
 					while (rs.next() && swLoop) {
 						swHits = true;  // A record is already in place
@@ -191,6 +194,8 @@ class DBupdate {
 						sType = rs.getString("type");
 						sId = rs.getString("id");
 						sBody = rs.getString("body");
+						if (sState.equalsIgnoreCase("H")) swHistDirect = true;
+						else swHistDirect = false;
 						//						sPrio = rs.getInt("prio");
 						if (swLogg) {
 							if (!rs.getString("status").equals(m.getRptsts().toUpperCase()))
@@ -546,7 +551,7 @@ class DBupdate {
 							while (rs2.next()) {
 								numRows++;
 //								System.out.println(numRows+" - console: " + rs2.getString("id")+ " - "+rs2.getString("prio")+" - "+rs2.getString("body"));
-								if (numRows>MsgsPerID) {
+								if (numRows>MsgsPerID || swHistDirect) {   
 									System.out.println(new Date()+" - delete from console: " + rs2.getString("id")+ " - "+rs2.getString("prio")+" - "+rs2.getString("body"));
 									addHst(rs2);
 									try { rs2.deleteRow(); } catch(NullPointerException npe2) {} 

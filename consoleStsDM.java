@@ -173,7 +173,7 @@ class consoleStsDM extends AbstractTableModel {
 			System.out.println("setState " + tmp + " -  " + row + " "+ col);
 			System.out.println("setState rad " + rad.getId());
 			// only accept A,I and D
-			if (tmp.compareTo("I")==0 || tmp.compareTo("A")==0 || tmp.compareTo("D")==0) rad.setState(tmp);
+			if (tmp.compareTo("I")==0 || tmp.compareTo("A")==0 || tmp.compareTo("D")==0 || tmp.compareTo("H")==0) rad.setState(tmp);
 		} else if (col == 1) {
 			tmp =((String)value).trim();
 			if (tmp.length()<1) tmp=" ";

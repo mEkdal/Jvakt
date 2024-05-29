@@ -13,6 +13,7 @@ package Jvakt;
  * 2023-07-26 V.64 Michael Ekdal		Sends warning to Jvakt if CheckStatus is in dormant mode.
  * 2023-08-11 V.65 Michael Ekdal		Added ability to start a second plugin cmdPlug2
  * 2024-02-24 V.66 Michael Ekdal		Added logic to restrict number of messages per ID in the console
+ * 2024-05-29 V.67 Michael Ekdal		Added logic send rows directly to history
  */
 
 import java.io.*;
@@ -41,7 +42,8 @@ public class CheckStatus {
 	static boolean swDormant = false;
 	static boolean swRowDormant = false; 
 	static boolean swOKtot = false; 
-
+	static boolean swHistDirect;
+	
 	static java.sql.Date zDate;
 	static java.sql.Timestamp zD;
 	static java.sql.Timestamp zTs;
@@ -75,7 +77,7 @@ public class CheckStatus {
 	//	public static void main(String[] args ) throws IOException, UnknownHostException {
 	public static void main(String[] args ) {
 
-		version += getVersion()+".66";
+		version += getVersion()+".67";
 		File configF;
 
 		for (int i=0; i<args.length; i++) {
@@ -131,6 +133,7 @@ public class CheckStatus {
 		int err;
 		jvporti = Integer.parseInt(jvport);
 		agent = null;
+		swHistDirect = false;
 		//		InetAddress inet;
 
 		try {
@@ -155,7 +158,7 @@ public class CheckStatus {
 			conn.setAutoCommit(false);
 
 			s = new String("select * from status " + 
-					"WHERE state='A' or state = 'D';"); 
+					"WHERE state='A' or state = 'D' or state = 'H';"); 
 
 			//						System.out.println(s);
 			//			stmt = conn.createStatement(ResultSet.CONCUR_UPDATABLE,ResultSet.TYPE_FORWARD_ONLY,ResultSet.CLOSE_CURSORS_AT_COMMIT ); 
@@ -173,6 +176,10 @@ public class CheckStatus {
 
 				if (rs.getString("state").equalsIgnoreCase("D")) 	swRowDormant = true;
 				else 												swRowDormant = false;
+
+				if (rs.getString("state").equalsIgnoreCase("H")) 	swHistDirect = true;
+				else 												swHistDirect = false;
+
 
 				// Only types R, S, T or I is acceptable.
 				if (!rs.getString("type").equalsIgnoreCase("R") && !rs.getString("type").equalsIgnoreCase("S") && !rs.getString("type").equalsIgnoreCase("T") && !rs.getString("type").equalsIgnoreCase("I")) continue;
@@ -596,7 +603,7 @@ public class CheckStatus {
 				else { 
 					rs2.updateTimestamp("condat", new java.sql.Timestamp((new Date(System.currentTimeMillis())).getTime()));
 					rs2.updateInt("count", count);
-					System.out.println(new Date()+" - update console: row.count:"+count  + " - id:"+ rs2.getString("id")+ " - "+rs2.getString("prio") + " - " + rs2.getString("body") );
+					System.out.println(new Date()+" - update console: row count:"+count  + " - id:"+ rs2.getString("id")+ " - "+rs2.getString("prio") + " - " + rs2.getString("body") );
 					if (swTiming) {
 						rs2.updateString("status","TOut");
 						//						rs2.updateString("body", rs.getString("body"));
@@ -701,7 +708,7 @@ public class CheckStatus {
 				while (rs2.next()) {
 					numRows++;
 //					System.out.println(numRows+" - console: " + rs2.getString("id")+ " - "+rs2.getString("prio")+" - "+rs2.getString("body"));
-					if (numRows>MsgsPerID) {
+					if (numRows>MsgsPerID || swHistDirect) {
 						System.out.println(new Date()+" - delete from console: " + rs2.getString("id")+ " - "+rs2.getString("prio")+" - "+rs2.getString("body"));
 						addHst(rs2);
 						try { rs2.deleteRow(); } catch(NullPointerException npe2) {} 

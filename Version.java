@@ -6,6 +6,7 @@ package Jvakt;
  */
 
 /*
+ * 2024-05-29 V2.21 Michael Ekdal consoleSts,DBUpdate,CheckStatus	Added possibility to have a H in the state field to send rows directly to history
  * 2024-05-09 V2.20 Michael Ekdal MonAS400msgq	Added opportunity to change the default sts and sev in the MonAS400msgq.csv file
  * 2024-05-09 V2.20 Michael Ekdal CpyAS400TblToSQLsvr Added new pgm to copy AS400 tables from AS400 to SQL server.
  * 2024-02-24 V2.19 Michael Ekdal DBUpdate,CheckStatus	Added logic to restrict number of messages per ID in the console
@@ -28,7 +29,7 @@ package Jvakt;
   
 public class Version {
 
-	static private String version = "2.20";
+	static private String version = "2.21";
 
 	public boolean isVersionOk()  { return true;  }
 
