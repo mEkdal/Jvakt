@@ -14,6 +14,7 @@ package Jvakt;
  * 2023-08-11 V.65 Michael Ekdal		Added ability to start a second plugin cmdPlug2
  * 2024-02-24 V.66 Michael Ekdal		Added logic to restrict number of messages per ID in the console
  * 2024-05-29 V.67 Michael Ekdal		Added logic send rows directly to history
+ * 2024-06-16 V.68 Michael Ekdal		Fixed logic send rows directly to history. Duplicates in history.
  */
 
 import java.io.*;
@@ -77,7 +78,7 @@ public class CheckStatus {
 	//	public static void main(String[] args ) throws IOException, UnknownHostException {
 	public static void main(String[] args ) {
 
-		version += getVersion()+".67";
+		version += getVersion()+".68";
 		File configF;
 
 		for (int i=0; i<args.length; i++) {
@@ -294,6 +295,17 @@ public class CheckStatus {
 
 						swUpdate=true;
 					}
+					
+					if ( swHistDirect ) {
+						System.out.println(new Date()+" - ERR: Set status to OK" + " " + rs.getString("id"));
+						SQL_UPDATE ="UPDATE STATUS SET STATUS=? WHERE ID='"+rs.getString("id")+"' AND PRIO="+rs.getString("prio");
+						StmtUpdate = conn.prepareStatement(SQL_UPDATE);
+						StmtUpdate.setString(1, "OK");
+						StmtUpdate.executeUpdate();
+						StmtUpdate.close();
+						swUpdate=true;
+					}
+
 					//					if (swUpdate) try { rs.updateRow(); } catch(NullPointerException npe2) {}
 					//					conn.commit();
 					//					System.out.println("## 1");
@@ -388,7 +400,7 @@ public class CheckStatus {
 						trigPlugin(rs.getString("id"), rs.getString("status"), "P", rs.getString("body")); 
 					}
 				} // If status is OK the console tag will be removed for S,R and T, and if console=C or msg isn't " " or sms isn't " "
-				else	 if ((rs.getString("type").equalsIgnoreCase("R") || rs.getString("type").equalsIgnoreCase("S") || rs.getString("type").equalsIgnoreCase("T") || rs.getString("type").equalsIgnoreCase("D")) && 
+				else	 if ((rs.getString("type").equalsIgnoreCase("R") || rs.getString("type").equalsIgnoreCase("S") || rs.getString("type").equalsIgnoreCase("T") || rs.getString("type").equalsIgnoreCase("D") || rs.getString("type").equalsIgnoreCase("I")) && 
 						rs.getString("status").equalsIgnoreCase("OK") &&  
 						(rs.getString("console").equalsIgnoreCase("C") || !rs.getString("msg").startsWith(" ") || !rs.getString("sms").startsWith(" ") || !rs.getString("msg30").startsWith(" ") )
 						) {

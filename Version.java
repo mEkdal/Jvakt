@@ -6,6 +6,7 @@ package Jvakt;
  */
 
 /*
+ * 2024-06-16 V2.22 Michael Ekdal CheckStatus	Fixed logic send rows directly to history. Duplicates in history.
  * 2024-05-29 V2.21 Michael Ekdal consoleSts,DBUpdate,CheckStatus	Added possibility to have a H in the state field to send rows directly to history
  * 2024-05-09 V2.20 Michael Ekdal MonAS400msgq	Added opportunity to change the default sts and sev in the MonAS400msgq.csv file
  * 2024-05-09 V2.20 Michael Ekdal CpyAS400TblToSQLsvr Added new pgm to copy AS400 tables from AS400 to SQL server.
@@ -29,7 +30,7 @@ package Jvakt;
   
 public class Version {
 
-	static private String version = "2.21";
+	static private String version = "2.22";
 
 	public boolean isVersionOk()  { return true;  }
 

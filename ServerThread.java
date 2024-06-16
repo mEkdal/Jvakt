@@ -7,12 +7,14 @@
 
 package Jvakt;
 /*
+ * 2024-06-05 V.56 Michael Ekdal		Added time stamp in the cartch statements println.
  * 2023-02-27 V.55 Michael Ekdal		Added client.close() i ServerThread to the end of code trying avoid CLOSE_WAIT.
  * 2022-06-23 V.54 Michael Ekdal		Added getVersion() to get at consistent version throughout all classes.
  */
 
 import java.io.*;
 import java.net.*;
+import java.util.Date;
 
 class ServerThread extends Thread {
 	/**
@@ -22,7 +24,7 @@ class ServerThread extends Thread {
 
 	Socket client;
 	DBupdate dt;
-	String version = "ServerThread 2.4.55";
+	String version = "ServerThread 2.4.56";
 	boolean swData;
 	String line;
 	Message jm = new Message();
@@ -67,7 +69,7 @@ class ServerThread extends Thread {
 //			System.out.println("ServerThread #2: " + client.getInetAddress() + " " + jm.getType() + " " + jm.getId() + " " +jm.getRptsts() + " " + jm.getBody() + " " +jm.getAgent() + " " +jm.getPrio());
 		}
 		catch (IOException e1) { 
-			System.out.println("ServerThread IOexception:>> " + client.getInetAddress() + " " + e1 ); 
+			System.out.println(new Date()+" ServerThread IOexception:>> " + client.getInetAddress() + " " + e1 ); 
 		}
 		
 		if (swData) dt.dbWrite(jm);  // update DB
@@ -76,7 +78,7 @@ class ServerThread extends Thread {
 			client.close(); 
 		}
 		catch (Exception e2) {
-			System.out.println("ServerThread close exception:>> " + client.getInetAddress() + " " + e2 ); 
+			System.out.println(new Date()+" ServerThread close exception:>> " + client.getInetAddress() + " " + e2 ); 
 		}
 	}        
 }
