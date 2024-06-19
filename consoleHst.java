@@ -1,5 +1,6 @@
 package Jvakt;
 /*
+ * 2024-06-19 V.60 Michael Ekdal		Improved error handling in consoleHstDM.
  * 2023-08-08 V.56 Michael Ekdal		Added a button to trigger the search field
  * 2023-05-26 V.55 Michael Ekdal		Added menus in addition to the F keys
  * 2022-06-23 V.54 Michael Ekdal		Added getVersion() to get at consistent version throughout all classes.
@@ -76,7 +77,7 @@ public class consoleHst extends JFrame implements TableModelListener, WindowList
 		port = Integer.parseInt(jvport);
 
 		// funktion in Jframe to set the title
-		setTitle("Jvakt consoleHst "+getVersion()+".56 -  F1 = Help");
+		setTitle("Jvakt consoleHst "+getVersion()+".60 -  F1 = Help");
 		//	        setSize(5000, 5000);
 
 		// get the screen size as a java dimension

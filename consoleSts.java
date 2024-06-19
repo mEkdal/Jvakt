@@ -1,5 +1,6 @@
 package Jvakt;
 /*
+ * 2024-06-19 V.60 Michael Ekdal		Improved error handling in consoleStsDM.
  * 2024-05-29 V.58 Michael Ekdal		Added possibility to have a H in the state field
  * 2023-08-08 V.57 Michael Ekdal		Added a button to trigger the search field
  * 2023-05-26 V.56 Michael Ekdal		Added menus in addition to the F keys
@@ -77,7 +78,7 @@ public class consoleSts extends JFrame implements TableModelListener, WindowList
 		port = Integer.parseInt(jvport);
 
 		// funktion in Jframe to set the title
-		setTitle("Jvakt consoleSts "+getVersion()+".58 -  F1 = Help");
+		setTitle("Jvakt consoleSts "+getVersion()+".60 -  F1 = Help");
 		//	        setSize(5000, 5000);
 
 		// get the screen size as a java dimension

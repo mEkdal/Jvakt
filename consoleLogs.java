@@ -1,5 +1,6 @@
 package Jvakt;
 /*
+ * 2024-06-19 V.02 Michael Ekdal		Improved error handling in consoleLogsDM.
  * 2023-11-25 V.01 Michael Ekdal		New pgm to list the logs in the DB
  */
 
@@ -81,7 +82,7 @@ public class consoleLogs extends JFrame implements TableModelListener, WindowLis
 		port = Integer.parseInt(jvport);
 
 		// funktion in Jframe to set the title
-		setTitle("Jvakt consoleLogs "+getVersion()+".01 ");
+		setTitle("Jvakt consoleLogs "+getVersion()+".02 ");
 		//	        setSize(5000, 5000);
 
 		// get the screen size as a java dimension

@@ -177,8 +177,6 @@ class consoleLogsDM extends AbstractTableModel {
 			else
 				s = new String("SELECT id,origin,credat,row FROM public.logs where line=0 and "+ where +" order by credat desc;");
 
-			map.clear();
-
 						System.out.println(s);
 			//			Statement stmt = conn.createStatement(ResultSet.CONCUR_READ_ONLY,ResultSet.TYPE_SCROLL_INSENSITIVE); 
 			Statement stmt = conn.createStatement(ResultSet.CONCUR_READ_ONLY,ResultSet.TYPE_FORWARD_ONLY,ResultSet.CLOSE_CURSORS_AT_COMMIT ); 
@@ -190,6 +188,8 @@ class consoleLogsDM extends AbstractTableModel {
 			//				System.out.println("createemptyrow");
 			//				createEmptyRow();
 			//			}
+
+			map.clear();
 
 			while (rs.next()) {
 				//--
@@ -217,12 +217,14 @@ class consoleLogsDM extends AbstractTableModel {
 			System.err.println(e.getMessage());
 			swDBopen = false;
 			createEmptyRow();
+			return false;
 		}
 		catch (Exception e) {
 			System.err.println(e);
 			System.err.println(e.getMessage());
 			swDBopen = false;
 			createEmptyRow();
+			return false;
 		}
 		return true;
 	}

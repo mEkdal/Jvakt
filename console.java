@@ -1,6 +1,7 @@
 package Jvakt;
 
 /*
+ * 2024-06-19 V.60 Michael Ekdal		Improved error handling in consoleDM. 
  * 2023-11-25 V.59 Michael Ekdal		Added cmdLogs to start the Logs pgm.
  * 2023-11-07 V.58 Michael Ekdal		Added "About" in the menu.
  * 2023-10-04 V.57 Michael Ekdal		Added triggering of the plugins from the console.
@@ -53,7 +54,7 @@ public class console extends JFrame implements TableModelListener, WindowListene
 	private  int port = 1956; 
 	private  String cmdHst   = "javaw -cp Jvakt.jar Jvakt.consoleHst";
 	private  String cmdSts   = "javaw -cp Jvakt.jar Jvakt.consoleSts";
-	private  String cmdLogs  = "javaw -cp Jvakt.jar Jvakt.consoleSts";
+	private  String cmdLogs  = "javaw -cp Jvakt.jar Jvakt.consoleLogs";
 	private  String cmdStat  = "javaw -cp Jvakt.jar Jvakt.StatisticsChartLauncher";
 
 	private  int deselectCount = 0; 
@@ -87,7 +88,7 @@ public class console extends JFrame implements TableModelListener, WindowListene
 		port = Integer.parseInt(jvport);
 
 		// a function inherited from Jframe used to set a heading
-		setTitle("Jvakt console "+getVersion()+".58"); 
+		setTitle("Jvakt console "+getVersion()+".60"); 
 
 		//	        setSize(5000, 5000);
 

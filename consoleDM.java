@@ -27,7 +27,7 @@ class consoleDM extends AbstractTableModel {
 	static String DBUrl = "jdbc:postgresql://localhost:5433/Jvakt";
 	static Connection conn = null;
 
-	String version = "jVakt - consoleDM 2021-DEC-30";
+	String version = "jVakt - consoleDM 2024-JUN-19";
 	String database = "Jvakt";
 	String dbuser   = "console";
 	String dbpassword = "";
@@ -182,16 +182,16 @@ class consoleDM extends AbstractTableModel {
 
 		try {
 			String s = new String("select * from console order by credat desc;"); 
-
-			map.clear();
-
 			//			System.out.println(s);
 			//			Statement stmt = conn.createStatement(ResultSet.CONCUR_READ_ONLY,ResultSet.TYPE_SCROLL_INSENSITIVE); 
 			//			Statement stmt = conn.createStatement(ResultSet.CONCUR_UPDATABLE,ResultSet.TYPE_FORWARD_ONLY,ResultSet.CLOSE_CURSORS_AT_COMMIT ); 
 			Statement stmt = conn.createStatement(ResultSet.CONCUR_READ_ONLY,ResultSet.TYPE_FORWARD_ONLY,ResultSet.CLOSE_CURSORS_AT_COMMIT ); 
-			stmt.setFetchSize(1000);
-			stmt.setQueryTimeout(5); 
+			stmt.setFetchSize(25);
+			stmt.setQueryTimeout(5);
+			
 			ResultSet rs = stmt.executeQuery(s);
+
+			map.clear();
 
 			while (rs.next()) {
 				//				System.out.println("rs.next");
@@ -210,7 +210,6 @@ class consoleDM extends AbstractTableModel {
 				map.add(rad);
 			}
 
-
 			rs.close(); 
 			stmt.close();
 			//		fireTableDataChanged();
@@ -220,12 +219,14 @@ class consoleDM extends AbstractTableModel {
 			System.err.println(e.getMessage());
 			swDBopen = false;
 			createEmptyRow();
+			return false;
 		}
 		catch (Exception e) {
 			System.err.println(e);
 			System.err.println(e.getMessage());
 			swDBopen = false;
 			createEmptyRow();
+			return false;
 		}
 		return true;
 	}
