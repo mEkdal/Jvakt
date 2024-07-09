@@ -1,5 +1,6 @@
 package Jvakt;
 /*
+ * 2024-07-09 V.57 Michael Ekdal		Added more info when reporting in status to Jvakt server.
  * 2023-08-21 V.56 Michael Ekdal		Increased sleep times when waiting for the operator response.
  * 2023-01-03 V.55 Michael Ekdal		Added send of the status to Jvakt server
  * 2022-06-23 V.54 Michael Ekdal		Added getVersion() to get at consistent version throughout all classes.
@@ -28,6 +29,7 @@ public class SendSMS {
 	static boolean swDormant = false;
 	static boolean swShowVer = true;
 	static boolean swOK = false;
+	static boolean swSTS = false;
 
 	static java.sql.Date zDate;
 	static java.sql.Timestamp zD;
@@ -70,6 +72,8 @@ public class SendSMS {
 	static String jvport   = "1956";
 	static int    port   = 1956;
 	static InetAddress inet;
+
+	static File configF;
 	
 	//	static Authenticator auth;
 
@@ -78,7 +82,7 @@ public class SendSMS {
 	public static void main(String[] args ) throws IOException, UnknownHostException {
 
 		String version = "SendSMS ";
-		version += getVersion()+".56";
+		version += getVersion()+".57";
 		String database = "jVakt";
 		String dbuser   = "jVakt";
 		String dbpassword = "";
@@ -88,7 +92,6 @@ public class SendSMS {
 //		String jvport   = "1956";
 
 		String config = null;
-		File configF;
 
 		Calendar cal = Calendar.getInstance();
 
@@ -189,12 +192,14 @@ public class SendSMS {
 					" and prio < 30" +
 					";"); 
 
-			//			System.out.println(s);
+//						System.out.println(s);
 			//			stmt = conn.createStatement(ResultSet.CONCUR_UPDATABLE,ResultSet.TYPE_SCROLL_INSENSITIVE); 
 			stmt = conn.createStatement(ResultSet.CONCUR_UPDATABLE,ResultSet.TYPE_FORWARD_ONLY,ResultSet.CLOSE_CURSORS_AT_COMMIT ); 
 			stmt.setFetchSize(1000);
 			ResultSet rs = stmt.executeQuery(s);
 			//			swHits = false;  // is there already a record?
+			swSTS = true;
+
 			while (rs.next()) {
 				System.out.println("\n"+LocalDateTime.now()+" **** main RS - State:"+rs.getString("state")+" Id:" + rs.getString("id")+" Type:"+rs.getString("type")+" Prio:"+rs.getString("prio")+" Console:"+rs.getString("console")+" Status:"+rs.getString("status")+ " Sms:"+rs.getString("sms"));
 				//				swHits = true;  
@@ -291,7 +296,8 @@ public class SendSMS {
 			//			System.err.println(e.getMessage());
 		}
 		finally { 
-			if (swOK) try {sendSTS(true);} catch (IOException e) { e.printStackTrace();}
+			if (swSTS) try {sendSTS(true);} catch (IOException e) { e.printStackTrace();}
+			if (!swSTS) try {sendSTS(false);} catch (IOException e) { e.printStackTrace();}
 		}
 	}        
 
@@ -400,6 +406,7 @@ public class SendSMS {
 			return true;
 		}
 		else {
+			swSTS=false;
 			System.out.println(LocalDateTime.now()+" Failure sending SMS message");
 			try {sendSTS(false);} catch (IOException e) { e.printStackTrace();}
 			return false;
@@ -472,11 +479,11 @@ public class SendSMS {
 			jm.open(); 
 			jmsg.setId("Jvakt-SendSMS");
 			if (STS) {
-				jmsg.setBody("The SendSMS program is active");
+				jmsg.setBody("The SendSMS program is active. "+configF.getCanonicalPath());
 				jmsg.setRptsts("OK");
 			}
 			else {
-				jmsg.setBody("The SendSMS program aborted the SMS sending!");
+				jmsg.setBody("The SendSMS program aborted the SMS sending! "+configF.getCanonicalPath());
 				jmsg.setRptsts("ERR");
 			}
 			jmsg.setType("T");

@@ -1,5 +1,6 @@
 package Jvakt;
 /*
+ * 2024-07-09 V.56 Michael Ekdal		Added more info when reporting in status to Jvakt server.
  * 2023-01-09 V.55 Michael Ekdal		Added send of the status to Jvakt server
  * 2022-06-23 V.54 Michael Ekdal		Added getVersion() to get at consistent version throughout all classes.
  */
@@ -92,6 +93,8 @@ public class SendMail {
 	static String jvport   = "1956";
 	static int    jvporti   = 1956;
 
+	static File configF;
+
 	static Authenticator auth;
 
 	static List<String> listTo;
@@ -99,7 +102,7 @@ public class SendMail {
 	public static void main(String[] args ) throws IOException, UnknownHostException {
 
 		String version = "SendMail ";
-		version += getVersion()+".55";
+		version += getVersion()+".56";
 		String database = "jVakt";
 		String dbuser   = "jVakt";
 		String dbpassword = "";
@@ -107,7 +110,7 @@ public class SendMail {
 		String dbport   = "5433";
 
 		String config = null;
-		File configF;
+//		File configF;
 		
 //		java.sql.Time sqlt;
 		Calendar cal = Calendar.getInstance();
@@ -444,11 +447,11 @@ public class SendMail {
 			jm.open(); 
 			jmsg.setId("Jvakt-SendMail");
 			if (STS) {
-				jmsg.setBody("The SendMail program is working.");
+				jmsg.setBody("The SendMail program is working. "+configF.getCanonicalPath());
 				jmsg.setRptsts("OK");
 			}
 			else {
-				jmsg.setBody("The SendMail program is not working!");
+				jmsg.setBody("The SendMail program is not working! "+configF.getCanonicalPath());
 				jmsg.setRptsts("ERR");
 			}
 			jmsg.setType("T");

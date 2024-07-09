@@ -1,5 +1,6 @@
 package Jvakt;
 /*
+ * 2024-07-09 V.56 Michael Ekdal		Added more info when reporting in status to Jvakt server.
  * 2023-01-09 V.55 Michael Ekdal		Added send of the status to Jvakt server
  * 2022-06-23 V.54 Michael Ekdal		Added getVersion() to get at consistent version throughout all classes.
  */
@@ -90,7 +91,7 @@ public class SendMailSTS {
 	public static void main(String[] args ) throws IOException, UnknownHostException {
 
 		String version = "SendMailSTS ";
-		version += getVersion()+".55";
+		version += getVersion()+".56";
 
 		String subject = "";
 		String body = "";
@@ -361,11 +362,11 @@ public class SendMailSTS {
 			jm.open(); 
 			jmsg.setId("Jvakt-SendMailSTS");
 			if (STS) {
-				jmsg.setBody("The SendMailSTS program is working.");
+				jmsg.setBody("The SendMailSTS program is working. "+configF.getCanonicalPath());
 				jmsg.setRptsts("OK");
 			}
 			else {
-				jmsg.setBody("The SendMailSTS program is not working!");
+				jmsg.setBody("The SendMailSTS program is not working! "+configF.getCanonicalPath());
 				jmsg.setRptsts("ERR");
 			}
 			jmsg.setType("T");

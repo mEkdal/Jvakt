@@ -1,5 +1,6 @@
 package Jvakt;
 /*
+ * 2024-07-09 V.56 Michael Ekdal		Added more info when reporting in status to Jvakt server.
  * 2023-01-09 V.55 Michael Ekdal		Added send of the status to Jvakt server
  * 2022-06-23 V.54 Michael Ekdal		Added getVersion() to get at consistent version throughout all classes.
  */
@@ -620,11 +621,11 @@ public class SendMail30 {
 			jm.open(); 
 			jmsg.setId("Jvakt-SendMail30");
 			if (STS) {
-				jmsg.setBody("The SendMail30 program is working.");
+				jmsg.setBody("The SendMail30 program is working. "+configF.getCanonicalPath());
 				jmsg.setRptsts("OK");
 			}
 			else {
-				jmsg.setBody("The SendMail30 program is not working!");
+				jmsg.setBody("The SendMail30 program is not working! "+configF.getCanonicalPath());
 				jmsg.setRptsts("ERR");
 			}
 			jmsg.setType("T");

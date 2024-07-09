@@ -1,6 +1,7 @@
 package Jvakt;
 /*
  * 2023-03-15 V.01  Michael Ekdal		To purge old rows from the console
+ * 2024-07-09 V.02  Michael Ekdal		Added more info when reporting in status to Jvakt server.
  */
 
 import java.io.*;
@@ -58,12 +59,13 @@ public class PurgeConsoleRows {
 	static private  String hours = "72";
 	static private  int hoursi = 72;
 	static private  int wsec = 72;
+	static File configF;
 	
 	//	public static void main(String[] args ) throws IOException, UnknownHostException {
 	public static void main(String[] args ) {
 
-		version += getVersion()+".01";
-		File configF;
+		version += getVersion()+".02";
+//		File configF;
 
 		for (int i=0; i<args.length; i++) {
 			if (args[i].equalsIgnoreCase("-config")) config = args[++i];
@@ -403,11 +405,11 @@ public class PurgeConsoleRows {
 		jm.open(); 
 		jmsg.setId("Jvakt-PurgeConsoleRows");
 		if (STS) {
-			jmsg.setBody("The PurgeConsoleRows program is working.");
+			jmsg.setBody("The PurgeConsoleRows program is working. "+configF.getCanonicalPath());
 			jmsg.setRptsts("OK");
 		}
 		else {
-			jmsg.setBody("The PurgeConsoleRows program is not working!");
+			jmsg.setBody("The PurgeConsoleRows program is not working! "+configF.getCanonicalPath());
 			jmsg.setRptsts("ERR");
 		}
 		jmsg.setType("T");

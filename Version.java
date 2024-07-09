@@ -6,6 +6,7 @@ package Jvakt;
  */
 
 /*
+ * 2024-07-09 V2.24 Michael Ekdal Jvakr...		Added more info when reporting status to Jvakt server.
  * 2024-06-19 V2.23 Michael Ekdal consoleDM...	Improved error handling in consoleDM .
  * 2024-06-16 V2.22 Michael Ekdal CheckStatus	Fixed logic send rows directly to history. Duplicates in history.
  * 2024-05-29 V2.21 Michael Ekdal consoleSts,DBUpdate,CheckStatus	Added possibility to have a H in the state field to send rows directly to history
@@ -31,7 +32,7 @@ package Jvakt;
   
 public class Version {
 
-	static private String version = "2.23";
+	static private String version = "2.24";
 
 	public boolean isVersionOk()  { return true;  }
 

@@ -15,6 +15,7 @@ package Jvakt;
  * 2024-02-24 V.66 Michael Ekdal		Added logic to restrict number of messages per ID in the console
  * 2024-05-29 V.67 Michael Ekdal		Added logic send rows directly to history
  * 2024-06-16 V.68 Michael Ekdal		Fixed logic send rows directly to history. Duplicates in history.
+ * 2024-07-09 V.69 Michael Ekdal		Added more info when reporting in status to Jvakt server.
  */
 
 import java.io.*;
@@ -74,12 +75,13 @@ public class CheckStatus {
 	static private  String cmdPlug2delete = null;
 	static String config = null;
 	static InetAddress inet;
+	static File configF;
 
 	//	public static void main(String[] args ) throws IOException, UnknownHostException {
 	public static void main(String[] args ) {
 
-		version += getVersion()+".68";
-		File configF;
+		version += getVersion()+".69";
+//		File configF;
 
 		for (int i=0; i<args.length; i++) {
 			if (args[i].equalsIgnoreCase("-config")) config = args[++i];
@@ -543,16 +545,16 @@ public class CheckStatus {
 		jmsg.setId("Jvakt-CheckStatus");
 		if (STS) { 
 			if (swDormant) {
-				jmsg.setBody("The CheckStatus program runs in DORMANT mode! Check the Jvakt.properties file.");
+				jmsg.setBody("The CheckStatus program runs in DORMANT mode! "+configF.getCanonicalPath());
 				jmsg.setRptsts("INFO");
 			}
 			else {
-				jmsg.setBody("The CheckStatus program is working.");
+				jmsg.setBody("The CheckStatus program is working. "+configF.getCanonicalPath());
 				jmsg.setRptsts("OK");
 			}
 		}
 		else {
-			jmsg.setBody("The CheckStatus program is not working!");
+			jmsg.setBody("The CheckStatus program is not working. "+configF.getCanonicalPath());
 			jmsg.setRptsts("ERR");
 		}
 		jmsg.setType("T");

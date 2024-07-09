@@ -1,5 +1,6 @@
 package Jvakt;
 /*
+ * 2024-07-09 V.57 Michael Ekdal		Added more info when reporting in status to Jvakt server.
  * 2023-11-08 V.56 Michael Ekdal		Removed some System.out.println. They can cause problem in Linux when null.
  * 2023-01-10 V.55 Michael Ekdal		Added send of the status to Jvakt server
  * 2022-06-23 V.54 Michael Ekdal		Added getVersion() to get at consistent version throughout all classes.
@@ -68,7 +69,7 @@ public class SearchMail {
 	public static void main(String[] args) throws IOException, FileNotFoundException {
 
 		String version = "SearchMail  ";
-		version += getVersion()+".56";
+		version += getVersion()+".57";
 
 		for (int i=0; i<args.length; i++) {
 			if (args[i].equalsIgnoreCase("-config")) config = args[++i];
@@ -367,11 +368,11 @@ public class SearchMail {
 			jm.open(); 
 			jmsg.setId("Jvakt-SearchMail");
 			if (STS) {
-				jmsg.setBody("The SearchMail program is working.");
+				jmsg.setBody("The SearchMail program is working. "+configF.getCanonicalPath());
 				jmsg.setRptsts("OK");
 			}
 			else {
-				jmsg.setBody("The SearchMail program is not working!");
+				jmsg.setBody("The SearchMail program is not working! "+configF.getCanonicalPath());
 				jmsg.setRptsts("ERR");
 			}
 			jmsg.setType("T");

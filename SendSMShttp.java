@@ -1,5 +1,6 @@
 package Jvakt;
 /*
+ * 2024-07-09 V.02 Michael Ekdal		Added more info when reporting in status to Jvakt server.
  * 2023-08-21 V.01 Michael Ekdal		Created.
  */
 
@@ -72,6 +73,7 @@ public class SendSMShttp {
 	static String SMSuser   = "jVakt";
 	static String SMSpwd = "xxxx";
 	static int tout = 5 ;
+	static File configF;
 	
 	//	static Authenticator auth;
 
@@ -80,7 +82,7 @@ public class SendSMShttp {
 	public static void main(String[] args ) throws IOException, UnknownHostException {
 
 		String version = "SendSMShttp ";
-		version += getVersion()+".01";
+		version += getVersion()+".02";
 		String database = "jVakt";
 		String dbuser   = "jVakt";
 		String dbpassword = "";
@@ -90,7 +92,6 @@ public class SendSMShttp {
 //		String jvport   = "1956";
 
 		String config = null;
-		File configF;
 
 		Calendar cal = Calendar.getInstance();
 
@@ -401,11 +402,11 @@ public class SendSMShttp {
 			jm.open(); 
 			jmsg.setId("Jvakt-SendSMShttp");
 			if (STS) {
-				jmsg.setBody("The SendSMShttp program is active");
+				jmsg.setBody("The SendSMShttp program is active. "+configF.getCanonicalPath());
 				jmsg.setRptsts("OK");
 			}
 			else {
-				jmsg.setBody("The SendSMShttp program aborted the SMS sending!");
+				jmsg.setBody("The SendSMShttp program aborted the SMS sending! "+configF.getCanonicalPath());
 				jmsg.setRptsts("ERR");
 			}
 			jmsg.setType("T");

@@ -2,6 +2,7 @@ package Jvakt;
 /*
  * 2022-06-23 V.54 Michael Ekdal		Added getVersion() to get at consistent version throughout all classes.
  * 2023-01-10 V.55 Michael Ekdal		Added send of the status to Jvakt server
+ * 2024-07-09 V.56 Michael Ekdal		Added more info when reporting in status to Jvakt server.
  */
 
 import jakarta.mail.*;
@@ -69,7 +70,7 @@ public class GetMail2Jvakt {
 	public static void main(String[] args) {
 
 		String version = "GetMail2Jvakt ";
-		version += getVersion()+".55";
+		version += getVersion()+".56";
 
 		for (int i=0; i<args.length; i++) {
 			if (args[i].equalsIgnoreCase("-config")) config = args[++i];
@@ -469,11 +470,11 @@ public class GetMail2Jvakt {
 			jm.open(); 
 			jmsg.setId("Jvakt-GetMail2Jvakt");
 			if (STS) {
-				jmsg.setBody("The GetMail2Jvakt program is working.");
+				jmsg.setBody("The GetMail2Jvakt program is working. "+configF.getCanonicalPath());
 				jmsg.setRptsts("OK");
 			}
 			else {
-				jmsg.setBody("The GetMail2Jvakt program is not working!");
+				jmsg.setBody("The GetMail2Jvakt program is not working! "+configF.getCanonicalPath());
 				jmsg.setRptsts("ERR");
 			}
 			jmsg.setType("T");

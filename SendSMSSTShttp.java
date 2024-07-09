@@ -1,5 +1,6 @@
 package Jvakt;
 /*
+ * 2024-07-09 V.02 Michael Ekdal		Added more info when reporting in status to Jvakt server.
  * 2024-02-05 V.01 Michael Ekdal	SendSMSSTShttp created
  */
 
@@ -80,7 +81,7 @@ public class SendSMSSTShttp {
 	public static void main(String[] args ) {
 
 		String version = "SendSMSSTShttp ";
-		version += getVersion()+".01";
+		version += getVersion()+".02";
 
 		for (int i=0; i<args.length; i++) {
 			if (args[i].equalsIgnoreCase("-config")) config = args[++i];
@@ -354,11 +355,11 @@ public class SendSMSSTShttp {
 			jm.open(); 
 			jmsg.setId("Jvakt-SendSMSSTShttp");
 			if (STS) {
-				jmsg.setBody("The SendSMSSTShttp program is working.");
+				jmsg.setBody("The SendSMSSTShttp program is working. "+configF.getCanonicalPath());
 				jmsg.setRptsts("OK");
 			}
 			else {
-				jmsg.setBody("The SendSMSSTShttp program is not working!");
+				jmsg.setBody("The SendSMSSTShttp program is not working! "+configF.getCanonicalPath());
 				jmsg.setRptsts("ERR");
 			}
 			jmsg.setType("T");

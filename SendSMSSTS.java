@@ -1,5 +1,6 @@
 package Jvakt;
 /*
+ * 2024-07-09 V.57 Michael Ekdal		Added more info when reporting in status to Jvakt server.
  * 2023-08-21 V.56 Michael Ekdal		Increased sleep times when waiting for the operator response.
  * 2023-01-03 V.55 Michael Ekdal		Added send of the status to Jvakt server
  * 2022-06-23 V.54 Michael Ekdal		Added getVersion() to get at consistent version throughout all classes.
@@ -77,7 +78,7 @@ public class SendSMSSTS {
 	public static void main(String[] args ) {
 
 		String version = "SendSMSSTS ";
-		version += getVersion()+".56";
+		version += getVersion()+".57";
 
 		for (int i=0; i<args.length; i++) {
 			if (args[i].equalsIgnoreCase("-config")) config = args[++i];
@@ -415,11 +416,11 @@ public class SendSMSSTS {
 			jm.open(); 
 			jmsg.setId("Jvakt-SendSMSSTS");
 			if (STS) {
-				jmsg.setBody("The SendSMSSTS program is working.");
+				jmsg.setBody("The SendSMSSTS program is working. "+configF.getCanonicalPath());
 				jmsg.setRptsts("OK");
 			}
 			else {
-				jmsg.setBody("The SendSMSSTS program is not working!");
+				jmsg.setBody("The SendSMSSTS program is not working! "+configF.getCanonicalPath());
 				jmsg.setRptsts("ERR");
 			}
 			jmsg.setType("T");
