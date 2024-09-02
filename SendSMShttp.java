@@ -1,5 +1,6 @@
 package Jvakt;
 /*
+ * 2024-09-02 V.04 Michael Ekdal	Added sleep between SMS sends
  * 2024-09-02 V.03 Michael Ekdal	Increased time out and removed space from the URL string  
  * 2024-07-09 V.02 Michael Ekdal	Added more info when reporting in status to Jvakt server.
  * 2023-08-21 V.01 Michael Ekdal	Created.
@@ -26,7 +27,7 @@ public class SendSMShttp {
 	static boolean swShDay; // set when the scheduled day is active 
 	static boolean swDormant = false;
 	static boolean swShowVer = true;
-	static boolean swOK = false;
+	static boolean swOK = true;
 
 	static java.sql.Date zDate;
 	static java.sql.Timestamp zD;
@@ -83,7 +84,7 @@ public class SendSMShttp {
 	public static void main(String[] args ) throws IOException, UnknownHostException {
 
 		String version = "SendSMShttp ";
-		version += getVersion()+".03";
+		version += getVersion()+".04";
 		String database = "jVakt";
 		String dbuser   = "jVakt";
 		String dbpassword = "";
@@ -331,6 +332,18 @@ public class SendSMShttp {
 		}
 
 		toSMSW = "";
+		if (body.length() > 140 ) body = body.substring(0, 139);
+		body = body.replace('_', '-'); // replace _ with - because SMS creates a �
+		body = body.replace('Å', 'A'); 
+		body = body.replace('Ä', 'A'); 
+		body = body.replace('Ö', 'O'); 
+		body = body.replace('å', 'a'); 
+		body = body.replace('ä', 'a'); 
+		body = body.replace('ö', 'o'); 
+		body = body.trim();
+		body = body.replaceAll("[^a-zA-Z0-9.:-]" , " ");
+		body = body.replaceAll("\\s+","%20");
+
 		for(Object object : listTo) { 
 			toSMSW = (String) object;
 			toSMS = toSMSW;
@@ -338,18 +351,6 @@ public class SendSMShttp {
 			System.out.println(LocalDateTime.now()+" --- Sending SMS to: "+toSMS +"      Body: " + body );
 
 			try {
-				if (body.length() > 140 ) body = body.substring(0, 139);
-				body = body.replace('_', '-'); // replace _ with - because SMS creates a �
-				body = body.replace('Å', 'A'); 
-				body = body.replace('Ä', 'A'); 
-				body = body.replace('Ö', 'O'); 
-				body = body.replace('å', 'a'); 
-				body = body.replace('ä', 'a'); 
-				body = body.replace('ö', 'o'); 
-				body = body.trim();
-				body = body.replaceAll("[^a-zA-Z0-9.:-]" , " ");
-				body = body.replaceAll("\\s+","%20");
-
 				System.out.println("Sending body: "+body );
 				
 //				hosturl ="http://www.ekdal.se/";
@@ -385,6 +386,7 @@ public class SendSMShttp {
 				httpin.close();
 			} 
 			catch (Exception e) { System.out.println(e);  }
+			try { Thread.sleep(10000); } catch (InterruptedException e) { e.printStackTrace();}
 		}
 
 		if (swOK) {

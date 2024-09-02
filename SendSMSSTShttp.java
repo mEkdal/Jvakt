@@ -1,5 +1,6 @@
 package Jvakt;
 /*
+ * 2024-09-02 V.04 Michael Ekdal	Added sleep between SMS sends
  * 2024-09-02 V.03 Michael Ekdal	Increased time out and removed space from the URL string  
  * 2024-07-09 V.02 Michael Ekdal	Added more info when reporting in status to Jvakt server.
  * 2024-02-05 V.01 Michael Ekdal	SendSMSSTShttp created
@@ -82,7 +83,7 @@ public class SendSMSSTShttp {
 	public static void main(String[] args ) {
 
 		String version = "SendSMSSTShttp ";
-		version += getVersion()+".03";
+		version += getVersion()+".05";
 
 		for (int i=0; i<args.length; i++) {
 			if (args[i].equalsIgnoreCase("-config")) config = args[++i];
@@ -279,6 +280,19 @@ public class SendSMSSTShttp {
 		java.net.CookieHandler.setDefault(cm);
 		Date cacheexpiration; 
 
+		if (body.length() > 140 ) body = body.substring(0, 139);
+		body = body.replace('_', '-'); // replace _ with - because SMS creates a �
+		body = body.replace('Å', 'A'); 
+		body = body.replace('Ä', 'A'); 
+		body = body.replace('Ö', 'O'); 
+		body = body.replace('å', 'a'); 
+		body = body.replace('ä', 'a'); 
+		body = body.replace('ö', 'o'); 
+		body = body.trim();
+		body = body.replaceAll("[^a-zA-Z0-9.,:-></]" , " ");
+		body = body.replaceAll("\\s+","%20");
+		//				System.out.println("Sending body: "+body );
+
 		// Loop on all phone numbers
 		for(Object object : listTo) { 
 			//			String element = (String) object;
@@ -289,18 +303,6 @@ public class SendSMSSTShttp {
 			// Connect to SMS-Server
 			try {
 
-				if (body.length() > 140 ) body = body.substring(0, 139);
-				body = body.replace('_', '-'); // replace _ with - because SMS creates a �
-				body = body.replace('Å', 'A'); 
-				body = body.replace('Ä', 'A'); 
-				body = body.replace('Ö', 'O'); 
-				body = body.replace('å', 'a'); 
-				body = body.replace('ä', 'a'); 
-				body = body.replace('ö', 'o'); 
-				body = body.trim();
-				body = body.replaceAll("[^a-zA-Z0-9.,:-></]" , " ");
-				body = body.replaceAll("\\s+","%20");
-				//				System.out.println("Sending body: "+body );
 
 
 				//				hosturl ="http://www.ekdal.se/";
@@ -336,6 +338,7 @@ public class SendSMSSTShttp {
 				httpin.close();
 			} 
 			catch (Exception e) { System.out.println(e);  }
+			try { Thread.sleep(10000); } catch (InterruptedException e) { e.printStackTrace();}
 		}
 
 		if (swOK) {

@@ -6,6 +6,7 @@ package Jvakt;
  */
 
 /*
+ * 2024-09-02 V2.26 Michael Ekdal SendSMSSTShttp,SendSMShttp	Minor adjustments
  * 2024-09-02 V2.25 Michael Ekdal SendSMSSTShttp,SendSMShttp	Added two new pgm to support mobile text messages through http calls to a RUT241 Teltonika box.
  * 2024-07-09 V2.24 Michael Ekdal Jvakr...		Added more info when reporting status to Jvakt server.
  * 2024-06-19 V2.23 Michael Ekdal consoleDM...	Improved error handling in consoleDM .
@@ -33,7 +34,7 @@ package Jvakt;
   
 public class Version {
 
-	static private String version = "2.25";
+	static private String version = "2.26";
 
 	public boolean isVersionOk()  { return true;  }
 
