@@ -1,6 +1,7 @@
 package Jvakt;
 /*
- * 2024-07-09 V.02 Michael Ekdal		Added more info when reporting in status to Jvakt server.
+ * 2024-09-02 V.03 Michael Ekdal	Increased time out and removed space from the URL string  
+ * 2024-07-09 V.02 Michael Ekdal	Added more info when reporting in status to Jvakt server.
  * 2024-02-05 V.01 Michael Ekdal	SendSMSSTShttp created
  */
 
@@ -74,14 +75,14 @@ public class SendSMSSTShttp {
 	static String hosturl;
 	static String SMSuser   = "jVakt";
 	static String SMSpwd = "xxxx";
-	static int tout = 5 ;
+	static int tout = 5000 ;
 
 
-//	public static void main(String[] args ) throws IOException, UnknownHostException {
+	//	public static void main(String[] args ) throws IOException, UnknownHostException {
 	public static void main(String[] args ) {
 
 		String version = "SendSMSSTShttp ";
-		version += getVersion()+".02";
+		version += getVersion()+".03";
 
 		for (int i=0; i<args.length; i++) {
 			if (args[i].equalsIgnoreCase("-config")) config = args[++i];
@@ -89,7 +90,7 @@ public class SendSMSSTShttp {
 
 		if (config == null ) 	configF = new File("Jvakt.properties");
 		else 					configF = new File(config,"Jvakt.properties");
-		System.out.println("----- Jvakt: "+new Date()+"  Version: BETA "+version+"  -  config file: "+configF);
+		System.out.println("----- Jvakt: "+new Date()+"  Version: "+version+"  -  config file: "+configF);
 
 		boolean swMail = false;
 		getProps();
@@ -108,19 +109,19 @@ public class SendSMSSTShttp {
 		//		String cause = "";
 
 		swServer = true;
-//		try {
-			port = Integer.parseInt(jvport);
-			SendMsg jm = new SendMsg(jvhost, port);  // kollar om JvaktServer �r tillg�nglig.
-			//			System.out.println(jm.open());
-			if (jm.open().startsWith("DORMANT")) 	swDormant = true;
-			else 									swDormant = false;
-			jm.close();
-//		} 
-//		catch (IOException e1) {
-//			swServer = false;
-//			System.err.println(e1);
-//			System.err.println(e1.getMessage());
-//		}
+		//		try {
+		port = Integer.parseInt(jvport);
+		SendMsg jm = new SendMsg(jvhost, port);  // kollar om JvaktServer �r tillg�nglig.
+		//			System.out.println(jm.open());
+		if (jm.open().startsWith("DORMANT")) 	swDormant = true;
+		else 									swDormant = false;
+		jm.close();
+		//		} 
+		//		catch (IOException e1) {
+		//			swServer = false;
+		//			System.err.println(e1);
+		//			System.err.println(e1.getMessage());
+		//		}
 		//		System.out.println("swServer :" + swServer);
 
 		try {
@@ -224,7 +225,7 @@ public class SendSMSSTShttp {
 			if (sendSMS()) try {sendSTS(true);} catch (IOException e) { e.printStackTrace(); }
 			else           try {sendSTS(false);} catch (IOException e) { e.printStackTrace();}
 		}
-//		try {sendSTS(true);} catch (IOException e) { e.printStackTrace();}
+		//		try {sendSTS(true);} catch (IOException e) { e.printStackTrace();}
 
 	}        
 
@@ -240,9 +241,9 @@ public class SendSMSSTShttp {
 			dbuser   = prop.getProperty("dbuser");
 			dbpassword = prop.getProperty("dbpassword");
 			if (dbpassword.startsWith("==y")) {
-			    byte[] decodedBytes = Base64.getDecoder().decode(dbpassword.substring(3));
-			    String decodedString = new String(decodedBytes);
-			    dbpassword=decodedString;
+				byte[] decodedBytes = Base64.getDecoder().decode(dbpassword.substring(3));
+				String decodedString = new String(decodedBytes);
+				dbpassword=decodedString;
 			}
 			dbhost   = prop.getProperty("dbhost");
 			dbport   = prop.getProperty("dbport");
@@ -253,9 +254,9 @@ public class SendSMSSTShttp {
 			SMSuser = prop.getProperty("SMSuser");
 			SMSpwd  = prop.getProperty("SMSpwd");
 			if (SMSpwd.startsWith("==y")) {
-			    byte[] decodedBytes = Base64.getDecoder().decode(SMSpwd.substring(3));
-			    String decodedString = new String(decodedBytes);
-			    SMSpwd=decodedString;
+				byte[] decodedBytes = Base64.getDecoder().decode(SMSpwd.substring(3));
+				String decodedString = new String(decodedBytes);
+				SMSpwd=decodedString;
 			}
 			SMShost = prop.getProperty("SMShost");
 			SMSport = prop.getProperty("SMSport");
@@ -281,13 +282,13 @@ public class SendSMSSTShttp {
 		// Loop on all phone numbers
 		for(Object object : listTo) { 
 			//			String element = (String) object;
-//			swOK = false;
+			//			swOK = false;
 			toSMS = (String) object;
 			System.out.println("--- SMS to:"+toSMS +"      Body: " + body );
 
 			// Connect to SMS-Server
 			try {
-				
+
 				if (body.length() > 140 ) body = body.substring(0, 139);
 				body = body.replace('_', '-'); // replace _ with - because SMS creates a �
 				body = body.replace('Å', 'A'); 
@@ -296,12 +297,13 @@ public class SendSMSSTShttp {
 				body = body.replace('å', 'a'); 
 				body = body.replace('ä', 'a'); 
 				body = body.replace('ö', 'o'); 
-				body = body.replaceAll("[^a-zA-Z0-9.,:-></]" , " ");
 				body = body.trim();
-//				System.out.println("Sending body: "+body );
+				body = body.replaceAll("[^a-zA-Z0-9.,:-></]" , " ");
+				body = body.replaceAll("\\s+","%20");
+				//				System.out.println("Sending body: "+body );
 
-				
-//				hosturl ="http://www.ekdal.se/";
+
+				//				hosturl ="http://www.ekdal.se/";
 				hosturl ="http://"+SMShost+":"+SMSport+"/cgi-bin/sms_send?username="+SMSuser+"&password="+SMSpwd+"&number="+toSMS+"&text="+body;
 				System.out.println("\n-- URL : "+hosturl);
 				URL url = new URL(hosturl); 
@@ -309,11 +311,11 @@ public class SendSMSSTShttp {
 				con.addRequestProperty("User-Agent", "Mozilla");
 				con.setReadTimeout(tout);
 				con.setConnectTimeout(tout);
-					if (con.getExpiration() > 0) {
-						cacheexpiration = new Date(con.getExpiration());
-						System.out.println("-- Cache expiration "+cacheexpiration);
-					} else System.out.println("-- Cache expiration 0");
-					
+				if (con.getExpiration() > 0) {
+					cacheexpiration = new Date(con.getExpiration());
+					System.out.println("-- Cache expiration "+cacheexpiration);
+				} else System.out.println("-- Cache expiration 0");
+
 				BufferedReader httpin = new BufferedReader(
 						new InputStreamReader(con.getInputStream()));
 
@@ -322,10 +324,14 @@ public class SendSMSSTShttp {
 				while ((inputLine = httpin.readLine()) != null) {
 					System.out.println(inputLine);
 					swOK = true;
-					//					if (inputLine.toLowerCase().indexOf("SMS sent") >= 0 ) {
-					//						System.out.println("-- OK text: SMS sent found! ");
-					//						swOK = true;
-					//					}
+					if (inputLine.toUpperCase().indexOf("OK") >= 0 ) {
+						System.out.println("-- SMS sent! ");
+						swOK = true;
+					} 
+					else {
+						System.out.println("-- SMS failed! ");
+						swOK = false;						
+					}
 				}
 				httpin.close();
 			} 
@@ -348,38 +354,38 @@ public class SendSMSSTShttp {
 
 	// sends status to the Jvakt server
 	static protected void sendSTS( boolean STS) throws IOException {
-//			System.out.println("--- Connecting to "+jvhost+":"+jvport);
-			Message jmsg = new Message();
-			SendMsg jm = new SendMsg(jvhost, port);
-//			System.out.println(jm.open()); 
-			jm.open(); 
-			jmsg.setId("Jvakt-SendSMSSTShttp");
-			if (STS) {
-				jmsg.setBody("The SendSMSSTShttp program is working. "+configF.getCanonicalPath());
-				jmsg.setRptsts("OK");
-			}
-			else {
-				jmsg.setBody("The SendSMSSTShttp program is not working! "+configF.getCanonicalPath());
-				jmsg.setRptsts("ERR");
-			}
-			jmsg.setType("T");
+		//			System.out.println("--- Connecting to "+jvhost+":"+jvport);
+		Message jmsg = new Message();
+		SendMsg jm = new SendMsg(jvhost, port);
+		//			System.out.println(jm.open()); 
+		jm.open(); 
+		jmsg.setId("Jvakt-SendSMSSTShttp");
+		if (STS) {
+			jmsg.setBody("The SendSMSSTShttp program is working. "+configF.getCanonicalPath());
+			jmsg.setRptsts("OK");
+		}
+		else {
+			jmsg.setBody("The SendSMSSTShttp program is not working! "+configF.getCanonicalPath());
+			jmsg.setRptsts("ERR");
+		}
+		jmsg.setType("T");
 
-			inet = InetAddress.getLocalHost();
-//			System.out.println("-- Inet: "+inet);
-			agent = inet.toString();
+		inet = InetAddress.getLocalHost();
+		//			System.out.println("-- Inet: "+inet);
+		agent = inet.toString();
 
-			jmsg.setAgent(agent);
-			if (!jm.sendMsg(jmsg)) System.out.println("--- Rpt to Jvakt Failed for Jvakt-SendSMSSTShttp ---");
-			jm.close();
+		jmsg.setAgent(agent);
+		if (!jm.sendMsg(jmsg)) System.out.println("--- Rpt to Jvakt Failed for Jvakt-SendSMSSTShttp ---");
+		jm.close();
 	}
-	
+
 	static private String getVersion() {
 		String version = "0";
 		try { 
 			Class<?> c1 = Class.forName("Jvakt.Version",false,ClassLoader.getSystemClassLoader());
 			Version ver = new Version();
 			version = ver.getVersion();
- 		} 
+		} 
 		catch (java.lang.ClassNotFoundException ex) {
 			version = "?";
 		}

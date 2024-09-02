@@ -1,7 +1,8 @@
 package Jvakt;
 /*
- * 2024-07-09 V.02 Michael Ekdal		Added more info when reporting in status to Jvakt server.
- * 2023-08-21 V.01 Michael Ekdal		Created.
+ * 2024-09-02 V.03 Michael Ekdal	Increased time out and removed space from the URL string  
+ * 2024-07-09 V.02 Michael Ekdal	Added more info when reporting in status to Jvakt server.
+ * 2023-08-21 V.01 Michael Ekdal	Created.
  */
 
 import java.io.*;
@@ -72,7 +73,7 @@ public class SendSMShttp {
 	static String hosturl;
 	static String SMSuser   = "jVakt";
 	static String SMSpwd = "xxxx";
-	static int tout = 5 ;
+	static int tout = 5000 ;
 	static File configF;
 	
 	//	static Authenticator auth;
@@ -82,7 +83,7 @@ public class SendSMShttp {
 	public static void main(String[] args ) throws IOException, UnknownHostException {
 
 		String version = "SendSMShttp ";
-		version += getVersion()+".02";
+		version += getVersion()+".03";
 		String database = "jVakt";
 		String dbuser   = "jVakt";
 		String dbpassword = "";
@@ -103,7 +104,7 @@ public class SendSMShttp {
 		if (config == null ) 	configF = new File("Jvakt.properties");
 		else 					configF = new File(config,"Jvakt.properties");
 
-		if (swShowVer) System.out.println("----- Jvakt: "+new Date()+"    Version: BETA "+version+"  -  config file: "+configF);
+		if (swShowVer) System.out.println("----- Jvakt: "+new Date()+"    Version: "+version+"  -  config file: "+configF);
 
 		prop = new Properties();
 		InputStream input = null;
@@ -314,7 +315,7 @@ public class SendSMShttp {
 	// Connects to the SMS terminal and sends the text
 	static boolean sendSMS() {
 
-		swOK = false;
+		swOK = true;
 		Date cacheexpiration; 
 
 		System.out.println(LocalDateTime.now()+" --- Sending Jvakt SMS ---\n");
@@ -345,8 +346,9 @@ public class SendSMShttp {
 				body = body.replace('å', 'a'); 
 				body = body.replace('ä', 'a'); 
 				body = body.replace('ö', 'o'); 
-				body = body.replaceAll("[^a-zA-Z0-9.:-]" , " ");
 				body = body.trim();
+				body = body.replaceAll("[^a-zA-Z0-9.:-]" , " ");
+				body = body.replaceAll("\\s+","%20");
 
 				System.out.println("Sending body: "+body );
 				
@@ -371,10 +373,14 @@ public class SendSMShttp {
 				while ((inputLine = httpin.readLine()) != null) {
 					System.out.println(inputLine);
 					swOK = true;
-					//					if (inputLine.toLowerCase().indexOf("SMS sent") >= 0 ) {
-					//						System.out.println("-- OK text: SMS sent found! ");
-					//						swOK = true;
-					//					}
+					if (inputLine.toUpperCase().indexOf("OK") >= 0 ) {
+						System.out.println("-- SMS sent!");
+						swOK = true;
+					}
+					else {
+						System.out.println("-- SMS failed! ");
+						swOK = false;
+					}
 				}
 				httpin.close();
 			} 
