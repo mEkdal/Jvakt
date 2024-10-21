@@ -1,6 +1,7 @@
 package Jvakt;
 /*
- * 2024-02-06 V.55 Michael Ekdaö		Added encode/decode of SMSpwd
+ * 2024-10-21 V.56 Michael Ekdal		Added warning when rename of the file fails.
+ * 2024-02-06 V.55 Michael Ekdal		Added encode/decode of SMSpwd
  * 2022-06-23 V.54 Michael Ekdal		Added getVersion() to get at consistent version throughout all classes.
  */
 
@@ -42,7 +43,7 @@ public class PropUpdateJv {
 	public static void main(String[] args ) throws IOException, UnknownHostException {
 
 		String version = "PropUpdateJv ";
-		version += getVersion()+".55";
+		version += getVersion()+".56";
 		System.out.println("----- Jvakt: "+new Date()+"  Version: "+version);
 
 		for (int i=0; i<args.length; i++) {
@@ -224,7 +225,10 @@ public class PropUpdateJv {
 
 		if (configF.delete()) {
 			configFo.renameTo(configF);
+		} else {
+			System.out.println("Rename of "+configF+" failed. Updated file is "+configFo);
 		}
+		
 
 	}
 	

@@ -1,6 +1,7 @@
 package Jvakt;
 
 /*
+ * 2024-10-21 V.55 Michael Ekdal		Changed the warning messages to not include a % character.
  * 2022-07-02 V.54 Michael Ekdal		Added getVersion() to get at consistent version throughout all classes.
  */
 
@@ -48,7 +49,7 @@ public class CheckDiskSpace {
 	public static void main(String[] args) throws IOException {
 
 //		int errors = 0;
-		version += getVersion()+".54";
+		version += getVersion()+".55";
 		boolean swWarn = false;
 		boolean swFinns = false;
 		long totalSpace; //total disk space in bytes.
@@ -163,13 +164,13 @@ public class CheckDiskSpace {
 			System.out.println("Free space %      : " + freePct + " %");
 
 			if (freePct <  Long.parseLong(pct[i] )) {
-				t_desc = "Low on space "+drive[i] + " "+ freePct +" % is less than " + pct[i] + " %";
+				t_desc = "Low on space "+drive[i] + " "+ freePct +" percent!  - Accepted value is " + pct[i] + " percent" ;
 				System.out.println(t_desc);
 				swWarn = true;
 				sendSTS(swWarn);
 			}
 			if (freeSpaceG <  Long.parseLong(gig[i] )) {
-				t_desc = "Low on space "+drive[i] + " "+ freeSpaceG +" GB is less than " + gig[i] + " GB";
+				t_desc = "Low on space "+drive[i] + " "+ freeSpaceG +" GB!  - Accepted value is " + gig[i] + " GB";
 				System.out.println(t_desc);
 				swWarn = true;
 				sendSTS(swWarn);

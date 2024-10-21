@@ -6,6 +6,8 @@ package Jvakt;
  */
 
 /*
+ * 2024-10-21 V2.27 Michael Ekdal PropUpdateJv	Added warning when rename of the file fails.
+ * 2024-10-21 V2.27 Michael Ekdal CheckDiskSpace	Changed the warning messages to not include a % character.
  * 2024-09-02 V2.26 Michael Ekdal SendSMSSTShttp,SendSMShttp	Minor adjustments
  * 2024-09-02 V2.25 Michael Ekdal SendSMSSTShttp,SendSMShttp	Added two new pgm to support mobile text messages through http calls to a RUT241 Teltonika box.
  * 2024-07-09 V2.24 Michael Ekdal Jvakr...		Added more info when reporting status to Jvakt server.
@@ -34,7 +36,7 @@ package Jvakt;
   
 public class Version {
 
-	static private String version = "2.26";
+	static private String version = "2.27";
 
 	public boolean isVersionOk()  { return true;  }
 
