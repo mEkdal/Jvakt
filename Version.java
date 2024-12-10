@@ -6,6 +6,7 @@ package Jvakt;
  */
 
 /*
+ * 2024-12-10 V2.28 Michael Ekdal ManFiles		Added check of -expath also on the -ded
  * 2024-10-21 V2.27 Michael Ekdal PropUpdateJv	Added warning when rename of the file fails.
  * 2024-10-21 V2.27 Michael Ekdal CheckDiskSpace	Changed the warning messages to not include a % character.
  * 2024-09-02 V2.26 Michael Ekdal SendSMSSTShttp,SendSMShttp	Minor adjustments
@@ -36,7 +37,7 @@ package Jvakt;
   
 public class Version {
 
-	static private String version = "2.27";
+	static private String version = "2.28";
 
 	public boolean isVersionOk()  { return true;  }
 

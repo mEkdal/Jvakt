@@ -1,5 +1,6 @@
 package Jvakt;
 /*
+ * 2024-12-10 V.60 Michael Ekdal		Added check of -expath also on the -ded
  * 2023-12-20 V.59 Michael Ekdal		Made -fsize and -tsize accept KB, MB, GB and TB in the parameter.
  * 2023-09-01 V.58 Michael Ekdal		Added -fsize and -tsize 
  * 2023-02-28 V.57 Michael Ekdal		Fixed sendSTS() to not open socket twice.
@@ -55,7 +56,7 @@ public class ManFiles {
 	static boolean swJvakt = false;
 	static int sleep = 1000;
 	static String charset = "UTF8";
-	
+
 	static Message jmsg;
 	static SendMsg jm;
 
@@ -123,7 +124,7 @@ public class ManFiles {
 
 		if (swHelp) {
 			System.out
-			.println("\n*** Jvakt.ManFiles "+getVersion()+".59 ***"
+			.println("\n*** Jvakt.ManFiles "+getVersion()+".60 ***"
 					+ "\n*** by Michael Ekdal, Sweden. ***");
 			System.out
 			.println("\nThe parameters and their meaning are:\n"
@@ -205,7 +206,7 @@ public class ManFiles {
 		for (;;) {
 			now = new Date();	
 			if (swParfile) {
-//							System.out.println("--> innan readParFile");
+				//							System.out.println("--> innan readParFile");
 				readParFile();  // reads the parameter files.
 				for(Object object : listToS) { 
 					//				String element = (String) object;
@@ -317,7 +318,7 @@ public class ManFiles {
 		lmin = new Long(min);
 		Lsec = new Long(sec);
 		//		x = new ManFiles();
-//				System.out.println("pref: "+pref+" inpath: "+inpath+" sdir "+ sdir+"  fsize "+fsize+"  tsize"+tsize); 
+		//				System.out.println("pref: "+pref+" inpath: "+inpath+" sdir "+ sdir+"  fsize "+fsize+"  tsize"+tsize); 
 		ff = x.new FileFilter(lhou, lmin, Lsec, suf, pos, pref, expath, inpath,	swNew, exfile,scanstr,charset,fdat,tdat,fsize,tsize);
 		x.new VisitAllFiles(sdir);
 		if (swParfile) {
@@ -556,7 +557,7 @@ public class ManFiles {
 					fsize = Long.valueOf(args[i]);
 				}
 				swSize=true;
-//				System.out.println("---> fsize = "+fsize );
+				//				System.out.println("---> fsize = "+fsize );
 			}
 			else if (args[i].equalsIgnoreCase("-tsize")) {
 				i++;
@@ -580,7 +581,7 @@ public class ManFiles {
 					tsize = Long.valueOf(args[i]);
 				}	
 				swSize=true;
-//				System.out.println("---> tsize = "+tsize );
+				//				System.out.println("---> tsize = "+tsize );
 			}
 
 		}
@@ -639,7 +640,7 @@ public class ManFiles {
 		if (pardir != null ) 	dir = new File(pardir);
 		System.out.println("-- pardir "+pardir+" dir "+dir);
 
-		
+
 		listToS = new ArrayList<String>();  // id:mailadress.
 
 		df = new DirFilter(suf, pos);
@@ -777,20 +778,47 @@ public class ManFiles {
 				}
 				if (children.length == 0) {
 					if (swDed) {
-						antempty++; antemptyT++;
-						if (swList) {
-							System.out.println("Empty directory deleted: " + sdir);
-							if (swLogg) {
-								logg.write("Empty directory deleted: " + sdir);
-								logg.newLine();
+
+						boolean swFoundexPath = false;
+						String expathTab[] = expath.split(";");
+						for (int k = 0; k < expathTab.length; k++) {
+							if (sdir.toString().toLowerCase().indexOf(expathTab[k]) >= 0) {
+								swFoundexPath = true;
+								if (swList) {
+									System.out.println("Empty directory '"+sdir+"' deletion excluded because expath.");
+									if (swLogg) {
+										logg.write("Empty directory '"+sdir+"' deletion excluded because expath.");
+										logg.newLine();
+									}
+								}
 							}
+
 						}
-						if (swRun) {
-							if (sdir.delete()) {
-								antded++; antdedT++;
+
+						if (!swFoundexPath) {
+							antempty++; antemptyT++;
+							if (swList) {
+								System.out.println("Empty directory to be deleted: " + sdir);
+								if (swLogg) {
+									logg.write("Empty directory to be deleted: " + sdir);
+									logg.newLine();
+								}
 							}
-							else {
-								anterrors++; anterrorsT++;
+							if (swRun) {
+								if (sdir.delete()) {
+									antded++; antdedT++;
+								}
+								else {
+									anterrors++; anterrorsT++;
+									if (swList) {
+
+										System.out.println("Deletion failed: " + sdir);
+										if (swLogg) {
+											logg.write("Deletion failed: " + sdir);
+											logg.newLine();
+										}
+									}
+								}
 							}
 						}
 					}
@@ -854,7 +882,7 @@ public class ManFiles {
 						if (tSize>1048576) { tSize = tSize/1024; tUnit="MB"; }
 						if (tSize>1048576) { tSize = tSize/1024; tUnit="GB"; }
 						if (tSize>1048576) { tSize = tSize/1024; tUnit="TB"; }
-						
+
 						if (swSN) {
 							if (swMove || swCopy || swDelete) System.out.print("-File: "+sdir.getName());
 							else System.out.println("-File: "+sdir.getName()+" Size: "+tSize+tUnit);
@@ -1173,7 +1201,7 @@ public class ManFiles {
 		}
 
 		public boolean accept(File dir, String name) {
-//			 System.out.println("DifFilter name: " + name);
+			//			 System.out.println("DifFilter name: " + name);
 			//			System.out.println("inpref: " + inpref);
 			okay = true;
 			//
@@ -1285,10 +1313,10 @@ public class ManFiles {
 
 			}
 			if (swSize && okay) {
-//				System.out.println("* before size -> "+fi.length()+ " "  + fsize +" "+tsize );
-//				if (okay && (fi.length() < fsize || (fi.length() > tsize && tsize > 0) )) {
+				//				System.out.println("* before size -> "+fi.length()+ " "  + fsize +" "+tsize );
+				//				if (okay && (fi.length() < fsize || (fi.length() > tsize && tsize > 0) )) {
 				if (fi.length() < fsize || (fi.length() > tsize && tsize > 0) ) {
-//					System.out.println("* size -> " + fsize +" "+tsize );
+					//					System.out.println("* size -> " + fsize +" "+tsize );
 					okay = false;
 				}
 			}

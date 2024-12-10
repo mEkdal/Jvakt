@@ -164,13 +164,13 @@ public class CheckDiskSpace {
 			System.out.println("Free space %      : " + freePct + " %");
 
 			if (freePct <  Long.parseLong(pct[i] )) {
-				t_desc = "Low on space "+drive[i] + " "+ freePct +" percent!  - Accepted value is " + pct[i] + " percent" ;
+				t_desc = drive[i] + " is low on space, "+ freePct +" percent remaining!  - Accepted value is minimum " + pct[i] + " percent" ;
 				System.out.println(t_desc);
 				swWarn = true;
 				sendSTS(swWarn);
 			}
 			if (freeSpaceG <  Long.parseLong(gig[i] )) {
-				t_desc = "Low on space "+drive[i] + " "+ freeSpaceG +" GB!  - Accepted value is " + gig[i] + " GB";
+				t_desc = drive[i] + " is low on space, "+ freeSpaceG +" GB remaining!  - Accepted value is minimum " + gig[i] + " GB";
 				System.out.println(t_desc);
 				swWarn = true;
 				sendSTS(swWarn);
