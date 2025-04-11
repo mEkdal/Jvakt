@@ -1,5 +1,6 @@
 package Jvakt;
 /*
+ * 2024-12-12 V.61 Michael Ekdal		Changed -expath to check on lowercase
  * 2024-12-10 V.60 Michael Ekdal		Added check of -expath also on the -ded
  * 2023-12-20 V.59 Michael Ekdal		Made -fsize and -tsize accept KB, MB, GB and TB in the parameter.
  * 2023-09-01 V.58 Michael Ekdal		Added -fsize and -tsize 
@@ -124,7 +125,7 @@ public class ManFiles {
 
 		if (swHelp) {
 			System.out
-			.println("\n*** Jvakt.ManFiles "+getVersion()+".60 ***"
+			.println("\n*** Jvakt.ManFiles "+getVersion()+".61 ***"
 					+ "\n*** by Michael Ekdal, Sweden. ***");
 			System.out
 			.println("\nThe parameters and their meaning are:\n"
@@ -782,7 +783,7 @@ public class ManFiles {
 						boolean swFoundexPath = false;
 						String expathTab[] = expath.split(";");
 						for (int k = 0; k < expathTab.length; k++) {
-							if (sdir.toString().toLowerCase().indexOf(expathTab[k]) >= 0) {
+							if (sdir.toString().toLowerCase().indexOf(expathTab[k].toLowerCase()) >= 0) {
 								swFoundexPath = true;
 								if (swList) {
 									System.out.println("Empty directory '"+sdir+"' deletion excluded because expath.");
@@ -1301,7 +1302,7 @@ public class ManFiles {
 				//				if (dir.toString().toLowerCase().indexOf(expath) >= 0)	okay = false;
 				String expathTab[] = expath.split(";");
 				for (int k = 0; k < expathTab.length; k++) {
-					if (dir.toString().toLowerCase().indexOf(expathTab[k]) >= 0)	okay = false;
+					if (dir.toString().toLowerCase().indexOf(expathTab[k].toLowerCase()) >= 0)	okay = false;
 				}
 			}
 

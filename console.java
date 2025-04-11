@@ -1,6 +1,7 @@
 package Jvakt;
 
 /*
+ * 2025-04-01 V.61 Michael Ekdal		Added recid. 
  * 2024-06-19 V.60 Michael Ekdal		Improved error handling in consoleDM. 
  * 2023-11-25 V.59 Michael Ekdal		Added cmdLogs to start the Logs pgm.
  * 2023-11-07 V.58 Michael Ekdal		Added "About" in the menu.
@@ -69,7 +70,7 @@ public class console extends JFrame implements TableModelListener, WindowListene
 	public static void main(String[] args) throws IOException {
 
 		console mainFrame = new console();  // Creates an object of the current class  
-		mainFrame.pack();                   // calling method pack which is ingetiyed from Jframe 
+		mainFrame.pack();                   // calling method pack which is inherited from Jframe 
 		mainFrame.setVisible(true);  	    // calling method setVisible so show all findows to the user
 
 	}   // main is now in waiting mode waiting for all the other objects to end.
@@ -88,7 +89,7 @@ public class console extends JFrame implements TableModelListener, WindowListene
 		port = Integer.parseInt(jvport);
 
 		// a function inherited from Jframe used to set a heading
-		setTitle("Jvakt console "+getVersion()+".60"); 
+		setTitle("Jvakt console "+getVersion()+".61"); 
 
 		//	        setSize(5000, 5000);
 
@@ -154,7 +155,7 @@ public class console extends JFrame implements TableModelListener, WindowListene
 		menuItem = new JMenuItem("Delete selected row(s) (DEL)");
 		menuItem.addActionListener(delRow()); 
 		menuRow.add(menuItem);
-		menuItem = new JMenuItem("Send selected row(s) to plugin(s)");
+		menuItem = new JMenuItem("Send selected row(s) to plugin(s) (Ivanti and/or Syslog)");
 		menuItem.addActionListener(sendRowToPlugin()); 
 		menuRow.add(menuItem);
 		menuItem = new JMenuItem("Unselect row(s) (ESC)");
@@ -264,7 +265,7 @@ public class console extends JFrame implements TableModelListener, WindowListene
 		// consoleCR selects color on the rows
 		consoleCR cr=new consoleCR();
 
-		for (int i=0; i <= 7 ; i++ ) {
+		for (int i=0; i <= 8 ; i++ ) {
 			table.getColumn(table.getColumnName(i)).setCellRenderer(cr);
 		}
 
@@ -275,29 +276,32 @@ public class console extends JFrame implements TableModelListener, WindowListene
 		table.setAutoResizeMode(JTable. 	AUTO_RESIZE_SUBSEQUENT_COLUMNS);
 
 		TableColumn column = null;
-		column = table.getColumnModel().getColumn(0);
+		column = table.getColumnModel().getColumn(0);  // id
 		column.setPreferredWidth(400);
 		column.setMaxWidth(1100);
-		column = table.getColumnModel().getColumn(1);
+		column = table.getColumnModel().getColumn(1);  // prio
 		column.setPreferredWidth(30);
 		column.setMaxWidth(65);
-		column = table.getColumnModel().getColumn(2);
+		column = table.getColumnModel().getColumn(2);  // type
 		column.setPreferredWidth(30);
 		column.setMaxWidth(65);
-		column = table.getColumnModel().getColumn(3);
-		column.setPreferredWidth(255);
+		column = table.getColumnModel().getColumn(3);  // credate
+		column.setPreferredWidth(190);
 		column.setMaxWidth(895);
-		column = table.getColumnModel().getColumn(4);
-		column.setPreferredWidth(255);
+		column = table.getColumnModel().getColumn(4);  // condate
+		column.setPreferredWidth(190);
 		column.setMaxWidth(895);
-		column = table.getColumnModel().getColumn(5);
-		column.setPreferredWidth(100);
+		column = table.getColumnModel().getColumn(5);  // status
+		column.setPreferredWidth(50);
 		column.setMaxWidth(420);
-		column = table.getColumnModel().getColumn(6);
-		column.setPreferredWidth(900);
+		column = table.getColumnModel().getColumn(6);  // body
+		column.setPreferredWidth(1000);
 		column.setMaxWidth(2800);
-		column = table.getColumnModel().getColumn(7);
-		column.setPreferredWidth(100);
+		column = table.getColumnModel().getColumn(7);  // agent
+		column.setPreferredWidth(80);
+		column.setMaxWidth(950);
+		column = table.getColumnModel().getColumn(8);  // recid
+		column.setPreferredWidth(50);
 		column.setMaxWidth(950);
 
 		addKeyBindings();
@@ -475,28 +479,29 @@ public class console extends JFrame implements TableModelListener, WindowListene
 								"\nThis app shows the filtered reports/messages sent to the Jvakt server. OK messages of types 'R', 'T' and 'S' remains in the database." + 
 								"\nThe upper bar acts a button to stop/start the automatic update. \nIt will also show the status of the server and database." + 
 								"\n\nFields: " + 
-								"\nId = The Id if the message. " + 
-								"\nPrio = Prio 30 and higher is meant for office hours and messages will remain in the console. No mail or SMS." + 
+								"\nId= The Id of the message. " + 
+								"\nPrio= Prio 30 and higher is meant for office hours and messages will remain in the console. No mail or SMS." + 
 								"\n       Below 30 is important and might trigger SMS and/or mail depending on chkday/chktim " + 
 								"\n       Prio 10 or less is very important and will trigger SMS and/or mail 24/7. " +
-								"\ntype = 'S' means a check that rptday is updated 'today'. The check is made once a day at the time in the chkday and chktim fields. " +
+								"\ntype= 'S' means a check that rptday is updated 'today'. The check is made once a day at the time in the chkday and chktim fields. " +
 								"\n           When read and acted upon, the row may be selected and removed with the DEL button." +
 								"\n           If not manually deleted it will be automatically removed the next time the check sends an OK report. Usually the next day." +
-								"\ntype = 'R' means a check that rptdat is updated at least every 20 minute. The check starts from the time in chkday and chktim fields." +
+								"\ntype= 'R' means a check that rptdat is updated at least every 20 minute. The check starts from the time in chkday and chktim fields." +
 								"\n           The message will disappear automatically when the issue is resolved. " +
-								"\ntype = 'T' means no tome-out checks are made." +
+								"\ntype= 'T' means no tome-out checks are made." +
 								"\n           When read and acted upon the line may be selected and removed with the DEL button." +
 								"\n           It will be automatically removed the next time the check sends an OK report." +
 								"\n           When or if this will happen is unknown." +
-								"\ntype = 'I' means impromptu messages. " +
+								"\ntype= 'I' means impromptu messages. " +
 								"\n           The 'I' type will not remain in the status table and can not be prepared in advance." +
 								"\n           When read and acted upon the row must be selected and removed with the DEL button." +
-								"\nCreDate = The inital time the message arrived the the console."+ 
-								"\nConDate = The latest time the message was updated. "+ 
-								"\nStatus  = ERR, INFO, OK or TOut."+ 
+								"\nCreDate= The inital time the message arrived the the console."+ 
+								"\nConDate= The latest time the message was updated. "+ 
+								"\nStatus= ERR, INFO, OK or TOut."+ 
 								"\n          TOut means the agent has stopped sending the expected status reports. This applied only to types 'S' and 'R'. "+ 
-								"\nbody = Contains the text sent by the agent"+ 
-								"\nagent = Contains the host name and IP address where the agent is executed."
+								"\nbody= Contains the message text sent by the agent"+ 
+								"\nagent= Contains the host name and IP address where the agent is executed."+
+								"\nRecId= The id obtained when creating an Ivanti incident."
 								,"Jvakt Help",
 								JOptionPane.INFORMATION_MESSAGE);
 			}
@@ -610,6 +615,10 @@ public class console extends JFrame implements TableModelListener, WindowListene
 						ValueId   = table.getValueAt(selectedRow[i],table.getColumnModel().getColumnIndex("Agent"));
 						//						System.out.println(ValueId);
 						String agent = (String) ValueId;
+
+						ValueId   = table.getValueAt(selectedRow[i],table.getColumnModel().getColumnIndex("Recid"));
+						//						System.out.println(ValueId);
+						String recid = (String) ValueId;
 						JOptionPane.showMessageDialog(getContentPane(),
 								"- ID (the id of the message. Together with prio it makes an unique id) -\n"+id+" \n\n" +
 										"- Prio (the priority, part of the unique id. Below 30 trigger email and SMS text) -\n"+prio +"\n\n" + 
@@ -618,7 +627,8 @@ public class console extends JFrame implements TableModelListener, WindowListene
 										"- ConDate (the date it updated in the console) -\n"+condate +"\n\n" + 
 										"- Status (OK, INFO, TOut or ERR) -\n"+status +"\n\n" + 
 										"- Body (any text) -\n"+body +"\n\n" + 
-										"- Agent (description of the reporting agent) -\n"+agent  
+										"- Agent (description of the reporting agent) -\n"+agent+ "\n\n" + 
+										"- Recid (Ivanti id) -\n"+recid  
 										,						
 										"Jvakt Show line",
 										JOptionPane.INFORMATION_MESSAGE);
@@ -704,7 +714,7 @@ public class console extends JFrame implements TableModelListener, WindowListene
 
 				try {
 					for (int i = 0; i <  selectedRow.length; i++) {
-						//						System.out.println("*** Row do delete :" + selectedRow[i]);
+						//						System.out.println("*** Row to delete :" + selectedRow[i]);
 						Message jmsg = new Message();
 						SendMsg jm = new SendMsg(jvhost, port);
 						System.out.println("Response opening connection to Jvakt server: "+ jm.open());

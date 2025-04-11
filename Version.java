@@ -6,6 +6,8 @@ package Jvakt;
  */
 
 /*
+ * 2024-12-29 V2.29 Michael Ekdal added more checks and functionality because of the plugins.
+ * 2024-12-29 V2.29 Michael Ekdal consoleLogsView Added the "Save log as.." functionality
  * 2024-12-10 V2.28 Michael Ekdal ManFiles		Added check of -expath also on the -ded
  * 2024-10-21 V2.27 Michael Ekdal PropUpdateJv	Added warning when rename of the file fails.
  * 2024-10-21 V2.27 Michael Ekdal CheckDiskSpace	Changed the warning messages to not include a % character.
@@ -37,7 +39,7 @@ package Jvakt;
   
 public class Version {
 
-	static private String version = "2.28";
+	static private String version = "2.29";
 
 	public boolean isVersionOk()  { return true;  }
 

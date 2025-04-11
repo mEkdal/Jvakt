@@ -1,5 +1,6 @@
 package Jvakt;
 /*
+ * 2025-04-01 V.56 Michael Ekdal		Added variable recid
  * 2023-01-09 V.55 Michael Ekdal		Added isCheckStatusActive member.
  * 2022-07-02 V.54 Michael Ekdal		Added variable version.
  */
@@ -17,7 +18,7 @@ class consoleDM extends AbstractTableModel {
 
 	static final long serialVersionUID = 50L;
 	String afn;
-	String columnNames[] = { "Id", "Prio", "Type", "CreDate", "ConDate", "Status", "Body", "Agent"};
+	String columnNames[] = { "Id", "Prio", "Type", "CreDate", "ConDate", "Status", "Body", "Agent","RecId"};
 	static Vector<consoleROW> map = new Vector<consoleROW>(100,10);
 
 	consoleROW rad;
@@ -27,7 +28,7 @@ class consoleDM extends AbstractTableModel {
 	static String DBUrl = "jdbc:postgresql://localhost:5433/Jvakt";
 	static Connection conn = null;
 
-	String version = "jVakt - consoleDM 2024-JUN-19";
+	String version = "jVakt - consoleDM 2025-APR-01";
 	String database = "Jvakt";
 	String dbuser   = "console";
 	String dbpassword = "";
@@ -64,7 +65,7 @@ class consoleDM extends AbstractTableModel {
 	}
 
 	public Object getValueAt(int row, int col) {
-		// se till att objektet User h�mtar v�rdet med r�tt get metod ( if (col == 2) .........
+		// se till att objektet User hämtar värdet med rätt get metod ( if (col == 2) .........
 
 		if ( row >= map.size()) return null;
 
@@ -87,6 +88,8 @@ class consoleDM extends AbstractTableModel {
 			return rad.getBody();
 		} else if (col == 7) {
 			return rad.getAgent();
+		} else if (col == 8) {
+			return rad.getRecid();
 		} else {
 			return null;
 		}
@@ -108,7 +111,7 @@ class consoleDM extends AbstractTableModel {
 	}
 
 	public void setValueAt(Object value, int row, int col) {
-		// save the vakue in right field dependin on th column (if (col == 2) .........
+		// save the value in right field depending on the column (if (col == 2) .........
 		// 	System.out.println("wD setValueAt " + value + " " + row + " "+ col);
 
 		consoleROW rad;
@@ -136,6 +139,8 @@ class consoleDM extends AbstractTableModel {
 			rad.setBody((String)value);
 		} else if (col == 8) {
 			rad.setAgent((String)value);
+		} else if (col == 9) {
+			rad.setRecid((String)value);
 		}
 		fireTableCellUpdated(row, col);
 	}
@@ -195,7 +200,7 @@ class consoleDM extends AbstractTableModel {
 			map.clear();
 
 			while (rs.next()) {
-				//				System.out.println("rs.next");
+//								System.out.println("rs.next");
 				rad = new consoleROW();
 
 				rad.setCount(rs.getInt("count"));
@@ -207,6 +212,7 @@ class consoleDM extends AbstractTableModel {
 				rad.setStatus(rs.getString("status"));
 				rad.setBody(rs.getString("body"));
 				rad.setAgent(rs.getString("agent"));
+				rad.setRecid(rs.getString("recid"));
 
 				map.add(rad);
 			}
@@ -217,14 +223,14 @@ class consoleDM extends AbstractTableModel {
 		}
 		catch (SQLException e) {
 			System.err.println(e);
-			System.err.println(e.getMessage());
+			System.err.println("#C1 "+e.getMessage());
 			swDBopen = false;
 			createEmptyRow();
 			return false;
 		}
 		catch (Exception e) {
 			System.err.println(e);
-			System.err.println(e.getMessage());
+			System.err.println("#C2 "+e.getMessage());
 			swDBopen = false;
 			createEmptyRow();
 			return false;
@@ -245,6 +251,7 @@ class consoleDM extends AbstractTableModel {
 		rad.setStatus(" ");
 		rad.setBody(" ");
 		rad.setAgent(" ");
+		rad.setRecid(null);
 
 		return true;	
 	}

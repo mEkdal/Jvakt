@@ -788,7 +788,7 @@ public class CheckStatus {
 			System.out.println(new Date()+" - Closed addHst");
 
 			// call plugin1 start //
-			if (cmdPlug1 != null && !swDormant &&  cmdPlug1delete.equalsIgnoreCase("Y")) {
+			if (cmdPlug1 != null && !swDormant &&  cmdPlug1delete.equalsIgnoreCase("Y") && !swRowDormant) {
 				if (cmdPlug1prio30.equalsIgnoreCase("Y") || rs.getString("prio").compareTo("30") < 0 ) {
 					try {
 						String cmd = cmdPlug1+" *DELETE -id "+rs.getString("id")+" -prio "+rs.getString("prio")+" -type "+rs.getString("type")+" -sts "+rs.getString("status")+" -body \""+rs.getString("body")+"\" -agent \""+rs.getString("agent")+"\" -recid \""+rs.getString("recid")+"\""  ;
@@ -802,7 +802,7 @@ public class CheckStatus {
 					}
 				}
 			}
-			if (cmdPlug2 != null && !swDormant &&  cmdPlug2delete.equalsIgnoreCase("Y")) {
+			if (cmdPlug2 != null && !swDormant &&  cmdPlug2delete.equalsIgnoreCase("Y") && !swRowDormant) {
 				if (cmdPlug2prio30.equalsIgnoreCase("Y") || rs.getString("prio").compareTo("30") < 0 ) {
 					try {
 						String cmd = cmdPlug2+" *DELETE -id "+rs.getString("id")+" -prio "+rs.getString("prio")+" -type "+rs.getString("type")+" -sts "+rs.getString("status")+" -body \""+rs.getString("body")+"\" -agent \""+rs.getString("agent")+"\" -recid \""+rs.getString("recid")+"\""  ;

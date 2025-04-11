@@ -1,5 +1,6 @@
 package Jvakt;
 /*
+ * 2025-04-01 V.55 Michael Ekdal		Added variable recid
  * 2022-06-23 V.54 Michael Ekdal		Added getVersion() to get at consistent version throughout all classes.
  */
 
@@ -14,6 +15,7 @@ public class consoleROW {
 	private String status;
 	private String body;
 	private String agent;
+	private String recid;
 
 	public int row;
 	public int col = 0;
@@ -28,6 +30,7 @@ public class consoleROW {
 		this.status = " ";
 		this.body = " ";
 		this.agent = " ";
+		this.recid = null;
 	}
 
 	public int getCount() {
@@ -66,6 +69,10 @@ public class consoleROW {
 		return agent;
 	}
 
+	public String getRecid() {
+		return recid;
+	}
+
 	public void setCount(int count) {
 		this.count = count;
 	}
@@ -100,5 +107,9 @@ public class consoleROW {
 
 	public void setAgent(String agent) {
 		this.agent = agent;
+	}
+
+	public void setRecid(String recid) {
+		this.recid = recid;
 	}
 }

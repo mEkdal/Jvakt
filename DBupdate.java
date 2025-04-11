@@ -18,6 +18,7 @@ package Jvakt;
  * 2023-10-04 V.62 Michael Ekdal		Added *MANUAL to trigger the plugins from the console. A message with the status "P" is sent from the console.
  * 2024-02-24 V.63 Michael Ekdal		Added logic to restrict number of messages per ID in the console
  * 2024-05-29 V.64 Michael Ekdal		Added logic send rows directly to history
+ * 2025-04-02 V.65 Michael Ekdal		Added dormant check to plugins.
  */
 
 import java.io.*;
@@ -61,6 +62,8 @@ class DBupdate {
 	static int MsgsPerID = 5;
 	static String config = null;
 	static String version = "DBupdate ";
+	
+	static String sState;
 
 	String database = "jVakt";
 	String dbuser   = "jVakt";
@@ -87,7 +90,7 @@ class DBupdate {
 		if (config == null ) 	configF = new File("Jvakt.properties");
 		else 					configF = new File(config,"Jvakt.properties");
 		
-		version += getVersion()+".64";
+		version += getVersion()+".65";
 //		System.out.println("-config file DBupdate: "+configF);
 		System.out.println("----------- Jvakt: "+new Date()+"  Version: "+version +"  -  config file: "+configF);
 
@@ -138,7 +141,7 @@ class DBupdate {
 
 	public synchronized void dbWrite(Message m)  {
 
-		String sState = "";
+		sState = "";
 		String sType = "";
 		String sId = "";		
 		String sBody = "";
@@ -202,7 +205,7 @@ class DBupdate {
 								System.out.println(LocalDateTime.now()+" #1 " + rs.getString("id") + "  "  + sState + "  "  + sType + " " + rs.getString("status")+"->"+ m.getRptsts().toUpperCase() );
 						}
 						// trigger plugin
-						if ( m.getType().equalsIgnoreCase("P")) {
+						if ( m.getType().equalsIgnoreCase("P") && !swDormant && !sState.startsWith("D") ) {
 							if (cmdPlug1 != null ) {
 									try {
 										String cmd = cmdPlug1+" *MANUAL -id "+m.getId()+" -prio "+m.getPrio()+" -type "+sType+" -sts "+m.getRptsts()+" -body \""+m.getBody()+"\" -agent \""+rs.getString("agent")+"\"";
@@ -508,7 +511,7 @@ class DBupdate {
 
 							// *** call plugins start //
 //							System.out.println("cmdPlug1 "+cmdPlug1+" cmdPlug1prio30 "+cmdPlug1prio30);
-							if (cmdPlug1 != null && !swDormant) {
+							if (cmdPlug1 != null && !swDormant && !sState.startsWith("D")) {
 								if (cmdPlug1prio30.equalsIgnoreCase("Y") || m.getPrio() < 30 ) {
 									try {
 										String cmd = cmdPlug1+" *INSERT -id "+m.getId()+" -prio "+m.getPrio()+" -type "+sType.toUpperCase()+" -sts "+m.getRptsts().toUpperCase()+" -body \""+m.getBody()+"\" -agent \"" +m.getAgent()+"\"" ;
@@ -522,7 +525,7 @@ class DBupdate {
 								}
 							}
 //							System.out.println("cmdPlug2 "+cmdPlug2+" cmdPlug2prio30 "+cmdPlug2prio30);
-							if (cmdPlug2 != null && !swDormant) {
+							if (cmdPlug2 != null && !swDormant && !sState.startsWith("D")) {
 								if (cmdPlug2prio30.equalsIgnoreCase("Y") || m.getPrio() < 30 ) {
 									try {
 										String cmd = cmdPlug2+" *INSERT -id "+m.getId()+" -prio "+m.getPrio()+" -type "+sType.toUpperCase()+" -sts "+m.getRptsts().toUpperCase()+" -body \""+m.getBody()+"\" -agent \"" +m.getAgent()+"\"" ;
@@ -625,7 +628,10 @@ class DBupdate {
 				System.out.println(LocalDateTime.now()+" #17 Closed addHst");
 
 			// call plugins start //
-			if (cmdPlug1 != null && !swDormant && cmdPlug1delete.equalsIgnoreCase("Y")) {
+			if (swLogg)
+				System.out.println(LocalDateTime.now()+" #P1A  "+cmdPlug1+" "+swDormant+" "+cmdPlug1delete.equalsIgnoreCase("Y")+" "+sState);
+			
+			if (cmdPlug1 != null && !swDormant && cmdPlug1delete.equalsIgnoreCase("Y") && !sState.startsWith("D") ) {
 				if (cmdPlug1prio30.equalsIgnoreCase("Y") || rs.getString("prio").compareTo("30") < 0 ) {
 					try {
 						String cmd = cmdPlug1+" *DELETE -id "+rs.getString("id")+" -prio "+rs.getString("prio")+" -type "+rs.getString("type")+" -sts "+rs.getString("status")+" -body \""+rs.getString("body")+"\" -agent \""+rs.getString("agent")+"\" -recid \""+rs.getString("recid")+"\""  ;
@@ -639,7 +645,7 @@ class DBupdate {
 					}
 				}
 			}
-			if (cmdPlug2 != null && !swDormant && cmdPlug2delete.equalsIgnoreCase("Y")) {
+			if (cmdPlug2 != null && !swDormant && cmdPlug2delete.equalsIgnoreCase("Y") && !sState.startsWith("D") ) {
 				if (cmdPlug2prio30.equalsIgnoreCase("Y") || rs.getString("prio").compareTo("30") < 0 ) {
 					try {
 						String cmd = cmdPlug2+" *DELETE -id "+rs.getString("id")+" -prio "+rs.getString("prio")+" -type "+rs.getString("type")+" -sts "+rs.getString("status")+" -body \""+rs.getString("body")+"\" -agent \""+rs.getString("agent")+"\" -recid \""+rs.getString("recid")+"\""  ;
