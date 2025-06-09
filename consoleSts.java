@@ -248,7 +248,7 @@ public class consoleSts extends JFrame implements TableModelListener, WindowList
 		// consoleCR selects color on the rows
 		consoleStsCR cr=new consoleStsCR();
 
-		for (int i=0; i <= 22; i++ ) {      
+		for (int i=0; i <= 23; i++ ) {      
 			table.getColumn(table.getColumnName(i)).setCellRenderer(cr);
 		}
 
@@ -303,10 +303,10 @@ public class consoleSts extends JFrame implements TableModelListener, WindowList
 		column = table.getColumnModel().getColumn(14); // condat
 		column.setPreferredWidth(120);
 		column.setMaxWidth(350);
-		column = table.getColumnModel().getColumn(15); // info
+		column = table.getColumnModel().getColumn(5); // info
 		column.setPreferredWidth(120);
 		column.setMaxWidth(350);
-		column = table.getColumnModel().getColumn(16); // plugin
+		column = table.getColumnModel().getColumn(5); // plugin
 		column.setPreferredWidth(120);
 		column.setMaxWidth(350);
 		column = table.getColumnModel().getColumn(17); // agent
@@ -326,7 +326,9 @@ public class consoleSts extends JFrame implements TableModelListener, WindowList
 		column.setMaxWidth(350);
 		column = table.getColumnModel().getColumn(22); // chktimto
 		column.setPreferredWidth(80);
-		column.setMaxWidth(250);
+		column = table.getColumnModel().getColumn(23); // recid
+		column.setPreferredWidth(50);
+		column.setMaxWidth(300);
 
 		addKeyBindings();
 

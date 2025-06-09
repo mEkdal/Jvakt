@@ -1,5 +1,6 @@
 package Jvakt;
 /*
+ * 2025-06-09 V.05 Michael Ekdal		Changed the order of the createStatement to accomodate changes in postgresql-42.7.6.jar
  * 2024-04-10 V.04 Michael Ekdal		Added the VARCHAR(max) if length of field are more than 8000 and the -Char2Varchar is used.
  * 2024-04-08 V.03 Michael Ekdal		renamed field name IN to IN_R. Added warning about max row size. Added -Char2Varchar function.
  * 2024-03-12 V.02 Michael Ekdal		Added "drop table if exists" logic
@@ -28,7 +29,7 @@ public class CpyAS400TblToSQLsvr {
 
 	public static void main (String[] args)
 	{
-		version += getVersion()+".04";
+		version += getVersion()+".05";
 
 		if (args.length < 1) {
 			System.out.println("\n --- " +version+" ---");

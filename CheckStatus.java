@@ -16,6 +16,8 @@ package Jvakt;
  * 2024-05-29 V.67 Michael Ekdal		Added logic send rows directly to history
  * 2024-06-16 V.68 Michael Ekdal		Fixed logic send rows directly to history. Duplicates in history.
  * 2024-07-09 V.69 Michael Ekdal		Added more info when reporting in status to Jvakt server.
+ * 2025-04-21 V.70 Michael Ekdal		Added recid.
+ * 2025-06-09 V.71 Michael Ekdal		Changed the order of the createStatement to accomodate changes in postgresql-42.7.6.jar
  */
 
 import java.io.*;
@@ -80,7 +82,7 @@ public class CheckStatus {
 	//	public static void main(String[] args ) throws IOException, UnknownHostException {
 	public static void main(String[] args ) {
 
-		version += getVersion()+".69";
+		version += getVersion()+".71";
 //		File configF;
 
 		for (int i=0; i<args.length; i++) {
@@ -165,7 +167,8 @@ public class CheckStatus {
 
 			//						System.out.println(s);
 			//			stmt = conn.createStatement(ResultSet.CONCUR_UPDATABLE,ResultSet.TYPE_FORWARD_ONLY,ResultSet.CLOSE_CURSORS_AT_COMMIT ); 
-			stmt = conn.createStatement(ResultSet.CONCUR_READ_ONLY,ResultSet.TYPE_FORWARD_ONLY,ResultSet.HOLD_CURSORS_OVER_COMMIT ); 
+//			stmt = conn.createStatement(ResultSet.CONCUR_READ_ONLY,ResultSet.TYPE_FORWARD_ONLY,ResultSet.HOLD_CURSORS_OVER_COMMIT ); 
+			stmt = conn.createStatement(ResultSet.TYPE_FORWARD_ONLY,ResultSet.CONCUR_READ_ONLY,ResultSet.HOLD_CURSORS_OVER_COMMIT ); 
 			//			stmt = conn.createStatement(ResultSet.CONCUR_UPDATABLE,ResultSet.TYPE_FORWARD_ONLY,ResultSet.HOLD_CURSORS_OVER_COMMIT ); 
 			stmt.setFetchSize(1000);
 			ResultSet rs = stmt.executeQuery(s); 
@@ -576,7 +579,7 @@ public class CheckStatus {
 		int count = 1;
 
 		try {
-			System.out.println(new Date()+" - updC: swDelete:"+swDelete+" ID:"+rs.getString("id") +" Type:"+rs.getString("type").toUpperCase()+" Prio:"+rs.getString("prio").toUpperCase()+" Body:"+rs.getString("body"));
+			System.out.println(new Date()+" - updC: swDelete:"+swDelete+" ID:"+rs.getString("id") +" Type:"+rs.getString("type").toUpperCase()+" Prio:"+rs.getString("prio").toUpperCase()+" Body:"+rs.getString("body")+" RecId:"+rs.getString("recid"));
 			// Immediate type cause an update to the console table at once.
 
 			// read and remove previous line from the console table and save the count field
@@ -601,7 +604,7 @@ public class CheckStatus {
 						"';");        		
 			}
 
-			stmt = conn.createStatement(ResultSet.CONCUR_UPDATABLE,ResultSet.TYPE_FORWARD_ONLY,ResultSet.CLOSE_CURSORS_AT_COMMIT ); 
+			stmt = conn.createStatement(ResultSet.TYPE_FORWARD_ONLY,ResultSet.CONCUR_UPDATABLE,ResultSet.CLOSE_CURSORS_AT_COMMIT ); 
 			stmt.setFetchSize(50);
 			ResultSet rs2 = stmt.executeQuery(s);
 			count = 1;
@@ -610,14 +613,14 @@ public class CheckStatus {
 				count++;
 				if (count<2) count=2;
 				if (swDelete) {
-					System.out.println(new Date()+" - delete console: " + rs2.getString("id")+ " - "+rs2.getString("prio")+" - "+rs2.getString("body"));
+					System.out.println(new Date()+" - delete console: " + rs2.getString("id")+ " - "+rs2.getString("prio")+" - "+rs2.getString("body")+" - "+rs2.getString("recid"));
 					addHst(rs2);
 					try { rs2.deleteRow(); } catch(NullPointerException npe2) {} 
 				}
 				else { 
 					rs2.updateTimestamp("condat", new java.sql.Timestamp((new Date(System.currentTimeMillis())).getTime()));
 					rs2.updateInt("count", count);
-					System.out.println(new Date()+" - update console: row count:"+count  + " - id:"+ rs2.getString("id")+ " - "+rs2.getString("prio") + " - " + rs2.getString("body") );
+					System.out.println(new Date()+" - update console: row count:"+count  + " - id:"+ rs2.getString("id")+ " - "+rs2.getString("prio") + " - " + rs2.getString("body"));
 					if (swTiming) {
 						rs2.updateString("status","TOut");
 						//						rs2.updateString("body", rs.getString("body"));
@@ -629,6 +632,7 @@ public class CheckStatus {
 						else rs2.updateString("status",rs.getString("status").toUpperCase() );
 						rs2.updateString("body", rs.getString("body"));
 					}
+//					rs2.updateString("recid", rs.getString("recid"));
 					// om dormant
 					//					if (swRowDormant) rs2.updateInt("prio", 99);
 					try { rs2.updateRow(); } catch(NullPointerException npe2) {}
@@ -642,8 +646,8 @@ public class CheckStatus {
 
 			// insert new line with new timestamp and counter
 			if (!swDelete && count == 1 ) {
-				PreparedStatement st = conn.prepareStatement("INSERT INTO Console (count,id,prio,type,condat,credat,status,body,agent) "
-						+ "values (?,?,?,?,?,?,?,?,?)");
+				PreparedStatement st = conn.prepareStatement("INSERT INTO Console (count,id,prio,type,condat,credat,status,body,agent,recid) "
+						+ "values (?,?,?,?,?,?,?,?,?,?)");
 				//				System.out.println(LocalDateTime.now()+" Prepared insert:" + st);
 				System.out.println(new Date()+" - Insert console: "+rs.getString("state")+" " + rs.getString("id")+" "+rs.getString("type")+" "+rs.getString("prio")+" "+rs.getString("body")+" "+rs.getString("status")+" "+rs.getString("errors")+" "+rs.getString("accerr"));
 				st.setInt(1,count); // count
@@ -669,13 +673,14 @@ public class CheckStatus {
 				}
 				//				st.setString(8,rs.getString("body") ); // 
 				st.setString(9,rs.getString("agent") ); // 
+				st.setString(10,null); // recid 
 				int rowsInserted = st.executeUpdate();
 				System.out.println(new Date()+" - Executed insert addC " +rowsInserted);
 				st.close();
 				//				conn.commit();
 
 				// *** call plugin1 insert start //
-				if (cmdPlug1 != null  && !swDormant && !swRowDormant) {
+				if (cmdPlug1 != null  && !swDormant && !swRowDormant && rs.getString("recid")==null) {
 					if ((cmdPlug1prio30.equalsIgnoreCase("Y") || rs.getInt("prio") < 30)) {
 						try {
 							String cmd;
@@ -715,7 +720,7 @@ public class CheckStatus {
 						"' and prio='" 	 +	prioS +
 						"' and type='" 	 +	rs.getString("type").toUpperCase() +
 						"' order by credat desc;");
-				stmt = conn.createStatement(ResultSet.CONCUR_UPDATABLE,ResultSet.TYPE_FORWARD_ONLY,ResultSet.CLOSE_CURSORS_AT_COMMIT ); 
+				stmt = conn.createStatement(ResultSet.TYPE_FORWARD_ONLY,ResultSet.CONCUR_UPDATABLE,ResultSet.CLOSE_CURSORS_AT_COMMIT ); 
 				stmt.setFetchSize(50);
 				rs2 = stmt.executeQuery(s);
 				int numRows = 0;
@@ -736,11 +741,11 @@ public class CheckStatus {
 			//			System.out.println(LocalDateTime.now()+" Closed addC");
 		}
 		catch (SQLException e) {
-			System.err.println(new Date()+" - "+e);
+			System.err.println(new Date()+" - #AC1 "+e);
 			System.err.println(e.getMessage());
 		}
 		catch (Exception e) {
-			System.err.println(new Date()+" - "+e);
+			System.err.println(new Date()+" - #AC2 "+e);
 			System.err.println(e.getMessage());
 		}
 		//		finally { System.out.println(LocalDateTime.now()+" CheckStatus addC finally routine" ); }

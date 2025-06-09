@@ -19,6 +19,7 @@ package Jvakt;
  * 2024-02-24 V.63 Michael Ekdal		Added logic to restrict number of messages per ID in the console
  * 2024-05-29 V.64 Michael Ekdal		Added logic send rows directly to history
  * 2025-04-02 V.65 Michael Ekdal		Added dormant check to plugins.
+ * 2025-06-09 V.66 Michael Ekdal		Changed the order of the createStatement to accomodate changes in postgresql-42.7.6.jar
  */
 
 import java.io.*;
@@ -90,7 +91,7 @@ class DBupdate {
 		if (config == null ) 	configF = new File("Jvakt.properties");
 		else 					configF = new File(config,"Jvakt.properties");
 		
-		version += getVersion()+".65";
+		version += getVersion()+".66";
 //		System.out.println("-config file DBupdate: "+configF);
 		System.out.println("----------- Jvakt: "+new Date()+"  Version: "+version +"  -  config file: "+configF);
 
@@ -145,6 +146,7 @@ class DBupdate {
 		String sType = "";
 		String sId = "";		
 		String sBody = "";
+		String sRecid = null;
 		dbwrites++;
 		//		int sPrio = 99;
 
@@ -185,7 +187,7 @@ class DBupdate {
 					//					if (swLogg) System.out.println("s: " + s );
 
 					//					stmt = conn.createStatement(ResultSet.CONCUR_UPDATABLE,ResultSet.TYPE_SCROLL_INSENSITIVE);
-					stmt = conn.createStatement(ResultSet.CONCUR_UPDATABLE,ResultSet.TYPE_FORWARD_ONLY,ResultSet.CLOSE_CURSORS_AT_COMMIT ); 
+					stmt = conn.createStatement(ResultSet.TYPE_FORWARD_ONLY,ResultSet.CONCUR_UPDATABLE,ResultSet.CLOSE_CURSORS_AT_COMMIT ); 
 					stmt.setFetchSize(500);
 					ResultSet rs = stmt.executeQuery(s);
 					swHistDirect = false;  // don't sent directly to history. 
@@ -197,6 +199,7 @@ class DBupdate {
 						sType = rs.getString("type");
 						sId = rs.getString("id");
 						sBody = rs.getString("body");
+						sRecid = rs.getString("recid");
 						if (sState.equalsIgnoreCase("H")) swHistDirect = true;
 						else swHistDirect = false;
 						//						sPrio = rs.getInt("prio");
@@ -205,16 +208,16 @@ class DBupdate {
 								System.out.println(LocalDateTime.now()+" #1 " + rs.getString("id") + "  "  + sState + "  "  + sType + " " + rs.getString("status")+"->"+ m.getRptsts().toUpperCase() );
 						}
 						// trigger plugin
-						if ( m.getType().equalsIgnoreCase("P") && !swDormant && !sState.startsWith("D") ) {
+						if ( m.getType().equalsIgnoreCase("P") && !swDormant && !sState.startsWith("D") && sRecid==null ) {
 							if (cmdPlug1 != null ) {
 									try {
 										String cmd = cmdPlug1+" *MANUAL -id "+m.getId()+" -prio "+m.getPrio()+" -type "+sType+" -sts "+m.getRptsts()+" -body \""+m.getBody()+"\" -agent \""+rs.getString("agent")+"\"";
 										if (config != null ) cmd = cmd + " -config "+config; 	
-										Runtime.getRuntime().exec(cmd);
 										if (swLogg)	System.out.println(LocalDateTime.now()+" #P3p executed as manual: " +cmd);
+										Runtime.getRuntime().exec(cmd);
 
 									} catch (IOException e1) {
-										System.err.println(e1);
+										System.err.println("#P3pe "+e1);
 										System.err.println(e1.getMessage());
 									}
 							}
@@ -222,11 +225,11 @@ class DBupdate {
 									try {
 										String cmd = cmdPlug2+" *MANUAL -id "+m.getId()+" -prio "+m.getPrio()+" -type "+sType+" -sts "+m.getRptsts()+" -body \""+m.getBody()+"\" -agent \""+rs.getString("agent")+"\"";
 										if (config != null ) cmd = cmd + " -config "+config; 	
-										Runtime.getRuntime().exec(cmd);
 										if (swLogg)	System.out.println(LocalDateTime.now()+" #P4p executed as manual: " +cmd);
+										Runtime.getRuntime().exec(cmd);
 
 									} catch (IOException e1) {
-										System.err.println(e1);
+										System.err.println("#P4pe "+e1);
 										System.err.println(e1.getMessage());
 									}
 							}
@@ -454,7 +457,7 @@ class DBupdate {
 						}
 
 						//						stmt = conn.createStatement(ResultSet.CONCUR_UPDATABLE,ResultSet.TYPE_SCROLL_INSENSITIVE);
-						stmt = conn.createStatement(ResultSet.CONCUR_UPDATABLE,ResultSet.TYPE_FORWARD_ONLY,ResultSet.CLOSE_CURSORS_AT_COMMIT ); 
+						stmt = conn.createStatement(ResultSet.TYPE_FORWARD_ONLY,ResultSet.CONCUR_UPDATABLE,ResultSet.CLOSE_CURSORS_AT_COMMIT ); 
 						stmt.setFetchSize(500);
 						ResultSet rs2 = stmt.executeQuery(s);
 						count = 1;
@@ -486,8 +489,8 @@ class DBupdate {
 
 						if ( count == 1 && (sType.equalsIgnoreCase("I") || m.getType().equalsIgnoreCase("I")) && !m.getType().equalsIgnoreCase("D")) {
 							// insert new line with new timestamp and counter
-							PreparedStatement st = conn.prepareStatement("INSERT INTO Console (count,id,prio,type,condat,credat,status,body,agent) "
-									+ "values (?,?,?,?,?,?,?,?,?)");
+							PreparedStatement st = conn.prepareStatement("INSERT INTO Console (count,id,prio,type,condat,credat,status,body,agent,recid) "
+									+ "values (?,?,?,?,?,?,?,?,?,?)");
 							if (swLogg)
 								System.out.println(LocalDateTime.now()+" #15 Insert new line in console " + st );
 							st.setInt(1,count); // count
@@ -500,6 +503,7 @@ class DBupdate {
 							st.setString(7,m.getRptsts().toUpperCase() ); // 
 							st.setString(8,m.getBody() ); // 
 							st.setString(9,m.getAgent() ); // 
+							st.setString(10,sRecid ); // 
 							@SuppressWarnings("unused")
 							int rowsInserted = st.executeUpdate();
 							//        System.out.println("Executed insert " +rowsInserted);
@@ -511,7 +515,7 @@ class DBupdate {
 
 							// *** call plugins start //
 //							System.out.println("cmdPlug1 "+cmdPlug1+" cmdPlug1prio30 "+cmdPlug1prio30);
-							if (cmdPlug1 != null && !swDormant && !sState.startsWith("D")) {
+							if (cmdPlug1 != null && !swDormant && !sState.startsWith("D") && sRecid==null) {
 								if (cmdPlug1prio30.equalsIgnoreCase("Y") || m.getPrio() < 30 ) {
 									try {
 										String cmd = cmdPlug1+" *INSERT -id "+m.getId()+" -prio "+m.getPrio()+" -type "+sType.toUpperCase()+" -sts "+m.getRptsts().toUpperCase()+" -body \""+m.getBody()+"\" -agent \"" +m.getAgent()+"\"" ;
@@ -547,7 +551,7 @@ class DBupdate {
 									"' and type='" + sType.toUpperCase() +
 									"' order by credat desc;");
 //							System.out.println(" - console s: " + s);
-							stmt = conn.createStatement(ResultSet.CONCUR_UPDATABLE,ResultSet.TYPE_FORWARD_ONLY,ResultSet.CLOSE_CURSORS_AT_COMMIT ); 
+							stmt = conn.createStatement(ResultSet.TYPE_FORWARD_ONLY,ResultSet.CONCUR_UPDATABLE,ResultSet.CLOSE_CURSORS_AT_COMMIT ); 
 							stmt.setFetchSize(50);
 							rs2 = stmt.executeQuery(s);
 							int numRows = 0;

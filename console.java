@@ -1,6 +1,7 @@
 package Jvakt;
 
 /*
+ * 2025-04-17 V.62 Michael Ekdal		Fixed misspelling of RecId in the showLine routine.. 
  * 2025-04-01 V.61 Michael Ekdal		Added recid. 
  * 2024-06-19 V.60 Michael Ekdal		Improved error handling in consoleDM. 
  * 2023-11-25 V.59 Michael Ekdal		Added cmdLogs to start the Logs pgm.
@@ -89,7 +90,7 @@ public class console extends JFrame implements TableModelListener, WindowListene
 		port = Integer.parseInt(jvport);
 
 		// a function inherited from Jframe used to set a heading
-		setTitle("Jvakt console "+getVersion()+".61"); 
+		setTitle("Jvakt console "+getVersion()+".62"); 
 
 		//	        setSize(5000, 5000);
 
@@ -615,9 +616,8 @@ public class console extends JFrame implements TableModelListener, WindowListene
 						ValueId   = table.getValueAt(selectedRow[i],table.getColumnModel().getColumnIndex("Agent"));
 						//						System.out.println(ValueId);
 						String agent = (String) ValueId;
-
-						ValueId   = table.getValueAt(selectedRow[i],table.getColumnModel().getColumnIndex("Recid"));
-						//						System.out.println(ValueId);
+						ValueId   = table.getValueAt(selectedRow[i],table.getColumnModel().getColumnIndex("RecId"));
+//												System.out.println(ValueId);
 						String recid = (String) ValueId;
 						JOptionPane.showMessageDialog(getContentPane(),
 								"- ID (the id of the message. Together with prio it makes an unique id) -\n"+id+" \n\n" +
@@ -635,7 +635,7 @@ public class console extends JFrame implements TableModelListener, WindowListene
 					}
 				} 
 				catch (Exception e2) {
-					System.err.println(e2);
+					System.err.println("#sl1 "+e2);
 					System.err.println(e2.getMessage());
 				}
 				table.getSelectionModel().clearSelection();  // clear selected rows.				
@@ -755,9 +755,10 @@ public class console extends JFrame implements TableModelListener, WindowListene
 			@Override
 			public void actionPerformed(ActionEvent e)  {
 
-
+				
 				Object[] options = { "OK", "Cancel" };
-				int n = JOptionPane.showOptionDialog(null, "Do you want to send the rows to be handeled by the plugins?", "Send / Cancel",
+				int n = JOptionPane.showOptionDialog(null, "Do you really want to send the rows to be handeled by the plugins?\n"+
+				"Check the status table for an existing RecId if you are unsure.", "Send / Cancel",
 						JOptionPane.DEFAULT_OPTION, JOptionPane.WARNING_MESSAGE,
 						null, options, options[0]);
 
@@ -771,11 +772,26 @@ public class console extends JFrame implements TableModelListener, WindowListene
 
 						try {
 							for (int i = 0; i <  selectedRow.length; i++) {
-								//						System.out.println("*** Row do delete :" + selectedRow[i]);
-								Message jmsg = new Message();
+								//						System.out.println("*** Row to delete :" + selectedRow[i]);
+								
+								Object ValueId   = table.getValueAt(selectedRow[i],table.getColumnModel().getColumnIndex("RecId"));
+
+//								if (ValueId!=null) { 
+//									if (ValueId.toString()!=null) {
+//										JOptionPane.showMessageDialog(getContentPane(),
+//												"The RecId shows there already is a Ivanti incident: "+ValueId.toString()+"\n"  
+//												,						
+//												"Jvakt Show line",
+//												JOptionPane.INFORMATION_MESSAGE);
+//									return;
+//								 }
+//								}
+								
 								SendMsg jm = new SendMsg(jvhost, port);
 								System.out.println("Response opening connection to Jvakt server: "+ jm.open());
-								Object ValueId   = table.getValueAt(selectedRow[i],table.getColumnModel().getColumnIndex("Id"));
+								Message jmsg = new Message();
+								
+								ValueId   = table.getValueAt(selectedRow[i],table.getColumnModel().getColumnIndex("Id"));
 								jmsg.setId(ValueId.toString());
 								//								jmsg.setRptsts("OK");
 								ValueId   = table.getValueAt(selectedRow[i],table.getColumnModel().getColumnIndex("Status"));

@@ -1,5 +1,6 @@
 package Jvakt;
 /*
+ * 2025-06-09 V.55 Michael Ekdal		Changed the order of the createStatement to accomodate changes in postgresql-42.7.6.jar
  * 2022-06-23 V.54 Michael Ekdal		Added getVersion() to get at consistent version throughout all classes.
  */
 
@@ -200,7 +201,7 @@ class consoleHstDM extends AbstractTableModel {
 
 			//			System.out.println(s);
 			//			Statement stmt = conn.createStatement(ResultSet.CONCUR_READ_ONLY,ResultSet.TYPE_SCROLL_INSENSITIVE); 
-			Statement stmt = conn.createStatement(ResultSet.CONCUR_READ_ONLY,ResultSet.TYPE_FORWARD_ONLY,ResultSet.CLOSE_CURSORS_AT_COMMIT ); 
+			Statement stmt = conn.createStatement(ResultSet.TYPE_FORWARD_ONLY,ResultSet.CONCUR_READ_ONLY,ResultSet.CLOSE_CURSORS_AT_COMMIT ); 
 			stmt.setFetchSize(1000);
 			stmt.setQueryTimeout(5);
 			ResultSet rs = stmt.executeQuery(s);

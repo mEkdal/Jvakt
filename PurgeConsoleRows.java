@@ -2,6 +2,7 @@ package Jvakt;
 /*
  * 2023-03-15 V.01  Michael Ekdal		To purge old rows from the console
  * 2024-07-09 V.02  Michael Ekdal		Added more info when reporting in status to Jvakt server.
+ * 2025-06-09 V.03  Michael Ekdal		Changed the order of the createStatement to accomodate changes in postgresql-42.7.6.jar
  */
 
 import java.io.*;
@@ -64,7 +65,7 @@ public class PurgeConsoleRows {
 	//	public static void main(String[] args ) throws IOException, UnknownHostException {
 	public static void main(String[] args ) {
 
-		version += getVersion()+".02";
+		version += getVersion()+".03";
 //		File configF;
 
 		for (int i=0; i<args.length; i++) {
@@ -144,7 +145,7 @@ public class PurgeConsoleRows {
 			s = new String("select * from status " + 
 					"WHERE (state='A' or state = 'D') and (type='T' or type = 'I') and console = 'C' and prio >= 30;"); 
 
-			stmt = conn.createStatement(ResultSet.CONCUR_READ_ONLY,ResultSet.TYPE_FORWARD_ONLY,ResultSet.HOLD_CURSORS_OVER_COMMIT ); 
+			stmt = conn.createStatement(ResultSet.TYPE_FORWARD_ONLY,ResultSet.CONCUR_READ_ONLY,ResultSet.HOLD_CURSORS_OVER_COMMIT ); 
 			stmt.setFetchSize(1000);
 			ResultSet rs = stmt.executeQuery(s); 
 			while (rs.next()) {
@@ -314,7 +315,7 @@ public class PurgeConsoleRows {
 						"' and type='" 	 +	rs.getString("type").toUpperCase() +
 						"';");
 
-			stmt = conn.createStatement(ResultSet.CONCUR_UPDATABLE,ResultSet.TYPE_FORWARD_ONLY,ResultSet.CLOSE_CURSORS_AT_COMMIT ); 
+			stmt = conn.createStatement(ResultSet.TYPE_FORWARD_ONLY,ResultSet.CONCUR_UPDATABLE,ResultSet.CLOSE_CURSORS_AT_COMMIT ); 
 			stmt.setFetchSize(50);
 			ResultSet rs2 = stmt.executeQuery(s);
 			count = 1;

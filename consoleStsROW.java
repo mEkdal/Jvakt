@@ -28,6 +28,7 @@ public class consoleStsROW {
 	private String msg30;
 	private String msgdat30;
 	private String chktimto;
+	private String recid;
 
 
 	public int row;
@@ -57,6 +58,7 @@ public class consoleStsROW {
 		this.msg30 = " ";
 		this.msgdat30 = " ";
 		this.chktimto = " ";
+		this.recid = null;
 	}
  
 	public String getState()  { return state;}
@@ -82,6 +84,7 @@ public class consoleStsROW {
 	public String getMsg30()    { return msg30; 	}
 	public String getMsgdat30() { return msgdat30; 	}
 	public String getChktimto() { return chktimto; 	}
+	public String getRecId()    { return recid; 	}
 
 	public void setState(String state)  { this.state = state;}
 	public void setId(String id) 	  { this.id = id; 	}
@@ -106,5 +109,6 @@ public class consoleStsROW {
 	public void setMsg30(String msg30)   { this.msg30 = msg30;	}
 	public void setMsgdat30(String msgdat30) { this.msgdat30 = msgdat30;	}
 	public void setChktimto(String chktimto) { this.chktimto = chktimto;	}
+	public void setRecId(String recid) { this.recid = recid;	}
 	
 }

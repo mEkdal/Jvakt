@@ -6,6 +6,9 @@ package Jvakt;
  */
 
 /*
+ * 2025-06-09 V2.31 Michael Ekdal Changed the order of the createStatement to accomodate changes in postgresql-42.7.6.jar
+ * 2025-04-29 V2.30 Michael Ekdal GetMailFromIvanti,CheckStatus,PlugIvantiSM,Console,ConsoleSts,DBUpdate
+ *   				Added field recid to the status table, Changed how the Ivanti plugin works.
  * 2024-12-29 V2.29 Michael Ekdal added more checks and functionality because of the plugins.
  * 2024-12-29 V2.29 Michael Ekdal consoleLogsView Added the "Save log as.." functionality
  * 2024-12-10 V2.28 Michael Ekdal ManFiles		Added check of -expath also on the -ded
@@ -39,7 +42,7 @@ package Jvakt;
   
 public class Version {
 
-	static private String version = "2.29";
+	static private String version = "2.31";
 
 	public boolean isVersionOk()  { return true;  }
 

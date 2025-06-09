@@ -1,5 +1,6 @@
 package Jvakt;
 /*
+ * 2025-06-09 V.58 Michael Ekdal		Changed the order of the createStatement to accomodate changes in postgresql-42.7.6.jar
  * 2024-07-09 V.57 Michael Ekdal		Added more info when reporting in status to Jvakt server.
  * 2023-08-21 V.56 Michael Ekdal		Increased sleep times when waiting for the operator response.
  * 2023-01-03 V.55 Michael Ekdal		Added send of the status to Jvakt server
@@ -82,7 +83,7 @@ public class SendSMS {
 	public static void main(String[] args ) throws IOException, UnknownHostException {
 
 		String version = "SendSMS ";
-		version += getVersion()+".57";
+		version += getVersion()+".58";
 		String database = "jVakt";
 		String dbuser   = "jVakt";
 		String dbpassword = "";
@@ -194,7 +195,7 @@ public class SendSMS {
 
 //						System.out.println(s);
 			//			stmt = conn.createStatement(ResultSet.CONCUR_UPDATABLE,ResultSet.TYPE_SCROLL_INSENSITIVE); 
-			stmt = conn.createStatement(ResultSet.CONCUR_UPDATABLE,ResultSet.TYPE_FORWARD_ONLY,ResultSet.CLOSE_CURSORS_AT_COMMIT ); 
+			stmt = conn.createStatement(ResultSet.TYPE_FORWARD_ONLY,ResultSet.CONCUR_UPDATABLE,ResultSet.CLOSE_CURSORS_AT_COMMIT ); 
 			stmt.setFetchSize(1000);
 			ResultSet rs = stmt.executeQuery(s);
 			//			swHits = false;  // is there already a record?

@@ -1,5 +1,6 @@
 package Jvakt;
 /*
+ * 2025-06-09 V.75 Michael Ekdal		Changed the order of the createStatement to accomodate changes in postgresql-42.7.6.jar
  * 2022-07-02 V.54 Michael Ekdal		Added getVersion() to get at consistent version throughout all classes.
  */
 
@@ -46,7 +47,7 @@ public class console2html {
     public static void main (String[] args) throws IOException, UnknownHostException
     {
 
-    version += getVersion()+".54";
+    version += getVersion()+".55";
     now = new Date();
 
 
@@ -103,7 +104,7 @@ public class console2html {
 		conn.setAutoCommit(true);
 	    query = new String("select * from console order by credat desc;"); 
 //		stmt = conn.createStatement(ResultSet.CONCUR_UPDATABLE,ResultSet.TYPE_SCROLL_INSENSITIVE);
-		stmt = conn.createStatement(ResultSet.CONCUR_UPDATABLE,ResultSet.TYPE_FORWARD_ONLY,ResultSet.CLOSE_CURSORS_AT_COMMIT );
+		stmt = conn.createStatement(ResultSet.TYPE_FORWARD_ONLY,ResultSet.CONCUR_UPDATABLE,ResultSet.CLOSE_CURSORS_AT_COMMIT );
 		stmt.setFetchSize(1000);
 		ResultSet rs = stmt.executeQuery(query);
 

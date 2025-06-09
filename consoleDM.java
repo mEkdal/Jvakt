@@ -1,5 +1,6 @@
 package Jvakt;
 /*
+ * 2025-06-09 V.57 Michael Ekdal		Changed the order of the createStatement to accomodate changes in postgresql-42.7.6.jar
  * 2025-04-01 V.56 Michael Ekdal		Added variable recid
  * 2023-01-09 V.55 Michael Ekdal		Added isCheckStatusActive member.
  * 2022-07-02 V.54 Michael Ekdal		Added variable version.
@@ -191,7 +192,7 @@ class consoleDM extends AbstractTableModel {
 //			System.out.println(ResultSet.CONCUR_READ_ONLY+" "+ResultSet.TYPE_FORWARD_ONLY+" "+ResultSet.CLOSE_CURSORS_AT_COMMIT);
 			//			Statement stmt = conn.createStatement(ResultSet.CONCUR_READ_ONLY,ResultSet.TYPE_SCROLL_INSENSITIVE); 
 			//			Statement stmt = conn.createStatement(ResultSet.CONCUR_UPDATABLE,ResultSet.TYPE_FORWARD_ONLY,ResultSet.CLOSE_CURSORS_AT_COMMIT ); 
-			Statement stmt = conn.createStatement(ResultSet.CONCUR_READ_ONLY,ResultSet.TYPE_FORWARD_ONLY,ResultSet.CLOSE_CURSORS_AT_COMMIT ); 
+			Statement stmt = conn.createStatement(ResultSet.TYPE_FORWARD_ONLY,ResultSet.CONCUR_READ_ONLY,ResultSet.CLOSE_CURSORS_AT_COMMIT ); 
 			stmt.setFetchSize(25);
 			stmt.setQueryTimeout(5);
 			
@@ -307,7 +308,7 @@ class consoleDM extends AbstractTableModel {
 		try {
 			String s = new String("select * from status WHERE (state='A' or state = 'D') and id='Jvakt-CheckStatus';"); 
 
-			Statement stmt = conn.createStatement(ResultSet.CONCUR_READ_ONLY,ResultSet.TYPE_FORWARD_ONLY,ResultSet.CLOSE_CURSORS_AT_COMMIT ); 
+			Statement stmt = conn.createStatement(ResultSet.TYPE_FORWARD_ONLY,ResultSet.CONCUR_READ_ONLY,ResultSet.CLOSE_CURSORS_AT_COMMIT ); 
 			stmt.setFetchSize(10);
 			stmt.setQueryTimeout(5); 
 			ResultSet rs = stmt.executeQuery(s);

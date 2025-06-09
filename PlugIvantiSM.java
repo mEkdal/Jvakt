@@ -1,6 +1,8 @@
 package Jvakt;
 
 /*
+ * 2025-04-20 V.6 Michael Ekdal		Added update of recid in the status table.
+ * 2024-04-16 V.5 Michael Ekdal		Changed status 'Closed' to status 'Resolved'.
  * 2023-10-04 V.4 Michael Ekdal		Completed the *MANUAL function which triggers incidents from the console.
  * 2023-04-06 V.3 Michael Ekdal		Completed the *DELETE function to close the incidents.  
  * 2023-03-28 V.2 Michael Ekdal		Added possibility to exclude all by default using E;* in the PlugIvantiSM.csv file  
@@ -113,7 +115,7 @@ public class PlugIvantiSM {
 
 	public static void main(String[] args ) throws UnknownHostException, IOException, Exception, FileNotFoundException {
 
-		version += getVersion()+".4";
+		version += getVersion()+".6";
 
 		if (args.length < 1) {
 			System.out.println("\n " +version);
@@ -144,7 +146,7 @@ public class PlugIvantiSM {
 			else if (args[i].equalsIgnoreCase("-prio")) prio = args[++i];
 			else if (args[i].equalsIgnoreCase("-type")) type = args[++i];
 			else if (args[i].equalsIgnoreCase("-sts")) status = args[++i];
-			else if (args[i].equalsIgnoreCase("-body")) body = args[++i];
+			else if (args[i].equalsIgnoreCase("-body")) body = args[++i]; 
 			else if (args[i].equalsIgnoreCase("-agent")) agent = args[++i];
 			else if (args[i].equalsIgnoreCase("*INSERT")) swInsert = true;
 			else if (args[i].equalsIgnoreCase("*DELETE")) swDelete = true;
@@ -153,7 +155,7 @@ public class PlugIvantiSM {
 			else if (args[i].equalsIgnoreCase("-config")) config = args[++i];
 			else if (args[i].equalsIgnoreCase("-norun")) swRun = false;
 		}		
-
+		
 		fis = new FileOutputStream("PlugIvantiSM.log", true);
 		osw = new OutputStreamWriter(fis, "Cp850");
 		logg = new BufferedWriter(osw);
@@ -171,6 +173,15 @@ public class PlugIvantiSM {
 		logg.write("----------- Jvakt PlugIvantiSM "+new Date()+"  Version: "+version +"  -  config file: "+configF);
 		logg.newLine();
 
+//		System.out.println(body);
+//		logg.write(body);
+//		logg.newLine();
+//		body = body.replace("§" , "\"");
+//		logg.write(body);
+//		logg.newLine();
+//
+
+		
 		Properties prop = new Properties();
 		InputStream input = null;
 		try {
@@ -256,12 +267,12 @@ public class PlugIvantiSM {
 		else Urgency = "High";
 
 		if (getCsv()) {
-			logg.write("-Filter file found");
+			logg.write("-Filter found");
 			logg.newLine();
 //			System.out.println("-Filter file found"); 
 		}
 		else {
-			logg.write("-No Filter file found");
+			logg.write("-No Filter found");
 			logg.newLine();
 //			System.out.println("-No Filter file found"); 
 		}
@@ -332,8 +343,8 @@ public class PlugIvantiSM {
 					" \"FirstCallResolution\":\""+FirstCallResolution+"\",\r\n" +
 					" \"Owner\":\"\",\r\n" +
 					" \"Source\":\""+Source+"\",\r\n" +
-					" \"Subject\":\""+id+" - "+status+" -\",\r\n" +
-					" \"Symptom\":\""+body+"\",\r\n" +
+					" \"Subject\":\"Jvakt-id: "+id+" ; Jvakt-status: "+status+" \",\r\n" +
+					" \"Symptom\":\"Jvakt-body: "+body+"\",\r\n" +
 					" \"Status\":\""+Status2+"\"\r\n" +
 					"}";
 
@@ -344,7 +355,7 @@ public class PlugIvantiSM {
 
 		if (swDelete) {
 			json_patch = "{\n"+
-					" \"Status\":\"Closed\"\r\n" +
+					" \"Status\":\"Resolved\"\r\n" +
 					"}";
 //			System.out.println(json_patch);
 			logg.write(json_patch);
@@ -395,16 +406,29 @@ public class PlugIvantiSM {
 					conn = DriverManager.getConnection(DBUrl,dbuser,dbpassword);
 					conn.setAutoCommit(false);
 
-					SQL_UPDATE ="UPDATE CONSOLE SET RECID=? WHERE ID ilike '"+id+"' AND PRIO="+Integer.parseInt(prio)+" AND TYPE='"+type+"'"+" AND BODY ilike '"+body+"'";
+//					SQL_UPDATE ="UPDATE CONSOLE SET RECID=? WHERE ID ilike '"+id+"' AND PRIO="+Integer.parseInt(prio)+" AND TYPE='"+type+"'"+" AND RECID is null";
+					SQL_UPDATE ="UPDATE CONSOLE SET RECID=? WHERE ID ilike '"+id+"' AND RECID is null";
 //					System.out.println(new Date()+ " > "+SQL_UPDATE);
-					logg.write(new Date()+" > "+SQL_UPDATE);
+					logg.write(new Date()+" "+recid+ " > "+SQL_UPDATE);
 					logg.newLine(); 
-
 					StmtUpdate = conn.prepareStatement(SQL_UPDATE);
 					StmtUpdate.setString(1, recid);
 //					System.out.println(new Date()+" Updated records > "+StmtUpdate.executeUpdate());
 					logg.write(new Date()+" Updated records > "+StmtUpdate.executeUpdate());
 					logg.newLine();
+
+//					SQL_UPDATE ="UPDATE STATUS SET RECID=? WHERE ID ilike '"+id+"' AND PRIO="+Integer.parseInt(prio)+" AND TYPE='"+type+"' AND RECID is null";
+					SQL_UPDATE ="UPDATE STATUS SET RECID=? WHERE ID ilike '"+id+"' AND RECID is null";
+//					System.out.println(new Date()+ " > "+SQL_UPDATE);
+					logg.write(new Date()+" "+recid+ " > "+SQL_UPDATE);
+					logg.newLine(); 
+					StmtUpdate = conn.prepareStatement(SQL_UPDATE);
+					StmtUpdate.setString(1, recid);
+//					System.out.println(new Date()+" Updated records > "+StmtUpdate.executeUpdate());
+					logg.write(new Date()+" Updated records > "+StmtUpdate.executeUpdate());
+					logg.newLine();
+
+					
 					StmtUpdate.close();
 					conn.commit();
 					conn.close();
@@ -463,19 +487,36 @@ public class PlugIvantiSM {
 					PreparedStatement StmtUpdate;
 					Class.forName("org.postgresql.Driver").newInstance();
 					DBUrl = "jdbc:postgresql://"+dbhost+":"+dbport+"/"+database;
+					System.out.println(new Date()+ "DBUrl > "+DBUrl);
+
 					conn = DriverManager.getConnection(DBUrl,dbuser,dbpassword);
 					conn.setAutoCommit(false);
 
-					SQL_UPDATE ="UPDATE CONSOLE SET RECID=? WHERE ID ilike '"+id+"' AND PRIO="+Integer.parseInt(prio)+" AND TYPE='"+type+"'"+" AND BODY ilike '"+body+"'";
-//					System.out.println(new Date()+ " > "+SQL_UPDATE);
+//					SQL_UPDATE ="UPDATE CONSOLE SET RECID=? WHERE ID ilike '"+id+"' AND PRIO="+Integer.parseInt(prio)+" AND TYPE='"+type+"'"+" AND RECID is null";
+					SQL_UPDATE ="UPDATE CONSOLE SET RECID=? WHERE ID ilike '"+id+"' AND RECID is null";
+					System.out.println(new Date()+ " > "+SQL_UPDATE);
 					logg.write(new Date()+" > "+SQL_UPDATE);
 					logg.newLine(); 
-
 					StmtUpdate = conn.prepareStatement(SQL_UPDATE);
 					StmtUpdate.setString(1, recid);
-//					System.out.println(new Date()+" Updated records > "+StmtUpdate.executeUpdate());
-					logg.write(new Date()+" Updated records > "+StmtUpdate.executeUpdate());
+//					System.out.println(new Date()+" Updated records in CONSOLE > "+StmtUpdate.executeUpdate());
+					logg.write(new Date()+" Updated records in CONSOLE > "+StmtUpdate.executeUpdate());
 					logg.newLine();
+
+//					SQL_UPDATE ="UPDATE STATUS SET RECID=? WHERE ID ilike '"+id+"' AND PRIO="+Integer.parseInt(prio)+" AND TYPE='"+type+"' AND RECID is null";;
+					SQL_UPDATE ="UPDATE STATUS SET RECID=? WHERE ID ilike '"+id+"' AND RECID is null";;
+					System.out.println(new Date()+ " > "+SQL_UPDATE);
+					logg.write(new Date()+" > "+SQL_UPDATE);
+					logg.newLine(); 
+					StmtUpdate = conn.prepareStatement(SQL_UPDATE);
+					StmtUpdate.setString(1, recid);
+//					System.out.println(new Date()+" Updated records in STATUS > "+StmtUpdate.executeUpdate());
+					logg.write(new Date()+" Updated records in STATUS > "+StmtUpdate.executeUpdate());
+					logg.newLine();
+
+					
+					
+					
 					StmtUpdate.close();
 					conn.commit();
 					conn.close();
