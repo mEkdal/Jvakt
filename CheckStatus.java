@@ -18,6 +18,7 @@ package Jvakt;
  * 2024-07-09 V.69 Michael Ekdal		Added more info when reporting in status to Jvakt server.
  * 2025-04-21 V.70 Michael Ekdal		Added recid.
  * 2025-06-09 V.71 Michael Ekdal		Changed the order of the createStatement to accomodate changes in postgresql-42.7.6.jar
+ * 2025-06-26 V.72 Michael Ekdal		Commented some unnecessary rs.update statements 
  */
 
 import java.io.*;
@@ -82,7 +83,7 @@ public class CheckStatus {
 	//	public static void main(String[] args ) throws IOException, UnknownHostException {
 	public static void main(String[] args ) {
 
-		version += getVersion()+".71";
+		version += getVersion()+".72";
 //		File configF;
 
 		for (int i=0; i<args.length; i++) {
@@ -348,8 +349,8 @@ public class CheckStatus {
 					swTiming = true;
 					System.out.println(new Date()+" - timing #3: " + rs.getString("id")+"  MSG:"+rs.getString("msg"));
 					// 2021-03-17
-					rs.updateString("status", "TOut");
-					rs.updateString("body", "Agent Timed-Out");
+//					rs.updateString("status", "TOut");
+//					rs.updateString("body", "Agent Timed-Out");
 					SQL_UPDATE ="UPDATE STATUS SET STATUS=?, BODY=? WHERE ID='"+rs.getString("id")+"' AND PRIO="+rs.getString("prio");
 					StmtUpdate = conn.prepareStatement(SQL_UPDATE);
 					StmtUpdate.setString(1, "TOut");
@@ -387,8 +388,8 @@ public class CheckStatus {
 					}
 					if (rs.getString("msg30").startsWith(" ")) {
 						System.out.println(new Date()+" - TOut: Set msg30 to T " + rs.getString("id"));
-						rs.updateString("msg30", "T");
-						rs.updateTimestamp("msgdat30", new java.sql.Timestamp((new Date(System.currentTimeMillis())).getTime()));
+//						rs.updateString("msg30", "T");
+//						rs.updateTimestamp("msgdat30", new java.sql.Timestamp((new Date(System.currentTimeMillis())).getTime()));
 
 						SQL_UPDATE ="UPDATE STATUS SET MSG30=?, MSGDAT30=? WHERE ID='"+rs.getString("id")+"' AND PRIO="+rs.getString("prio");
 						StmtUpdate = conn.prepareStatement(SQL_UPDATE);
