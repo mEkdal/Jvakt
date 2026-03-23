@@ -1,5 +1,6 @@
 package Jvakt;
 /*
+ * 2026-03-23 V.03 Michael Ekdal		Changed the credat parameter to include # and no surrounding quotes because of Linux
  * 2024-06-19 V.02 Michael Ekdal		Improved error handling in consoleLogsDM.
  * 2023-11-25 V.01 Michael Ekdal		New pgm to list the logs in the DB
  */
@@ -82,7 +83,7 @@ public class consoleLogs extends JFrame implements TableModelListener, WindowLis
 		port = Integer.parseInt(jvport);
 
 		// funktion in Jframe to set the title
-		setTitle("Jvakt consoleLogs "+getVersion()+".02 ");
+		setTitle("Jvakt consoleLogs "+getVersion()+".03 ");
 		//	        setSize(5000, 5000);
 
 		// get the screen size as a java dimension
@@ -473,7 +474,9 @@ public class consoleLogs extends JFrame implements TableModelListener, WindowLis
 						System.out.println("Origin: "+ValueId);
 						String origin = (String) ValueId;
 						
-						cmd= cmdLogsView+" -id "+id+" -origin "+origin+" -credat \""+credat+"\"";
+						credat = credat.replaceAll(" " , "#");
+						
+						cmd= cmdLogsView+" -id "+id+" -origin "+origin+" -credat "+credat+"";
 						System.out.println("cmd >> " +cmd);
 		
 						if (cmdLogsView == null) {
@@ -615,7 +618,7 @@ public class consoleLogs extends JFrame implements TableModelListener, WindowLis
 				//					                 JOptionPane.showMessageDialog(TestTableKeyBinding.this.table, "Action Triggered.");
 				//				System.out.println("ShowHelp");
 				JOptionPane.showMessageDialog(getContentPane(),
-						"Version: "+getVersion()+ 
+						"Version: "+getVersion()+".03 "+ 
 						"\n\nJvakt is a simple reactive monitoring system/toolbox." +
 						"\n\nJvakt is distributed under the MIT License (i.e. It is free of charge to use)"+
 						"\nhttps://github.com/mEkdal/Jvakt/blob/master/LICENSE"+

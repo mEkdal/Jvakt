@@ -1,0 +1,8 @@
+#!/usr/bin/bash
+# 0 12,18 * * * ./Jvakt/SendMailSTS.sh       (cron)
+
+# SendMail sends mail decided by the CheckStatus step. The Status table is read and updated regarding mail issues.
+# The prio of the must be below 30 and the "toEmail"" variabe in the jVakt.properties file is used.
+java -cp ~/Jvakt/Jvakt.jar Jvakt.SendMailSTS -config ~/Jvakt >> ~/Jvakt/Logs/SendMailSTS.log 2> ~/Jvakt/Logs/SendMailSTSE.log
+
+

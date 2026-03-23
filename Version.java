@@ -6,6 +6,7 @@ package Jvakt;
  */
 
 /*
+ * 2026-03-23 V2.33 Michael Ekdal Changed the credat parameter to include # and no surrounding quotes because of Linux problem
  * 2025-06-26 V2.32 Michael Ekdal CheckStatus	Commented some unnecessary rs.update statements
  * 2025-06-09 V2.31 Michael Ekdal Changed the order of the createStatement to accomodate changes in postgresql-42.7.6.jar
  * 2025-04-29 V2.30 Michael Ekdal GetMailFromIvanti,CheckStatus,PlugIvantiSM,Console,ConsoleSts,DBUpdate
@@ -43,7 +44,7 @@ package Jvakt;
   
 public class Version {
 
-	static private String version = "2.32";
+	static private String version = "2.33";
 
 	public boolean isVersionOk()  { return true;  }
 
